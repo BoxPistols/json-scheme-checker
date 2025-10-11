@@ -2,76 +2,415 @@
 
 WebサイトのJSON-LD構造化データを可視化するツール
 
-## 機能
+## 概要
 
-- CORS制限を回避してあらゆるURLにアクセス可能
-- localhostのサイトも検証可能
-- テーブル形式とJSON形式の切り替え表示
-- ネストされたオブジェクトは初期状態で展開表示
-- ワンクリックでJSONをコピー
+このアプリケーションは、Webサイトに埋め込まれたJSON-LD（Linked Data）形式の構造化データを抽出し、読みやすく可視化するツールです。自前のプロキシサーバーを使用してCORS制限を回避し、あらゆるWebサイトのデータを取得できます。
+
+## 主な機能
+
+- ✅ CORS制限を回避してあらゆるURLにアクセス可能
+- ✅ localhostのサイトも検証可能（開発中のサイトのテストに最適）
+- ✅ テーブル形式とJSON形式の切り替え表示
+- ✅ ネストされたオブジェクトは初期状態で展開表示
+- ✅ ワンクリックでJSONをコピー
+- ✅ 画像URLはサムネイル付きで表示
+- ✅ 外部API不要・完全自己完結型
+
+## 技術スタック
+
+### バックエンド
+- **Node.js** - サーバーランタイム
+- **Express** - Webフレームワーク
+- **Axios** - HTTPクライアント
+- **CORS** - クロスオリジン設定
+
+### フロントエンド
+- **Vanilla JavaScript** - ライブラリ不要のピュアJS
+- **CSS3** - モダンなスタイリング
+- **HTML5** - セマンティックマークアップ
+
+## アーキテクチャ
+
+### システム構成図
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        ユーザー                              │
+│                    （Webブラウザ）                            │
+└────────────────────┬────────────────────────────────────────┘
+                     │
+                     │ ① URLを入力
+                     ↓
+┌─────────────────────────────────────────────────────────────┐
+│              フロントエンド（public/index.html）              │
+│  - URLフォーム                                               │
+│  - JSON-LD抽出・パース機能                                   │
+│  - テーブル/JSON表示切替                                     │
+│  - コピー機能                                                │
+└────────────────────┬────────────────────────────────────────┘
+                     │
+                     │ ② /proxy エンドポイントに
+                     │    リクエスト
+                     ↓
+┌─────────────────────────────────────────────────────────────┐
+│           自社プロキシサーバー（server.js）                   │
+│  Endpoints:                                                 │
+│  - GET  /proxy?url={URL}     HTMLを取得                     │
+│  - POST /extract-jsonld      JSON-LDを直接抽出              │
+│  - GET  /health              ヘルスチェック                  │
+│                                                             │
+│  機能:                                                       │
+│  - CORS制限の回避                                            │
+│  - localhost URLの自動変換（IPv6 → IPv4）                   │
+│  - ブラウザ風ヘッダー付与                                     │
+└────────────────────┬────────────────────────────────────────┘
+                     │
+                     │ ③ 対象URLに
+                     │    HTTPリクエスト
+                     ↓
+┌─────────────────────────────────────────────────────────────┐
+│                   対象Webサイト                              │
+│              （任意のURL・localhost含む）                     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### データフロー
+
+1. **ユーザー入力** → フロントエンドでURLを入力
+2. **プロキシリクエスト** → `/proxy?url={対象URL}` にGETリクエスト
+3. **HTML取得** → サーバーが対象URLにアクセスしてHTMLを取得
+4. **HTML返却** → フロントエンドにHTMLを返す
+5. **JSON-LD抽出** → クライアント側でDOMParserを使用して解析
+6. **表示** → テーブル形式またはJSON形式で可視化
+
+### CORS回避の仕組み
+
+通常、ブラウザのJavaScriptから他のドメインにリクエストを送るとCORSエラーが発生します：
+
+```
+❌ ブラウザ → 他のサイト (CORS Error)
+```
+
+このアプリでは自社サーバーを経由することで回避します：
+
+```
+✅ ブラウザ → 自社サーバー → 他のサイト
+```
+
+自社サーバーはNode.jsで動作しているため、CORS制限を受けません。
+
+## プロジェクト構造
+
+```
+json-ld-viewer/
+├── server.js              # Node.js/Express プロキシサーバー
+├── package.json           # 依存関係定義
+├── package-lock.json      # 依存関係ロックファイル
+├── vercel.json           # Vercelデプロイ設定
+├── README.md             # このファイル
+├── CLAUDE.md             # Claude Code用開発ガイド
+├── .gitignore            # Git除外設定
+├── public/
+│   └── index.html        # メインアプリケーション（プロキシ統合版）
+└── standalone/
+    └── index.html        # スタンドアロン版（外部CORS proxy使用）
+```
+
+### ファイル詳細
+
+#### `server.js`
+Express.jsで構築されたプロキシサーバー。主要な機能：
+- `/proxy` - 指定URLのHTMLを取得してCORS制限を回避
+- `/extract-jsonld` - サーバー側でJSON-LDを抽出して返却
+- `/health` - サーバーのヘルスチェック
+- IPv6問題の自動解決（localhost → 127.0.0.1）
+
+#### `public/index.html`
+メインのWebアプリケーション。完全にクライアントサイドで動作：
+- URLフォームとサンプルリンク
+- DOMParserでHTML解析
+- `<script type="application/ld+json">` タグを検索
+- テーブル/JSON表示の切り替え
+- 画像URLのサムネイル表示
+- クリップボードへのコピー機能
+
+#### `standalone/index.html`
+外部CORSプロキシ（`https://api.allorigins.win`）を使用するスタンドアロン版。サーバー不要で動作しますが、外部サービスに依存します。
 
 ## ローカルでの使用方法
 
-```bash
-# 依存関係をインストール
-npm install
+### 1. 依存関係のインストール
 
-# サーバーを起動
+```bash
+npm install
+```
+
+### 2. サーバーの起動
+
+```bash
+# 開発モード（自動再起動）
+npm run dev
+
+# 本番モード
 npm start
 ```
 
-ブラウザで http://localhost:3333 を開く
+### 3. ブラウザでアクセス
+
+```
+http://localhost:3333
+```
+
+### 4. 使用例
+
+1. URLフィールドに対象URLを入力（例: `https://schema.org`）
+2. 「取得」ボタンをクリック
+3. JSON-LDスキーマがテーブル形式で表示されます
+4. 「JSON」タブでJSON形式に切り替え可能
+5. 「コピー」ボタンでJSONをクリップボードにコピー
+
+### localhost サイトのテスト
+
+開発中のWebアプリケーションのJSON-LDをテストする場合：
+
+```
+http://localhost:3000
+http://localhost:3002/your-page
+http://localhost:8080/api/item/123
+```
+
+サーバーが自動的に `localhost` を `127.0.0.1` に変換してIPv6問題を回避します。
 
 ## Vercelへのデプロイ
 
-### 1. Vercel CLIのインストール
+### 前提条件
+- GitHubアカウント
+- Vercelアカウント
+
+### デプロイ手順
+
+#### 1. Vercel CLIのインストール
 
 ```bash
 npm i -g vercel
 ```
 
-### 2. デプロイ
+#### 2. GitHubへのプッシュ
 
 ```bash
-# プロジェクトディレクトリで実行
+git add .
+git commit -m "Initial commit"
+git push origin main
+```
+
+#### 3. Vercelにデプロイ
+
+```bash
+# プレビュー環境
 vercel
 
-# または本番環境へデプロイ
+# 本番環境
 vercel --prod
 ```
 
-### 3. 環境変数（必要に応じて）
+#### 4. 自動デプロイの設定
+
+GitHubリポジトリと連携すると、`main` ブランチへのプッシュで自動的に本番環境が更新されます。
+
+### 環境変数（オプション）
 
 Vercelダッシュボードで以下の環境変数を設定可能:
-- `PORT`: サーバーポート（デフォルト: 3333）
+- `PORT` - サーバーポート（デフォルト: 3333）
 
 ## API エンドポイント
 
 ### GET /proxy
-指定されたURLのHTMLを取得
 
+指定されたURLのHTMLを取得します。
+
+**リクエスト:**
 ```
 GET /proxy?url=https://example.com
 ```
 
-### POST /extract-jsonld
-URLからJSON-LDを直接抽出
-
+**レスポンス:**
+```html
+<!DOCTYPE html>
+<html>
+  <!-- 対象サイトのHTML -->
+</html>
 ```
+
+**エラーハンドリング:**
+- `503` - 接続拒否（サーバーダウン）
+- `504` - タイムアウト（30秒）
+- `500` - その他のエラー
+
+### POST /extract-jsonld
+
+URLからJSON-LDを直接抽出して返却します。
+
+**リクエスト:**
+```json
 POST /extract-jsonld
-Body: { "url": "https://example.com" }
+Content-Type: application/json
+
+{
+  "url": "https://example.com"
+}
+```
+
+**レスポンス:**
+```json
+{
+  "url": "https://example.com",
+  "schemas": [
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Example Inc."
+    }
+  ],
+  "count": 1
+}
 ```
 
 ### GET /health
-ヘルスチェック
 
-## 技術スタック
+サーバーのヘルスチェック。
 
-- Node.js
-- Express
-- Axios
-- CORS
+**リクエスト:**
+```
+GET /health
+```
+
+**レスポンス:**
+```json
+{
+  "status": "ok",
+  "timestamp": "2025-10-12T06:00:00.000Z"
+}
+```
+
+## 技術的な詳細
+
+### JSON-LD抽出ロジック
+
+フロントエンドでの抽出フロー：
+
+```javascript
+// 1. HTMLをDOMParserで解析
+const parser = new DOMParser();
+const doc = parser.parseFromString(html, 'text/html');
+
+// 2. application/ld+json スクリプトタグを検索
+const scripts = doc.querySelectorAll('script[type="application/ld+json"]');
+
+// 3. 各スクリプトをJSONとしてパース
+scripts.forEach(script => {
+  const json = JSON.parse(script.textContent);
+  schemas.push(json);
+});
+```
+
+### localhost URL変換
+
+IPv6の問題を回避するため、サーバー側で自動変換：
+
+```javascript
+let targetUrl = url;
+if (url.includes('localhost:')) {
+  targetUrl = url.replace('localhost:', '127.0.0.1:');
+}
+```
+
+### ブラウザ風ヘッダー
+
+Bot検出を回避するため、リアルなブラウザヘッダーを送信：
+
+```javascript
+headers: {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9',
+  'Accept-Language': 'ja,en-US;q=0.9,en;q=0.8'
+}
+```
+
+## 制限事項
+
+### Vercel環境での制限
+
+- **localhostアクセス不可**: Vercelにデプロイした場合、localhost URLにはアクセスできません（サーバーがVercel上で実行されるため）
+- **タイムアウト**: 無料プランでは10秒、Proプランでは60秒のタイムアウト
+- **同時接続数**: 無料プランでは制限あり
+
+### localhost開発でのテスト推奨
+
+localhost URLをテストする場合は、ローカル環境で起動してください：
+
+```bash
+npm start
+# http://localhost:3333 でアクセス
+```
+
+## トラブルシューティング
+
+### CORS エラーが発生する
+
+- サーバーが起動していることを確認
+- `/health` エンドポイントでサーバー状態をチェック
+- ブラウザのコンソールでエラー詳細を確認
+
+### localhost にアクセスできない
+
+- Vercelではなく、ローカル環境で起動していることを確認
+- ポート番号が正しいか確認
+- 対象のlocalhostサーバーが起動しているか確認
+
+### タイムアウトエラー
+
+- 対象サイトのレスポンスが遅い可能性
+- 30秒以内に応答がない場合はタイムアウト
+- ネットワーク接続を確認
+
+## 開発
+
+### 開発サーバーの起動
+
+```bash
+npm run dev
+```
+
+nodemonが自動的にファイル変更を検知して再起動します。
+
+### コード構成
+
+- **サーバーサイド**: `server.js`（約220行）
+- **クライアントサイド**: `public/index.html`（約1000行、HTML+CSS+JS）
+- **スタンドアロン**: `standalone/index.html`（約980行）
+
+### 拡張のアイデア
+
+- [ ] 抽出したJSON-LDのバリデーション機能
+- [ ] 複数URLの一括処理
+- [ ] 履歴機能（IndexedDB使用）
+- [ ] JSON-LDの編集・再生成機能
+- [ ] Schema.orgタイプのビジュアル表示
 
 ## ライセンス
 
 MIT
+
+## 貢献
+
+プルリクエストを歓迎します。大きな変更の場合は、まずissueを開いて変更内容を議論してください。
+
+## 作者
+
+BoxPistols
+
+## リンク
+
+- [GitHub Repository](https://github.com/BoxPistols/json-scheme-checker)
+- [Schema.org](https://schema.org/)
+- [JSON-LD仕様](https://json-ld.org/)
