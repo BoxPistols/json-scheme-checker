@@ -179,6 +179,34 @@
             align-items: center;
         }
 
+        /* Docs links in header or card */
+        .doc-links {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .doc-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 999px;
+            background: #ffffff;
+            color: #334155;
+            font-size: 12px;
+            text-decoration: none;
+            transition: all 0.15s ease;
+        }
+
+        .doc-pill:hover {
+            background: #f8fafc;
+            border-color: #94a3b8;
+            color: #0f172a;
+        }
+
         .view-toggle {
             display: flex;
             gap: 4px;
@@ -419,9 +447,14 @@
             background: #fef2f2;
             border: 1px solid #fecaca;
             border-radius: 6px;
-            padding: 16px;
+            padding: 10px;
+            /* 小さめに */
             color: #dc2626;
-            margin-bottom: 20px;
+            margin: 10px 0 12px;
+            /* 上に余白、全体をコンパクトに */
+            font-size: 13px;
+            /* テキストを少し小さく */
+            line-height: 1.4;
             display: none;
         }
 
@@ -569,16 +602,66 @@
             <h1>JSON-LD Schema Viewer</h1>
             <p class="subtitle">Node.jsプロキシサーバー版 - localhost対応</p>
             <span class="server-status" id="serverStatus">サーバー確認中...</span>
+            <span>
+                <a class="doc-pill" target="_blank" rel="noopener noreferrer"
+                    href="https://developers.google.com/search/docs/appearance/structured-data/job-posting?hl=ja">Google公式リファレンス</a>
+            </span>
         </header>
 
         <div class="input-section">
             <div class="input-group">
-                <input type="url" id="urlInput"
-                    placeholder="URLを入力してください (例: http://localhost:3002/freelance/jobs/119213)" value="">
+                <input type="url" id="urlInput" placeholder="URLを入力してください (例: http://localhost:3002/foo/bars/12345)"
+                    value="">
                 <button id="fetchButton" onclick="fetchAndDisplay()">
                     取得
                 </button>
             </div>
+
+            <details style="margin-bottom: 15px;" id="authSection">
+                <summary style="cursor: pointer; color: #64748b; font-size: 14px; margin-bottom: 10px;">
+                    Basic認証が必要な場合
+                    <span id="authStatus" style="margin-left: 8px; font-size: 12px; color: #10b981;"></span>
+                </summary>
+                <div style="margin-top: 10px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <input type="text" id="username" placeholder="ユーザー名"
+                            style="padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px;">
+                        <div style="position: relative;">
+                            <input type="password" id="password" placeholder="パスワード"
+                                style="padding: 8px 40px 8px 12px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; width: 100%;">
+                            <button type="button" id="togglePassword" onclick="togglePasswordVisibility()"
+                                style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 4px 8px; cursor: pointer; color: #64748b; font-size: 14px;"
+                                title="パスワードを表示/非表示">
+                                👁
+                            </button>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 8px; margin-top: 10px;">
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 14px; color: #64748b;">
+                            <input type="checkbox" id="rememberAuth" onchange="handleRememberAuth()"
+                                style="width: 16px; height: 16px;">
+                            <span>認証情報を記憶する（このブラウザのみ）</span>
+                        </label>
+                        <button type="button" onclick="clearAuth()"
+                            style="margin-left: auto; padding: 4px 12px; background: #ef4444; color: white; border: none; border-radius: 4px; font-size: 13px; cursor: pointer;">
+                            認証情報をクリア
+                        </button>
+                    </div>
+                    <div
+                        style="margin-top: 8px; padding: 10px; background: #dcfce7; border: 1px solid #86efac; border-radius: 4px; font-size: 12px; color: #14532d; line-height: 1.6;">
+                        <div style="display: flex; align-items: flex-start; gap: 6px;">
+                            <span>🔒</span>
+                            <div>
+                                <strong style="color: #166534;">完全ローカル保存・プライバシー重視</strong><br>
+                                • 入力された認証情報は<strong>このブラウザのみに保存</strong>されます<br>
+                                • <strong>サーバーへの送信・記録は一切行いません</strong><br>
+                                • 開発者も含め、誰もあなたの認証情報にアクセスできません<br>
+                                • ブラウザのローカルストレージを使用（Cookieより安全）
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </details>
 
             <div class="sample-links">
                 <span>サンプル:</span>
@@ -586,7 +669,13 @@
                     onclick="loadSample('https://freelance-hub.jp/project/detail/281563/')">freelance-hub</a>
                 <a class="sample-link"
                     onclick="loadSample('https://freelance.levtech.jp/project/detail/28421/')">levtech</a>
-                <a class="sample-link" onclick="loadSample('https://www.github.com')">GitHub</a>
+                <a class="sample-link" onclick="loadSample('https://freelance-job.com/job/detail/146243')">freelance-job
+                </a>
+                <a class="sample-link"
+                    onclick="loadSample('https://www.r-agent.com/kensaku/kyujin/20250107-188-01-052.html')">RecruitAgent
+                </a>
+                <a class="sample-link" onclick="loadSample('https://pe-bank.jp/project/aws/47302-18/')">PE-BANK</a>
+                </a>
             </div>
 
             <div class="error-message" id="errorMessage"></div>
@@ -606,6 +695,109 @@
             // プロキシサーバーのURL（必要に応じて変更）
             const PROXY_SERVER = 'http://localhost:3333';
 
+            // パスワードの表示/非表示を切り替え
+            function togglePasswordVisibility() {
+                const passwordField = document.getElementById('password');
+                const toggleButton = document.getElementById('togglePassword');
+
+                if (passwordField.type === 'password') {
+                    passwordField.type = 'text';
+                    toggleButton.textContent = '🙈';  // 非表示アイコン
+                    toggleButton.title = 'パスワードを非表示';
+                } else {
+                    passwordField.type = 'password';
+                    toggleButton.textContent = '👁';  // 表示アイコン
+                    toggleButton.title = 'パスワードを表示';
+                }
+            }
+
+            // 認証情報の管理
+            const AUTH_STORAGE_KEY = 'jsonld_basic_auth';
+            const DOMAIN_AUTH_PREFIX = 'jsonld_auth_';
+
+            // ページ読み込み時に保存された認証情報を復元
+            function loadStoredAuth() {
+                const stored = localStorage.getItem(AUTH_STORAGE_KEY);
+                if (stored) {
+                    try {
+                        const auth = JSON.parse(stored);
+                        document.getElementById('username').value = auth.username || '';
+                        document.getElementById('password').value = auth.password || '';
+                        document.getElementById('rememberAuth').checked = true;
+                        updateAuthStatus(true);
+                    } catch (e) {
+                        console.error('Failed to load stored auth:', e);
+                    }
+                }
+            }
+
+            // 認証情報の記憶/解除を処理
+            function handleRememberAuth() {
+                const remember = document.getElementById('rememberAuth').checked;
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value.trim();
+
+                if (remember) {
+                    if (username || password) {
+                        // 認証情報を保存
+                        const auth = { username, password, timestamp: Date.now() };
+                        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(auth));
+                        updateAuthStatus(true);
+                    }
+                } else {
+                    // 認証情報を削除
+                    localStorage.removeItem(AUTH_STORAGE_KEY);
+                    updateAuthStatus(false);
+                }
+            }
+
+            // 認証情報をクリア
+            function clearAuth() {
+                document.getElementById('username').value = '';
+                document.getElementById('password').value = '';
+                document.getElementById('rememberAuth').checked = false;
+
+                // グローバル認証情報を削除
+                localStorage.removeItem(AUTH_STORAGE_KEY);
+
+                // ドメイン別の認証情報もすべて削除
+                const keys = Object.keys(localStorage);
+                keys.forEach(key => {
+                    if (key.startsWith(DOMAIN_AUTH_PREFIX)) {
+                        localStorage.removeItem(key);
+                    }
+                });
+
+                updateAuthStatus(false);
+                showMessage('すべての認証情報をクリアしました', 'success');
+            }
+
+            // 認証状態の表示を更新
+            function updateAuthStatus(isStored) {
+                const statusEl = document.getElementById('authStatus');
+                if (isStored) {
+                    statusEl.textContent = '(保存済み)';
+                    statusEl.style.color = '#10b981';
+                } else {
+                    statusEl.textContent = '';
+                }
+            }
+
+            // メッセージ表示用のヘルパー関数
+            function showMessage(message, type = 'info') {
+                const errorEl = document.getElementById('errorMessage');
+                errorEl.textContent = message;
+                errorEl.style.background = type === 'success' ? '#d1fae5' : '#fef2f2';
+                errorEl.style.borderColor = type === 'success' ? '#86efac' : '#fecaca';
+                errorEl.style.color = type === 'success' ? '#065f46' : '#dc2626';
+                errorEl.classList.add('active');
+
+                // 3秒後に自動的に非表示
+                setTimeout(() => {
+                    errorEl.classList.remove('active');
+                }, 3000);
+            }
+
             // サーバーステータスをチェック
             async function checkServerStatus() {
                 const statusElement = document.getElementById('serverStatus');
@@ -623,11 +815,39 @@
                 }
             }
 
-            // 初期化時にサーバー状態をチェック
+            // 初期化時にサーバー状態をチェックと認証情報を復元
             checkServerStatus();
+            loadStoredAuth();
+
+            // URLに基づいて認証情報を自動入力
+            function autoFillAuthForUrl(url) {
+                try {
+                    const urlObj = new URL(url);
+                    const domainKey = DOMAIN_AUTH_PREFIX + urlObj.hostname;
+                    const domainAuth = localStorage.getItem(domainKey);
+
+                    if (domainAuth) {
+                        const auth = JSON.parse(domainAuth);
+                        document.getElementById('username').value = auth.username || '';
+                        document.getElementById('password').value = auth.password || '';
+                        showMessage(`${urlObj.hostname}の認証情報を自動入力しました`, 'success');
+
+                        // authセクションを自動展開
+                        const authSection = document.getElementById('authSection');
+                        if (authSection) {
+                            authSection.open = true;
+                        }
+                        return true;
+                    }
+                } catch (e) {
+                    console.log('Could not auto-fill auth:', e);
+                }
+                return false;
+            }
 
             function loadSample(url) {
                 document.getElementById('urlInput').value = url;
+                autoFillAuthForUrl(url);
                 fetchAndDisplay();
             }
 
@@ -657,13 +877,57 @@
                 hideResults();
 
                 try {
+                    // Basic認証の情報を取得
+                    const username = document.getElementById('username').value.trim();
+                    const password = document.getElementById('password').value.trim();
+                    const remember = document.getElementById('rememberAuth').checked;
+
+                    // 記憶するオプションが有効で、認証情報がある場合は保存
+                    if (remember && (username || password)) {
+                        const auth = { username, password, timestamp: Date.now() };
+                        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(auth));
+
+                        // ドメインごとにも保存
+                        try {
+                            const urlObj = new URL(url);
+                            const domainKey = DOMAIN_AUTH_PREFIX + urlObj.hostname;
+                            localStorage.setItem(domainKey, JSON.stringify(auth));
+                        } catch (e) {
+                            console.log('Could not save domain-specific auth');
+                        }
+
+                        updateAuthStatus(true);
+                    }
+
                     // プロキシサーバー経由でデータを取得
-                    const proxyUrl = `${PROXY_SERVER}/proxy?url=${encodeURIComponent(url)}`;
+                    let proxyUrl = `${PROXY_SERVER}/proxy?url=${encodeURIComponent(url)}`;
+                    if (username && password) {
+                        proxyUrl += `&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
+                    }
+
                     const response = await fetch(proxyUrl);
 
                     if (!response.ok) {
-                        const errorData = await response.text();
-                        throw new Error(`サーバーエラー: ${errorData}`);
+                        let errorMessage;
+                        const contentType = response.headers.get('content-type');
+
+                        if (contentType && contentType.includes('application/json')) {
+                            try {
+                                const errorData = await response.json();
+                                errorMessage = errorData.message || errorData.error || `HTTPエラー ${response.status}`;
+                            } catch {
+                                errorMessage = await response.text();
+                            }
+                        } else {
+                            errorMessage = await response.text();
+                        }
+
+                        // 401エラーの場合は明確なメッセージを表示
+                        if (response.status === 401) {
+                            throw new Error('Basic認証が失敗しました。ユーザー名とパスワードを確認してください。');
+                        }
+
+                        throw new Error(errorMessage);
                     }
 
                     const html = await response.text();
@@ -773,6 +1037,7 @@
                             <button class="active" onclick="toggleView('${id}', 'table', this)">テーブル</button>
                             <button onclick="toggleView('${id}', 'json', this)">JSON</button>
                         </div>
+                        <div class="doc-links">${buildDocLinks(schema)}</div>
                         <button class="copy-button" onclick="copyToClipboard('${id}', this)">
                             コピー
                         </button>
@@ -962,6 +1227,47 @@
                 }
             }
 
+            // スキーマタイプごとのドキュメントリンク生成
+            function buildDocLinks(schema) {
+                const googleDocsMap = {
+                    JobPosting: 'https://developers.google.com/search/docs/appearance/structured-data/job-posting?hl=ja',
+                    Article: 'https://developers.google.com/search/docs/appearance/structured-data/article?hl=ja',
+                    BreadcrumbList: 'https://developers.google.com/search/docs/appearance/structured-data/breadcrumb?hl=ja',
+                    Product: 'https://developers.google.com/search/docs/appearance/structured-data/product?hl=ja',
+                    FAQPage: 'https://developers.google.com/search/docs/appearance/structured-data/faqpage?hl=ja',
+                    HowTo: 'https://developers.google.com/search/docs/appearance/structured-data/how-to?hl=ja',
+                    Event: 'https://developers.google.com/search/docs/appearance/structured-data/event?hl=ja',
+                    LocalBusiness: 'https://developers.google.com/search/docs/appearance/structured-data/local-business?hl=ja',
+                    Organization: 'https://developers.google.com/search/docs/appearance/structured-data/logo?hl=ja',
+                    WebSite: 'https://developers.google.com/search/docs/appearance/structured-data/sitelinks-searchbox?hl=ja',
+                    VideoObject: 'https://developers.google.com/search/docs/appearance/structured-data/video?hl=ja',
+                    Recipe: 'https://developers.google.com/search/docs/appearance/structured-data/recipe?hl=ja'
+                };
+
+                let types = [];
+                if (schema && schema['@type']) {
+                    types = Array.isArray(schema['@type']) ? schema['@type'] : [schema['@type']];
+                } else if (schema && schema['@graph']) {
+                    // @graphの場合、代表的な@typeを抽出
+                    try {
+                        const graph = Array.isArray(schema['@graph']) ? schema['@graph'] : [];
+                        types = [...new Set(graph.map(n => n['@type']).filter(Boolean))].slice(0, 2);
+                    } catch (_) { /* noop */ }
+                }
+
+                if (types.length === 0) return '';
+
+                const pills = types.slice(0, 2).map(t => {
+                    const sUrl = `https://schema.org/${encodeURIComponent(t)}`;
+                    const gUrl = googleDocsMap[t];
+                    const schemaLink = `<a class="doc-pill" target="_blank" rel="noopener noreferrer" href="${sUrl}">schema.org/${t}</a>`;
+                    const googleLink = gUrl ? `<a class=\"doc-pill\" target=\"_blank\" rel=\"noopener noreferrer\" href=\"${gUrl}\">Google ${t}</a>` : '';
+                    return [schemaLink, googleLink].filter(Boolean).join('');
+                }).join('');
+
+                return pills;
+            }
+
             function hasHtmlBr(text) {
                 return /<br\s*\/?\s*>/i.test(text);
             }
@@ -1097,6 +1403,10 @@
             function showError(message) {
                 const errorEl = document.getElementById('errorMessage');
                 errorEl.textContent = message;
+                // 明示的にエラーカラーへリセット（前回の成功スタイルが残らないように）
+                errorEl.style.background = '#fef2f2';
+                errorEl.style.borderColor = '#fecaca';
+                errorEl.style.color = '#dc2626';
                 errorEl.classList.add('active');
             }
 
@@ -1116,6 +1426,14 @@
             document.getElementById('urlInput').addEventListener('keypress', function (e) {
                 if (e.key === 'Enter') {
                     fetchAndDisplay();
+                }
+            });
+
+            // URLが変更されたときに認証情報を自動入力
+            document.getElementById('urlInput').addEventListener('blur', function (e) {
+                const url = e.target.value.trim();
+                if (url) {
+                    autoFillAuthForUrl(url);
                 }
             });
         </script>

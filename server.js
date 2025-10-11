@@ -15,14 +15,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // プロキシエンドポイント
 app.get('/proxy', async (req, res) => {
-    const { url } = req.query;
+    const { url, username, password } = req.query;
 
     if (!url) {
         return res.status(400).json({ error: 'URL parameter is required' });
     }
 
     try {
-        console.log(`Fetching: ${url}`);
+        console.log(`\n=== Request Details ===`);
+        console.log(`URL: ${url}`);
+        console.log(`Username: ${username || '(none)'}`);
+        console.log(`Password: ${password ? '***' : '(none)'}`);
 
         // localhostをIPv4に変換（IPv6の問題を回避）
         let targetUrl = url;
@@ -31,18 +34,41 @@ app.get('/proxy', async (req, res) => {
             console.log(`Converting localhost to IPv4: ${targetUrl}`);
         }
 
+        const headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'ja,en-US;q=0.9,en;q=0.8'
+        };
+
+        // Basic認証が必要な場合
+        if (username && password) {
+            const auth = Buffer.from(`${username}:${password}`).toString('base64');
+            headers['Authorization'] = `Basic ${auth}`;
+            console.log(`Auth header: Basic ${auth.substring(0, 10)}...`);
+            console.log('Using Basic Authentication for user:', username);
+        } else {
+            console.log('No authentication provided');
+        }
+
         const response = await axios.get(targetUrl, {
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                'Accept-Language': 'ja,en-US;q=0.9,en;q=0.8'
-            },
+            headers,
             timeout: 30000,
             maxRedirects: 5,
             validateStatus: function (status) {
                 return status >= 200 && status < 500;
             }
         });
+
+        console.log(`Response status: ${response.status}`);
+
+        // 401エラーの場合は明確なエラーを返す
+        if (response.status === 401) {
+            console.log('Authentication failed - 401 Unauthorized');
+            return res.status(401).json({
+                error: 'Authentication failed',
+                message: 'Basic認証が失敗しました。ユーザー名とパスワードを確認してください。'
+            });
+        }
 
         // HTMLコンテンツを返す
         res.set('Content-Type', 'text/html; charset=utf-8');
