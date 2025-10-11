@@ -218,6 +218,7 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 14px;
+            table-layout: fixed;
         }
 
         .data-table th,
@@ -225,6 +226,7 @@
             text-align: left;
             padding: 12px;
             border-bottom: 1px solid #e2e8f0;
+            vertical-align: top;
         }
 
         .data-table th {
@@ -237,9 +239,18 @@
             background: #f8fafc;
         }
 
+        /* 列幅の安定化 */
+        .data-table col.col-prop { width: 24%; }
+        .data-table col.col-value { width: 62%; }
+        .data-table col.col-type { width: 14%; }
+
+        /* 値カラムは折り返しを許可 */
+        .data-table td:nth-child(2) { word-break: break-word; overflow-wrap: anywhere; }
+
         .property-name {
             font-weight: 500;
             color: #1e40af;
+            white-space: nowrap;
         }
 
         .property-value {
@@ -754,7 +765,7 @@
 
             if (entries.length === 0) return '<span class="property-value">空のオブジェクト</span>';
 
-            let html = '<table class="data-table">';
+            let html = '<table class="data-table"><colgroup><col class="col-prop"><col class="col-value"><col class="col-type"></colgroup>';
             html += '<thead><tr><th>プロパティ</th><th>値</th><th>型</th></tr></thead>';
             html += '<tbody>';
 
