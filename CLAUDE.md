@@ -8,7 +8,6 @@ This is a JSON-LD Schema Viewer tool that visualizes structured data (JSON-LD) f
 
 1. **CORS Proxy Server** - Bypasses CORS restrictions to access any URL, including localhost sites
 2. **Web-based Viewer** - Visualizes JSON-LD data in both table and JSON formats
-3. **Standalone Version** - Optional single-file HTML viewer using external CORS proxies
 
 ## Project Structure
 
@@ -20,10 +19,8 @@ json-ld-viewer/
 ├── vercel.json           # Vercel deployment configuration
 ├── README.md             # Japanese documentation
 ├── CLAUDE.md             # This file
-├── public/
-│   └── index.html        # Main viewer application (integrated with proxy)
-└── standalone/
-    └── index.html        # Standalone viewer (uses external CORS proxy)
+└── public/
+    └── index.html        # Web application
 ```
 
 ## Common Development Commands
@@ -68,18 +65,6 @@ vercel --prod
 ```
 
 ## Architecture
-
-### Standalone Viewer (`standalone/index.html`)
-
-- Pure client-side single HTML file with inline CSS and JavaScript
-- Uses external CORS proxy service (`https://api.allorigins.win/raw?url=`)
-- Extracts JSON-LD by parsing `<script type="application/ld+json">` tags
-- Features:
-  - Table view with expandable nested objects
-  - Syntax-highlighted JSON view
-  - One-click JSON copy to clipboard
-  - Statistics dashboard (schema count, property count, domain)
-  - Sample links for quick testing
 
 ### Node.js Proxy Server (`server.js`)
 
@@ -137,8 +122,7 @@ vercel --prod
 
 ## Development Notes
 
-- The standalone viewer (`standalone/index.html`) can work independently without running the server, but relies on external CORS proxy services which may have limitations
-- The main application (`public/index.html` + `server.js`) provides more reliable access, especially for localhost URLs and sites that block CORS proxies
+- The application (`public/index.html` + `server.js`) provides reliable access to any URL, especially localhost URLs during development
 - When testing localhost sites, the proxy automatically converts `localhost` to `127.0.0.1` to prevent IPv6 resolution issues
 - The Vercel deployment configuration (`vercel.json`) routes all requests through the Express server
-- Both frontend implementations share similar UI/UX but differ in their data fetching approach (external vs custom proxy)
+- Frontend extracts JSON-LD client-side using DOMParser after receiving HTML from the proxy server

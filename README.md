@@ -110,10 +110,8 @@ json-ld-viewer/
 ├── README.md             # このファイル
 ├── CLAUDE.md             # Claude Code用開発ガイド
 ├── .gitignore            # Git除外設定
-├── public/
-│   └── index.html        # メインアプリケーション（プロキシ統合版）
-└── standalone/
-    └── index.html        # スタンドアロン版（外部CORS proxy使用）
+└── public/
+    └── index.html        # Webアプリケーション
 ```
 
 ### ファイル詳細
@@ -126,16 +124,13 @@ Express.jsで構築されたプロキシサーバー。主要な機能：
 - IPv6問題の自動解決（localhost → 127.0.0.1）
 
 #### `public/index.html`
-メインのWebアプリケーション。完全にクライアントサイドで動作：
+Webアプリケーション。クライアントサイドで動作：
 - URLフォームとサンプルリンク
 - DOMParserでHTML解析
 - `<script type="application/ld+json">` タグを検索
 - テーブル/JSON表示の切り替え
 - 画像URLのサムネイル表示
 - クリップボードへのコピー機能
-
-#### `standalone/index.html`
-外部CORSプロキシ（`https://api.allorigins.win`）を使用するスタンドアロン版。サーバー不要で動作しますが、外部サービスに依存します。
 
 ## ローカルでの使用方法
 
@@ -387,7 +382,6 @@ nodemonが自動的にファイル変更を検知して再起動します。
 
 - **サーバーサイド**: `server.js`（約220行）
 - **クライアントサイド**: `public/index.html`（約1000行、HTML+CSS+JS）
-- **スタンドアロン**: `standalone/index.html`（約980行）
 
 ### 拡張のアイデア
 
