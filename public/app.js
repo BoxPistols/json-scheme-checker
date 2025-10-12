@@ -293,7 +293,7 @@ function createSchemaCard(schema, index) {
   card.innerHTML = `
     <div class="schema-header">
       <div>
-        <span class="schema-type">${type}</span>
+        <span class="schema-type">${escapeHtml(type)}</span>
         <span class="schema-index">Schema #${index}</span>
       </div>
       <div class="schema-controls">
