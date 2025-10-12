@@ -692,8 +692,26 @@
         </div>
 
         <script>
-            // プロキシサーバーのURL（必要に応じて変更）
-            const PROXY_SERVER = 'http://localhost:3333';
+            // プロキシサーバーのURL設定
+            // Vercelデプロイメントか、ローカル開発かを自動判定
+            const currentHost = window.location.hostname;
+            const isVercel = currentHost.includes('vercel.app') || currentHost.includes('vercel.sh');
+            const isLocalhost = currentHost === 'localhost' || currentHost === '127.0.0.1';
+
+            // 環境に応じたプロキシサーバーURL
+            let PROXY_SERVER;
+            if (isVercel) {
+                // Vercel環境: API Routes を使用
+                PROXY_SERVER = '';  // 相対パスでAPIを呼び出す
+            } else if (isLocalhost) {
+                // ローカル開発: localhost:3333
+                PROXY_SERVER = 'http://localhost:3333';
+            } else {
+                // LAN内の他デバイス: IPアドレス:3333
+                PROXY_SERVER = `http://${currentHost}:3333`;
+            }
+
+            console.log('Environment:', isVercel ? 'Vercel' : 'Local', 'Proxy:', PROXY_SERVER || 'API Routes');
 
             // パスワードの表示/非表示を切り替え
             function togglePasswordVisibility() {
@@ -802,14 +820,16 @@
             async function checkServerStatus() {
                 const statusElement = document.getElementById('serverStatus');
                 try {
-                    const response = await fetch(`${PROXY_SERVER}/health`);
+                    // Vercel環境では /api/health、ローカルでは /health
+                    const healthUrl = isVercel ? '/api/health' : `${PROXY_SERVER}/health`;
+                    const response = await fetch(healthUrl);
                     if (response.ok) {
-                        statusElement.textContent = 'サーバー稼働中';
+                        statusElement.textContent = isVercel ? 'Vercel API稼働中' : 'サーバー稼働中';
                         statusElement.className = 'server-status';
                         return true;
                     }
                 } catch (error) {
-                    statusElement.textContent = 'サーバーオフライン';
+                    statusElement.textContent = isVercel ? 'API エラー' : 'サーバーオフライン';
                     statusElement.className = 'server-status offline';
                     return false;
                 }
@@ -900,7 +920,15 @@
                     }
 
                     // プロキシサーバー経由でデータを取得
-                    let proxyUrl = `${PROXY_SERVER}/proxy?url=${encodeURIComponent(url)}`;
+                    let proxyUrl;
+                    if (isVercel) {
+                        // Vercel環境: /api/proxy エンドポイントを使用
+                        proxyUrl = `/api/proxy?url=${encodeURIComponent(url)}`;
+                    } else {
+                        // ローカル環境: 従来のプロキシサーバーを使用
+                        proxyUrl = `${PROXY_SERVER}/proxy?url=${encodeURIComponent(url)}`;
+                    }
+
                     if (username && password) {
                         proxyUrl += `&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
                     }

@@ -230,19 +230,43 @@ app.get('/', (req, res) => {
     `);
 });
 
-app.listen(PORT, () => {
+// ネットワークIPアドレスを取得
+const os = require('os');
+const networkInterfaces = os.networkInterfaces();
+let localIP = 'localhost';
+
+// IPv4アドレスを探す
+Object.values(networkInterfaces).forEach(interfaces => {
+    interfaces.forEach(iface => {
+        if (iface.family === 'IPv4' && !iface.internal && iface.address.startsWith('192.168')) {
+            localIP = iface.address;
+        }
+    });
+});
+
+// 0.0.0.0 で全てのネットワークインターフェースでリッスン
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`
     ================================
     JSON-LD Proxy Server is running!
     ================================
 
-    Server URL: http://localhost:${PORT}
+    📱 アクセス可能なURL:
+
+    [PC同一マシン]
+    http://localhost:${PORT}
+
+    [iPhone/他デバイス - 同じWiFiネットワーク内]
+    http://${localIP}:${PORT}
 
     Endpoints:
     - GET  /proxy?url={URL}     - Fetch HTML from URL
     - POST /extract-jsonld      - Extract JSON-LD from URL
     - GET  /health              - Health check
 
-    Ready to bypass CORS restrictions!
+    ⚠️  iPhoneからアクセスする場合:
+    1. PCとiPhoneが同じWiFiに接続されていることを確認
+    2. http://${localIP}:${PORT} をSafariで開く
+    3. PCのファイアウォールでポート${PORT}を許可する必要がある場合があります
     `);
 });
