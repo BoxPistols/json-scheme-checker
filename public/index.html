@@ -25,9 +25,7 @@
             <div class="input-group">
                 <input type="url" id="urlInput" placeholder="URLを入力してください (例: http://localhost:3002/foo/bars/12345)"
                     value="" style="flex: 1;">
-                <input type="number" id="localhostPort" placeholder="port"
-                    style="width: 80px; padding: 12px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px;"
-                    min="1" max="65535" value="3000">
+                <input type="number" id="localhostPort" class="port-input" placeholder="port" min="1" max="65535" value="3000">
                 <button id="fetchButton" onclick="fetchAndDisplay()">
                     取得
                 </button>
