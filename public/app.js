@@ -192,7 +192,7 @@ async function fetchAndDisplay() {
         const urlObj = new URL(url);
         const domainKey = DOMAIN_AUTH_PREFIX + urlObj.hostname;
         localStorage.setItem(domainKey, JSON.stringify(auth));
-      } catch {}
+} catch (e) { console.error('Failed to save domain-specific auth:', e); }
       updateAuthStatus(true);
     }
 
