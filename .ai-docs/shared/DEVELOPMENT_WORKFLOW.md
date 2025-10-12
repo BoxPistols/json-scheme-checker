@@ -6,10 +6,10 @@
 
 ```bash
 # 自動再起動付き開発サーバー
-npm run dev
+pnpm dev
 
 # 本番モードで起動
-npm start
+pnpm start
 ```
 
 ### デプロイメント
@@ -83,10 +83,10 @@ git commit -m "Refactor JSON-LD extraction logic"
 
 ```bash
 # 1. 依存関係インストール
-npm install
+pnpm install
 
 # 2. サーバー起動
-npm run dev
+pnpm dev
 
 # 3. ブラウザでアクセス
 open http://localhost:3333
@@ -119,7 +119,7 @@ ifconfig | grep "inet " | grep -v 127.0.0.1
 
 ```bash
 # ローカル開発時
-npm run dev
+pnpm dev
 # → コンソールにリクエストログが表示される
 
 # Vercelデプロイ時
@@ -150,10 +150,10 @@ console.log('Proxy URL:', PROXY_SERVER);
 
 ```bash
 # nodemon使用時は自動再起動
-npm run dev
+pnpm dev
 
 # 手動再起動の場合
-# Ctrl+C で停止 → npm start で再起動
+# Ctrl+C で停止 → pnpm start で再起動
 ```
 
 ### public/index.html 修正時
@@ -178,10 +178,9 @@ git push origin main
 
 ## 環境変数
 
-### ローカル開発
+### ローカル用環境変数
 
 ```bash
-# .env ファイル（作成する場合）
 PORT=3333
 NODE_ENV=development
 ```
@@ -209,7 +208,7 @@ curl -w "@curl-format.txt" -o /dev/null -s "http://localhost:3333/proxy?url=http
 
 `curl-format.txt` の内容:
 
-```
+```bash
 time_namelookup:  %{time_namelookup}\n
 time_connect:  %{time_connect}\n
 time_starttransfer:  %{time_starttransfer}\n
@@ -235,14 +234,14 @@ kill $(lsof -t -i:3333)
 ```bash
 # 原因: プロキシサーバーが起動していない
 # 解決: サーバーを起動
-npm start
+pnpm start
 ```
 
 ### 問題: Basic認証が通らない
 
 ```bash
 # デバッグ: サーバーログを確認
-npm run dev
+pnpm dev
 # → "Using Basic Authentication for user: xxx" を確認
 # → "Response status: 401" なら認証情報が誤り
 ```
@@ -266,7 +265,7 @@ vercel inspect [deployment-url]
 
 ### 新機能追加時
 
-- [ ] ローカル環境でテスト (`npm run dev`)
+- [ ] ローカル環境でテスト (`pnpm dev`)
 - [ ] Vercel環境でテスト (`vercel dev` または本番デプロイ)
 - [ ] エラーハンドリング追加
 - [ ] コンソールログで動作確認
@@ -289,7 +288,7 @@ vercel inspect [deployment-url]
 
 ## デプロイ前チェックリスト
 
-- [ ] `npm start` でローカル起動確認
+- [ ] `pnpm start` でローカル起動確認
 - [ ] サンプルURLでJSON-LD抽出成功
 - [ ] Basic認証が動作確認
 - [ ] エラーメッセージが適切に表示
@@ -302,7 +301,7 @@ vercel inspect [deployment-url]
 ## 推奨する開発フロー
 
 1. **機能設計** → 必要な変更を整理
-2. **ローカル開発** → `npm run dev` で開発
+2. **ローカル開発** → `pnpm dev` で開発
 3. **動作確認** → サンプルURLでテスト
 4. **コミット** → 明確なコミットメッセージ
 5. **プッシュ** → `git push origin main`

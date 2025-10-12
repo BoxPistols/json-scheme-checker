@@ -252,12 +252,10 @@ app.listen(PORT, '0.0.0.0', () => {
     JSON-LD Proxy Server is running!
     ================================
 
-    📱 アクセス可能なURL:
-
-    [PC同一マシン]
+    [ローカルアクセス]
     http://localhost:${PORT}
 
-    [iPhone/他デバイス - 同じWiFiネットワーク内]
+    [ローカルネットワークIP]
     http://${localIP}:${PORT}
 
     Endpoints:
@@ -265,9 +263,8 @@ app.listen(PORT, '0.0.0.0', () => {
     - POST /extract-jsonld      - Extract JSON-LD from URL
     - GET  /health              - Health check
 
-    ⚠️  iPhoneからアクセスする場合:
-    1. PCとiPhoneが同じWiFiに接続されていることを確認
-    2. http://${localIP}:${PORT} をSafariで開く
-    3. PCのファイアウォールでポート${PORT}を許可する必要がある場合があります
+    NOTE: モバイルデバイスから外部アクセスする場合は ngrok の使用を推奨します:
+    1. ngrok http ${PORT}
+    2. 表示されたHTTPS URLを使用
     `);
 });

@@ -166,7 +166,7 @@ app.listen(3333, '0.0.0.0');
 
 ```bash
 # ローカルサーバー起動
-npm run dev
+pnpm dev
 
 # ブラウザでテスト
 open http://localhost:3333
@@ -338,7 +338,7 @@ async function fetchWithCache(url) {
 
 ### コミットメッセージ形式
 
-```
+```bash
 <type>: <subject>
 
 <body>
@@ -350,7 +350,7 @@ Co-Authored-By: GitHub Copilot <noreply@github.com>
 
 ### 例
 
-```
+```bash
 feat: パスワード表示切替を追加
 
 UXを改善するため、パスワードフィールドのタイプを

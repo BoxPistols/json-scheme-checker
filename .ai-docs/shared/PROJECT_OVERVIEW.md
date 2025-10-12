@@ -77,7 +77,7 @@ json-ld-viewer/
 
 ### CORS回避の仕組み
 
-```
+```bash
 ❌ ブラウザ → 他サイト (CORS Error)
 ✅ ブラウザ → プロキシサーバー → 他サイト
 ```
@@ -134,14 +134,14 @@ headers['Authorization'] = `Basic ${auth}`;
 ### ローカル開発
 
 ```bash
-npm install
-npm run dev  # nodemon自動再起動
+pnpm install
+pnpm dev  # nodemon自動再起動
 ```
 
 ### 本番ビルド
 
 ```bash
-npm start
+pnpm start
 ```
 
 ### Vercelデプロイ
@@ -250,7 +250,7 @@ app.use(cors()); // 全オリジン許可（開発用）
 ### 推奨される使い方
 
 - **本番環境テスト** → Vercelデプロイ版
-- **localhost開発** → ローカルサーバー (`npm start`)
+- **localhost開発** → ローカルサーバー (`pnpm start`)
 - **モバイルテスト** → LAN内アクセス (`http://192.168.x.x:3333`)
 
 ---
@@ -259,7 +259,7 @@ app.use(cors()); // 全オリジン許可（開発用）
 
 ### サーバーオフライン
 
-1. ローカル: `npm start` で起動確認
+1. ローカル: `pnpm start` で起動確認
 2. Vercel: デプロイ状態を確認 (`vercel list`)
 3. ポート3333が使用中: 別プロセスをkill
 

@@ -22,14 +22,36 @@
 - 繰り返し値にはCSSカスタムプロパティを使用
 - モバイルファーストのレスポンシブデザイン
 
+### アイコン利用ポリシー（絵文字禁止）
+
+- 画面上のアイコン用途で絵文字（例: 🔒, 👁, 🙈）を使用しない
+- 代替として以下のいずれかを使用する
+- インラインSVG（推奨）。`fill` または `stroke` は `currentColor` を使用して色継承
+- Webフォントアイコン（ビルド不要な範囲で）。CDN依存は避ける
+- アクセシビリティ
+- 装飾目的のSVGは `aria-hidden="true"` を付与
+- 機能ボタンは `aria-label` または `title` を付与
+- サイズは16–20pxを目安に統一し、ラインアイコンは `stroke-width: 2` を基本とする
+- 可能な限り1ファイル完結（`public/index.html`）で管理し、外部依存を増やさない
+
+### ビジュアルデザイン指針（グラデーション方針）
+
+- 最新の「リキッドグラス」「スキューモーフィズム」は推奨
+- ただし、過度なグラデーションは原則非推奨。必要な場合のみ使用
+- グラデーション使用時は人間知覚ベースの色空間を用いること
+- `oklab()` / `oklch()` / `color(display-p3 …)` などを優先
+- 均等な明度変化（L）と適切な彩度（C）を保つ
+- コントラストは WCAG 2.1 AA 以上を満たすよう確認
+- Faviconや小面積では単色基調を優先し、情報ノイズを避ける
+
 ### エラーハンドリング
 
 ```javascript
 try {
-    // リスク含む処理
+// リスク含む処理
 } catch (error) {
-    console.error('Context:', error);
-    showError(`ユーザー向けメッセージ: ${error.message}`);
+console.error('Context:', error);
+showError(`ユーザー向けメッセージ: ${error.message}`);
 }
 ```
 
@@ -64,7 +86,7 @@ try {
 
 ### 新機能追加
 
-1. まずローカルでテスト（`npm run dev`）
+1. まずローカルでテスト（`pnpm dev`）
 2. Node.js APIを使用する場合はVercel互換性を確認
 3. 両環境のエラーメッセージを更新
 4. コミット前にサンプルURLでテスト
@@ -89,7 +111,7 @@ try {
 
 ### コミット前：
 
-- [ ] ローカルサーバーが動作（`npm start`）
+- [ ] ローカルサーバーが動作（`pnpm start`）
 - [ ] サンプルURLが正しく解析される
 - [ ] Basic認証がテスト認証情報で動作
 - [ ] エラーメッセージがユーザーフレンドリー
@@ -108,7 +130,7 @@ try {
 ### 新しい依存関係の追加
 
 ```bash
-npm install <package> --save
+pnpm install <package> --save
 # package.jsonとpackage-lock.jsonを更新
 # コミット前にローカルでテスト
 ```
@@ -116,8 +138,8 @@ npm install <package> --save
 ### セキュリティチェック
 
 ```bash
-npm audit
-npm audit fix
+pnpm audit
+pnpm audit fix
 ```
 
 ## パフォーマンスガイドライン

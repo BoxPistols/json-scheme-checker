@@ -4,7 +4,15 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 .DS_Store
+
+# Package manager lock files (keeping pnpm-lock.yaml only)
+package-lock.json
+yarn.lock
+
+# pnpm
+.pnpm-store/
 
 # ESLint & Prettier cache
 .eslintcache

@@ -6,7 +6,7 @@
 
 ## ディレクトリ構造
 
-```
+```bash
 .ai-docs/
 ├── README.md                  # このファイル（ドキュメント索引）
 ├── shared/                    # 共通ドキュメント（Single Source of Truth）
@@ -51,7 +51,7 @@
 
 ### 1. 初めてプロジェクトを触る場合
 
-```plaintext
+```bash
 1. shared/PROJECT_OVERVIEW.md を読む
    ↓ プロジェクト全体を理解
 2. shared/DEVELOPMENT_WORKFLOW.md を読む
@@ -108,7 +108,7 @@
 
 ### 2. 階層的な情報構成
 
-```
+```bash
 Level 1: shared/ (詳細・網羅的)
   ↓
 Level 2: AIツール設定 (要約・クイックリファレンス)

@@ -1,144 +1,192 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+このファイルは、Claude Code (claude.ai/code) がこのリポジトリのコードを扱う際のガイダンスを提供します。
 
-## Repository Overview
+## 重要なルール
 
-This is a JSON-LD Schema Viewer tool that visualizes structured data (JSON-LD) from websites. The project is a Node.js/Express application that provides:
+- **絵文字の使用禁止**: すべてのファイル（コード、ドキュメント、コミットメッセージなど）で絵文字の使用を禁止します。テキストのみで表現してください。
 
-1. **CORS Proxy Server** - Bypasses CORS restrictions to access any URL, including localhost sites
-2. **Web-based Viewer** - Visualizes JSON-LD data in both table and JSON formats
+## ドキュメント構造（Single Source of Truth）
 
-## Project Structure
+このプロジェクトは、共有コアドキュメントを持つ**マルチAIドキュメント戦略**に従っています：
 
-```plaintext
+- **`.ai-docs/shared/`** - Single Source of Truth（まずこれらを読んでください！）
+  - `PROJECT_OVERVIEW.md` - 完全なアーキテクチャ、技術スタック、技術詳細
+  - `DEVELOPMENT_WORKFLOW.md` - コマンド、ワークフロー、トラブルシューティング
+- **`.cursorrules`** - Cursor AIエディタ設定
+- **`.github/copilot-instructions.md`** - GitHub Copilot設定
+- **`CLAUDE.md`** - このファイル（Claude Codeクイックリファレンス）
+
+**包括的な理解のため、常に最初に`.ai-docs/shared/PROJECT_OVERVIEW.md`を読んでください。**
+
+## リポジトリ概要
+
+これは、ウェブサイトから構造化データ（JSON-LD）を視覚化するJSON-LDスキーマビューアツールです。このプロジェクトは、以下を提供するNode.js/Expressアプリケーションです：
+
+1. **CORSプロキシサーバー** - localhostサイトを含む任意のURLへアクセスするためのCORS制限バイパス
+2. **Webベースビューア** - JSON-LDデータをテーブル形式とJSON形式の両方で視覚化
+
+## プロジェクト構造
+
+```bash
 json-ld-viewer/
-├── server.js              # Express server with proxy endpoints
-├── package.json           # Dependencies: express, cors, axios
-├── package-lock.json      # Lock file
-├── vercel.json           # Vercel deployment configuration
-├── README.md             # Japanese documentation
-├── CLAUDE.md             # This file
+├── server.js              # プロキシエンドポイント付きExpressサーバー
+├── package.json           # 依存関係：express、cors、axios
+├── package-lock.json      # ロックファイル
+├── vercel.json           # Vercelデプロイ設定
+├── README.md             # 日本語ドキュメント
+├── CLAUDE.md             # このファイル
 └── public/
-    └── index.html        # Web application
+    └── index.html        # Webアプリケーション
 ```
 
-## Common Development Commands
+## 一般的な開発コマンド
 
-**Setup**:
+**セットアップ：**
 
 ```bash
-npm install
+pnpm install
 ```
 
-**Development**:
+**開発：**
 
 ```bash
-npm run dev    # Start with nodemon (auto-reload on changes)
-npm start      # Start production server
+pnpm dev      # nodemon起動（変更時自動リロード）
+pnpm start    # 本番サーバー起動
 ```
 
-The server runs on `http://localhost:3333` by default (configurable via `PORT` environment variable).
+サーバーはデフォルトで`http://localhost:3333`で起動します（`PORT`環境変数で設定可能）。
 
-**Testing**:
+**テスト：**
 
 ```bash
-# Health check
+# ヘルスチェック
 curl http://localhost:3333/health
 
-# Test proxy endpoint
+# プロキシエンドポイントテスト
 curl "http://localhost:3333/proxy?url=https://example.com"
 
-# Test JSON-LD extraction
+# JSON-LD抽出テスト
 curl -X POST http://localhost:3333/extract-jsonld \
   -H "Content-Type: application/json" \
   -d '{"url": "https://example.com"}'
 ```
 
-**Code Quality**:
+**Vercelデプロイ：**
 
 ```bash
-# Linting
-npm run lint          # Check code with ESLint
-npm run lint:fix      # Auto-fix ESLint issues
-
-# Formatting
-npm run format        # Format all files with Prettier
-npm run format:check  # Check if files are formatted
-```
-
-**Vercel Deployment**:
-
-```bash
-# Install Vercel CLI (if not installed)
+# Vercel CLIをインストール（未インストールの場合）
 npm i -g vercel
 
-# Deploy to preview
+# プレビューデプロイ
 vercel
 
-# Deploy to production
+# 本番デプロイ
 vercel --prod
 ```
 
-## Architecture
+## アーキテクチャ
 
-### Node.js Proxy Server (`server.js`)
+### Node.jsプロキシサーバー（`server.js`）
 
-**Technology Stack**: Express.js, Axios, CORS middleware
+**技術スタック：** Express.js、Axios、CORSミドルウェア
 
-**API Endpoints**:
+**APIエンドポイント：**
 
-1. `GET /proxy?url={TARGET_URL}` - Fetches HTML from any URL, bypassing CORS
-   - Converts localhost to IPv4 (127.0.0.1) to avoid IPv6 issues
-   - Adds browser-like headers to avoid bot detection
-   - 30-second timeout with 5 max redirects
+1. `GET /proxy?url={TARGET_URL}&username={USER}&password={PASS}` - 任意のURLからHTMLを取得、CORSバイパス
+   - IPv6問題を避けるためlocalhostをIPv4（127.0.0.1）に変換
+   - ボット検出を避けるためブラウザライクなヘッダーを追加
+   - オプションの`username`と`password`クエリパラメータでBasic認証をサポート
+   - 認証失敗時は明確なエラーメッセージと共に401を返す
+   - 30秒タイムアウト、最大5リダイレクト
 
-2. `POST /extract-jsonld` - Directly extracts and parses JSON-LD from URL
+2. `POST /extract-jsonld` - URLからJSON-LDを直接抽出・パース
    - Body: `{ "url": "https://example.com" }`
    - Returns: `{ url, schemas[], count }`
-   - Uses regex to extract JSON-LD script tags
+   - 正規表現を使用してJSON-LDスクリプトタグを抽出
 
-3. `GET /health` - Health check endpoint
+3. `GET /health` - ヘルスチェックエンドポイント
    - Returns: `{ status: "ok", timestamp }`
 
-4. `GET /` - Landing page with API documentation
+4. `GET /` - APIドキュメント付きランディングページ
 
-**Key Features**:
+**主要機能：**
 
-- CORS enabled for all origins
-- Handles connection errors (ECONNREFUSED, ETIMEDOUT) with appropriate status codes
-- Serves static frontend from `public/` directory
-- localhost URL normalization (localhost → 127.0.0.1)
+- 全オリジンに対してCORS有効化
+- パスワード保護サイト用Basic認証サポート
+- 適切なステータスコードで接続エラー（ECONNREFUSED、ETIMEDOUT）を処理
+- `public/`ディレクトリから静的フロントエンドを配信
+- localhost URL正規化（localhost → 127.0.0.1）
+- モバイルデバイスからのLANアクセス用に`0.0.0.0`でリッスン
 
-### Frontend Architecture (Both Viewers)
+### フロントエンドアーキテクチャ（両ビューア）
 
-**Core Functions**:
+**コア関数：**
 
-- `fetchAndDisplay()` - Main orchestration function
-- `extractJsonLd(html)` - Parses HTML using DOMParser to find JSON-LD scripts
-- `displaySchemas(schemas, url)` - Renders schema cards with statistics
-- `createTableView(obj, depth)` - Recursive table generation for nested objects
-- `formatJson(obj, indent)` - Syntax-highlighted JSON formatter
-- `toggleView(schemaId, view)` - Switches between table/JSON views
+- `fetchAndDisplay()` - メインオーケストレーション関数
+- `extractJsonLd(html)` - DOMParserを使用してHTMLを解析し、JSON-LDスクリプトを検出
+- `displaySchemas(schemas, url)` - 統計情報付きスキーマカードをレンダリング
+- `createTableView(obj, depth)` - ネストされたオブジェクト用の再帰的テーブル生成
+- `formatJson(obj, indent)` - シンタックスハイライト付きJSONフォーマッター
+- `toggleView(schemaId, view)` - テーブル/JSONビュー間の切り替え
 
-**View Modes**:
+**表示モード：**
 
-- **Table View**: Hierarchical table with property name, value, and type columns
-  - Arrays rendered as numbered list items
-  - Nested objects expandable/collapsible by default (expanded initially)
-  - URLs rendered as clickable links
-  - Description fields can contain HTML (sanitized)
-- **JSON View**: Syntax-highlighted with color-coded types (keys, strings, numbers, booleans, null)
+- **テーブルビュー：** プロパティ名、値、型列を持つ階層的テーブル
+  - 配列は番号付きリスト項目としてレンダリング
+  - ネストされたオブジェクトは展開/折りたたみ可能（デフォルトで展開）
+  - URLはクリック可能なリンクとしてレンダリング
+  - 説明フィールドにはHTML含有可能（サニタイズ済み）
+- **JSONビュー：** 型別に色分けされたシンタックスハイライト（キー、文字列、数値、ブール値、null）
 
-**Data Handling**:
+**データ処理：**
 
-- Nested objects remain expanded by default for better visibility
-- Each schema card stores raw JSON in `data-raw` attribute for clipboard operations
-- Copy function formats JSON with 2-space indentation
+- ネストされたオブジェクトは可視性向上のためデフォルトで展開
+- 各スキーマカードはクリップボード操作用に`data-raw`属性に生のJSONを保存
+- コピー機能は2スペースインデントでJSONをフォーマット
+- 画像URLを検出してサムネイル表示
+- `@type`に基づいてSchema.orgとGoogleドキュメントリンクを自動生成
 
-## Development Notes
+**認証機能**（`public/index.html:620-663`）：
 
-- The application (`public/index.html` + `server.js`) provides reliable access to any URL, especially localhost URLs during development
-- When testing localhost sites, the proxy automatically converts `localhost` to `127.0.0.1` to prevent IPv6 resolution issues
-- The Vercel deployment configuration (`vercel.json`) routes all requests through the Express server
-- Frontend extracts JSON-LD client-side using DOMParser after receiving HTML from the proxy server
+- ユーザー名/パスワードフィールド付き折りたたみ可能なBasic認証セクション
+- パスワード表示切替（目アイコン）
+- "認証を記憶"チェックボックスでブラウザの`localStorage`に認証情報を保存
+- ドメイン固有の認証ストレージ - ドメインごとに保存された認証情報を自動ロード
+- すべての保存された認証情報を削除する認証クリアボタン
+- プライバシー重視：認証情報はローカルのみに保存、サーバーへの送信やログ記録なし
+- URLが以前認証されたドメインと一致する場合は認証情報を自動入力
+
+## 開発ノート
+
+### 環境検出（`public/index.html:695-712`）
+
+フロントエンドは環境を自動検出し、それに応じてプロキシURLを設定します：
+
+- **Vercel：** APIルート用の相対パスを使用（`/api/proxy`、`/api/health`）
+- **Localhost：** `http://localhost:3333`を使用
+- **LAN/モバイル：** `http://{IP_ADDRESS}:3333`を使用
+
+### 主要な実装詳細
+
+- アプリケーション（`public/index.html` + `server.js`）は、特に開発中のlocalhost URLを含む任意のURLへの信頼性の高いアクセスを提供
+- localhostサイトをテストする際、プロキシはIPv6解決問題を防ぐため自動的に`localhost`を`127.0.0.1`に変換（`server.js:30-35`）
+- Vercelデプロイ設定（`vercel.json`）でサーバーレス関数のタイムアウトを30秒に設定
+- フロントエンドは、プロキシサーバーからHTMLを受信後、DOMParserを使用してクライアントサイドでJSON-LDを抽出
+- サーバーは、同じWiFiネットワーク上のモバイルデバイスからのアクセスを許可するため`0.0.0.0`でリッスン
+- ネットワークIPアドレスが検出され、モバイルテストを容易にするため起動ログに表示
+
+### Vercelデプロイ
+
+Vercelにデプロイした場合：
+
+- APIエンドポイントは直接サーバーエンドポイントではなく`/api/*`ルート経由でアクセス
+- `localhost` URLへのアクセス不可（ローカル開発でのみ動作）
+- 関数タイムアウトは30秒（`vercel.json`で設定可能）
+
+### モバイルデバイスでのテスト
+
+1. ローカルでサーバーを起動：`npm start`
+2. サーバーは`http://localhost:3333`とLAN IP（例：`http://192.168.1.100:3333`）の両方を表示
+3. 同じWiFiネットワーク上のモバイルデバイスからLAN IPにアクセス
+4. ファイアウォールでポート3333の許可が必要な場合あり

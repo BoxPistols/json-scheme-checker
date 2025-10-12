@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JSON-LD Schema Viewer (Proxy Version)</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <style>
         * {
             margin: 0;
@@ -630,9 +631,26 @@
                             <input type="password" id="password" placeholder="パスワード"
                                 style="padding: 8px 40px 8px 12px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; width: 100%;">
                             <button type="button" id="togglePassword" onclick="togglePasswordVisibility()"
-                                style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 4px 8px; cursor: pointer; color: #64748b; font-size: 14px;"
-                                title="パスワードを表示/非表示">
-                                👁
+                                style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 4px; cursor: pointer; color: #64748b;"
+                                aria-label="パスワードを表示/非表示" title="パスワードを表示/非表示">
+                                <span id="iconEye" aria-hidden="true" style="display:inline-flex;">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" stroke="currentColor"
+                                            stroke-width="2" fill="none" />
+                                        <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"
+                                            fill="none" />
+                                    </svg>
+                                </span>
+                                <span id="iconEyeOff" aria-hidden="true" style="display:none;">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M3 3l18 18" stroke="currentColor" stroke-width="2" />
+                                        <path
+                                            d="M21 12s-4 7-9 7c-2.038 0-3.92-.8-5.5-1.9M3 12s4-7 9-7c2.051 0 3.936.808 5.517 1.913"
+                                            stroke="currentColor" stroke-width="2" />
+                                    </svg>
+                                </span>
                             </button>
                         </div>
                     </div>
@@ -650,7 +668,14 @@
                     <div
                         style="margin-top: 8px; padding: 10px; background: #dcfce7; border: 1px solid #86efac; border-radius: 4px; font-size: 12px; color: #14532d; line-height: 1.6;">
                         <div style="display: flex; align-items: flex-start; gap: 6px;">
-                            <span>🔒</span>
+                            <span aria-hidden="true" style="display:inline-flex;align-items:center;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg" style="color:#166534">
+                                    <rect x="4" y="10" width="16" height="10" rx="2" stroke="currentColor"
+                                        stroke-width="2" />
+                                    <path d="M8 10V7a4 4 0 1 1 8 0v3" stroke="currentColor" stroke-width="2" />
+                                </svg>
+                            </span>
                             <div>
                                 <strong style="color: #166534;">完全ローカル保存・プライバシー重視</strong><br>
                                 • 入力された認証情報は<strong>このブラウザのみに保存</strong>されます<br>
@@ -717,14 +742,22 @@
             function togglePasswordVisibility() {
                 const passwordField = document.getElementById('password');
                 const toggleButton = document.getElementById('togglePassword');
+                const iconEye = document.getElementById('iconEye');
+                const iconEyeOff = document.getElementById('iconEyeOff');
 
                 if (passwordField.type === 'password') {
                     passwordField.type = 'text';
-                    toggleButton.textContent = '🙈';  // 非表示アイコン
+                    if (iconEye && iconEyeOff) {
+                        iconEye.style.display = 'none';
+                        iconEyeOff.style.display = 'inline-flex';
+                    }
                     toggleButton.title = 'パスワードを非表示';
                 } else {
                     passwordField.type = 'password';
-                    toggleButton.textContent = '👁';  // 表示アイコン
+                    if (iconEye && iconEyeOff) {
+                        iconEye.style.display = 'inline-flex';
+                        iconEyeOff.style.display = 'none';
+                    }
                     toggleButton.title = 'パスワードを表示';
                 }
             }

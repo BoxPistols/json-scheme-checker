@@ -8,13 +8,13 @@ WebサイトのJSON-LD構造化データを可視化するツール
 
 ## 主な機能
 
-- ✅ CORS制限を回避してあらゆるURLにアクセス可能
-- ✅ localhostのサイトも検証可能（開発中のサイトのテストに最適）
-- ✅ テーブル形式とJSON形式の切り替え表示
-- ✅ ネストされたオブジェクトは初期状態で展開表示
-- ✅ ワンクリックでJSONをコピー
-- ✅ 画像URLはサムネイル付きで表示
-- ✅ 外部API不要・完全自己完結型
+- CORS制限を回避してあらゆるURLにアクセス可能
+- localhostのサイトも検証可能（開発中のサイトのテストに最適）
+- テーブル形式とJSON形式の切り替え表示
+- ネストされたオブジェクトは初期状態で展開表示
+- ワンクリックでJSONをコピー
+- 画像URLはサムネイル付きで表示
+- 外部API不要・完全自己完結型
 
 ## 技術スタック
 
@@ -35,7 +35,7 @@ WebサイトのJSON-LD構造化データを可視化するツール
 
 ### システム構成図
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────┐
 │                        ユーザー                              │
 │                    （Webブラウザ）                            │
@@ -89,21 +89,21 @@ WebサイトのJSON-LD構造化データを可視化するツール
 
 通常、ブラウザのJavaScriptから他のドメインにリクエストを送るとCORSエラーが発生します：
 
-```
-❌ ブラウザ → 他のサイト (CORS Error)
+```text
+[NG] ブラウザ → 他のサイト (CORS Error)
 ```
 
 このアプリでは自社サーバーを経由することで回避します：
 
-```
-✅ ブラウザ → 自社サーバー → 他のサイト
+```text
+[OK] ブラウザ → 自社サーバー → 他のサイト
 ```
 
 自社サーバーはNode.jsで動作しているため、CORS制限を受けません。
 
 ## プロジェクト構造
 
-```
+```text
 json-ld-viewer/
 ├── server.js              # Node.js/Express プロキシサーバー
 ├── package.json           # 依存関係定義
@@ -143,22 +143,22 @@ Webアプリケーション。クライアントサイドで動作：
 ### 1. 依存関係のインストール
 
 ```bash
-npm install
+pnpm install
 ```
 
 ### 2. サーバーの起動
 
 ```bash
 # 開発モード（自動再起動）
-npm run dev
+pnpm dev
 
 # 本番モード
-npm start
+pnpm start
 ```
 
 ### 3. ブラウザでアクセス
 
-```
+```text
 http://localhost:3333
 ```
 
@@ -174,7 +174,7 @@ http://localhost:3333
 
 開発中のWebアプリケーションのJSON-LDをテストする場合：
 
-```
+```text
 http://localhost:3000
 http://localhost:3002/your-page
 http://localhost:8080/api/item/123
@@ -194,7 +194,7 @@ http://localhost:8080/api/item/123
 #### 1. Vercel CLIのインストール
 
 ```bash
-npm i -g vercel
+pnpm add -g vercel
 ```
 
 #### 2. GitHubへのプッシュ
@@ -233,7 +233,7 @@ Vercelダッシュボードで以下の環境変数を設定可能:
 
 **リクエスト:**
 
-```
+```http
 GET /proxy?url=https://example.com
 ```
 
@@ -289,7 +289,7 @@ Content-Type: application/json
 
 **リクエスト:**
 
-```
+```http
 GET /health
 ```
 
@@ -359,7 +359,7 @@ headers: {
 localhost URLをテストする場合は、ローカル環境で起動してください：
 
 ```bash
-npm start
+pnpm start
 # http://localhost:3333 でアクセス
 ```
 
@@ -388,7 +388,7 @@ npm start
 ### 開発サーバーの起動
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 nodemonが自動的にファイル変更を検知して再起動します。
