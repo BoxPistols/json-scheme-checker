@@ -1,3 +1,9 @@
+// SEO分析モジュール
+import { extractBasicMeta, validateBasicMeta } from './modules/meta-extractor.js';
+import { extractOpenGraph, validateOpenGraph } from './modules/og-extractor.js';
+import { extractTwitterCards, validateTwitterCards } from './modules/twitter-extractor.js';
+import { renderSummaryCard, renderMetaTab, renderSNSTab } from './modules/ui-renderer.js';
+
 // 環境検出
 const currentHost = window.location.hostname;
 const isVercel = currentHost.includes('vercel.app') || currentHost.includes('vercel.sh');
@@ -192,7 +198,9 @@ async function fetchAndDisplay() {
         const urlObj = new URL(url);
         const domainKey = DOMAIN_AUTH_PREFIX + urlObj.hostname;
         localStorage.setItem(domainKey, JSON.stringify(auth));
-} catch (e) { console.error('Failed to save domain-specific auth:', e); }
+      } catch (e) {
+        console.error('Failed to save domain-specific auth:', e);
+      }
       updateAuthStatus(true);
     }
 
@@ -598,7 +606,189 @@ document.getElementById('urlInput').addEventListener('blur', function (e) {
   if (url) autoFillAuthForUrl(url);
 });
 
+/**
+ * タブ切り替え機能の初期化
+ */
+function initTabNavigation() {
+  const tabButtons = document.querySelectorAll('.tab-button');
+  tabButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const targetTab = button.dataset.tab;
+      tabButtons.forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+      });
+      button.classList.add('active');
+      document.getElementById(targetTab).classList.add('active');
+    });
+  });
+}
+
+/**
+ * SEO分析を実行
+ */
+function analyzeSEO(html) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+
+  const meta = extractBasicMeta(doc);
+  const og = extractOpenGraph(doc);
+  const twitter = extractTwitterCards(doc);
+
+  const metaIssues = validateBasicMeta(meta);
+  const ogIssues = validateOpenGraph(og);
+  const twitterIssues = validateTwitterCards(twitter);
+
+  const scores = calculateScores(meta, og, twitter, metaIssues, ogIssues, twitterIssues);
+  const totalScore = scores.meta + scores.sns + scores.schema;
+
+  return {
+    analysisData: { meta, og, twitter, metaIssues, ogIssues, twitterIssues, scores },
+    totalScore,
+  };
+}
+
+/**
+ * SEOスコアを計算
+ */
+function calculateScores(meta, og, twitter, metaIssues, ogIssues, twitterIssues) {
+  let metaScore = 25;
+  const metaErrors = metaIssues.filter(i => i.type === 'error').length;
+  const metaWarnings = metaIssues.filter(i => i.type === 'warning').length;
+  metaScore -= metaErrors * 5;
+  metaScore -= metaWarnings * 2;
+  metaScore = Math.max(0, metaScore);
+
+  let snsScore = 15;
+  const ogRequired = ['title', 'description', 'image', 'url', 'type'];
+  const twitterRequired = ['card', 'title', 'description'];
+  const ogMissing = ogRequired.filter(field => !og[field]).length;
+  const twitterMissing = twitterRequired.filter(field => !twitter[field]).length;
+  snsScore -= ogMissing * 1.5;
+  snsScore -= twitterMissing * 1;
+  snsScore = Math.max(0, snsScore);
+
+  const schemasContainer = document.getElementById('schemasContainer');
+  const hasSchema = schemasContainer && schemasContainer.children.length > 0;
+  const schemaScore = hasSchema ? 20 : 0;
+
+  return {
+    meta: Math.round(metaScore),
+    sns: Math.round(snsScore),
+    schema: schemaScore,
+  };
+}
+
+/**
+ * 概要タブの内容を描画
+ */
+function renderOverviewTab(analysisData, totalScore) {
+  const overviewTab = document.getElementById('tab-overview');
+  const allIssues = [
+    ...analysisData.metaIssues,
+    ...analysisData.ogIssues,
+    ...analysisData.twitterIssues,
+  ];
+  const errorCount = allIssues.filter(i => i.type === 'error').length;
+  const warningCount = allIssues.filter(i => i.type === 'warning').length;
+
+  let issuesHtml = '';
+  if (allIssues.length > 0) {
+    issuesHtml = `
+      <div class="issues-section">
+        <h3>検出された問題 (全${allIssues.length}件)</h3>
+        <div style="margin-bottom: 12px;">
+          <span class="status-badge error">エラー: ${errorCount}件</span>
+          <span class="status-badge warning" style="margin-left: 8px;">警告: ${warningCount}件</span>
+        </div>
+        ${allIssues
+          .slice(0, 10)
+          .map(
+            issue => `
+          <div class="status-badge ${issue.type}">
+            ${issue.type === 'error' ? 'x' : '!'} ${issue.message}
+          </div>
+        `
+          )
+          .join('')}
+        ${allIssues.length > 10 ? `<p style="color: #64748b; font-size: 13px; margin-top: 8px;">他${allIssues.length - 10}件の問題があります。各タブで詳細を確認してください。</p>` : ''}
+      </div>
+    `;
+  }
+
+  overviewTab.innerHTML = `
+    <h2>分析概要</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin: 20px 0;">
+      <div style="background: #f8fafc; padding: 16px; border-radius: 6px;">
+        <div style="color: #64748b; font-size: 13px; margin-bottom: 4px;">総合スコア</div>
+        <div style="font-size: 32px; font-weight: 700; color: ${totalScore >= 80 ? '#10b981' : totalScore >= 60 ? '#f59e0b' : '#ef4444'};">${totalScore}/100</div>
+      </div>
+      <div style="background: #f8fafc; padding: 16px; border-radius: 6px;">
+        <div style="color: #64748b; font-size: 13px; margin-bottom: 4px;">メタタグ</div>
+        <div style="font-size: 24px; font-weight: 600; color: #334155;">${analysisData.scores.meta}/25</div>
+      </div>
+      <div style="background: #f8fafc; padding: 16px; border-radius: 6px;">
+        <div style="color: #64748b; font-size: 13px; margin-bottom: 4px;">SNS最適化</div>
+        <div style="font-size: 24px; font-weight: 600; color: #334155;">${analysisData.scores.sns}/15</div>
+      </div>
+      <div style="background: #f8fafc; padding: 16px; border-radius: 6px;">
+        <div style="color: #64748b; font-size: 13px; margin-bottom: 4px;">構造化データ</div>
+        <div style="font-size: 24px; font-weight: 600; color: #334155;">${analysisData.scores.schema}/20</div>
+      </div>
+    </div>
+    ${issuesHtml}
+    <div style="margin-top: 24px;">
+      <h3>基本情報</h3>
+      <table class="meta-table">
+        <tbody>
+          <tr>
+            <td style="font-weight: 500;">Title</td>
+            <td>${escapeHtml(analysisData.meta.title)} <span style="color: #64748b;">(${analysisData.meta.titleLength}文字)</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight: 500;">Description</td>
+            <td>${escapeHtml(analysisData.meta.description)} <span style="color: #64748b;">(${analysisData.meta.descriptionLength}文字)</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight: 500;">Canonical</td>
+            <td>${analysisData.meta.canonical ? `<a href="${escapeHtml(analysisData.meta.canonical)}" target="_blank" style="color: #3b82f6;">${escapeHtml(analysisData.meta.canonical)}</a>` : '<span style="color: #94a3b8;">未設定</span>'}</td>
+          </tr>
+          <tr>
+            <td style="font-weight: 500;">Language</td>
+            <td>${escapeHtml(analysisData.meta.language) || '<span style="color: #94a3b8;">未設定</span>'}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+/**
+ * SEO分析結果を表示
+ */
+function displaySEOAnalysis(html) {
+  const { analysisData, totalScore } = analyzeSEO(html);
+  renderSummaryCard(analysisData, totalScore);
+  renderMetaTab(analysisData.meta, analysisData.metaIssues);
+  renderSNSTab(
+    analysisData.og,
+    analysisData.twitter,
+    analysisData.ogIssues,
+    analysisData.twitterIssues
+  );
+  renderOverviewTab(analysisData, totalScore);
+
+  document.getElementById('seoSummarySection').style.display = 'block';
+  document.getElementById('tabNavigation').style.display = 'flex';
+}
+
+// 初期化
+document.addEventListener('DOMContentLoaded', () => {
+  initTabNavigation();
+});
+
 // グローバル公開（インラインHTMLのonclickと連携するため）
 window.togglePasswordVisibility = togglePasswordVisibility;
 window.loadSample = loadSample;
 window.fetchAndDisplay = fetchAndDisplay;
+window.displaySEOAnalysis = displaySEOAnalysis;

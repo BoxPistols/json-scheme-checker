@@ -30,6 +30,9 @@
                     取得
                 </button>
             </div>
+            <div style="margin-top: 6px; margin-bottom: 10px; font-size: 11px; color: #94a3b8; text-align: right;">
+                Cmd+K / Ctrl+K でURL入力欄にフォーカス
+            </div>
 
             <details style="margin-bottom: 15px;" id="authSection">
                 <summary style="cursor: pointer; color: #64748b; font-size: 14px; margin-bottom: 10px;">
@@ -123,9 +126,27 @@
                 <p>データを取得中...</p>
             </div>
 
-            <div class="results-section" id="results">
-                <div class="stats" id="stats"></div>
-                <div id="schemasContainer"></div>
+            <div class="seo-summary-section" id="seoSummarySection" style="display: none;">
+                <div id="summaryCard"></div>
+            </div>
+
+            <div class="tab-navigation" id="tabNavigation" style="display: none;">
+                <button class="tab-button active" data-tab="tab-overview">概要・メタタグ</button>
+                <button class="tab-button" data-tab="tab-sns">SNS</button>
+                <button class="tab-button" data-tab="tab-html">HTML構造</button>
+                <button class="tab-button" data-tab="tab-schema">Schema</button>
+            </div>
+
+            <div class="tab-contents" id="tabContents">
+                <div id="tab-overview" class="tab-content active"></div>
+                <div id="tab-sns" class="tab-content"></div>
+                <div id="tab-html" class="tab-content"></div>
+                <div id="tab-schema" class="tab-content">
+                    <div class="results-section" id="results">
+                        <div class="stats" id="stats"></div>
+                        <div id="schemasContainer"></div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -425,6 +446,11 @@
 
                     const html = await response.text();
                     const schemas = extractJsonLd(html);
+
+                    // SEO分析を実行（schemasを渡す）
+                    if (typeof displaySEOAnalysis === 'function') {
+                        displaySEOAnalysis(html, schemas);
+                    }
 
                     if (schemas.length === 0) {
                         showNoData();
@@ -944,8 +970,354 @@
                     autoFillAuthForUrl(url);
                 }
             });
+
+            // ショートカットキー: Cmd+K (Mac) / Ctrl+K (Windows) でURL入力欄にフォーカス
+            document.addEventListener('keydown', function (e) {
+                // Cmd+K (Mac) または Ctrl+K (Windows/Linux)
+                if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                    e.preventDefault();
+                    const urlInput = document.getElementById('urlInput');
+                    urlInput.focus();
+                    urlInput.select();
+                }
+            });
         </script>
-        <script src="/app.js"></script>
+        <script type="module">
+            // SEO分析モジュールをインポート
+            import { extractBasicMeta, validateBasicMeta } from './modules/meta-extractor.js';
+            import { extractOpenGraph, validateOpenGraph } from './modules/og-extractor.js';
+            import { extractTwitterCards, validateTwitterCards } from './modules/twitter-extractor.js';
+            import { renderSummaryCard, renderMetaTab, renderSNSTab } from './modules/ui-renderer.js';
+
+            // タブ切り替え機能
+            function initTabNavigation() {
+                const tabButtons = document.querySelectorAll('.tab-button');
+                tabButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        const targetTab = button.dataset.tab;
+                        tabButtons.forEach(btn => btn.classList.remove('active'));
+                        document.querySelectorAll('.tab-content').forEach(content => {
+                            content.classList.remove('active');
+                        });
+                        button.classList.add('active');
+                        document.getElementById(targetTab).classList.add('active');
+                    });
+                });
+            }
+
+            // SEO分析を実行
+            function analyzeSEO(html, schemas) {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+
+                const meta = extractBasicMeta(doc);
+                const og = extractOpenGraph(doc);
+                const twitter = extractTwitterCards(doc);
+
+                const metaIssues = validateBasicMeta(meta);
+                const ogIssues = validateOpenGraph(og);
+                const twitterIssues = validateTwitterCards(twitter);
+
+                const scores = calculateScores(meta, og, twitter, metaIssues, ogIssues, twitterIssues, schemas);
+                const totalScore = scores.meta + scores.sns + scores.schema;
+
+                return {
+                    analysisData: { meta, og, twitter, metaIssues, ogIssues, twitterIssues, scores },
+                    totalScore,
+                };
+            }
+
+            // SEOスコアを計算
+            function calculateScores(meta, og, twitter, metaIssues, ogIssues, twitterIssues, schemas) {
+                // メタタグスコア (25点満点)
+                let metaScore = 25;
+                const metaErrors = metaIssues.filter(i => i.type === 'error').length;
+                const metaWarnings = metaIssues.filter(i => i.type === 'warning').length;
+                metaScore -= metaErrors * 5;
+                metaScore -= metaWarnings * 2;
+                metaScore = Math.max(0, metaScore);
+
+                // SNSスコア (15点満点) - Open Graphのみで判定
+                let snsScore = 15;
+                const ogRequired = ['title', 'description', 'image', 'url', 'type'];
+                const ogMissing = ogRequired.filter(field => !og[field]).length;
+                snsScore -= ogMissing * 1.5;
+                snsScore = Math.max(0, snsScore);
+
+                // 構造化データスコア (20点満点)
+                let schemaScore = 0;
+                if (!schemas || schemas.length === 0) {
+                    schemaScore = 0;
+                } else {
+                    // 基本点: スキーマが存在する場合 10点
+                    schemaScore = 10;
+
+                    // スキーマの質を評価
+                    let qualityBonus = 0;
+                    schemas.forEach(schema => {
+                        // @typeが存在するか確認 (+2点/スキーマ、最大6点)
+                        if (schema['@type']) {
+                            qualityBonus += 2;
+                        }
+
+                        // 主要プロパティの存在確認 (+1点、最大4点)
+                        const hasMainProperties = ['name', 'description', 'url', 'image'].some(prop => schema[prop]);
+                        if (hasMainProperties) {
+                            qualityBonus += 1;
+                        }
+                    });
+
+                    // 質ボーナスは最大10点
+                    schemaScore += Math.min(10, qualityBonus);
+                }
+                schemaScore = Math.min(20, schemaScore);
+
+                return {
+                    meta: Math.round(metaScore),
+                    sns: Math.round(snsScore),
+                    schema: schemaScore,
+                };
+            }
+
+            // 概要タブの内容を描画
+            function renderOverviewTab(analysisData, totalScore) {
+                const overviewTab = document.getElementById('tab-overview');
+                const allIssues = [
+                    ...analysisData.metaIssues,
+                    ...analysisData.ogIssues,
+                    ...analysisData.twitterIssues,
+                ];
+                const errorCount = allIssues.filter(i => i.type === 'error').length;
+                const warningCount = allIssues.filter(i => i.type === 'warning').length;
+
+                let issuesHtml = '';
+                if (allIssues.length > 0) {
+                    issuesHtml = `
+                        <details class="issues-section" open>
+                            <summary style="cursor: pointer; list-style: none;">
+                                <h3 style="display: inline;">検出された問題 (全${allIssues.length}件)</h3>
+                            </summary>
+                            <div style="margin-top: 12px; margin-bottom: 12px;">
+                                <span class="status-badge error">エラー: ${errorCount}件</span>
+                                <span class="status-badge warning" style="margin-left: 8px;">警告: ${warningCount}件</span>
+                            </div>
+                            ${allIssues.slice(0, 10).map(issue => `
+                                <div class="status-badge ${issue.type}">
+                                    ${issue.type === 'error' ? 'x' : '!'} ${issue.message}
+                                </div>
+                            `).join('')}
+                            ${allIssues.length > 10 ? `<p style="color: #64748b; font-size: 13px; margin-top: 8px;">他${allIssues.length - 10}件の問題があります。各タブで詳細を確認してください。</p>` : ''}
+                        </details>
+                    `;
+                }
+
+                // メタタグのステータスを取得する関数
+                function getMetaStatus(field, meta, issues) {
+                    const hasIssue = issues.some(i => i.field === field);
+                    if (!meta[field]) {
+                        return '<span class="status-badge error">x 未設定</span>';
+                    }
+                    if (hasIssue) {
+                        const issue = issues.find(i => i.field === field);
+                        return `<span class="status-badge ${issue.type}">! 問題あり</span>`;
+                    }
+                    return '<span class="status-badge success">○ 正常</span>';
+                }
+
+                overviewTab.innerHTML = `
+                    <h2>概要・メタタグ</h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin: 20px 0;">
+                        <div style="background: #f8fafc; padding: 16px; border-radius: 6px;">
+                            <div style="color: #64748b; font-size: 13px; margin-bottom: 4px;">総合スコア</div>
+                            <div style="font-size: 32px; font-weight: 700; color: ${totalScore >= 80 ? '#10b981' : totalScore >= 60 ? '#f59e0b' : '#ef4444'};">${totalScore}/100</div>
+                        </div>
+                        <div style="background: #f8fafc; padding: 16px; border-radius: 6px;">
+                            <div style="color: #64748b; font-size: 13px; margin-bottom: 4px;">メタタグ</div>
+                            <div style="font-size: 24px; font-weight: 600; color: #334155;">${analysisData.scores.meta}/25</div>
+                        </div>
+                        <div style="background: #f8fafc; padding: 16px; border-radius: 6px;">
+                            <div style="color: #64748b; font-size: 13px; margin-bottom: 4px;">SNS最適化</div>
+                            <div style="font-size: 24px; font-weight: 600; color: #334155;">${analysisData.scores.sns}/15</div>
+                        </div>
+                        <div style="background: #f8fafc; padding: 16px; border-radius: 6px;">
+                            <div style="color: #64748b; font-size: 13px; margin-bottom: 4px;">構造化データ</div>
+                            <div style="font-size: 24px; font-weight: 600; color: #334155;">${analysisData.scores.schema}/20</div>
+                        </div>
+                    </div>
+                    ${issuesHtml}
+                    <div style="margin-top: 24px;">
+                        <h3>基本メタタグ</h3>
+                        <table class="meta-table">
+                            <thead>
+                                <tr>
+                                    <th>項目</th>
+                                    <th>値</th>
+                                    <th>ステータス</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Title</td>
+                                    <td class="meta-value">${escapeHtml(analysisData.meta.title)} <span style="color: #64748b;">(${analysisData.meta.titleLength}文字)</span></td>
+                                    <td>${getMetaStatus('title', analysisData.meta, analysisData.metaIssues)}</td>
+                                </tr>
+                                <tr>
+                                    <td>Description</td>
+                                    <td class="meta-value">${escapeHtml(analysisData.meta.description)} <span style="color: #64748b;">(${analysisData.meta.descriptionLength}文字)</span></td>
+                                    <td>${getMetaStatus('description', analysisData.meta, analysisData.metaIssues)}</td>
+                                </tr>
+                                <tr>
+                                    <td>Canonical</td>
+                                    <td class="meta-value">${analysisData.meta.canonical ? `<a href="${escapeHtml(analysisData.meta.canonical)}" target="_blank" style="color: #5a7ca3;">${escapeHtml(analysisData.meta.canonical)}</a>` : '未設定'}</td>
+                                    <td>${getMetaStatus('canonical', analysisData.meta, analysisData.metaIssues)}</td>
+                                </tr>
+                                <tr>
+                                    <td>Robots</td>
+                                    <td class="meta-value">${escapeHtml(analysisData.meta.robots) || '未設定'}</td>
+                                    <td>${getMetaStatus('robots', analysisData.meta, analysisData.metaIssues)}</td>
+                                </tr>
+                                <tr>
+                                    <td>Viewport</td>
+                                    <td class="meta-value">${escapeHtml(analysisData.meta.viewport) || '未設定'}</td>
+                                    <td>${analysisData.meta.viewport ? '<span class="status-badge success">○ 設定済</span>' : '<span class="status-badge warning">! 未設定</span>'}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+
+            // HTML構造タブを描画
+            function renderHTMLTab(html) {
+                const htmlTab = document.getElementById('tab-html');
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+
+                // HTML構造を解析
+                const structure = {
+                    headTags: Array.from(doc.head.children).length,
+                    metaTags: doc.querySelectorAll('meta').length,
+                    linkTags: doc.querySelectorAll('link').length,
+                    scriptTags: doc.querySelectorAll('script').length,
+                    headings: {
+                        h1: Array.from(doc.querySelectorAll('h1')).map(el => el.textContent.trim()),
+                        h2: Array.from(doc.querySelectorAll('h2')).map(el => el.textContent.trim()),
+                        h3: Array.from(doc.querySelectorAll('h3')).map(el => el.textContent.trim()),
+                        h4: Array.from(doc.querySelectorAll('h4')).map(el => el.textContent.trim()),
+                        h5: Array.from(doc.querySelectorAll('h5')).map(el => el.textContent.trim()),
+                        h6: Array.from(doc.querySelectorAll('h6')).map(el => el.textContent.trim()),
+                    },
+                    images: doc.querySelectorAll('img').length,
+                    links: doc.querySelectorAll('a').length,
+                };
+
+                htmlTab.innerHTML = `
+                    <h2>HTML構造</h2>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin: 20px 0;">
+                        <div style="background: #f8fafc; padding: 16px; border-radius: 6px;">
+                            <div style="color: #64748b; font-size: 13px; margin-bottom: 4px;">Headタグ</div>
+                            <div style="font-size: 24px; font-weight: 600; color: #334155;">${structure.headTags}個</div>
+                        </div>
+                        <div style="background: #f8fafc; padding: 16px; border-radius: 6px;">
+                            <div style="color: #64748b; font-size: 13px; margin-bottom: 4px;">Metaタグ</div>
+                            <div style="font-size: 24px; font-weight: 600; color: #334155;">${structure.metaTags}個</div>
+                        </div>
+                        <div style="background: #f8fafc; padding: 16px; border-radius: 6px;">
+                            <div style="color: #64748b; font-size: 13px; margin-bottom: 4px;">Linkタグ</div>
+                            <div style="font-size: 24px; font-weight: 600; color: #334155;">${structure.linkTags}個</div>
+                        </div>
+                        <div style="background: #f8fafc; padding: 16px; border-radius: 6px;">
+                            <div style="color: #64748b; font-size: 13px; margin-bottom: 4px;">Scriptタグ</div>
+                            <div style="font-size: 24px; font-weight: 600; color: #334155;">${structure.scriptTags}個</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 24px;">
+                        <h3>見出しタグ</h3>
+                        <table class="meta-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 80px;">タグ</th>
+                                    <th style="width: 80px;">数</th>
+                                    <th>内容</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>H1</td>
+                                    <td>${structure.headings.h1.length}個</td>
+                                    <td class="meta-value">${structure.headings.h1.length > 0 ? structure.headings.h1.map(text => escapeHtml(text)).join('<br>') : '-'}</td>
+                                </tr>
+                                <tr>
+                                    <td>H2</td>
+                                    <td>${structure.headings.h2.length}個</td>
+                                    <td class="meta-value">${structure.headings.h2.length > 0 ? structure.headings.h2.slice(0, 5).map(text => escapeHtml(text)).join('<br>') + (structure.headings.h2.length > 5 ? `<br><span style="color: #64748b; font-size: 12px;">...他${structure.headings.h2.length - 5}件</span>` : '') : '-'}</td>
+                                </tr>
+                                <tr>
+                                    <td>H3</td>
+                                    <td>${structure.headings.h3.length}個</td>
+                                    <td class="meta-value">${structure.headings.h3.length > 0 ? structure.headings.h3.slice(0, 5).map(text => escapeHtml(text)).join('<br>') + (structure.headings.h3.length > 5 ? `<br><span style="color: #64748b; font-size: 12px;">...他${structure.headings.h3.length - 5}件</span>` : '') : '-'}</td>
+                                </tr>
+                                <tr>
+                                    <td>H4</td>
+                                    <td>${structure.headings.h4.length}個</td>
+                                    <td class="meta-value">${structure.headings.h4.length > 0 ? structure.headings.h4.slice(0, 3).map(text => escapeHtml(text)).join('<br>') + (structure.headings.h4.length > 3 ? `<br><span style="color: #64748b; font-size: 12px;">...他${structure.headings.h4.length - 3}件</span>` : '') : '-'}</td>
+                                </tr>
+                                <tr>
+                                    <td>H5</td>
+                                    <td>${structure.headings.h5.length}個</td>
+                                    <td class="meta-value">${structure.headings.h5.length > 0 ? structure.headings.h5.slice(0, 3).map(text => escapeHtml(text)).join('<br>') + (structure.headings.h5.length > 3 ? `<br><span style="color: #64748b; font-size: 12px;">...他${structure.headings.h5.length - 3}件</span>` : '') : '-'}</td>
+                                </tr>
+                                <tr>
+                                    <td>H6</td>
+                                    <td>${structure.headings.h6.length}個</td>
+                                    <td class="meta-value">${structure.headings.h6.length > 0 ? structure.headings.h6.slice(0, 3).map(text => escapeHtml(text)).join('<br>') + (structure.headings.h6.length > 3 ? `<br><span style="color: #64748b; font-size: 12px;">...他${structure.headings.h6.length - 3}件</span>` : '') : '-'}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div style="margin-top: 24px;">
+                        <h3>その他の要素</h3>
+                        <table class="meta-table">
+                            <thead>
+                                <tr>
+                                    <th>要素</th>
+                                    <th>数</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>画像 (img)</td>
+                                    <td>${structure.images}個</td>
+                                </tr>
+                                <tr>
+                                    <td>リンク (a)</td>
+                                    <td>${structure.links}個</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+
+            // SEO分析結果を表示
+            window.displaySEOAnalysis = function(html, schemas) {
+                const { analysisData, totalScore } = analyzeSEO(html, schemas);
+                renderSummaryCard(analysisData, totalScore);
+                renderSNSTab(analysisData.og, analysisData.twitter, analysisData.ogIssues, analysisData.twitterIssues);
+                renderOverviewTab(analysisData, totalScore);
+                renderHTMLTab(html);
+
+                document.getElementById('seoSummarySection').style.display = 'block';
+                document.getElementById('tabNavigation').style.display = 'flex';
+            };
+
+            // 初期化
+            document.addEventListener('DOMContentLoaded', () => {
+                initTabNavigation();
+            });
+        </script>
 </body>
 
 </html>
