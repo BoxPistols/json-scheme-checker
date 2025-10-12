@@ -24,7 +24,8 @@
         <div class="input-section">
             <div class="input-group">
                 <input type="url" id="urlInput" placeholder="URLを入力してください (例: http://localhost:3002/foo/bars/12345)"
-                    value="">
+                    value="" style="flex: 1;">
+                <input type="number" id="localhostPort" class="port-input" placeholder="port" min="1" max="65535" value="3000">
                 <button id="fetchButton" onclick="fetchAndDisplay()">
                     取得
                 </button>
@@ -318,7 +319,7 @@
 
             async function fetchAndDisplay() {
                 const urlInput = document.getElementById('urlInput');
-                const url = urlInput.value.trim();
+                let url = urlInput.value.trim();
 
                 if (!url) {
                     showError('URLを入力してください');
@@ -328,6 +329,21 @@
                 if (!isValidUrl(url)) {
                     showError('有効なURLを入力してください');
                     return;
+                }
+
+                // localhostのURLの場合、ポート番号を自動置換
+                const customPort = document.getElementById('localhostPort').value;
+                if (customPort) {
+                    try {
+                        const urlObj = new URL(url);
+                        if (urlObj.hostname === 'localhost' || urlObj.hostname === '127.0.0.1' || urlObj.hostname === '[::1]') {
+                            urlObj.port = customPort;
+                            url = urlObj.toString();
+                            console.log('Adjusted localhost URL to:', url);
+                        }
+                    } catch (e) {
+                        console.error('Could not parse URL for port adjustment:', e);
+                    }
                 }
 
                 // サーバー状態を再チェック
@@ -906,7 +922,22 @@
                 }
             });
 
-            // URLが変更されたときに認証情報を自動入力
+            // URLが変更されたときに認証情報を自動入力し、ポート番号を自動検出
+            document.getElementById('urlInput').addEventListener('input', function (e) {
+                const url = e.target.value.trim();
+                if (url) {
+                    // localhostのURLからポート番号を自動検出（入力時にリアルタイム更新）
+                    try {
+                        const urlObj = new URL(url);
+                        if ((urlObj.hostname === 'localhost' || urlObj.hostname === '127.0.0.1' || urlObj.hostname === '[::1]') && urlObj.port) {
+                            document.getElementById('localhostPort').value = urlObj.port;
+                        }
+                    } catch (e) {
+                        console.error('Failed to parse URL for port detection:', e);
+                    }
+                }
+            });
+
             document.getElementById('urlInput').addEventListener('blur', function (e) {
                 const url = e.target.value.trim();
                 if (url) {

@@ -27,12 +27,10 @@ app.get('/proxy', async (req, res) => {
     console.log(`Username: ${username || '(none)'}`);
     console.log(`Password: ${password ? '***' : '(none)'}`);
 
-    // localhostをIPv4に変換（IPv6の問題を回避）
+    // localhostの場合、まずIPv6で試す（Node.jsサーバーはIPv6でリッスンすることが多い）
     let targetUrl = url;
-    if (url.includes('localhost:')) {
-      targetUrl = url.replace('localhost:', '127.0.0.1:');
-      console.log(`Converting localhost to IPv4: ${targetUrl}`);
-    }
+    // localhost URLはそのまま使用（Axiosが自動的にIPv6/IPv4を解決）
+    console.log(`Target URL: ${targetUrl}`);
 
     const headers = {
       'User-Agent':
@@ -58,6 +56,7 @@ app.get('/proxy', async (req, res) => {
       validateStatus: function (status) {
         return status >= 200 && status < 500;
       },
+      // IPv6とIPv4の両方を試す（デフォルト動作）
     });
 
     console.log(`Response status: ${response.status}`);
