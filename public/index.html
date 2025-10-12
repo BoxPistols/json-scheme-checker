@@ -935,7 +935,7 @@
                             document.getElementById('localhostPort').value = urlObj.port;
                         }
                     } catch (e) {
-                        // URLのパースに失敗した場合は何もしない
+                        console.error('Failed to parse URL for port detection:', e);
                     }
                 }
             });
