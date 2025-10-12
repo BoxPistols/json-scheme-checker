@@ -338,7 +338,7 @@
                 if (customPort) {
                     try {
                         const urlObj = new URL(url);
-                        if (urlObj.hostname === 'localhost' || urlObj.hostname === '127.0.0.1') {
+                        if (urlObj.hostname === 'localhost' || urlObj.hostname === '127.0.0.1' || urlObj.hostname === '[::1]') {
                             urlObj.port = customPort;
                             url = urlObj.toString();
                             console.log('Adjusted localhost URL to:', url);
