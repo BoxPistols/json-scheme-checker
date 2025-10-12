@@ -77,7 +77,8 @@ showError(`ユーザー向けメッセージ: ${error.message}`);
 
 ### public/index.html
 
-- すべてのコードを単一ファイルに保持（ビルドステップなし）
+- ビルドステップなしで `public/` 直下に配置（外部ファイル可）
+- スタイルは `public/styles.css`、スクリプトは `public/app.js` を基本とする
 - 環境固有ロジックに`isVercel`フラグを使用
 - localStorageキー：`jsonld_basic_auth`、`jsonld_auth_{domain}`
 - DOM操作：ネイティブメソッドを使用（jQueryは使わない）
