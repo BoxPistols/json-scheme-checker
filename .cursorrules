@@ -1,0 +1,283 @@
+# Cursor AI ルール - JSON-LD Schema Viewer
+
+## プロジェクトコンテキスト
+
+まず以下を読んでください：
+- `.ai-docs/shared/PROJECT_OVERVIEW.md` - プロジェクト全体の理解
+- `.ai-docs/shared/DEVELOPMENT_WORKFLOW.md` - 開発コマンドとワークフロー
+
+## コードスタイル & 規約
+
+### JavaScript
+
+- ES6+の機能を使用（const/let、アロー関数、テンプレートリテラル）
+- 適切な場所で関数型プログラミングパターンを優先
+- 説明的な変数名を使用（例：`proxyUrl`、`url2`は避ける）
+- 複雑な関数にはJSDocコメントを追加
+
+### HTML/CSS
+
+- セマンティックなHTML5タグを使用
+- 小規模コンポーネントにはインラインスタイル（現在のアプローチ）
+- 繰り返し値にはCSSカスタムプロパティを使用
+- モバイルファーストのレスポンシブデザイン
+
+### エラーハンドリング
+
+```javascript
+try {
+    // リスク含む処理
+} catch (error) {
+    console.error('Context:', error);
+    showError(`ユーザー向けメッセージ: ${error.message}`);
+}
+```
+
+### Markdownコードブロックの言語指定ルール
+
+- `.md`ドキュメント内のコードブロックで言語指定がない場合は、ひとまず`bash`を指定すること
+- 既存の`plaintext`指定のコードブロックは`bash`に置換すること
+## ファイル別ガイドライン
+
+### server.js（ローカル開発サーバー）
+
+- デバッグのため常にリクエスト詳細をログ出力
+- IPv6問題を避けるためlocalhostを127.0.0.1に変換
+- タイムアウトを30秒に設定
+- 適切なHTTPステータスコードを返す（401、503、504）
+
+### api/proxy.js（Vercel サーバーレス関数）
+
+- CORSは手動で処理（ミドルウェアなし）
+- プリフライト用のOPTIONSリクエストを常に処理
+- 関数サイズを50MB以下に維持
+- maxDuration: 30秒を遵守
+
+### public/index.html
+
+- すべてのコードを単一ファイルに保持（ビルドステップなし）
+- 環境固有ロジックに`isVercel`フラグを使用
+- localStorageキー：`jsonld_basic_auth`、`jsonld_auth_{domain}`
+- DOM操作：ネイティブメソッドを使用（jQueryは使わない）
+
+## 一般的なタスク
+
+### 新機能追加
+
+1. まずローカルでテスト（`npm run dev`）
+2. Node.js APIを使用する場合はVercel互換性を確認
+3. 両環境のエラーメッセージを更新
+4. コミット前にサンプルURLでテスト
+
+### 新しいAPIエンドポイント追加
+
+1. `/api/{name}.js`に作成
+2. `module.exports = async (req, res) => {...}`としてエクスポート
+3. CORSヘッダーを処理
+4. OPTIONSメソッドを処理
+5. 特別な設定が必要な場合は`vercel.json`を更新
+6. クライアントを環境固有のURLを使用するよう更新
+
+### 認証機能の変更
+
+- パスワードを平文でログに記録しない
+- ログでは`password ? '***' : '(none)'`を使用
+- localStorageのみに保存、サーバーサイドには保存しない
+- ユーザーの明示的なアクションで削除
+
+## テストチェックリスト
+
+### コミット前：
+
+- [ ] ローカルサーバーが動作（`npm start`）
+- [ ] サンプルURLが正しく解析される
+- [ ] Basic認証がテスト認証情報で動作
+- [ ] エラーメッセージがユーザーフレンドリー
+- [ ] ブラウザでコンソールエラーがない
+- [ ] モバイルレスポンシブ（375px幅でテスト）
+
+### デプロイ前：
+
+- [ ] vercel.jsonが正しい
+- [ ] すべてのAPIルートにCORSヘッダーがある
+- [ ] 環境検出が動作（`isVercel`フラグ）
+- [ ] 実際のVercelデプロイでテスト
+
+## 依存関係管理
+
+### 新しい依存関係の追加
+
+```bash
+npm install <package> --save
+# package.jsonとpackage-lock.jsonを更新
+# コミット前にローカルでテスト
+```
+
+### セキュリティチェック
+
+```bash
+npm audit
+npm audit fix
+```
+
+## パフォーマンスガイドライン
+
+- HTMLファイルを2MB以下に保つ
+- 埋め込み前に画像を最適化
+- 画像に`loading="lazy"`を使用
+- headでブロッキングJavaScriptを避ける
+- 可能な場合は静的アセットをキャッシュ
+
+## アクセシビリティ
+
+- セマンティックなHTMLを使用（`<div onclick>`ではなく`<button>`）
+- アイコンボタンに`aria-label`を追加
+- キーボードナビゲーションが動作することを確認
+- フォーム追加時はスクリーンリーダーでテスト
+
+## Vercel固有のメモ
+
+### 環境変数
+
+現在は使用していません。追加する場合：
+
+```bash
+vercel env add <KEY>
+```
+
+### 関数設定
+
+`vercel.json`内：
+
+```json
+{
+  "functions": {
+    "api/*.js": {
+      "maxDuration": 30
+    }
+  }
+}
+```
+
+### Vercelデプロイのデバッグ
+
+```bash
+vercel logs <deployment-url>
+vercel inspect <deployment-url>
+```
+
+## Gitワークフロー
+
+### ブランチ戦略
+
+- mainブランチ：本番環境（Vercelに自動デプロイ）
+- featureブランチ：オプション
+
+### コミットメッセージ
+
+- 現在形を使用（"Added feature"ではなく"Add feature"）
+- 該当する場合はissueを参照
+- 最初の行を72文字以内に保つ
+
+### プレコミット
+
+- リンティング設定なし（vanilla JS）
+- 手動レビュー推奨
+- プッシュ前にローカルでテスト
+
+## よくある落とし穴
+
+1. **APIルートでCORSヘッダーを忘れる**
+   - 常に`Access-Control-Allow-Origin: *`を追加
+   - OPTIONSメソッドを処理
+
+2. **Vercel環境でlocalhostを使用**
+   - 失敗します（サーバーがリモート）
+   - 環境検出を使用
+
+3. **server.jsの実行をブロック**
+   - モバイルアクセス用に0.0.0.0を使用（localhostではない）
+   - ファイアウォール設定を確認
+
+4. **localStorageの制限**
+   - ドメインごとに約5-10MB
+   - 制限に近づいたら古いデータを削除
+
+## ドキュメント更新
+
+機能追加時は以下を更新：
+
+- [ ] README.md（ユーザー向けの場合）
+- [ ] `.ai-docs/shared/PROJECT_OVERVIEW.md`（アーキテクチャの場合）
+- [ ] `.ai-docs/shared/DEVELOPMENT_WORKFLOW.md`（ワークフロー変更の場合）
+- [ ] このファイル（`.cursorrules`）Cursor固有の場合
+
+## リソース
+
+- [Vercel Serverless Functions](https://vercel.com/docs/functions)
+- [Express.js ドキュメント](https://expressjs.com/)
+- [DOMParser API](https://developer.mozilla.org/ja/docs/Web/API/DOMParser)
+- [Schema.org](https://schema.org/)
+- [JSON-LD仕様](https://json-ld.org/)
+
+## AIペアプログラミングのヒント
+
+### Cursorへの良いプロンプト
+
+- "ネットワークタイムアウトのエラーハンドリングを追加"
+- "この関数をより読みやすくリファクタリング"
+- "この関数のJSDocコメントを書く"
+- "このコールバックをasync/awaitに変換"
+
+### コードレビューリクエスト
+
+- "このAPIエンドポイントのセキュリティ問題をレビュー"
+- "このlocalStorageの使用が最適か確認"
+- "パフォーマンス改善を提案"
+
+### デバッグヘルプ
+
+- "このCORSエラーが発生している理由は？"
+- "このVercelデプロイエラーを説明して"
+- "この401認証失敗の原因は？"
+
+## プロジェクト固有のパターン
+
+### 環境検出
+
+```javascript
+const isVercel = window.location.hostname.includes('vercel.app');
+const isLocalhost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+```
+
+### API URL構築
+
+```javascript
+const apiUrl = isVercel
+  ? `/api/proxy?url=${encodeURIComponent(targetUrl)}`
+  : `${PROXY_SERVER}/proxy?url=${encodeURIComponent(targetUrl)}`;
+```
+
+### エラー表示
+
+```javascript
+function showError(message) {
+    const errorEl = document.getElementById('errorMessage');
+    errorEl.textContent = message;
+    errorEl.classList.add('active');
+}
+```
+
+### 認証ヘッダー
+
+```javascript
+if (username && password) {
+    const auth = Buffer.from(`${username}:${password}`).toString('base64');
+    headers['Authorization'] = `Basic ${auth}`;
+}
+```
+
+---
+
+**最終更新日**: 2025-10-12
+**Cursorバージョン**: Cursor 0.40+でテスト済み

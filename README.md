@@ -19,12 +19,14 @@ WebサイトのJSON-LD構造化データを可視化するツール
 ## 技術スタック
 
 ### バックエンド
+
 - **Node.js** - サーバーランタイム
 - **Express** - Webフレームワーク
 - **Axios** - HTTPクライアント
 - **CORS** - クロスオリジン設定
 
 ### フロントエンド
+
 - **Vanilla JavaScript** - ライブラリ不要のピュアJS
 - **CSS3** - モダンなスタイリング
 - **HTML5** - セマンティックマークアップ
@@ -117,14 +119,18 @@ json-ld-viewer/
 ### ファイル詳細
 
 #### `server.js`
+
 Express.jsで構築されたプロキシサーバー。主要な機能：
+
 - `/proxy` - 指定URLのHTMLを取得してCORS制限を回避
 - `/extract-jsonld` - サーバー側でJSON-LDを抽出して返却
 - `/health` - サーバーのヘルスチェック
 - IPv6問題の自動解決（localhost → 127.0.0.1）
 
 #### `public/index.html`
+
 Webアプリケーション。クライアントサイドで動作：
+
 - URLフォームとサンプルリンク
 - DOMParserでHTML解析
 - `<script type="application/ld+json">` タグを検索
@@ -179,6 +185,7 @@ http://localhost:8080/api/item/123
 ## Vercelへのデプロイ
 
 ### 前提条件
+
 - GitHubアカウント
 - Vercelアカウント
 
@@ -215,6 +222,7 @@ GitHubリポジトリと連携すると、`main` ブランチへのプッシュ�
 ### 環境変数（オプション）
 
 Vercelダッシュボードで以下の環境変数を設定可能:
+
 - `PORT` - サーバーポート（デフォルト: 3333）
 
 ## API エンドポイント
@@ -224,11 +232,13 @@ Vercelダッシュボードで以下の環境変数を設定可能:
 指定されたURLのHTMLを取得します。
 
 **リクエスト:**
+
 ```
 GET /proxy?url=https://example.com
 ```
 
 **レスポンス:**
+
 ```html
 <!DOCTYPE html>
 <html>
@@ -237,6 +247,7 @@ GET /proxy?url=https://example.com
 ```
 
 **エラーハンドリング:**
+
 - `503` - 接続拒否（サーバーダウン）
 - `504` - タイムアウト（30秒）
 - `500` - その他のエラー
@@ -246,6 +257,7 @@ GET /proxy?url=https://example.com
 URLからJSON-LDを直接抽出して返却します。
 
 **リクエスト:**
+
 ```json
 POST /extract-jsonld
 Content-Type: application/json
@@ -256,6 +268,7 @@ Content-Type: application/json
 ```
 
 **レスポンス:**
+
 ```json
 {
   "url": "https://example.com",
@@ -275,11 +288,13 @@ Content-Type: application/json
 サーバーのヘルスチェック。
 
 **リクエスト:**
+
 ```
 GET /health
 ```
 
 **レスポンス:**
+
 ```json
 {
   "status": "ok",

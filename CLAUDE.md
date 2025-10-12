@@ -26,11 +26,13 @@ json-ld-viewer/
 ## Common Development Commands
 
 **Setup**:
+
 ```bash
 npm install
 ```
 
 **Development**:
+
 ```bash
 npm run dev    # Start with nodemon (auto-reload on changes)
 npm start      # Start production server
@@ -39,6 +41,7 @@ npm start      # Start production server
 The server runs on `http://localhost:3333` by default (configurable via `PORT` environment variable).
 
 **Testing**:
+
 ```bash
 # Health check
 curl http://localhost:3333/health
@@ -52,7 +55,20 @@ curl -X POST http://localhost:3333/extract-jsonld \
   -d '{"url": "https://example.com"}'
 ```
 
+**Code Quality**:
+
+```bash
+# Linting
+npm run lint          # Check code with ESLint
+npm run lint:fix      # Auto-fix ESLint issues
+
+# Formatting
+npm run format        # Format all files with Prettier
+npm run format:check  # Check if files are formatted
+```
+
 **Vercel Deployment**:
+
 ```bash
 # Install Vercel CLI (if not installed)
 npm i -g vercel
