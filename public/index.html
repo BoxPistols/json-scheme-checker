@@ -931,7 +931,7 @@
                     // localhostのURLからポート番号を自動検出（入力時にリアルタイム更新）
                     try {
                         const urlObj = new URL(url);
-                        if ((urlObj.hostname === 'localhost' || urlObj.hostname === '127.0.0.1') && urlObj.port) {
+                        if ((urlObj.hostname === 'localhost' || urlObj.hostname === '127.0.0.1' || urlObj.hostname === '[::1]') && urlObj.port) {
                             document.getElementById('localhostPort').value = urlObj.port;
                         }
                     } catch (e) {
