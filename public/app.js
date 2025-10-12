@@ -487,7 +487,7 @@ function hasHtmlBr(text) {
 function formatSimpleValue(value) {
   if (value === null) return 'null';
   if (value === undefined) return 'undefined';
-  if (typeof value === 'string') return value.length > 20 ? value.substr(0, 20) + '...' : value;
+  if (typeof value === 'string') return value.length > 20 ? value.slice(0, 20) + '...' : value;
   return String(value);
 }
 function getValueType(value) {
