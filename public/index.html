@@ -888,7 +888,11 @@
                 // サーバー状態を再チェック
                 const serverOnline = await checkServerStatus();
                 if (!serverOnline) {
-                    showError('プロキシサーバーがオフラインです。node-proxyフォルダで "npm install && npm start" を実行してください。');
+                    if (isVercel) {
+                        showError('Vercel APIに接続できません。しばらくお待ちください。');
+                    } else {
+                        showError('プロキシサーバーがオフラインです。"npm install && npm start" を実行してください。');
+                    }
                     return;
                 }
 
