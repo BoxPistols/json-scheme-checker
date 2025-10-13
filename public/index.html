@@ -80,6 +80,9 @@
                             クリア
                         </button>
                     </div>
+                    <div style="margin-top: 8px; padding: 8px; background: transparent; border: 1px solid #f59e0b; border-radius: 4px; font-size: 11px; color: #d97706; line-height: 1.5;">
+                        注意: 認証情報は平文でブラウザに保存されます。信頼できるデバイスでのみ使用してください。
+                    </div>
                 </div>
             </details>
 
@@ -134,7 +137,7 @@
             </div>
         </div>
 
-        <div id="snackbar" class="snackbar"></div>
+        <div id="snackbar" class="snackbar" role="status" aria-live="polite" aria-atomic="true"></div>
 
         <script>
             // プロキシサーバーのURL設定
@@ -258,7 +261,14 @@
             let snackbarTimeout;
             function showSnackbar(message, type = 'info', duration = 3000) {
                 const snackbar = document.getElementById('snackbar');
-                snackbar.textContent = message;
+                if (!snackbar) {
+                    console.error('Snackbar要素が見つかりません');
+                    return;
+                }
+
+                // テキストノードを使用して安全にメッセージを設定
+                snackbar.textContent = '';
+                snackbar.appendChild(document.createTextNode(message));
 
                 // 既存のクラスをクリア
                 snackbar.className = 'snackbar';
@@ -281,6 +291,13 @@
                     snackbar.classList.remove('show');
                 }, duration);
             }
+
+            // ページアンロード時のクリーンアップ
+            window.addEventListener('beforeunload', () => {
+                if (snackbarTimeout) {
+                    clearTimeout(snackbarTimeout);
+                }
+            });
 
             // サーバーステータスをチェック
             async function checkServerStatus() {
