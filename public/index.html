@@ -25,7 +25,7 @@
             <div class="input-group">
                 <input type="url" id="urlInput" placeholder="URLを入力してください (例: http://localhost:3002/foo/bars/12345)"
                     value="" style="flex: 1;">
-                <input type="number" id="localhostPort" class="port-input" placeholder="port" min="1" max="65535" value="3000">
+                <input type="number" id="localhostPort" class="port-input" placeholder="port" min="1" max="65535" value="3000" style="display: none;">
                 <button id="fetchButton" onclick="fetchAndDisplay()">
                     取得
                 </button>
@@ -951,16 +951,30 @@
             // URLが変更されたときに認証情報を自動入力し、ポート番号を自動検出
             document.getElementById('urlInput').addEventListener('input', function (e) {
                 const url = e.target.value.trim();
+                const portInput = document.getElementById('localhostPort');
+
                 if (url) {
                     // localhostのURLからポート番号を自動検出（入力時にリアルタイム更新）
                     try {
                         const urlObj = new URL(url);
-                        if ((urlObj.hostname === 'localhost' || urlObj.hostname === '127.0.0.1' || urlObj.hostname === '[::1]') && urlObj.port) {
-                            document.getElementById('localhostPort').value = urlObj.port;
+                        const isLocalUrl = urlObj.hostname === 'localhost' || urlObj.hostname === '127.0.0.1' || urlObj.hostname === '[::1]';
+
+                        if (isLocalUrl) {
+                            portInput.style.display = '';  // localhost URLの場合は表示
+                            if (urlObj.port) {
+                                portInput.value = urlObj.port;
+                            }
+                        } else {
+                            portInput.style.display = 'none';  // localhost以外は非表示
                         }
                     } catch (e) {
+                        // URLパースに失敗した場合はポート入力欄を非表示
+                        portInput.style.display = 'none';
                         console.error('Failed to parse URL for port detection:', e);
                     }
+                } else {
+                    // URL入力が空の場合は非表示
+                    portInput.style.display = 'none';
                 }
             });
 
