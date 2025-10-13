@@ -1186,10 +1186,10 @@ Express: server.js に app.use(cors()) を追加
                     html += `<div class="array-list-item">`;
 
                     if (typeof item === 'object' && item !== null) {
-                        // オブジェクトの場合は折りたたみ可能にする
+                        // オブジェクトの場合は折りたたみ可能にする（デフォルトで展開）
                         const itemId = `array-item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-                        html += `<strong class="array-item-label expandable collapsed" onclick="toggleNested('${itemId}', this)">Item ${index + 1}</strong>`;
-                        html += `<div class="nested-content collapsed" id="${itemId}">`;
+                        html += `<strong class="array-item-label expandable" onclick="toggleNested('${itemId}', this)">Item ${index + 1}</strong>`;
+                        html += `<div class="nested-content" id="${itemId}">`;
                         html += `<div class="array-item-content">`;
                         html += createTableView(item, depth + 1);
                         html += `</div>`;
