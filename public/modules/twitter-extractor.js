@@ -27,13 +27,14 @@ export function extractTwitterCards(doc) {
 /**
  * Twitter Cardsのバリデーション
  * @param {Object} twitter - extractTwitterCardsで抽出したTwitter Cards情報
+ * @param {Object} og - Open Graphタグ情報（代替チェック用）
  * @returns {Array} 検出された問題のリスト
  */
-export function validateTwitterCards(twitter) {
+export function validateTwitterCards(twitter, og = {}) {
   const issues = [];
-  const required = ['card', 'title', 'description', 'image'];
 
-  // 必須項目のチェック
+  // 必須項目（画像以外）のチェック
+  const required = ['card', 'title', 'description'];
   required.forEach(field => {
     if (!twitter[field]) {
       issues.push({
@@ -43,6 +44,18 @@ export function validateTwitterCards(twitter) {
       });
     }
   });
+
+  // 画像のチェック（og:imageで代替可能）
+  if (!twitter.image) {
+    if (!og.image) {
+      issues.push({
+        type: 'warning',
+        field: `twitter:image`,
+        message: `twitter:imageが設定されていません（og:imageでも代替可能）`,
+      });
+    }
+    // og:imageがあれば警告なし（代替できるため）
+  }
 
   // カードタイプのバリデーション
   const validCards = ['summary', 'summary_large_image', 'app', 'player'];

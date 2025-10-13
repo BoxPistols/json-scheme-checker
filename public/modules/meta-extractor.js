@@ -88,6 +88,21 @@ export function validateBasicMeta(meta) {
     });
   }
 
+  // Robots検証（未設定は警告）
+  if (!meta.robots) {
+    issues.push({
+      type: 'warning',
+      field: 'robots',
+      message: 'Robotsメタタグが設定されていません（推奨: index,follow）',
+    });
+  } else if (meta.robots.includes('noindex')) {
+    issues.push({
+      type: 'warning',
+      field: 'robots',
+      message: 'noindexが設定されています（検索エンジンにインデックスされません）',
+    });
+  }
+
   return issues;
 }
 

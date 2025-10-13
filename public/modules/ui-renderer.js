@@ -136,7 +136,15 @@ function renderOGPreview(og) {
     return '<p style="color: #64748b;">Open Graphタグが設定されていません</p>';
   }
 
-  const domain = og.url ? new URL(og.url).hostname : '';
+  let domain = '';
+  if (og.url) {
+    try {
+      domain = new URL(og.url).hostname;
+    } catch (e) {
+      console.warn('Invalid OG URL:', og.url);
+      domain = og.url; // フォールバック: URLをそのまま表示
+    }
+  }
 
   return `
     <div class="preview-container">
