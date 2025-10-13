@@ -18,7 +18,7 @@
                 <span class="server-status" id="serverStatus">サーバー確認中...</span>
                 <a class="doc-pill" target="_blank" rel="noopener noreferrer"
                     href="https://developers.google.com/search/docs/appearance/structured-data/job-posting?hl=ja">Google公式リファレンス</a>
-                <button type="button" class="btn-guide" onclick="showGuideModal()">
+                <button type="button" class="btn-guide" id="btnGuide">
                     使い方
                 </button>
             </div>
@@ -27,7 +27,7 @@
         <div class="input-section">
             <div class="input-group">
                 <input type="url" id="urlInput" placeholder="URLを入力してください (例: https://example.com/page.html)" value="">
-                <button id="fetchButton" onclick="fetchAndDisplay()">
+                <button id="fetchButton">
                     取得
                 </button>
             </div>
@@ -45,7 +45,7 @@
                         <input type="text" id="username" placeholder="ユーザー名" class="auth-input">
                         <div class="auth-password-wrapper">
                             <input type="password" id="password" placeholder="パスワード" class="auth-password-input">
-                            <button type="button" id="togglePassword" onclick="togglePasswordVisibility()"
+                            <button type="button" id="togglePassword"
                                 class="auth-toggle-btn" aria-label="パスワードを表示/非表示" title="パスワードを表示/非表示">
                                 <span id="iconEye" aria-hidden="true" class="icon-visible">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
@@ -72,36 +72,36 @@
                     <div class="auth-section-header">
                         <label class="auth-label">
                             認証情報の保存方法
-                            <button type="button" onclick="showSecurityModal()" class="auth-help-btn"
+                            <button type="button" id="btnShowSecurityModal" class="auth-help-btn"
                                 title="セキュリティについて">?</button>
                         </label>
 
                         <div class="auth-radio-group">
                             <label class="auth-radio-label">
                                 <input type="radio" name="authStorage" value="none" checked
-                                    onchange="handleStorageMethodChange()" class="auth-radio-input">
+                                    class="auth-radio-input">
                                 <span>保存しない（最もセキュア）</span>
                             </label>
                             <label class="auth-radio-label">
                                 <input type="radio" name="authStorage" value="session"
-                                    onchange="handleStorageMethodChange()" class="auth-radio-input">
+                                    class="auth-radio-input">
                                 <span>タブを閉じるまで保存（推奨）</span>
                             </label>
                             <label class="auth-radio-label">
                                 <input type="radio" name="authStorage" value="persistent"
-                                    onchange="handleStorageMethodChange()" class="auth-radio-input">
+                                    class="auth-radio-input">
                                 <span>24時間保存（利便性重視）</span>
                             </label>
                             <label class="auth-radio-label">
                                 <input type="radio" name="authStorage" value="permanent"
-                                    onchange="handleStorageMethodChange()" class="auth-radio-input">
+                                    class="auth-radio-input">
                                 <span>永続保存（期限なし）</span>
                             </label>
                         </div>
                     </div>
 
                     <div class="auth-actions">
-                        <button type="button" onclick="clearAuth()" class="auth-clear-btn">
+                        <button type="button" id="btnClearAuth" class="auth-clear-btn">
                             すべてクリア
                         </button>
                     </div>
@@ -196,7 +196,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button class="btn-modal-close" onclick="closeSecurityModal()">
+                        <button class="btn-modal-close" id="btnCloseSecurityModal">
                             閉じる
                         </button>
                     </div>
@@ -319,7 +319,7 @@
                         </section>
                     </div>
                     <div class="modal-footer">
-                        <button class="btn-modal-close" onclick="closeGuideModal()">
+                        <button class="btn-modal-close" id="btnCloseGuideModal">
                             閉じる
                         </button>
                     </div>
@@ -329,21 +329,20 @@
             <div class="sample-links">
                 <span>サンプル:</span>
                 <a class="sample-link"
-                    onclick="loadSample('https://freelance-hub.jp/project/detail/281563/')">freelance-hub</a>
+                    data-sample-url="https://freelance-hub.jp/project/detail/281563/">freelance-hub</a>
                 <a class="sample-link"
-                    onclick="loadSample('https://freelance.levtech.jp/project/detail/28421/')">levtech</a>
-                <a class="sample-link" onclick="loadSample('https://freelance-job.com/job/detail/146243')">freelance-job
+                    data-sample-url="https://freelance.levtech.jp/project/detail/28421/">levtech</a>
+                <a class="sample-link" data-sample-url="https://freelance-job.com/job/detail/146243">freelance-job
                 </a>
                 <a class="sample-link"
-                    onclick="loadSample('https://www.r-agent.com/kensaku/kyujin/20250107-188-01-052.html')">RecruitAgent
+                    data-sample-url="https://www.r-agent.com/kensaku/kyujin/20250107-188-01-052.html">RecruitAgent
                 </a>
-                <a class="sample-link" onclick="loadSample('https://pe-bank.jp/project/aws/47302-18/')">PE-BANK</a>
-                </a>
+                <a class="sample-link" data-sample-url="https://pe-bank.jp/project/aws/47302-18/">PE-BANK</a>
             </div>
 
             <div class="error-message" id="errorMessage">
                 <span id="errorMessageText"></span>
-                <button type="button" onclick="hideError()" class="error-close-btn" aria-label="閉じる"
+                <button type="button" id="btnHideError" class="error-close-btn" aria-label="閉じる"
                     title="閉じる">×</button>
             </div>
 
@@ -432,7 +431,7 @@
             function showSecurityModal() {
                 const modal = document.getElementById('securityModal');
                 if (modal) {
-                    modal.style.display = 'flex';
+                    modal.classList.add('modal-overlay--visible');
                 }
             }
 
@@ -440,7 +439,7 @@
             function closeSecurityModal() {
                 const modal = document.getElementById('securityModal');
                 if (modal) {
-                    modal.style.display = 'none';
+                    modal.classList.remove('modal-overlay--visible');
                 }
             }
 
@@ -448,7 +447,7 @@
             function showGuideModal() {
                 const modal = document.getElementById('guideModal');
                 if (modal) {
-                    modal.style.display = 'flex';
+                    modal.classList.add('modal-overlay--visible');
                 }
             }
 
@@ -456,12 +455,13 @@
             function closeGuideModal() {
                 const modal = document.getElementById('guideModal');
                 if (modal) {
-                    modal.style.display = 'none';
+                    modal.classList.remove('modal-overlay--visible');
                 }
             }
 
             // Modalの背景クリックで閉じる
             document.addEventListener('DOMContentLoaded', () => {
+                // モーダル関連のイベントリスナー
                 const securityModal = document.getElementById('securityModal');
                 if (securityModal) {
                     securityModal.addEventListener('click', (e) => {
@@ -476,6 +476,62 @@
                     guideModal.addEventListener('click', (e) => {
                         if (e.target === guideModal) {
                             closeGuideModal();
+                        }
+                    });
+                }
+
+                // ボタンイベントリスナー登録
+                document.getElementById('btnGuide')?.addEventListener('click', showGuideModal);
+                document.getElementById('fetchButton')?.addEventListener('click', fetchAndDisplay);
+                document.getElementById('togglePassword')?.addEventListener('click', togglePasswordVisibility);
+                document.getElementById('btnShowSecurityModal')?.addEventListener('click', showSecurityModal);
+                document.getElementById('btnClearAuth')?.addEventListener('click', clearAuth);
+                document.getElementById('btnCloseSecurityModal')?.addEventListener('click', closeSecurityModal);
+                document.getElementById('btnCloseGuideModal')?.addEventListener('click', closeGuideModal);
+                document.getElementById('btnHideError')?.addEventListener('click', hideError);
+
+                // 認証ストレージ方法変更のイベントリスナー
+                document.querySelectorAll('input[name="authStorage"]').forEach(radio => {
+                    radio.addEventListener('change', handleStorageMethodChange);
+                });
+
+                // サンプルリンクのイベント委譲
+                document.querySelectorAll('.sample-link').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const url = e.currentTarget.dataset.sampleUrl;
+                        if (url) loadSample(url);
+                    });
+                });
+
+                // 動的生成される要素のイベント委譲（schemasContainer）
+                const schemasContainer = document.getElementById('schemasContainer');
+                if (schemasContainer) {
+                    schemasContainer.addEventListener('click', (e) => {
+                        const target = e.target;
+
+                        // view-toggle buttons
+                        if (target.closest('.view-toggle button')) {
+                            const button = target.closest('button');
+                            const schemaContent = button.closest('.schema-card').querySelector('.schema-content');
+                            const schemaId = schemaContent.id;
+                            const view = button.textContent.toLowerCase().includes('テーブル') ? 'table' : 'json';
+                            toggleView(schemaId, view, button);
+                        }
+
+                        // copy-button
+                        if (target.closest('.copy-button')) {
+                            const button = target.closest('.copy-button');
+                            const schemaContent = button.closest('.schema-card').querySelector('.schema-content');
+                            copyToClipboard(schemaContent.id, button);
+                        }
+
+                        // expandable (nested content toggle)
+                        if (target.classList.contains('expandable')) {
+                            const nextElement = target.nextElementSibling;
+                            if (nextElement && nextElement.classList.contains('nested-content')) {
+                                toggleNested(nextElement.id, target);
+                            }
                         }
                     });
                 }
@@ -532,6 +588,16 @@
             const STORAGE_METHOD_KEY = 'jsonld_storage_method';
 
             // Web Crypto APIを使った暗号化
+            // 返り値: { success: boolean, data: string }
+            //
+            // セキュリティ上の注意:
+            // この実装は開発者ツールでの閲覧を防ぐための簡易的な難読化であり、
+            // 完全なセキュリティを保証するものではありません。
+            // - 固定の暗号化キーとソルトを使用しているため、すべてのユーザーで同じ鍵が生成されます
+            // - ソースコードに暗号化キーが含まれているため、攻撃者が容易に復号化できます
+            // - クライアントサイド暗号化の根本的な制限により、XSS攻撃で認証情報が盗まれる可能性があります
+            //
+            // 重要な認証情報は「保存しない」オプションを選択することを強く推奨します。
             async function encryptPassword(password) {
                 try {
                     const encoder = new TextEncoder();
@@ -540,7 +606,7 @@
                     // ランダムなIVを生成
                     const iv = crypto.getRandomValues(new Uint8Array(12));
 
-                    // 固定キーを使用（本来はユーザー固有のキーが望ましい）
+                    // 固定キーを使用（セキュリティ制限: すべてのユーザーで同じ鍵）
                     const keyMaterial = await crypto.subtle.importKey(
                         'raw',
                         encoder.encode('jsonld-viewer-key-2025'),
@@ -552,7 +618,7 @@
                     const key = await crypto.subtle.deriveKey(
                         {
                             name: 'PBKDF2',
-                            salt: encoder.encode('jsonld-salt'),
+                            salt: encoder.encode('jsonld-salt'), // 固定ソルト（セキュリティ制限）
                             iterations: 100000,
                             hash: 'SHA-256'
                         },
@@ -573,14 +639,17 @@
                     combined.set(iv, 0);
                     combined.set(new Uint8Array(encrypted), iv.length);
 
-                    return btoa(String.fromCharCode(...combined));
+                    return { success: true, data: btoa(String.fromCharCode(...combined)) };
                 } catch (error) {
                     console.error('Encryption failed:', error);
-                    return password; // フォールバック
+                    return { success: false, data: password }; // フォールバック: 平文を返す
                 }
             }
 
             // Web Crypto APIを使った復号化
+            // 返り値: { success: boolean, data: string }
+            //
+            // セキュリティ上の注意: 暗号化と同じ制限が適用されます（上記のencryptPassword参照）
             async function decryptPassword(encryptedData) {
                 try {
                     const encoder = new TextEncoder();
@@ -618,10 +687,10 @@
                     );
 
                     const decoder = new TextDecoder();
-                    return decoder.decode(decrypted);
+                    return { success: true, data: decoder.decode(decrypted) };
                 } catch (error) {
                     console.error('Decryption failed:', error);
-                    return encryptedData; // フォールバック
+                    return { success: false, data: encryptedData }; // フォールバック: 暗号化データをそのまま返す
                 }
             }
 
@@ -634,12 +703,12 @@
                     return;
                 }
 
-                const encryptedPassword = await encryptPassword(password);
+                const encryptionResult = await encryptPassword(password);
                 const auth = {
                     username,
-                    password: encryptedPassword,
+                    password: encryptionResult.data,
                     timestamp: Date.now(),
-                    encrypted: true
+                    encrypted: encryptionResult.success
                 };
 
                 if (storageMethod === 'session') {
@@ -686,12 +755,12 @@
                         }
 
                         // パスワードを復号化
-                        const decryptedPassword = auth.encrypted
+                        const decryptionResult = auth.encrypted
                             ? await decryptPassword(auth.password)
-                            : auth.password;
+                            : { success: true, data: auth.password };
 
                         document.getElementById('username').value = auth.username || '';
-                        document.getElementById('password').value = decryptedPassword || '';
+                        document.getElementById('password').value = decryptionResult.data || '';
                         updateAuthStatus(true);
                     } catch (e) {
                         console.error('Failed to load stored auth:', e);
@@ -1091,11 +1160,11 @@ Express: server.js に app.use(cors()) を追加
                     </div>
                     <div class="schema-controls">
                         <div class="view-toggle">
-                            <button class="active" onclick="toggleView('${id}', 'table', this)">テーブル</button>
-                            <button onclick="toggleView('${id}', 'json', this)">JSON</button>
+                            <button class="active">テーブル</button>
+                            <button>JSON</button>
                         </div>
                         <div class="doc-links">${buildDocLinks(schema)}</div>
-                        <button class="copy-button" onclick="copyToClipboard('${id}', this)">
+                        <button class="copy-button">
                             コピー
                         </button>
                     </div>
@@ -1188,7 +1257,7 @@ Express: server.js に app.use(cors()) を追加
                     if (typeof item === 'object' && item !== null) {
                         // オブジェクトの場合は折りたたみ可能にする（デフォルトで展開）
                         const itemId = `array-item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-                        html += `<strong class="array-item-label expandable" onclick="toggleNested('${itemId}', this)">Item ${index + 1}</strong>`;
+                        html += `<strong class="array-item-label expandable">Item ${index + 1}</strong>`;
                         html += `<div class="nested-content" id="${itemId}">`;
                         html += `<div class="array-item-content">`;
                         html += createTableView(item, depth + 1);
@@ -1222,7 +1291,7 @@ Express: server.js に app.use(cors()) を追加
 
                 let html = `
                 <div>
-                    <span class="expandable" onclick="toggleNested('${id}', this)">
+                    <span class="expandable">
                         オブジェクト {${preview}}
                     </span>
                     <div class="nested-content" id="${id}">
