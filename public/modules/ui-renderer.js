@@ -73,12 +73,12 @@ export function renderMetaTab(meta, issues) {
       <tbody>
         <tr>
           <td>Title</td>
-          <td class="meta-value">${escapeHtml(meta.title)} <span style="color: #64748b;">(${meta.titleLength}文字)</span></td>
+          <td class="meta-value">${escapeHtml(meta.title)} <span class="text-muted">(${meta.titleLength}文字)</span></td>
           <td>${getMetaStatus('title', meta, issues)}</td>
         </tr>
         <tr>
           <td>Description</td>
-          <td class="meta-value">${escapeHtml(meta.description)} <span style="color: #64748b;">(${meta.descriptionLength}文字)</span></td>
+          <td class="meta-value">${escapeHtml(meta.description)} <span class="text-muted">(${meta.descriptionLength}文字)</span></td>
           <td>${getMetaStatus('description', meta, issues)}</td>
         </tr>
         <tr>
@@ -114,7 +114,7 @@ export function renderSNSTab(og, twitter, ogIssues, twitterIssues) {
   snsTab.innerHTML = `
     <h2>SNS最適化</h2>
 
-    <section style="margin-bottom: 32px;">
+    <section class="section-bottom-spacing">
       <h3>Open Graph (Facebook/LinkedIn)</h3>
       ${renderOGPreview(og)}
       ${renderOGTable(og, ogIssues)}
@@ -133,7 +133,7 @@ export function renderSNSTab(og, twitter, ogIssues, twitterIssues) {
  */
 function renderOGPreview(og) {
   if (!og.title && !og.description && !og.image) {
-    return '<p style="color: #64748b;">Open Graphタグが設定されていません</p>';
+    return '<p class="text-muted">Open Graphタグが設定されていません</p>';
   }
 
   let domain = '';
@@ -190,7 +190,7 @@ function renderOGTable(og, issues) {
             return `
             <tr>
               <td>og:${key}</td>
-              <td class="meta-value">${key === 'image' && value ? `<img src="${escapeHtml(value)}" style="max-width: 100px; display: block; margin: 4px 0;"><a href="${escapeHtml(value)}" target="_blank">${escapeHtml(value)}</a>` : escapeHtml(value)}</td>
+              <td class="meta-value">${key === 'image' && value ? `<img src="${escapeHtml(value)}" class="meta-image-preview"><a href="${escapeHtml(value)}" target="_blank">${escapeHtml(value)}</a>` : escapeHtml(value)}</td>
               <td>${status}</td>
             </tr>
           `;
@@ -206,7 +206,7 @@ function renderOGTable(og, issues) {
  */
 function renderTwitterPreview(twitter) {
   if (!twitter.title && !twitter.description && !twitter.image) {
-    return '<p style="color: #64748b;">Twitter Cardタグが設定されていません</p>';
+    return '<p class="text-muted">Twitter Cardタグが設定されていません</p>';
   }
 
   const isSummaryLarge = twitter.card === 'summary_large_image';
@@ -258,7 +258,7 @@ function renderTwitterTable(twitter, issues) {
             return `
             <tr>
               <td>twitter:${key}</td>
-              <td class="meta-value">${key === 'image' && value ? `<img src="${escapeHtml(value)}" style="max-width: 100px; display: block; margin: 4px 0;"><a href="${escapeHtml(value)}" target="_blank">${escapeHtml(value)}</a>` : escapeHtml(value)}</td>
+              <td class="meta-value">${key === 'image' && value ? `<img src="${escapeHtml(value)}" class="meta-image-preview"><a href="${escapeHtml(value)}" target="_blank">${escapeHtml(value)}</a>` : escapeHtml(value)}</td>
               <td>${status}</td>
             </tr>
           `;

@@ -13,42 +13,41 @@
     <div class="container">
         <header>
             <h1>JSON-LD Schema Viewer</h1>
-            <p class="subtitle">CORSプロキシサーバー版</p>
-            <span class="server-status" id="serverStatus">サーバー確認中...</span>
-            <span>
+            <p class="subtitle">Webページ内のJSONスキーマ/SEO関連のチェックツール</p>
+            <div class="header-actions">
+                <span class="server-status" id="serverStatus">サーバー確認中...</span>
                 <a class="doc-pill" target="_blank" rel="noopener noreferrer"
                     href="https://developers.google.com/search/docs/appearance/structured-data/job-posting?hl=ja">Google公式リファレンス</a>
-            </span>
+                <button type="button" class="btn-guide" onclick="showGuideModal()">
+                    使い方
+                </button>
+            </div>
         </header>
 
         <div class="input-section">
             <div class="input-group">
-                <input type="url" id="urlInput" placeholder="URLを入力してください (例: https://example.com/page.html)"
-                    value="" style="flex: 1;">
+                <input type="url" id="urlInput" placeholder="URLを入力してください (例: https://example.com/page.html)" value="">
                 <button id="fetchButton" onclick="fetchAndDisplay()">
                     取得
                 </button>
             </div>
-            <div style="margin-top: 6px; margin-bottom: 10px; font-size: 11px; color: #94a3b8; text-align: right;">
+            <div class="auth-hint">
                 Cmd+K / Ctrl+K でURL入力欄にフォーカス
             </div>
 
-            <details style="margin-bottom: 15px;" id="authSection">
-                <summary style="cursor: pointer; color: #64748b; font-size: 14px; margin-bottom: 10px;">
+            <details class="auth-details" id="authSection">
+                <summary class="auth-summary">
                     Basic認証が必要な場合
-                    <span id="authStatus" style="margin-left: 8px; font-size: 12px; color: #10b981;"></span>
+                    <span id="authStatus" class="auth-status"></span>
                 </summary>
-                <div style="margin-top: 10px;">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                        <input type="text" id="username" placeholder="ユーザー名"
-                            style="padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px;">
-                        <div style="position: relative;">
-                            <input type="password" id="password" placeholder="パスワード"
-                                style="padding: 8px 40px 8px 12px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; width: 100%;">
+                <div class="auth-content">
+                    <div class="auth-grid">
+                        <input type="text" id="username" placeholder="ユーザー名" class="auth-input">
+                        <div class="auth-password-wrapper">
+                            <input type="password" id="password" placeholder="パスワード" class="auth-password-input">
                             <button type="button" id="togglePassword" onclick="togglePasswordVisibility()"
-                                style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 4px; cursor: pointer; color: #64748b;"
-                                aria-label="パスワードを表示/非表示" title="パスワードを表示/非表示">
-                                <span id="iconEye" aria-hidden="true" style="display:inline-flex;">
+                                class="auth-toggle-btn" aria-label="パスワードを表示/非表示" title="パスワードを表示/非表示">
+                                <span id="iconEye" aria-hidden="true" class="icon-visible">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" stroke="currentColor"
@@ -57,7 +56,7 @@
                                             fill="none" />
                                     </svg>
                                 </span>
-                                <span id="iconEyeOff" aria-hidden="true" style="display:none;">
+                                <span id="iconEyeOff" aria-hidden="true" class="icon-hidden">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path d="M3 3l18 18" stroke="currentColor" stroke-width="2" />
@@ -69,22 +68,263 @@
                             </button>
                         </div>
                     </div>
-                    <div style="display: flex; gap: 8px; margin-top: 10px; align-items: center;">
-                        <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #64748b;">
-                            <input type="checkbox" id="rememberAuth" onchange="handleRememberAuth()"
-                                style="width: 16px; height: 16px;">
-                            <span>認証情報を記憶</span>
+
+                    <div class="auth-section-header">
+                        <label class="auth-label">
+                            認証情報の保存方法
+                            <button type="button" onclick="showSecurityModal()" class="auth-help-btn"
+                                title="セキュリティについて">?</button>
                         </label>
-                        <button type="button" onclick="clearAuth()"
-                            style="margin-left: auto; padding: 4px 10px; background: transparent; color: #64748b; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px; cursor: pointer;">
-                            クリア
-                        </button>
+
+                        <div class="auth-radio-group">
+                            <label class="auth-radio-label">
+                                <input type="radio" name="authStorage" value="none" checked
+                                    onchange="handleStorageMethodChange()" class="auth-radio-input">
+                                <span>保存しない（最もセキュア）</span>
+                            </label>
+                            <label class="auth-radio-label">
+                                <input type="radio" name="authStorage" value="session"
+                                    onchange="handleStorageMethodChange()" class="auth-radio-input">
+                                <span>タブを閉じるまで保存（推奨）</span>
+                            </label>
+                            <label class="auth-radio-label">
+                                <input type="radio" name="authStorage" value="persistent"
+                                    onchange="handleStorageMethodChange()" class="auth-radio-input">
+                                <span>24時間保存（利便性重視）</span>
+                            </label>
+                            <label class="auth-radio-label">
+                                <input type="radio" name="authStorage" value="permanent"
+                                    onchange="handleStorageMethodChange()" class="auth-radio-input">
+                                <span>永続保存（期限なし）</span>
+                            </label>
+                        </div>
                     </div>
-                    <div style="margin-top: 8px; padding: 8px; background: transparent; border: 1px solid #f59e0b; border-radius: 4px; font-size: 11px; color: #d97706; line-height: 1.5;">
-                        注意: 認証情報は平文でブラウザに保存されます。信頼できるデバイスでのみ使用してください。
+
+                    <div class="auth-actions">
+                        <button type="button" onclick="clearAuth()" class="auth-clear-btn">
+                            すべてクリア
+                        </button>
                     </div>
                 </div>
             </details>
+
+            <!-- セキュリティ解説Modal -->
+            <div id="securityModal" class="modal-overlay">
+                <div class="modal-container modal-container--narrow">
+                    <div class="modal-header">
+                        <h2>認証情報の保存について</h2>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            Basic認証のユーザー名とパスワードをブラウザに保存する方法を選択できます。各オプションの特徴を理解して、ご自身の環境に合った方法を選択してください。
+                        </p>
+
+                        <table class="modal-table">
+                            <thead>
+                                <tr>
+                                    <th>保存方法</th>
+                                    <th>セキュリティ</th>
+                                    <th>利便性</th>
+                                    <th>保存期間</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>保存しない</strong></td>
+                                    <td class="status-high">高</td>
+                                    <td class="status-low">低</td>
+                                    <td>なし</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>タブを閉じるまで</strong></td>
+                                    <td class="status-medium">中</td>
+                                    <td class="status-medium">中</td>
+                                    <td>タブを閉じるまで</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>24時間保存</strong></td>
+                                    <td class="status-low">低</td>
+                                    <td class="status-high">高</td>
+                                    <td>24時間</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>永続保存</strong></td>
+                                    <td class="status-low">極低</td>
+                                    <td class="status-high">最高</td>
+                                    <td>期限なし</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="modal-section-divider">
+                            <h3 class="modal-subheading">各オプションの詳細</h3>
+
+                            <div class="modal-info-box modal-info-box--green">
+                                <h4>保存しない（最もセキュア）</h4>
+                                <p>
+                                    ページをリロードするたびに再入力が必要です。セキュリティを最優先する場合に推奨します。
+                                </p>
+                            </div>
+
+                            <div class="modal-info-box modal-info-box--orange">
+                                <h4>タブを閉じるまで保存（推奨）</h4>
+                                <p>
+                                    ブラウザのタブを閉じると自動的に削除されます。セキュリティと利便性のバランスが取れた推奨オプションです。認証情報は暗号化されて保存されます。
+                                </p>
+                            </div>
+
+                            <div class="modal-info-box modal-info-box--red">
+                                <h4>24時間保存（利便性重視）</h4>
+                                <p>
+                                    24時間後に自動的に削除されます。頻繁にアクセスする場合に便利ですが、信頼できるデバイスでのみ使用してください。認証情報は暗号化されて保存されます。
+                                </p>
+                            </div>
+
+                            <div class="modal-info-box modal-info-box--red">
+                                <h4>永続保存（期限なし、最もリスク高）</h4>
+                                <p>
+                                    期限なしで永続的に保存されます。手動でクリアするまで認証情報が残り続けます。最も利便性が高い一方、セキュリティリスクも最大です。個人デバイスで、かつ重要度の低い認証情報の場合のみ使用を検討してください。認証情報は暗号化されて保存されます。
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="modal-note-box">
+                            <p>
+                                <strong>注意:</strong>
+                                暗号化は開発者ツールで見られないようにするための簡易的なものです。完全なセキュリティを保証するものではありません。重要な認証情報は「保存しない」を選択することを強く推奨します。
+                            </p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-modal-close" onclick="closeSecurityModal()">
+                            閉じる
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 使い方解説Modal -->
+            <div id="guideModal" class="modal-overlay">
+                <div class="modal-container">
+                    <div class="modal-header modal-header--sticky">
+                        <h2>JSON-LD Schema Viewerの使い方</h2>
+                    </div>
+                    <div class="modal-body">
+                        <!-- アプリの概要 -->
+                        <section class="modal-section">
+                            <h3>このアプリについて</h3>
+                            <p>
+                                JSON-LD Schema Viewerは、WebサイトのJSON-LD構造化データを抽出して可視化するツールです。
+                            </p>
+                            <ul>
+                                <li>CORSプロキシサーバーを使用してあらゆるURLにアクセス可能</li>
+                                <li>開発中のlocalhostサイトも検証可能</li>
+                                <li>テーブル形式とJSON形式の切り替え表示</li>
+                                <li>Basic認証が必要なサイトにも対応</li>
+                            </ul>
+                        </section>
+
+                        <!-- 基本的な使い方 -->
+                        <section class="modal-section">
+                            <h3>基本的な使い方</h3>
+                            <ol>
+                                <li><strong>URLを入力:</strong> 検証したいWebサイトのURLを入力欄に貼り付けます</li>
+                                <li><strong>取得ボタンをクリック:</strong> 「取得」ボタンをクリックしてJSON-LDを抽出します</li>
+                                <li><strong>結果を確認:</strong> 抽出されたJSON-LDがテーブル形式で表示されます</li>
+                                <li><strong>表示切り替え:</strong> 「JSON」タブで生のJSON形式でも確認できます</li>
+                                <li><strong>コピー:</strong> 「コピー」ボタンでJSON-LDをクリップボードにコピーできます</li>
+                            </ol>
+                            <div class="modal-info-box modal-info-box--blue">
+                                <p>
+                                    <strong>ヒント:</strong> Cmd+K（Mac）またはCtrl+K（Windows）でURL入力欄に素早くフォーカスできます。
+                                </p>
+                            </div>
+                        </section>
+
+                        <!-- サンプルリンクの使い方 -->
+                        <section class="modal-section">
+                            <h3>サンプルリンクの使い方</h3>
+                            <p>
+                                入力欄の下にある「サンプル」リンクをクリックすると、実際のWebサイトのJSON-LDを確認できます。初めて使う方は、まずサンプルリンクから試してみてください。
+                            </p>
+                        </section>
+
+                        <!-- Basic認証について -->
+                        <section class="modal-section">
+                            <h3>Basic認証が必要なサイトの検証</h3>
+                            <p>
+                                パスワード保護されたサイト（ステージング環境など）を検証する場合：
+                            </p>
+                            <ol>
+                                <li>「Basic認証が必要な場合」セクションを展開</li>
+                                <li>ユーザー名とパスワードを入力</li>
+                                <li>認証情報の保存方法を選択（推奨：タブを閉じるまで保存）</li>
+                                <li>URLを入力して「取得」ボタンをクリック</li>
+                            </ol>
+                            <div class="modal-info-box modal-info-box--yellow">
+                                <p>
+                                    <strong>セキュリティ:</strong> 認証情報はブラウザのみに保存され、サーバーには送信されません。重要な認証情報は「保存しない」を選択してください。
+                                </p>
+                            </div>
+                        </section>
+
+                        <!-- 表示モードの切り替え -->
+                        <section class="modal-section">
+                            <h3>表示モードの切り替え</h3>
+                            <table class="modal-table">
+                                <thead>
+                                    <tr>
+                                        <th>モード</th>
+                                        <th>説明</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>テーブル</strong></td>
+                                        <td>プロパティ名、値、型が見やすく表示されます。階層構造も分かりやすく表示されます。</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>JSON</strong></td>
+                                        <td>生のJSON形式で表示されます。シンタックスハイライト付きで読みやすくフォーマットされています。</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </section>
+
+                        <!-- 便利な機能 -->
+                        <section class="modal-section">
+                            <h3>便利な機能</h3>
+                            <ul>
+                                <li><strong>スキーマ統計:</strong> 検出されたスキーマ数、プロパティ総数、ドメイン情報を表示</li>
+                                <li><strong>Schema.orgリンク:</strong> 各スキーマタイプの公式ドキュメントへのリンクを自動生成</li>
+                                <li><strong>Googleリファレンス:</strong> Googleの構造化データガイドへのリンクを提供</li>
+                                <li><strong>画像サムネイル:</strong> 画像URLは自動的にサムネイル表示されます</li>
+                                <li><strong>展開/折りたたみ:</strong> ネストされたオブジェクトをクリックして展開・折りたたみできます</li>
+                                <li><strong>コピー機能:</strong> 各スキーマをワンクリックでクリップボードにコピー</li>
+                            </ul>
+                        </section>
+
+                        <!-- タブ機能の説明 -->
+                        <section class="modal-section">
+                            <h3>タブ機能</h3>
+                            <p>
+                                結果は4つのタブで表示されます：
+                            </p>
+                            <ul>
+                                <li><strong>Schema:</strong> JSON-LD構造化データの詳細表示</li>
+                                <li><strong>HTML構造:</strong> ページのHTML要素数や見出しタグの分析</li>
+                                <li><strong>概要・メタタグ:</strong> SEOスコアとメタタグの検証結果</li>
+                                <li><strong>SNS:</strong> Open GraphとTwitter Cardsの設定確認</li>
+                            </ul>
+                        </section>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-modal-close" onclick="closeGuideModal()">
+                            閉じる
+                        </button>
+                    </div>
+                </div>
+            </div>
 
             <div class="sample-links">
                 <span>サンプル:</span>
@@ -103,9 +343,8 @@
 
             <div class="error-message" id="errorMessage">
                 <span id="errorMessageText"></span>
-                <button type="button" onclick="hideError()"
-                    style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 4px 8px; cursor: pointer; color: inherit; font-size: 18px; line-height: 1; opacity: 0.7; font-weight: bold;"
-                    aria-label="閉じる" title="閉じる">×</button>
+                <button type="button" onclick="hideError()" class="error-close-btn" aria-label="閉じる"
+                    title="閉じる">×</button>
             </div>
 
             <div class="loading" id="loading">
@@ -113,11 +352,11 @@
                 <p>データを取得中...</p>
             </div>
 
-            <div class="seo-summary-section" id="seoSummarySection" style="display: none;">
+            <div class="seo-summary-section section-hidden" id="seoSummarySection">
                 <div id="summaryCard"></div>
             </div>
 
-            <div class="tab-navigation" id="tabNavigation" style="display: none;">
+            <div class="tab-navigation section-hidden" id="tabNavigation">
                 <button class="tab-button active" data-tab="tab-schema">Schema</button>
                 <button class="tab-button" data-tab="tab-html">HTML構造</button>
                 <button class="tab-button" data-tab="tab-overview">概要・メタタグ</button>
@@ -171,33 +410,288 @@
                 if (passwordField.type === 'password') {
                     passwordField.type = 'text';
                     if (iconEye && iconEyeOff) {
-                        iconEye.style.display = 'none';
-                        iconEyeOff.style.display = 'inline-flex';
+                        iconEye.classList.remove('icon-visible');
+                        iconEye.classList.add('icon-hidden');
+                        iconEyeOff.classList.remove('icon-hidden');
+                        iconEyeOff.classList.add('icon-visible');
                     }
                     toggleButton.title = 'パスワードを非表示';
                 } else {
                     passwordField.type = 'password';
                     if (iconEye && iconEyeOff) {
-                        iconEye.style.display = 'inline-flex';
-                        iconEyeOff.style.display = 'none';
+                        iconEye.classList.remove('icon-hidden');
+                        iconEye.classList.add('icon-visible');
+                        iconEyeOff.classList.remove('icon-visible');
+                        iconEyeOff.classList.add('icon-hidden');
                     }
                     toggleButton.title = 'パスワードを表示';
                 }
             }
 
+            // セキュリティ解説Modalを表示
+            function showSecurityModal() {
+                const modal = document.getElementById('securityModal');
+                if (modal) {
+                    modal.style.display = 'flex';
+                }
+            }
+
+            // セキュリティ解説Modalを閉じる
+            function closeSecurityModal() {
+                const modal = document.getElementById('securityModal');
+                if (modal) {
+                    modal.style.display = 'none';
+                }
+            }
+
+            // 使い方解説Modalを表示
+            function showGuideModal() {
+                const modal = document.getElementById('guideModal');
+                if (modal) {
+                    modal.style.display = 'flex';
+                }
+            }
+
+            // 使い方解説Modalを閉じる
+            function closeGuideModal() {
+                const modal = document.getElementById('guideModal');
+                if (modal) {
+                    modal.style.display = 'none';
+                }
+            }
+
+            // Modalの背景クリックで閉じる
+            document.addEventListener('DOMContentLoaded', () => {
+                const securityModal = document.getElementById('securityModal');
+                if (securityModal) {
+                    securityModal.addEventListener('click', (e) => {
+                        if (e.target === securityModal) {
+                            closeSecurityModal();
+                        }
+                    });
+                }
+
+                const guideModal = document.getElementById('guideModal');
+                if (guideModal) {
+                    guideModal.addEventListener('click', (e) => {
+                        if (e.target === guideModal) {
+                            closeGuideModal();
+                        }
+                    });
+                }
+
+                // 保存された認証ストレージ方法を復元
+                restoreStorageMethod();
+
+                // 初回訪問時に使い方Modalを自動表示
+                const GUIDE_SHOWN_KEY = 'jsonld_guide_shown';
+                const hasSeenGuide = localStorage.getItem(GUIDE_SHOWN_KEY);
+                if (!hasSeenGuide) {
+                    setTimeout(() => {
+                        showGuideModal();
+                        localStorage.setItem(GUIDE_SHOWN_KEY, 'true');
+                    }, 500);
+                }
+            });
+
+            // 認証情報の保存方法を復元
+            function restoreStorageMethod() {
+                const savedMethod = localStorage.getItem(STORAGE_METHOD_KEY) || 'none';
+                const radio = document.querySelector(`input[name="authStorage"][value="${savedMethod}"]`);
+                if (radio) {
+                    radio.checked = true;
+                }
+            }
+
+            // ストレージ方法の変更を処理
+            function handleStorageMethodChange() {
+                const selectedMethod = document.querySelector('input[name="authStorage"]:checked')?.value || 'none';
+                localStorage.setItem(STORAGE_METHOD_KEY, selectedMethod);
+
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value.trim();
+
+                // 既存の認証情報がある場合は、新しい方法で再保存
+                if (username || password) {
+                    saveAuth(username, password);
+                }
+
+                // フィードバックメッセージ
+                const messages = {
+                    'none': '認証情報を保存しない設定に変更しました',
+                    'session': 'タブを閉じるまで保存する設定に変更しました',
+                    'persistent': '24時間保存する設定に変更しました',
+                    'permanent': '永続保存する設定に変更しました（期限なし）'
+                };
+                showSnackbar(messages[selectedMethod] || '設定を変更しました', 'success');
+            }
+
             // 認証情報の管理
             const AUTH_STORAGE_KEY = 'jsonld_basic_auth';
             const DOMAIN_AUTH_PREFIX = 'jsonld_auth_';
+            const STORAGE_METHOD_KEY = 'jsonld_storage_method';
+
+            // Web Crypto APIを使った暗号化
+            async function encryptPassword(password) {
+                try {
+                    const encoder = new TextEncoder();
+                    const data = encoder.encode(password);
+
+                    // ランダムなIVを生成
+                    const iv = crypto.getRandomValues(new Uint8Array(12));
+
+                    // 固定キーを使用（本来はユーザー固有のキーが望ましい）
+                    const keyMaterial = await crypto.subtle.importKey(
+                        'raw',
+                        encoder.encode('jsonld-viewer-key-2025'),
+                        'PBKDF2',
+                        false,
+                        ['deriveKey']
+                    );
+
+                    const key = await crypto.subtle.deriveKey(
+                        {
+                            name: 'PBKDF2',
+                            salt: encoder.encode('jsonld-salt'),
+                            iterations: 100000,
+                            hash: 'SHA-256'
+                        },
+                        keyMaterial,
+                        { name: 'AES-GCM', length: 256 },
+                        false,
+                        ['encrypt']
+                    );
+
+                    const encrypted = await crypto.subtle.encrypt(
+                        { name: 'AES-GCM', iv: iv },
+                        key,
+                        data
+                    );
+
+                    // IVと暗号化データを結合してBase64エンコード
+                    const combined = new Uint8Array(iv.length + encrypted.byteLength);
+                    combined.set(iv, 0);
+                    combined.set(new Uint8Array(encrypted), iv.length);
+
+                    return btoa(String.fromCharCode(...combined));
+                } catch (error) {
+                    console.error('Encryption failed:', error);
+                    return password; // フォールバック
+                }
+            }
+
+            // Web Crypto APIを使った復号化
+            async function decryptPassword(encryptedData) {
+                try {
+                    const encoder = new TextEncoder();
+                    const combined = Uint8Array.from(atob(encryptedData), c => c.charCodeAt(0));
+
+                    // IVと暗号化データを分離
+                    const iv = combined.slice(0, 12);
+                    const encrypted = combined.slice(12);
+
+                    const keyMaterial = await crypto.subtle.importKey(
+                        'raw',
+                        encoder.encode('jsonld-viewer-key-2025'),
+                        'PBKDF2',
+                        false,
+                        ['deriveKey']
+                    );
+
+                    const key = await crypto.subtle.deriveKey(
+                        {
+                            name: 'PBKDF2',
+                            salt: encoder.encode('jsonld-salt'),
+                            iterations: 100000,
+                            hash: 'SHA-256'
+                        },
+                        keyMaterial,
+                        { name: 'AES-GCM', length: 256 },
+                        false,
+                        ['decrypt']
+                    );
+
+                    const decrypted = await crypto.subtle.decrypt(
+                        { name: 'AES-GCM', iv: iv },
+                        key,
+                        encrypted
+                    );
+
+                    const decoder = new TextDecoder();
+                    return decoder.decode(decrypted);
+                } catch (error) {
+                    console.error('Decryption failed:', error);
+                    return encryptedData; // フォールバック
+                }
+            }
+
+            // 認証情報を保存
+            async function saveAuth(username, password) {
+                const storageMethod = document.querySelector('input[name="authStorage"]:checked')?.value || 'none';
+
+                // 「保存しない」の場合は何もしない
+                if (storageMethod === 'none') {
+                    return;
+                }
+
+                const encryptedPassword = await encryptPassword(password);
+                const auth = {
+                    username,
+                    password: encryptedPassword,
+                    timestamp: Date.now(),
+                    encrypted: true
+                };
+
+                if (storageMethod === 'session') {
+                    // sessionStorage に保存
+                    sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(auth));
+                    updateAuthStatus(true);
+                } else if (storageMethod === 'persistent' || storageMethod === 'permanent') {
+                    // localStorage に保存（persistentは24時間期限付き、permanentは期限なし）
+                    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(auth));
+                    updateAuthStatus(true);
+                }
+            }
 
             // ページ読み込み時に保存された認証情報を復元
-            function loadStoredAuth() {
-                const stored = localStorage.getItem(AUTH_STORAGE_KEY);
+            async function loadStoredAuth() {
+                const storageMethod = localStorage.getItem(STORAGE_METHOD_KEY) || 'none';
+
+                if (storageMethod === 'none') {
+                    return;
+                }
+
+                let stored = null;
+                if (storageMethod === 'session') {
+                    stored = sessionStorage.getItem(AUTH_STORAGE_KEY);
+                } else if (storageMethod === 'persistent' || storageMethod === 'permanent') {
+                    stored = localStorage.getItem(AUTH_STORAGE_KEY);
+                }
+
                 if (stored) {
                     try {
                         const auth = JSON.parse(stored);
+
+                        // 24時間チェック（persistentモードのみ、permanentは期限なし）
+                        if (storageMethod === 'persistent') {
+                            const elapsed = Date.now() - (auth.timestamp || 0);
+                            const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
+
+                            if (elapsed > TWENTY_FOUR_HOURS) {
+                                console.log('認証情報の有効期限が切れています');
+                                localStorage.removeItem(AUTH_STORAGE_KEY);
+                                updateAuthStatus(false);
+                                return;
+                            }
+                        }
+
+                        // パスワードを復号化
+                        const decryptedPassword = auth.encrypted
+                            ? await decryptPassword(auth.password)
+                            : auth.password;
+
                         document.getElementById('username').value = auth.username || '';
-                        document.getElementById('password').value = auth.password || '';
-                        document.getElementById('rememberAuth').checked = true;
+                        document.getElementById('password').value = decryptedPassword || '';
                         updateAuthStatus(true);
                     } catch (e) {
                         console.error('Failed to load stored auth:', e);
@@ -205,34 +699,14 @@
                 }
             }
 
-            // 認証情報の記憶/解除を処理
-            function handleRememberAuth() {
-                const remember = document.getElementById('rememberAuth').checked;
-                const username = document.getElementById('username').value.trim();
-                const password = document.getElementById('password').value.trim();
-
-                if (remember) {
-                    if (username || password) {
-                        // 認証情報を保存
-                        const auth = { username, password, timestamp: Date.now() };
-                        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(auth));
-                        updateAuthStatus(true);
-                    }
-                } else {
-                    // 認証情報を削除
-                    localStorage.removeItem(AUTH_STORAGE_KEY);
-                    updateAuthStatus(false);
-                }
-            }
-
             // 認証情報をクリア
             function clearAuth() {
                 document.getElementById('username').value = '';
                 document.getElementById('password').value = '';
-                document.getElementById('rememberAuth').checked = false;
 
-                // グローバル認証情報を削除
+                // すべてのストレージから削除
                 localStorage.removeItem(AUTH_STORAGE_KEY);
+                sessionStorage.removeItem(AUTH_STORAGE_KEY);
 
                 // ドメイン別の認証情報もすべて削除
                 const keys = Object.keys(localStorage);
@@ -393,23 +867,10 @@
                     // Basic認証の情報を取得
                     const username = document.getElementById('username').value.trim();
                     const password = document.getElementById('password').value.trim();
-                    const remember = document.getElementById('rememberAuth').checked;
 
-                    // 記憶するオプションが有効で、認証情報がある場合は保存
-                    if (remember && (username || password)) {
-                        const auth = { username, password, timestamp: Date.now() };
-                        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(auth));
-
-                        // ドメインごとにも保存
-                        try {
-                            const urlObj = new URL(url);
-                            const domainKey = DOMAIN_AUTH_PREFIX + urlObj.hostname;
-                            localStorage.setItem(domainKey, JSON.stringify(auth));
-                        } catch (e) {
-                            console.log('Could not save domain-specific auth');
-                        }
-
-                        updateAuthStatus(true);
+                    // 認証情報がある場合は、選択された方法で保存
+                    if (username || password) {
+                        await saveAuth(username, password);
                     }
 
                     // localhost URLの判定
@@ -457,14 +918,14 @@
                             if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
                                 throw new Error(`localhost URLにアクセスできません。
 
-開発サーバーでCORSを有効化してください。
+アクセス先のlocalhost開発サーバー側でCORSを有効化してください。
 
-【設定例】
+【アクセス先サーバーでの設定例】
 Next.js: next.config.js に headers 設定を追加
 Nuxt 3: nuxt.config.ts で vite.server.cors = true を設定
-Express: app.use(cors()) を追加
+Express: server.js に app.use(cors()) を追加
 
-設定後、開発サーバーを再起動してください。
+設定後、アクセス先の開発サーバーを再起動してください。
 
 詳細な設定手順は CORS_SETUP.md をご覧ください。`);
                             }
@@ -719,17 +1180,23 @@ Express: app.use(cors()) を追加
                 if (arr.length === 0) return '<span class="property-value">空の配列</span>';
 
                 let html = `<div class="array-list">`;
-                html += `<div style="margin-bottom: 8px; color: #64748b; font-size: 13px;">配列 (${arr.length}項目)</div>`;
+                html += `<div class="array-header">配列 (${arr.length}項目)</div>`;
 
                 arr.forEach((item, index) => {
                     html += `<div class="array-list-item">`;
-                    html += `<strong style="color: #64748b; font-size: 12px;">Item ${index + 1}</strong>`;
 
                     if (typeof item === 'object' && item !== null) {
-                        html += `<div style="margin-top: 8px;">`;
+                        // オブジェクトの場合は折りたたみ可能にする
+                        const itemId = `array-item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+                        html += `<strong class="array-item-label expandable collapsed" onclick="toggleNested('${itemId}', this)">Item ${index + 1}</strong>`;
+                        html += `<div class="nested-content collapsed" id="${itemId}">`;
+                        html += `<div class="array-item-content">`;
                         html += createTableView(item, depth + 1);
                         html += `</div>`;
+                        html += `</div>`;
                     } else {
+                        // プリミティブ値の場合は折りたためない
+                        html += `<strong class="array-item-label">Item ${index + 1}</strong>`;
                         html += `: ${formatValue(item)}`;
                     }
 
@@ -803,11 +1270,11 @@ Express: app.use(cors()) を追加
                 }
 
                 if (typeof value === 'boolean') {
-                    return `<span class="property-value" style="color: #dc2626;">${value}</span>`;
+                    return `<span class="property-value value-boolean">${value}</span>`;
                 }
 
                 if (typeof value === 'number') {
-                    return `<span class="property-value" style="color: #ea580c;">${value}</span>`;
+                    return `<span class="property-value value-number">${value}</span>`;
                 }
 
                 return `<span class="property-value">${escapeHtml(String(value))}</span>`;
@@ -1157,19 +1624,19 @@ Express: app.use(cors()) を追加
                 if (allIssues.length > 0) {
                     issuesHtml = `
                         <details class="issues-section" open>
-                            <summary style="cursor: pointer; list-style: none;">
-                                <h3 style="display: inline;">検出された問題 (全${allIssues.length}件)</h3>
+                            <summary class="issues-header">
+                                <h3 class="issues-title">検出された問題 (全${allIssues.length}件)</h3>
                             </summary>
-                            <div style="margin-top: 12px; margin-bottom: 12px;">
+                            <div class="issues-badges">
                                 <span class="status-badge error">エラー: ${errorCount}件</span>
-                                <span class="status-badge warning" style="margin-left: 8px;">警告: ${warningCount}件</span>
+                                <span class="status-badge warning badge-spacing">警告: ${warningCount}件</span>
                             </div>
                             ${allIssues.slice(0, 10).map(issue => `
                                 <div class="status-badge ${issue.type}">
                                     ${issue.type === 'error' ? 'x' : '!'} ${issue.message}
                                 </div>
                             `).join('')}
-                            ${allIssues.length > 10 ? `<p style="color: #64748b; font-size: 13px; margin-top: 8px;">他${allIssues.length - 10}件の問題があります。各タブで詳細を確認してください。</p>` : ''}
+                            ${allIssues.length > 10 ? `<p class="text-muted-xsmall">他${allIssues.length - 10}件の問題があります。各タブで詳細を確認してください。</p>` : ''}
                         </details>
                     `;
                 }
@@ -1187,28 +1654,30 @@ Express: app.use(cors()) を追加
                     return '<span class="status-badge success">○ 正常</span>';
                 }
 
+                const scoreColorClass = totalScore >= 80 ? 'score-card-value--success' : totalScore >= 60 ? 'score-card-value--warning' : 'score-card-value--danger';
+
                 overviewTab.innerHTML = `
                     <h2>概要・メタタグ</h2>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin: 20px 0;">
-                        <div style="background: #f8fafc; padding: 16px; border-radius: 6px;">
-                            <div style="color: #64748b; font-size: 13px; margin-bottom: 4px;">総合スコア</div>
-                            <div style="font-size: 32px; font-weight: 700; color: ${totalScore >= 80 ? '#10b981' : totalScore >= 60 ? '#f59e0b' : '#ef4444'};">${totalScore}/100</div>
+                    <div class="score-grid">
+                        <div class="score-card">
+                            <div class="score-card-label">総合スコア</div>
+                            <div class="score-card-value score-card-value--large ${scoreColorClass}">${totalScore}/100</div>
                         </div>
-                        <div style="background: #f8fafc; padding: 16px; border-radius: 6px;">
-                            <div style="color: #64748b; font-size: 13px; margin-bottom: 4px;">メタタグ</div>
-                            <div style="font-size: 24px; font-weight: 600; color: #334155;">${analysisData.scores.meta}/25</div>
+                        <div class="score-card">
+                            <div class="score-card-label">メタタグ</div>
+                            <div class="score-card-value">${analysisData.scores.meta}/25</div>
                         </div>
-                        <div style="background: #f8fafc; padding: 16px; border-radius: 6px;">
-                            <div style="color: #64748b; font-size: 13px; margin-bottom: 4px;">SNS最適化</div>
-                            <div style="font-size: 24px; font-weight: 600; color: #334155;">${analysisData.scores.sns}/15</div>
+                        <div class="score-card">
+                            <div class="score-card-label">SNS最適化</div>
+                            <div class="score-card-value">${analysisData.scores.sns}/15</div>
                         </div>
-                        <div style="background: #f8fafc; padding: 16px; border-radius: 6px;">
-                            <div style="color: #64748b; font-size: 13px; margin-bottom: 4px;">構造化データ</div>
-                            <div style="font-size: 24px; font-weight: 600; color: #334155;">${analysisData.scores.schema}/20</div>
+                        <div class="score-card">
+                            <div class="score-card-label">構造化データ</div>
+                            <div class="score-card-value">${analysisData.scores.schema}/20</div>
                         </div>
                     </div>
                     ${issuesHtml}
-                    <div style="margin-top: 24px;">
+                    <div class="section-spacing">
                         <h3>基本メタタグ</h3>
                         <table class="meta-table">
                             <thead>
@@ -1221,17 +1690,17 @@ Express: app.use(cors()) を追加
                             <tbody>
                                 <tr>
                                     <td>Title</td>
-                                    <td class="meta-value">${escapeHtml(analysisData.meta.title)} <span style="color: #64748b;">(${analysisData.meta.titleLength}文字)</span></td>
+                                    <td class="meta-value">${escapeHtml(analysisData.meta.title)} <span class="meta-length">(${analysisData.meta.titleLength}文字)</span></td>
                                     <td>${getMetaStatus('title', analysisData.meta, analysisData.metaIssues)}</td>
                                 </tr>
                                 <tr>
                                     <td>Description</td>
-                                    <td class="meta-value">${escapeHtml(analysisData.meta.description)} <span style="color: #64748b;">(${analysisData.meta.descriptionLength}文字)</span></td>
+                                    <td class="meta-value">${escapeHtml(analysisData.meta.description)} <span class="meta-length">(${analysisData.meta.descriptionLength}文字)</span></td>
                                     <td>${getMetaStatus('description', analysisData.meta, analysisData.metaIssues)}</td>
                                 </tr>
                                 <tr>
                                     <td>Canonical</td>
-                                    <td class="meta-value">${analysisData.meta.canonical ? `<a href="${escapeHtml(analysisData.meta.canonical)}" target="_blank" style="color: #5a7ca3;">${escapeHtml(analysisData.meta.canonical)}</a>` : '未設定'}</td>
+                                    <td class="meta-value">${analysisData.meta.canonical ? `<a href="${escapeHtml(analysisData.meta.canonical)}" target="_blank" class="link-primary">${escapeHtml(analysisData.meta.canonical)}</a>` : '未設定'}</td>
                                     <td>${getMetaStatus('canonical', analysisData.meta, analysisData.metaIssues)}</td>
                                 </tr>
                                 <tr>
@@ -1276,32 +1745,32 @@ Express: app.use(cors()) を追加
 
                 htmlTab.innerHTML = `
                     <h2>HTML構造</h2>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin: 20px 0;">
-                        <div style="background: #f8fafc; padding: 16px; border-radius: 6px;">
-                            <div style="color: #64748b; font-size: 13px; margin-bottom: 4px;">Headタグ</div>
-                            <div style="font-size: 24px; font-weight: 600; color: #334155;">${structure.headTags}個</div>
+                    <div class="score-grid">
+                        <div class="score-card">
+                            <div class="score-card-label">Headタグ</div>
+                            <div class="score-card-value">${structure.headTags}個</div>
                         </div>
-                        <div style="background: #f8fafc; padding: 16px; border-radius: 6px;">
-                            <div style="color: #64748b; font-size: 13px; margin-bottom: 4px;">Metaタグ</div>
-                            <div style="font-size: 24px; font-weight: 600; color: #334155;">${structure.metaTags}個</div>
+                        <div class="score-card">
+                            <div class="score-card-label">Metaタグ</div>
+                            <div class="score-card-value">${structure.metaTags}個</div>
                         </div>
-                        <div style="background: #f8fafc; padding: 16px; border-radius: 6px;">
-                            <div style="color: #64748b; font-size: 13px; margin-bottom: 4px;">Linkタグ</div>
-                            <div style="font-size: 24px; font-weight: 600; color: #334155;">${structure.linkTags}個</div>
+                        <div class="score-card">
+                            <div class="score-card-label">Linkタグ</div>
+                            <div class="score-card-value">${structure.linkTags}個</div>
                         </div>
-                        <div style="background: #f8fafc; padding: 16px; border-radius: 6px;">
-                            <div style="color: #64748b; font-size: 13px; margin-bottom: 4px;">Scriptタグ</div>
-                            <div style="font-size: 24px; font-weight: 600; color: #334155;">${structure.scriptTags}個</div>
+                        <div class="score-card">
+                            <div class="score-card-label">Scriptタグ</div>
+                            <div class="score-card-value">${structure.scriptTags}個</div>
                         </div>
                     </div>
 
-                    <div style="margin-top: 24px;">
+                    <div class="section-spacing">
                         <h3>見出しタグ</h3>
                         <table class="meta-table">
                             <thead>
                                 <tr>
-                                    <th style="width: 80px;">タグ</th>
-                                    <th style="width: 80px;">数</th>
+                                    <th class="table-col-narrow">タグ</th>
+                                    <th class="table-col-narrow">数</th>
                                     <th>内容</th>
                                 </tr>
                             </thead>
@@ -1314,33 +1783,33 @@ Express: app.use(cors()) を追加
                                 <tr>
                                     <td>H2</td>
                                     <td>${structure.headings.h2.length}個</td>
-                                    <td class="meta-value">${structure.headings.h2.length > 0 ? structure.headings.h2.slice(0, 5).map(text => escapeHtml(text)).join('<br>') + (structure.headings.h2.length > 5 ? `<br><span style="color: #64748b; font-size: 12px;">...他${structure.headings.h2.length - 5}件</span>` : '') : '-'}</td>
+                                    <td class="meta-value">${structure.headings.h2.length > 0 ? structure.headings.h2.slice(0, 5).map(text => escapeHtml(text)).join('<br>') + (structure.headings.h2.length > 5 ? `<br><span class="text-muted-small">...他${structure.headings.h2.length - 5}件</span>` : '') : '-'}</td>
                                 </tr>
                                 <tr>
                                     <td>H3</td>
                                     <td>${structure.headings.h3.length}個</td>
-                                    <td class="meta-value">${structure.headings.h3.length > 0 ? structure.headings.h3.slice(0, 5).map(text => escapeHtml(text)).join('<br>') + (structure.headings.h3.length > 5 ? `<br><span style="color: #64748b; font-size: 12px;">...他${structure.headings.h3.length - 5}件</span>` : '') : '-'}</td>
+                                    <td class="meta-value">${structure.headings.h3.length > 0 ? structure.headings.h3.slice(0, 5).map(text => escapeHtml(text)).join('<br>') + (structure.headings.h3.length > 5 ? `<br><span class="text-muted-small">...他${structure.headings.h3.length - 5}件</span>` : '') : '-'}</td>
                                 </tr>
                                 <tr>
                                     <td>H4</td>
                                     <td>${structure.headings.h4.length}個</td>
-                                    <td class="meta-value">${structure.headings.h4.length > 0 ? structure.headings.h4.slice(0, 3).map(text => escapeHtml(text)).join('<br>') + (structure.headings.h4.length > 3 ? `<br><span style="color: #64748b; font-size: 12px;">...他${structure.headings.h4.length - 3}件</span>` : '') : '-'}</td>
+                                    <td class="meta-value">${structure.headings.h4.length > 0 ? structure.headings.h4.slice(0, 3).map(text => escapeHtml(text)).join('<br>') + (structure.headings.h4.length > 3 ? `<br><span class="text-muted-small">...他${structure.headings.h4.length - 3}件</span>` : '') : '-'}</td>
                                 </tr>
                                 <tr>
                                     <td>H5</td>
                                     <td>${structure.headings.h5.length}個</td>
-                                    <td class="meta-value">${structure.headings.h5.length > 0 ? structure.headings.h5.slice(0, 3).map(text => escapeHtml(text)).join('<br>') + (structure.headings.h5.length > 3 ? `<br><span style="color: #64748b; font-size: 12px;">...他${structure.headings.h5.length - 3}件</span>` : '') : '-'}</td>
+                                    <td class="meta-value">${structure.headings.h5.length > 0 ? structure.headings.h5.slice(0, 3).map(text => escapeHtml(text)).join('<br>') + (structure.headings.h5.length > 3 ? `<br><span class="text-muted-small">...他${structure.headings.h5.length - 3}件</span>` : '') : '-'}</td>
                                 </tr>
                                 <tr>
                                     <td>H6</td>
                                     <td>${structure.headings.h6.length}個</td>
-                                    <td class="meta-value">${structure.headings.h6.length > 0 ? structure.headings.h6.slice(0, 3).map(text => escapeHtml(text)).join('<br>') + (structure.headings.h6.length > 3 ? `<br><span style="color: #64748b; font-size: 12px;">...他${structure.headings.h6.length - 3}件</span>` : '') : '-'}</td>
+                                    <td class="meta-value">${structure.headings.h6.length > 0 ? structure.headings.h6.slice(0, 3).map(text => escapeHtml(text)).join('<br>') + (structure.headings.h6.length > 3 ? `<br><span class="text-muted-small">...他${structure.headings.h6.length - 3}件</span>` : '') : '-'}</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
 
-                    <div style="margin-top: 24px;">
+                    <div class="section-spacing">
                         <h3>その他の要素</h3>
                         <table class="meta-table">
                             <thead>
@@ -1365,15 +1834,15 @@ Express: app.use(cors()) を追加
             }
 
             // SEO分析結果を表示
-            window.displaySEOAnalysis = function(html, schemas) {
+            window.displaySEOAnalysis = function (html, schemas) {
                 const { analysisData, totalScore } = analyzeSEO(html, schemas);
                 renderSummaryCard(analysisData, totalScore);
                 renderSNSTab(analysisData.og, analysisData.twitter, analysisData.ogIssues, analysisData.twitterIssues);
                 renderOverviewTab(analysisData, totalScore);
                 renderHTMLTab(html);
 
-                document.getElementById('seoSummarySection').style.display = 'block';
-                document.getElementById('tabNavigation').style.display = 'flex';
+                document.getElementById('seoSummarySection').classList.remove('section-hidden');
+                document.getElementById('tabNavigation').classList.remove('section-hidden');
             };
 
             // 初期化
