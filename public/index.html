@@ -455,14 +455,18 @@
                         } catch (error) {
                             // CORS エラーの場合
                             if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
-                                throw new Error(`localhost URLにアクセスできません。開発サーバーでCORSを有効化してください。
+                                throw new Error(`localhost URLにアクセスできません。
 
-設定例（開発環境のみ推奨）:
-・Next.js: next.config.js で headers 設定
-・Nuxt 3: vite.server.cors = true
-・Express: app.use(cors())
+開発サーバーでCORSを有効化してください。
 
-詳細: https://github.com/aimfactory/json-ld-viewer/blob/main/CORS_SETUP.md`);
+【設定例】
+Next.js: next.config.js に headers 設定を追加
+Nuxt 3: nuxt.config.ts で vite.server.cors = true を設定
+Express: app.use(cors()) を追加
+
+設定後、開発サーバーを再起動してください。
+
+詳細な設定手順は CORS_SETUP.md をご覧ください。`);
                             }
                             throw error;
                         }

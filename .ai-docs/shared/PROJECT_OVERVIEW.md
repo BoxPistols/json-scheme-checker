@@ -4,7 +4,6 @@
 
 WebサイトのJSON-LD構造化データを抽出・可視化するツール。CORS制限を回避し、localhost開発環境も含むあらゆるURLにアクセス可能。
 
-**リポジトリ**: `git@github.com:BoxPistols/json-scheme-checker.git`
 **本番URL**: <https://json-ld-view.vercel.app/>
 
 ---
