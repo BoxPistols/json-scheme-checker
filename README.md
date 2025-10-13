@@ -2,6 +2,11 @@
 
 WebサイトのJSON-LD構造化データを可視化するツール
 
+## ドキュメント
+
+- [CORS設定ガイド（開発者向け）](./CORS_SETUP.md) - localhost URLアクセスに必要なCORS設定
+- [Claude開発ガイド](./CLAUDE.md) - Claude Codeでの開発時の参考資料
+
 ## 概要
 
 このアプリケーションは、Webサイトに埋め込まれたJSON-LD（Linked Data）形式の構造化データを抽出し、読みやすく可視化するツールです。自前のプロキシサーバーを使用してCORS制限を回避し、あらゆるWebサイトのデータを取得できます。
@@ -350,7 +355,7 @@ headers: {
 
 ### Vercel環境での制限
 
-- **localhostアクセス不可**: Vercelにデプロイした場合、localhost URLにはアクセスできません（サーバーがVercel上で実行されるため）
+- **localhostアクセスにはCORS設定が必要**: Vercelにデプロイした場合、localhost URLにアクセスするには開発サーバー側でCORSを有効化する必要があります（詳細は下記参照）
 - **タイムアウト**: 無料プランでは10秒、Proプランでは60秒のタイムアウト
 - **同時接続数**: 無料プランでは制限あり
 
@@ -361,6 +366,54 @@ localhost URLをテストする場合は、ローカル環境で起動してく�
 ```bash
 pnpm start
 # http://localhost:3333 でアクセス
+```
+
+## 開発者向け：Vercel環境からlocalhost URLにアクセスする方法
+
+**対象：** 同じマシンまたはLAN内で開発サーバーを起動している開発者
+
+Vercel環境（https://json-ld-view.vercel.app/）を開いているブラウザから、同じマシンまたは同じLAN内の開発サーバー（localhost）にアクセスできます。
+
+### 前提条件
+
+1. 開発サーバーが起動している（例: `http://localhost:3000`）
+2. Vercelアプリとブラウザが同じマシン、または同じネットワーク上にある
+
+### 必要な設定
+
+開発サーバー側で**CORS を有効化**してください（開発環境のみ）。
+
+**クイック設定例：**
+
+```javascript
+// Next.js (next.config.js)
+async headers() {
+  if (process.env.NODE_ENV === 'development') {
+    return [{ source: '/:path*', headers: [
+      { key: 'Access-Control-Allow-Origin', value: '*' }
+    ]}]
+  }
+  return []
+}
+
+// Nuxt 3 (nuxt.config.ts)
+vite: { server: { cors: true } }
+
+// Express (server.js)
+app.use(require('cors')())
+```
+
+**詳細ガイド：** [CORS_SETUP.md](./CORS_SETUP.md)
+
+設定後、開発サーバーを再起動してください。
+
+### 一般ユーザー向け
+
+一般ユーザー（localhost環境を持たない）は、ローカル環境でプロキシサーバーを起動してください：
+
+```bash
+pnpm install && pnpm start
+# http://localhost:3333 にアクセス
 ```
 
 ## トラブルシューティング

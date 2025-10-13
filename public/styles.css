@@ -45,12 +45,15 @@ h1 {
   border-radius: 20px;
   font-size: 12px;
   margin-top: 10px;
-  background: #5a8a70;
-  color: white;
+  background: transparent;
+  color: #10b981;
+  border: 1px solid #10b981;
 }
 
 .server-status.offline {
-  background: #a85555;
+  background: transparent;
+  color: #ef4444;
+  border: 1px solid #ef4444;
 }
 
 .input-section {
@@ -427,19 +430,33 @@ button:disabled {
 }
 
 .error-message {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  position: relative;
+  background: transparent;
+  border: 2px solid #ef4444;
   border-radius: 6px;
-  padding: 10px;
-  color: #dc2626;
-  margin: 10px 0 12px;
-  font-size: 13px;
-  line-height: 1.4;
+  padding: 14px 40px 14px 14px;
+  color: #ef4444;
+  margin: 24px 0 20px;
+  font-size: 14px;
+  line-height: 1.6;
   display: none;
+  font-weight: 500;
 }
 
 .error-message.active {
   display: block;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .loading {
@@ -698,21 +715,23 @@ button:disabled {
   border-radius: 4px;
   font-size: 13px;
   font-weight: 500;
+  background: transparent;
+  border: 1px solid;
 }
 
 .status-badge.success {
-  background: #e8f0e8;
-  color: #1a4d1a;
+  color: #10b981;
+  border-color: #10b981;
 }
 
 .status-badge.warning {
-  background: #f0e8d8;
-  color: #5a4820;
+  color: #f59e0b;
+  border-color: #f59e0b;
 }
 
 .status-badge.error {
-  background: #f0d8d8;
-  color: #6b2020;
+  color: #ef4444;
+  border-color: #ef4444;
 }
 
 /* Issues Section */
@@ -953,4 +972,51 @@ button:disabled {
   outline: none;
   border-color: #5a7ca3;
   box-shadow: 0 0 0 2px rgba(90, 124, 163, 0.2);
+}
+
+/* Snackbar Notification */
+.snackbar {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: white;
+  color: #334155;
+  padding: 14px 20px;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-size: 14px;
+  line-height: 1.5;
+  z-index: 10000;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+  max-width: 400px;
+  border: 2px solid #334155;
+}
+
+.snackbar.show {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.snackbar.success {
+  color: #10b981;
+  border-color: #10b981;
+}
+
+.snackbar.error {
+  color: #ef4444;
+  border-color: #ef4444;
+}
+
+.snackbar.warning {
+  color: #f59e0b;
+  border-color: #f59e0b;
+}
+
+.snackbar.info {
+  color: #3b82f6;
+  border-color: #3b82f6;
 }

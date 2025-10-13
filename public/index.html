@@ -69,36 +69,16 @@
                             </button>
                         </div>
                     </div>
-                    <div style="display: flex; gap: 8px; margin-top: 10px;">
-                        <label style="display: flex; align-items: center; gap: 6px; font-size: 14px; color: #64748b;">
+                    <div style="display: flex; gap: 8px; margin-top: 10px; align-items: center;">
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #64748b;">
                             <input type="checkbox" id="rememberAuth" onchange="handleRememberAuth()"
                                 style="width: 16px; height: 16px;">
-                            <span>認証情報を記憶する（このブラウザのみ）</span>
+                            <span>認証情報を記憶</span>
                         </label>
                         <button type="button" onclick="clearAuth()"
-                            style="margin-left: auto; padding: 4px 12px; background: #ef4444; color: white; border: none; border-radius: 4px; font-size: 13px; cursor: pointer;">
-                            認証情報をクリア
+                            style="margin-left: auto; padding: 4px 10px; background: transparent; color: #64748b; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px; cursor: pointer;">
+                            クリア
                         </button>
-                    </div>
-                    <div
-                        style="margin-top: 8px; padding: 10px; background: #dcfce7; border: 1px solid #86efac; border-radius: 4px; font-size: 12px; color: #14532d; line-height: 1.6;">
-                        <div style="display: flex; align-items: flex-start; gap: 6px;">
-                            <span aria-hidden="true" style="display:inline-flex;align-items:center;">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg" style="color:#166534">
-                                    <rect x="4" y="10" width="16" height="10" rx="2" stroke="currentColor"
-                                        stroke-width="2" />
-                                    <path d="M8 10V7a4 4 0 1 1 8 0v3" stroke="currentColor" stroke-width="2" />
-                                </svg>
-                            </span>
-                            <div>
-                                <strong style="color: #166534;">完全ローカル保存・プライバシー重視</strong><br>
-                                • 入力された認証情報は<strong>このブラウザのみに保存</strong>されます<br>
-                                • <strong>サーバーへの送信・記録は一切行いません</strong><br>
-                                • 開発者も含め、誰もあなたの認証情報にアクセスできません<br>
-                                • ブラウザのローカルストレージを使用（Cookieより安全）
-                            </div>
-                        </div>
                     </div>
                 </div>
             </details>
@@ -118,7 +98,12 @@
                 </a>
             </div>
 
-            <div class="error-message" id="errorMessage"></div>
+            <div class="error-message" id="errorMessage">
+                <span id="errorMessageText"></span>
+                <button type="button" onclick="hideError()"
+                    style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 4px 8px; cursor: pointer; color: inherit; font-size: 18px; line-height: 1; opacity: 0.7; font-weight: bold;"
+                    aria-label="閉じる" title="閉じる">×</button>
+            </div>
 
             <div class="loading" id="loading">
                 <div class="spinner"></div>
@@ -148,6 +133,8 @@
                 <div id="tab-sns" class="tab-content"></div>
             </div>
         </div>
+
+        <div id="snackbar" class="snackbar"></div>
 
         <script>
             // プロキシサーバーのURL設定
@@ -253,7 +240,7 @@
                 });
 
                 updateAuthStatus(false);
-                showMessage('すべての認証情報をクリアしました', 'success');
+                showSnackbar('すべての認証情報をクリアしました', 'success');
             }
 
             // 認証状態の表示を更新
@@ -267,19 +254,32 @@
                 }
             }
 
-            // メッセージ表示用のヘルパー関数
-            function showMessage(message, type = 'info') {
-                const errorEl = document.getElementById('errorMessage');
-                errorEl.textContent = message;
-                errorEl.style.background = type === 'success' ? '#d1fae5' : '#fef2f2';
-                errorEl.style.borderColor = type === 'success' ? '#86efac' : '#fecaca';
-                errorEl.style.color = type === 'success' ? '#065f46' : '#dc2626';
-                errorEl.classList.add('active');
+            // Snackbar通知を表示
+            let snackbarTimeout;
+            function showSnackbar(message, type = 'info', duration = 3000) {
+                const snackbar = document.getElementById('snackbar');
+                snackbar.textContent = message;
 
-                // 3秒後に自動的に非表示
-                setTimeout(() => {
-                    errorEl.classList.remove('active');
-                }, 3000);
+                // 既存のクラスをクリア
+                snackbar.className = 'snackbar';
+
+                // タイプ別のクラスを追加
+                if (type === 'success' || type === 'error' || type === 'warning' || type === 'info') {
+                    snackbar.classList.add(type);
+                }
+
+                // 表示
+                snackbar.classList.add('show');
+
+                // 既存のタイムアウトをクリア
+                if (snackbarTimeout) {
+                    clearTimeout(snackbarTimeout);
+                }
+
+                // 指定時間後に非表示
+                snackbarTimeout = setTimeout(() => {
+                    snackbar.classList.remove('show');
+                }, duration);
             }
 
             // サーバーステータスをチェック
@@ -316,19 +316,25 @@
                         const auth = JSON.parse(domainAuth);
                         document.getElementById('username').value = auth.username || '';
                         document.getElementById('password').value = auth.password || '';
-                        showMessage(`${urlObj.hostname}の認証情報を自動入力しました`, 'success');
-
-                        // authセクションを自動展開
-                        const authSection = document.getElementById('authSection');
-                        if (authSection) {
-                            authSection.open = true;
-                        }
+                        showSnackbar(`${urlObj.hostname}の認証情報を自動入力しました`, 'success');
                         return true;
                     }
                 } catch (e) {
                     console.log('Could not auto-fill auth:', e);
                 }
                 return false;
+            }
+
+            // Basic認証UIを開く（認証エラー時のみ使用）
+            function openAuthSection() {
+                const authSection = document.getElementById('authSection');
+                if (authSection) {
+                    authSection.open = true;
+                    // 認証入力欄にフォーカス
+                    setTimeout(() => {
+                        document.getElementById('username').focus();
+                    }, 100);
+                }
             }
 
             function loadSample(url) {
@@ -424,6 +430,7 @@
                             });
 
                             if (!response.ok && response.status === 401) {
+                                openAuthSection();
                                 throw new Error('Basic認証が失敗しました。ユーザー名とパスワードを確認してください。');
                             }
 
@@ -431,12 +438,14 @@
                         } catch (error) {
                             // CORS エラーの場合
                             if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
-                                throw new Error(`localhost URLにアクセスできません。対象サーバーでCORSを有効化してください。
+                                throw new Error(`localhost URLにアクセスできません。開発サーバーでCORSを有効化してください。
 
-開発サーバーの設定例:
-- Express: app.use(cors())
-- Nuxt: server.cors = true
-- Next.js: headers設定でAccess-Control-Allow-Originを追加`);
+設定例（開発環境のみ推奨）:
+・Next.js: next.config.js で headers 設定
+・Nuxt 3: vite.server.cors = true
+・Express: app.use(cors())
+
+詳細: https://github.com/aimfactory/json-ld-viewer/blob/main/CORS_SETUP.md`);
                             }
                             throw error;
                         }
@@ -475,6 +484,7 @@
 
                         // 401エラーの場合は明確なメッセージを表示
                         if (response.status === 401) {
+                            openAuthSection();
                             throw new Error('Basic認証が失敗しました。ユーザー名とパスワードを確認してください。');
                         }
 
@@ -958,6 +968,7 @@
                 </div>
             `;
                 showResults();
+                showSnackbar('JSON-LDスキーマが見つかりませんでした', 'warning', 4000);
             }
 
             function showLoading(show) {
@@ -967,7 +978,8 @@
 
             function showError(message) {
                 const errorEl = document.getElementById('errorMessage');
-                errorEl.textContent = message;
+                const errorTextEl = document.getElementById('errorMessageText');
+                errorTextEl.textContent = message;
                 // 明示的にエラーカラーへリセット（前回の成功スタイルが残らないように）
                 errorEl.style.background = '#fef2f2';
                 errorEl.style.borderColor = '#fecaca';
