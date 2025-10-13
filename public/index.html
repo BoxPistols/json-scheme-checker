@@ -13,7 +13,7 @@
     <div class="container">
         <header>
             <h1>JSON-LD Schema Viewer</h1>
-            <p class="subtitle">Node.jsプロキシサーバー版 - localhost対応</p>
+            <p class="subtitle">CORSプロキシサーバー版</p>
             <span class="server-status" id="serverStatus">サーバー確認中...</span>
             <span>
                 <a class="doc-pill" target="_blank" rel="noopener noreferrer"
@@ -389,21 +389,74 @@
                         updateAuthStatus(true);
                     }
 
-                    // プロキシサーバー経由でデータを取得
-                    let proxyUrl;
-                    if (isVercel) {
-                        // Vercel環境: /api/proxy エンドポイントを使用
-                        proxyUrl = `/api/proxy?url=${encodeURIComponent(url)}`;
+                    // localhost URLの判定
+                    let isLocalhostUrl = false;
+                    try {
+                        const urlObj = new URL(url);
+                        isLocalhostUrl = urlObj.hostname === 'localhost' || urlObj.hostname === '127.0.0.1';
+                    } catch (e) {
+                        console.error('URL parsing error:', e);
+                    }
+
+                    let response;
+
+                    // Vercel環境でlocalhost URLの場合、ブラウザから直接アクセス
+                    if (isVercel && isLocalhostUrl) {
+                        console.log('Vercel環境でlocalhost URLを検出 - ブラウザから直接アクセスします');
+
+                        try {
+                            // Basic認証ヘッダーの準備
+                            const headers = {
+                                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+                            };
+
+                            if (username && password) {
+                                const auth = btoa(`${username}:${password}`);
+                                headers['Authorization'] = `Basic ${auth}`;
+                            }
+
+                            // ブラウザから直接localhost URLにアクセス
+                            response = await fetch(url, {
+                                method: 'GET',
+                                headers: headers,
+                                mode: 'cors',
+                                credentials: 'include'
+                            });
+
+                            if (!response.ok && response.status === 401) {
+                                throw new Error('Basic認証が失敗しました。ユーザー名とパスワードを確認してください。');
+                            }
+
+                            console.log('localhost URLへの直接アクセスに成功しました');
+                        } catch (error) {
+                            // CORS エラーの場合
+                            if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                                throw new Error(`localhost URLにアクセスできません。対象サーバーでCORSを有効化してください。
+
+開発サーバーの設定例:
+- Express: app.use(cors())
+- Nuxt: server.cors = true
+- Next.js: headers設定でAccess-Control-Allow-Originを追加`);
+                            }
+                            throw error;
+                        }
                     } else {
-                        // ローカル環境: 従来のプロキシサーバーを使用
-                        proxyUrl = `${PROXY_SERVER}/proxy?url=${encodeURIComponent(url)}`;
-                    }
+                        // 通常のプロキシ経由アクセス
+                        let proxyUrl;
+                        if (isVercel) {
+                            // Vercel環境: /api/proxy エンドポイントを使用
+                            proxyUrl = `/api/proxy?url=${encodeURIComponent(url)}`;
+                        } else {
+                            // ローカル環境: 従来のプロキシサーバーを使用
+                            proxyUrl = `${PROXY_SERVER}/proxy?url=${encodeURIComponent(url)}`;
+                        }
 
-                    if (username && password) {
-                        proxyUrl += `&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
-                    }
+                        if (username && password) {
+                            proxyUrl += `&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
+                        }
 
-                    const response = await fetch(proxyUrl);
+                        response = await fetch(proxyUrl);
+                    }
 
                     if (!response.ok) {
                         let errorMessage;
