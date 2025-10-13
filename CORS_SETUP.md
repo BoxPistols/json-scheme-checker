@@ -173,14 +173,15 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   server: {
+    // `true` を設定すると、すべてのオリジンを許可するシンプルな設定になります
     cors: true,
 
-    // または、詳細設定
-    cors: {
-      origin: '*',
-      methods: ['GET', 'POST', 'OPTIONS'],
-      credentials: true,
-    },
+    // または、以下のように詳細な設定も可能です
+    // cors: {
+    //   origin: '*',
+    //   methods: ['GET', 'POST', 'OPTIONS'],
+    //   credentials: true,
+    // },
   },
 })
 ```
