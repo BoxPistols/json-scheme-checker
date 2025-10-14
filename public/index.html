@@ -13,42 +13,41 @@
     <div class="container">
         <header>
             <h1>JSON-LD Schema Viewer</h1>
-            <p class="subtitle">CORSプロキシサーバー版</p>
-            <span class="server-status" id="serverStatus">サーバー確認中...</span>
-            <span>
+            <p class="subtitle">Webページ内のJSONスキーマ/SEO関連のチェックツール</p>
+            <div class="header-actions">
+                <span class="server-status" id="serverStatus">サーバー確認中...</span>
                 <a class="doc-pill" target="_blank" rel="noopener noreferrer"
                     href="https://developers.google.com/search/docs/appearance/structured-data/job-posting?hl=ja">Google公式リファレンス</a>
-            </span>
+                <button type="button" class="btn-guide" id="btnGuide">
+                    使い方
+                </button>
+            </div>
         </header>
 
         <div class="input-section">
             <div class="input-group">
-                <input type="url" id="urlInput" placeholder="URLを入力してください (例: https://example.com/page.html)"
-                    value="" style="flex: 1;">
-                <button id="fetchButton" onclick="fetchAndDisplay()">
+                <input type="url" id="urlInput" placeholder="URLを入力してください (例: https://example.com/page.html)" value="">
+                <button id="fetchButton">
                     取得
                 </button>
             </div>
-            <div style="margin-top: 6px; margin-bottom: 10px; font-size: 11px; color: #94a3b8; text-align: right;">
+            <div class="auth-hint">
                 Cmd+K / Ctrl+K でURL入力欄にフォーカス
             </div>
 
-            <details style="margin-bottom: 15px;" id="authSection">
-                <summary style="cursor: pointer; color: #64748b; font-size: 14px; margin-bottom: 10px;">
+            <details class="auth-details" id="authSection">
+                <summary class="auth-summary">
                     Basic認証が必要な場合
-                    <span id="authStatus" style="margin-left: 8px; font-size: 12px; color: #10b981;"></span>
+                    <span id="authStatus" class="auth-status"></span>
                 </summary>
-                <div style="margin-top: 10px;">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                        <input type="text" id="username" placeholder="ユーザー名"
-                            style="padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px;">
-                        <div style="position: relative;">
-                            <input type="password" id="password" placeholder="パスワード"
-                                style="padding: 8px 40px 8px 12px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px; width: 100%;">
-                            <button type="button" id="togglePassword" onclick="togglePasswordVisibility()"
-                                style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 4px; cursor: pointer; color: #64748b;"
-                                aria-label="パスワードを表示/非表示" title="パスワードを表示/非表示">
-                                <span id="iconEye" aria-hidden="true" style="display:inline-flex;">
+                <div class="auth-content">
+                    <div class="auth-grid">
+                        <input type="text" id="username" placeholder="ユーザー名" class="auth-input">
+                        <div class="auth-password-wrapper">
+                            <input type="password" id="password" placeholder="パスワード" class="auth-password-input">
+                            <button type="button" id="togglePassword"
+                                class="auth-toggle-btn" aria-label="パスワードを表示/非表示" title="パスワードを表示/非表示">
+                                <span id="iconEye" aria-hidden="true" class="icon-visible">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" stroke="currentColor"
@@ -57,7 +56,7 @@
                                             fill="none" />
                                     </svg>
                                 </span>
-                                <span id="iconEyeOff" aria-hidden="true" style="display:none;">
+                                <span id="iconEyeOff" aria-hidden="true" class="icon-hidden">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
                                         <path d="M3 3l18 18" stroke="currentColor" stroke-width="2" />
@@ -69,43 +68,282 @@
                             </button>
                         </div>
                     </div>
-                    <div style="display: flex; gap: 8px; margin-top: 10px; align-items: center;">
-                        <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #64748b;">
-                            <input type="checkbox" id="rememberAuth" onchange="handleRememberAuth()"
-                                style="width: 16px; height: 16px;">
-                            <span>認証情報を記憶</span>
+
+                    <div class="auth-section-header">
+                        <label class="auth-label">
+                            認証情報の保存方法
+                            <button type="button" id="btnShowSecurityModal" class="auth-help-btn"
+                                title="セキュリティについて">?</button>
                         </label>
-                        <button type="button" onclick="clearAuth()"
-                            style="margin-left: auto; padding: 4px 10px; background: transparent; color: #64748b; border: 1px solid #d1d5db; border-radius: 4px; font-size: 12px; cursor: pointer;">
-                            クリア
-                        </button>
+
+                        <div class="auth-radio-group">
+                            <label class="auth-radio-label">
+                                <input type="radio" name="authStorage" value="none" checked
+                                    class="auth-radio-input">
+                                <span>保存しない（最もセキュア）</span>
+                            </label>
+                            <label class="auth-radio-label">
+                                <input type="radio" name="authStorage" value="session"
+                                    class="auth-radio-input">
+                                <span>タブを閉じるまで保存（推奨）</span>
+                            </label>
+                            <label class="auth-radio-label">
+                                <input type="radio" name="authStorage" value="persistent"
+                                    class="auth-radio-input">
+                                <span>24時間保存（利便性重視）</span>
+                            </label>
+                            <label class="auth-radio-label">
+                                <input type="radio" name="authStorage" value="permanent"
+                                    class="auth-radio-input">
+                                <span>永続保存（期限なし）</span>
+                            </label>
+                        </div>
                     </div>
-                    <div style="margin-top: 8px; padding: 8px; background: transparent; border: 1px solid #f59e0b; border-radius: 4px; font-size: 11px; color: #d97706; line-height: 1.5;">
-                        注意: 認証情報は平文でブラウザに保存されます。信頼できるデバイスでのみ使用してください。
+
+                    <div class="auth-actions">
+                        <button type="button" id="btnClearAuth" class="auth-clear-btn">
+                            すべてクリア
+                        </button>
                     </div>
                 </div>
             </details>
 
+            <!-- セキュリティ解説Modal -->
+            <div id="securityModal" class="modal-overlay">
+                <div class="modal-container modal-container--narrow">
+                    <div class="modal-header">
+                        <h2>認証情報の保存について</h2>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            Basic認証のユーザー名とパスワードをブラウザに保存する方法を選択できます。各オプションの特徴を理解して、ご自身の環境に合った方法を選択してください。
+                        </p>
+
+                        <table class="modal-table">
+                            <thead>
+                                <tr>
+                                    <th>保存方法</th>
+                                    <th>セキュリティ</th>
+                                    <th>利便性</th>
+                                    <th>保存期間</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>保存しない</strong></td>
+                                    <td class="status-high">高</td>
+                                    <td class="status-low">低</td>
+                                    <td>なし</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>タブを閉じるまで</strong></td>
+                                    <td class="status-medium">中</td>
+                                    <td class="status-medium">中</td>
+                                    <td>タブを閉じるまで</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>24時間保存</strong></td>
+                                    <td class="status-low">低</td>
+                                    <td class="status-high">高</td>
+                                    <td>24時間</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>永続保存</strong></td>
+                                    <td class="status-low">極低</td>
+                                    <td class="status-high">最高</td>
+                                    <td>期限なし</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="modal-section-divider">
+                            <h3 class="modal-subheading">各オプションの詳細</h3>
+
+                            <div class="modal-info-box modal-info-box--green">
+                                <h4>保存しない（最もセキュア）</h4>
+                                <p>
+                                    ページをリロードするたびに再入力が必要です。セキュリティを最優先する場合に推奨します。
+                                </p>
+                            </div>
+
+                            <div class="modal-info-box modal-info-box--orange">
+                                <h4>タブを閉じるまで保存（推奨）</h4>
+                                <p>
+                                    ブラウザのタブを閉じると自動的に削除されます。セキュリティと利便性のバランスが取れた推奨オプションです。認証情報は暗号化されて保存されます。
+                                </p>
+                            </div>
+
+                            <div class="modal-info-box modal-info-box--red">
+                                <h4>24時間保存（利便性重視）</h4>
+                                <p>
+                                    24時間後に自動的に削除されます。頻繁にアクセスする場合に便利ですが、信頼できるデバイスでのみ使用してください。認証情報は暗号化されて保存されます。
+                                </p>
+                            </div>
+
+                            <div class="modal-info-box modal-info-box--red">
+                                <h4>永続保存（期限なし、最もリスク高）</h4>
+                                <p>
+                                    期限なしで永続的に保存されます。手動でクリアするまで認証情報が残り続けます。最も利便性が高い一方、セキュリティリスクも最大です。個人デバイスで、かつ重要度の低い認証情報の場合のみ使用を検討してください。認証情報は暗号化されて保存されます。
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="modal-note-box">
+                            <p>
+                                <strong>注意:</strong>
+                                暗号化は開発者ツールで見られないようにするための簡易的なものです。完全なセキュリティを保証するものではありません。重要な認証情報は「保存しない」を選択することを強く推奨します。
+                            </p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-modal-close" id="btnCloseSecurityModal">
+                            閉じる
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 使い方解説Modal -->
+            <div id="guideModal" class="modal-overlay">
+                <div class="modal-container">
+                    <div class="modal-header modal-header--sticky">
+                        <h2>JSON-LD Schema Viewerの使い方</h2>
+                    </div>
+                    <div class="modal-body">
+                        <!-- アプリの概要 -->
+                        <section class="modal-section">
+                            <h3>このアプリについて</h3>
+                            <p>
+                                JSON-LD Schema Viewerは、WebサイトのJSON-LD構造化データを抽出して可視化するツールです。
+                            </p>
+                            <ul>
+                                <li>CORSプロキシサーバーを使用してあらゆるURLにアクセス可能</li>
+                                <li>開発中のlocalhostサイトも検証可能</li>
+                                <li>テーブル形式とJSON形式の切り替え表示</li>
+                                <li>Basic認証が必要なサイトにも対応</li>
+                            </ul>
+                        </section>
+
+                        <!-- 基本的な使い方 -->
+                        <section class="modal-section">
+                            <h3>基本的な使い方</h3>
+                            <ol>
+                                <li><strong>URLを入力:</strong> 検証したいWebサイトのURLを入力欄に貼り付けます</li>
+                                <li><strong>取得ボタンをクリック:</strong> 「取得」ボタンをクリックしてJSON-LDを抽出します</li>
+                                <li><strong>結果を確認:</strong> 抽出されたJSON-LDがテーブル形式で表示されます</li>
+                                <li><strong>表示切り替え:</strong> 「JSON」タブで生のJSON形式でも確認できます</li>
+                                <li><strong>コピー:</strong> 「コピー」ボタンでJSON-LDをクリップボードにコピーできます</li>
+                            </ol>
+                            <div class="modal-info-box modal-info-box--blue">
+                                <p>
+                                    <strong>ヒント:</strong> Cmd+K（Mac）またはCtrl+K（Windows）でURL入力欄に素早くフォーカスできます。
+                                </p>
+                            </div>
+                        </section>
+
+                        <!-- サンプルリンクの使い方 -->
+                        <section class="modal-section">
+                            <h3>サンプルリンクの使い方</h3>
+                            <p>
+                                入力欄の下にある「サンプル」リンクをクリックすると、実際のWebサイトのJSON-LDを確認できます。初めて使う方は、まずサンプルリンクから試してみてください。
+                            </p>
+                        </section>
+
+                        <!-- Basic認証について -->
+                        <section class="modal-section">
+                            <h3>Basic認証が必要なサイトの検証</h3>
+                            <p>
+                                パスワード保護されたサイト（ステージング環境など）を検証する場合：
+                            </p>
+                            <ol>
+                                <li>「Basic認証が必要な場合」セクションを展開</li>
+                                <li>ユーザー名とパスワードを入力</li>
+                                <li>認証情報の保存方法を選択（推奨：タブを閉じるまで保存）</li>
+                                <li>URLを入力して「取得」ボタンをクリック</li>
+                            </ol>
+                            <div class="modal-info-box modal-info-box--yellow">
+                                <p>
+                                    <strong>セキュリティ:</strong> 認証情報はブラウザのみに保存され、サーバーには送信されません。重要な認証情報は「保存しない」を選択してください。
+                                </p>
+                            </div>
+                        </section>
+
+                        <!-- 表示モードの切り替え -->
+                        <section class="modal-section">
+                            <h3>表示モードの切り替え</h3>
+                            <table class="modal-table">
+                                <thead>
+                                    <tr>
+                                        <th>モード</th>
+                                        <th>説明</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>テーブル</strong></td>
+                                        <td>プロパティ名、値、型が見やすく表示されます。階層構造も分かりやすく表示されます。</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>JSON</strong></td>
+                                        <td>生のJSON形式で表示されます。シンタックスハイライト付きで読みやすくフォーマットされています。</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </section>
+
+                        <!-- 便利な機能 -->
+                        <section class="modal-section">
+                            <h3>便利な機能</h3>
+                            <ul>
+                                <li><strong>スキーマ統計:</strong> 検出されたスキーマ数、プロパティ総数、ドメイン情報を表示</li>
+                                <li><strong>Schema.orgリンク:</strong> 各スキーマタイプの公式ドキュメントへのリンクを自動生成</li>
+                                <li><strong>Googleリファレンス:</strong> Googleの構造化データガイドへのリンクを提供</li>
+                                <li><strong>画像サムネイル:</strong> 画像URLは自動的にサムネイル表示されます</li>
+                                <li><strong>展開/折りたたみ:</strong> ネストされたオブジェクトをクリックして展開・折りたたみできます</li>
+                                <li><strong>コピー機能:</strong> 各スキーマをワンクリックでクリップボードにコピー</li>
+                            </ul>
+                        </section>
+
+                        <!-- タブ機能の説明 -->
+                        <section class="modal-section">
+                            <h3>タブ機能</h3>
+                            <p>
+                                結果は4つのタブで表示されます：
+                            </p>
+                            <ul>
+                                <li><strong>Schema:</strong> JSON-LD構造化データの詳細表示</li>
+                                <li><strong>HTML構造:</strong> ページのHTML要素数や見出しタグの分析</li>
+                                <li><strong>概要・メタタグ:</strong> SEOスコアとメタタグの検証結果</li>
+                                <li><strong>SNS:</strong> Open GraphとTwitter Cardsの設定確認</li>
+                            </ul>
+                        </section>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-modal-close" id="btnCloseGuideModal">
+                            閉じる
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div class="sample-links">
                 <span>サンプル:</span>
                 <a class="sample-link"
-                    onclick="loadSample('https://freelance-hub.jp/project/detail/281563/')">freelance-hub</a>
+                    data-sample-url="https://freelance-hub.jp/project/detail/281563/">freelance-hub</a>
                 <a class="sample-link"
-                    onclick="loadSample('https://freelance.levtech.jp/project/detail/28421/')">levtech</a>
-                <a class="sample-link" onclick="loadSample('https://freelance-job.com/job/detail/146243')">freelance-job
+                    data-sample-url="https://freelance.levtech.jp/project/detail/28421/">levtech</a>
+                <a class="sample-link" data-sample-url="https://freelance-job.com/job/detail/146243">freelance-job
                 </a>
                 <a class="sample-link"
-                    onclick="loadSample('https://www.r-agent.com/kensaku/kyujin/20250107-188-01-052.html')">RecruitAgent
+                    data-sample-url="https://www.r-agent.com/kensaku/kyujin/20250107-188-01-052.html">RecruitAgent
                 </a>
-                <a class="sample-link" onclick="loadSample('https://pe-bank.jp/project/aws/47302-18/')">PE-BANK</a>
-                </a>
+                <a class="sample-link" data-sample-url="https://pe-bank.jp/project/aws/47302-18/">PE-BANK</a>
             </div>
 
             <div class="error-message" id="errorMessage">
                 <span id="errorMessageText"></span>
-                <button type="button" onclick="hideError()"
-                    style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 4px 8px; cursor: pointer; color: inherit; font-size: 18px; line-height: 1; opacity: 0.7; font-weight: bold;"
-                    aria-label="閉じる" title="閉じる">×</button>
+                <button type="button" id="btnHideError" class="error-close-btn" aria-label="閉じる"
+                    title="閉じる">×</button>
             </div>
 
             <div class="loading" id="loading">
@@ -113,11 +351,11 @@
                 <p>データを取得中...</p>
             </div>
 
-            <div class="seo-summary-section" id="seoSummarySection" style="display: none;">
+            <div class="seo-summary-section section-hidden" id="seoSummarySection">
                 <div id="summaryCard"></div>
             </div>
 
-            <div class="tab-navigation" id="tabNavigation" style="display: none;">
+            <div class="tab-navigation section-hidden" id="tabNavigation">
                 <button class="tab-button active" data-tab="tab-schema">Schema</button>
                 <button class="tab-button" data-tab="tab-html">HTML構造</button>
                 <button class="tab-button" data-tab="tab-overview">概要・メタタグ</button>
@@ -139,1244 +377,8 @@
 
         <div id="snackbar" class="snackbar" role="status" aria-live="polite" aria-atomic="true"></div>
 
-        <script>
-            // プロキシサーバーのURL設定
-            // Vercelデプロイメントか、ローカル開発かを自動判定
-            const currentHost = window.location.hostname;
-            const isVercel = currentHost.includes('vercel.app') || currentHost.includes('vercel.sh');
-            const isLocalhost = currentHost === 'localhost' || currentHost === '127.0.0.1';
-
-            // 環境に応じたプロキシサーバーURL
-            let PROXY_SERVER;
-            if (isVercel) {
-                // Vercel環境: API Routes を使用
-                PROXY_SERVER = '';  // 相対パスでAPIを呼び出す
-            } else if (isLocalhost) {
-                // ローカル開発: localhost:3333
-                PROXY_SERVER = 'http://localhost:3333';
-            } else {
-                // LAN内の他デバイス: IPアドレス:3333
-                PROXY_SERVER = `http://${currentHost}:3333`;
-            }
-
-            console.log('Environment:', isVercel ? 'Vercel' : 'Local', 'Proxy:', PROXY_SERVER || 'API Routes');
-
-            // パスワードの表示/非表示を切り替え
-            function togglePasswordVisibility() {
-                const passwordField = document.getElementById('password');
-                const toggleButton = document.getElementById('togglePassword');
-                const iconEye = document.getElementById('iconEye');
-                const iconEyeOff = document.getElementById('iconEyeOff');
-
-                if (passwordField.type === 'password') {
-                    passwordField.type = 'text';
-                    if (iconEye && iconEyeOff) {
-                        iconEye.style.display = 'none';
-                        iconEyeOff.style.display = 'inline-flex';
-                    }
-                    toggleButton.title = 'パスワードを非表示';
-                } else {
-                    passwordField.type = 'password';
-                    if (iconEye && iconEyeOff) {
-                        iconEye.style.display = 'inline-flex';
-                        iconEyeOff.style.display = 'none';
-                    }
-                    toggleButton.title = 'パスワードを表示';
-                }
-            }
-
-            // 認証情報の管理
-            const AUTH_STORAGE_KEY = 'jsonld_basic_auth';
-            const DOMAIN_AUTH_PREFIX = 'jsonld_auth_';
-
-            // ページ読み込み時に保存された認証情報を復元
-            function loadStoredAuth() {
-                const stored = localStorage.getItem(AUTH_STORAGE_KEY);
-                if (stored) {
-                    try {
-                        const auth = JSON.parse(stored);
-                        document.getElementById('username').value = auth.username || '';
-                        document.getElementById('password').value = auth.password || '';
-                        document.getElementById('rememberAuth').checked = true;
-                        updateAuthStatus(true);
-                    } catch (e) {
-                        console.error('Failed to load stored auth:', e);
-                    }
-                }
-            }
-
-            // 認証情報の記憶/解除を処理
-            function handleRememberAuth() {
-                const remember = document.getElementById('rememberAuth').checked;
-                const username = document.getElementById('username').value.trim();
-                const password = document.getElementById('password').value.trim();
-
-                if (remember) {
-                    if (username || password) {
-                        // 認証情報を保存
-                        const auth = { username, password, timestamp: Date.now() };
-                        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(auth));
-                        updateAuthStatus(true);
-                    }
-                } else {
-                    // 認証情報を削除
-                    localStorage.removeItem(AUTH_STORAGE_KEY);
-                    updateAuthStatus(false);
-                }
-            }
-
-            // 認証情報をクリア
-            function clearAuth() {
-                document.getElementById('username').value = '';
-                document.getElementById('password').value = '';
-                document.getElementById('rememberAuth').checked = false;
-
-                // グローバル認証情報を削除
-                localStorage.removeItem(AUTH_STORAGE_KEY);
-
-                // ドメイン別の認証情報もすべて削除
-                const keys = Object.keys(localStorage);
-                keys.forEach(key => {
-                    if (key.startsWith(DOMAIN_AUTH_PREFIX)) {
-                        localStorage.removeItem(key);
-                    }
-                });
-
-                updateAuthStatus(false);
-                showSnackbar('すべての認証情報をクリアしました', 'success');
-            }
-
-            // 認証状態の表示を更新
-            function updateAuthStatus(isStored) {
-                const statusEl = document.getElementById('authStatus');
-                if (isStored) {
-                    statusEl.textContent = '(保存済み)';
-                    statusEl.style.color = '#10b981';
-                } else {
-                    statusEl.textContent = '';
-                }
-            }
-
-            // Snackbar通知を表示
-            let snackbarTimeout;
-            function showSnackbar(message, type = 'info', duration = 3000) {
-                const snackbar = document.getElementById('snackbar');
-                if (!snackbar) {
-                    console.error('Snackbar要素が見つかりません');
-                    return;
-                }
-
-                // テキストノードを使用して安全にメッセージを設定
-                snackbar.textContent = '';
-                snackbar.appendChild(document.createTextNode(message));
-
-                // 既存のクラスをクリア
-                snackbar.className = 'snackbar';
-
-                // タイプ別のクラスを追加
-                if (type === 'success' || type === 'error' || type === 'warning' || type === 'info') {
-                    snackbar.classList.add(type);
-                }
-
-                // 表示
-                snackbar.classList.add('show');
-
-                // 既存のタイムアウトをクリア
-                if (snackbarTimeout) {
-                    clearTimeout(snackbarTimeout);
-                }
-
-                // 指定時間後に非表示
-                snackbarTimeout = setTimeout(() => {
-                    snackbar.classList.remove('show');
-                }, duration);
-            }
-
-            // ページアンロード時のクリーンアップ
-            window.addEventListener('beforeunload', () => {
-                if (snackbarTimeout) {
-                    clearTimeout(snackbarTimeout);
-                }
-            });
-
-            // サーバーステータスをチェック
-            async function checkServerStatus() {
-                const statusElement = document.getElementById('serverStatus');
-                try {
-                    // Vercel環境では /api/health、ローカルでは /health
-                    const healthUrl = isVercel ? '/api/health' : `${PROXY_SERVER}/health`;
-                    const response = await fetch(healthUrl);
-                    if (response.ok) {
-                        statusElement.textContent = isVercel ? 'Vercel API稼働中' : 'サーバー稼働中';
-                        statusElement.className = 'server-status';
-                        return true;
-                    }
-                } catch (error) {
-                    statusElement.textContent = isVercel ? 'API エラー' : 'サーバーオフライン';
-                    statusElement.className = 'server-status offline';
-                    return false;
-                }
-            }
-
-            // 初期化時にサーバー状態をチェックと認証情報を復元
-            checkServerStatus();
-            loadStoredAuth();
-
-            // URLに基づいて認証情報を自動入力
-            function autoFillAuthForUrl(url) {
-                try {
-                    const urlObj = new URL(url);
-                    const domainKey = DOMAIN_AUTH_PREFIX + urlObj.hostname;
-                    const domainAuth = localStorage.getItem(domainKey);
-
-                    if (domainAuth) {
-                        const auth = JSON.parse(domainAuth);
-                        document.getElementById('username').value = auth.username || '';
-                        document.getElementById('password').value = auth.password || '';
-                        showSnackbar(`${urlObj.hostname}の認証情報を自動入力しました`, 'success');
-                        return true;
-                    }
-                } catch (e) {
-                    console.log('Could not auto-fill auth:', e);
-                }
-                return false;
-            }
-
-            // Basic認証UIを開く（認証エラー時のみ使用）
-            function openAuthSection() {
-                const authSection = document.getElementById('authSection');
-                if (authSection) {
-                    authSection.open = true;
-                    // 認証入力欄にフォーカス
-                    setTimeout(() => {
-                        document.getElementById('username').focus();
-                    }, 100);
-                }
-            }
-
-            function loadSample(url) {
-                document.getElementById('urlInput').value = url;
-                autoFillAuthForUrl(url);
-                fetchAndDisplay();
-            }
-
-            async function fetchAndDisplay() {
-                const urlInput = document.getElementById('urlInput');
-                let url = urlInput.value.trim();
-
-                if (!url) {
-                    showError('URLを入力してください');
-                    return;
-                }
-
-                if (!isValidUrl(url)) {
-                    showError('有効なURLを入力してください');
-                    return;
-                }
-
-                // サーバー状態を再チェック
-                const serverOnline = await checkServerStatus();
-                if (!serverOnline) {
-                    if (isVercel) {
-                        showError('Vercel APIに接続できません。しばらくお待ちください。');
-                    } else {
-                        showError('プロキシサーバーがオフラインです。"npm install && npm start" を実行してください。');
-                    }
-                    return;
-                }
-
-                showLoading(true);
-                hideError();
-                hideResults();
-
-                try {
-                    // Basic認証の情報を取得
-                    const username = document.getElementById('username').value.trim();
-                    const password = document.getElementById('password').value.trim();
-                    const remember = document.getElementById('rememberAuth').checked;
-
-                    // 記憶するオプションが有効で、認証情報がある場合は保存
-                    if (remember && (username || password)) {
-                        const auth = { username, password, timestamp: Date.now() };
-                        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(auth));
-
-                        // ドメインごとにも保存
-                        try {
-                            const urlObj = new URL(url);
-                            const domainKey = DOMAIN_AUTH_PREFIX + urlObj.hostname;
-                            localStorage.setItem(domainKey, JSON.stringify(auth));
-                        } catch (e) {
-                            console.log('Could not save domain-specific auth');
-                        }
-
-                        updateAuthStatus(true);
-                    }
-
-                    // localhost URLの判定
-                    let isLocalhostUrl = false;
-                    try {
-                        const urlObj = new URL(url);
-                        isLocalhostUrl = urlObj.hostname === 'localhost' || urlObj.hostname === '127.0.0.1';
-                    } catch (e) {
-                        console.error('URL parsing error:', e);
-                    }
-
-                    let response;
-
-                    // Vercel環境でlocalhost URLの場合、ブラウザから直接アクセス
-                    if (isVercel && isLocalhostUrl) {
-                        console.log('Vercel環境でlocalhost URLを検出 - ブラウザから直接アクセスします');
-
-                        try {
-                            // Basic認証ヘッダーの準備
-                            const headers = {
-                                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
-                            };
-
-                            if (username && password) {
-                                const auth = btoa(`${username}:${password}`);
-                                headers['Authorization'] = `Basic ${auth}`;
-                            }
-
-                            // ブラウザから直接localhost URLにアクセス
-                            response = await fetch(url, {
-                                method: 'GET',
-                                headers: headers,
-                                mode: 'cors',
-                                credentials: 'include'
-                            });
-
-                            if (!response.ok && response.status === 401) {
-                                openAuthSection();
-                                throw new Error('Basic認証が失敗しました。ユーザー名とパスワードを確認してください。');
-                            }
-
-                            console.log('localhost URLへの直接アクセスに成功しました');
-                        } catch (error) {
-                            // CORS エラーの場合
-                            if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
-                                throw new Error(`localhost URLにアクセスできません。開発サーバーでCORSを有効化してください。
-
-設定例（開発環境のみ推奨）:
-・Next.js: next.config.js で headers 設定
-・Nuxt 3: vite.server.cors = true
-・Express: app.use(cors())
-
-詳細: https://github.com/aimfactory/json-ld-viewer/blob/main/CORS_SETUP.md`);
-                            }
-                            throw error;
-                        }
-                    } else {
-                        // 通常のプロキシ経由アクセス
-                        let proxyUrl;
-                        if (isVercel) {
-                            // Vercel環境: /api/proxy エンドポイントを使用
-                            proxyUrl = `/api/proxy?url=${encodeURIComponent(url)}`;
-                        } else {
-                            // ローカル環境: 従来のプロキシサーバーを使用
-                            proxyUrl = `${PROXY_SERVER}/proxy?url=${encodeURIComponent(url)}`;
-                        }
-
-                        if (username && password) {
-                            proxyUrl += `&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
-                        }
-
-                        response = await fetch(proxyUrl);
-                    }
-
-                    if (!response.ok) {
-                        let errorMessage;
-                        const contentType = response.headers.get('content-type');
-
-                        if (contentType && contentType.includes('application/json')) {
-                            try {
-                                const errorData = await response.json();
-                                errorMessage = errorData.message || errorData.error || `HTTPエラー ${response.status}`;
-                            } catch {
-                                errorMessage = await response.text();
-                            }
-                        } else {
-                            errorMessage = await response.text();
-                        }
-
-                        // 401エラーの場合は明確なメッセージを表示
-                        if (response.status === 401) {
-                            openAuthSection();
-                            throw new Error('Basic認証が失敗しました。ユーザー名とパスワードを確認してください。');
-                        }
-
-                        throw new Error(errorMessage);
-                    }
-
-                    const html = await response.text();
-                    const schemas = extractJsonLd(html);
-
-                    // SEO分析を実行（schemasを渡す）
-                    if (typeof displaySEOAnalysis === 'function') {
-                        displaySEOAnalysis(html, schemas);
-                    }
-
-                    if (schemas.length === 0) {
-                        showNoData();
-                    } else {
-                        displaySchemas(schemas, url);
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    showError(`エラーが発生しました: ${error.message}`);
-                } finally {
-                    showLoading(false);
-                }
-            }
-
-            function isValidUrl(string) {
-                try {
-                    new URL(string);
-                    return true;
-                } catch (_) {
-                    return false;
-                }
-            }
-
-            function extractJsonLd(html) {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-                const scripts = doc.querySelectorAll('script[type="application/ld+json"]');
-
-                const schemas = [];
-                scripts.forEach(script => {
-                    try {
-                        const json = JSON.parse(script.textContent);
-                        schemas.push(json);
-                    } catch (e) {
-                        console.error('Failed to parse JSON-LD:', e);
-                    }
-                });
-
-                return schemas;
-            }
-
-            function displaySchemas(schemas, url) {
-                const container = document.getElementById('schemasContainer');
-                const statsContainer = document.getElementById('stats');
-
-                const totalProperties = schemas.reduce((acc, schema) => {
-                    return acc + countProperties(schema);
-                }, 0);
-
-                let domainHtml = '-';
-                try {
-                    if (url) {
-                        domainHtml = new URL(url).hostname;
-                    }
-                } catch (e) {
-                    console.error('Failed to parse URL for domain display:', e, 'URL:', url);
-                }
-
-                statsContainer.innerHTML = `
-                <div class="stat-item">
-                    <span class="stat-label">スキーマ数</span>
-                    <span class="stat-value">${schemas.length}</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">プロパティ総数</span>
-                    <span class="stat-value">${totalProperties}</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">ドメイン</span>
-                    <span class="stat-value">${domainHtml}</span>
-                </div>
-            `;
-
-                container.innerHTML = '';
-
-                schemas.forEach((schema, index) => {
-                    const card = createSchemaCard(schema, index + 1);
-                    container.appendChild(card);
-                });
-
-                showResults();
-            }
-
-            function countProperties(obj) {
-                if (typeof obj !== 'object' || obj === null) return 0;
-
-                let count = 0;
-                for (let key in obj) {
-                    count++;
-                    if (typeof obj[key] === 'object' && obj[key] !== null) {
-                        count += countProperties(obj[key]);
-                    }
-                }
-                return count;
-            }
-
-            function createSchemaCard(schema, index) {
-                const card = document.createElement('div');
-                card.className = 'schema-card';
-
-                const type = getSchemaType(schema);
-                const id = `schema-${index}`;
-
-                card.innerHTML = `
-                <div class="schema-header">
-                    <div>
-                        <span class="schema-type">${type}</span>
-                        <span class="schema-index">Schema #${index}</span>
-                    </div>
-                    <div class="schema-controls">
-                        <div class="view-toggle">
-                            <button class="active" onclick="toggleView('${id}', 'table', this)">テーブル</button>
-                            <button onclick="toggleView('${id}', 'json', this)">JSON</button>
-                        </div>
-                        <div class="doc-links">${buildDocLinks(schema)}</div>
-                        <button class="copy-button" onclick="copyToClipboard('${id}', this)">
-                            コピー
-                        </button>
-                    </div>
-                </div>
-                <div class="schema-content" id="${id}" data-raw='${JSON.stringify(schema)}'>
-                    <div class="table-view" id="${id}-table">
-                        ${createTableView(schema)}
-                    </div>
-                    <div class="json-view hidden" id="${id}-json">
-                        ${formatJson(schema)}
-                    </div>
-                </div>
-            `;
-
-                return card;
-            }
-
-            function toggleView(schemaId, view, button) {
-                const tableView = document.getElementById(`${schemaId}-table`);
-                const jsonView = document.getElementById(`${schemaId}-json`);
-                const toggleButtons = button.parentElement.querySelectorAll('button');
-
-                toggleButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-
-                if (view === 'table') {
-                    tableView.classList.remove('hidden');
-                    jsonView.classList.add('hidden');
-                } else {
-                    jsonView.classList.remove('hidden');
-                    tableView.classList.add('hidden');
-                }
-            }
-
-            function createTableView(obj, depth = 0) {
-                if (Array.isArray(obj)) {
-                    return createArrayView(obj, depth);
-                }
-
-                if (typeof obj === 'object' && obj !== null) {
-                    return createObjectTable(obj, depth);
-                }
-
-                return formatValue(obj);
-            }
-
-            function createObjectTable(obj, depth) {
-                const entries = Object.entries(obj);
-
-                if (entries.length === 0) return '<span class="property-value">空のオブジェクト</span>';
-
-                let html = '<table class="data-table"><colgroup><col class="col-prop"><col class="col-value"><col class="col-type"></colgroup>';
-                html += '<thead><tr><th>プロパティ</th><th>値</th><th>型</th></tr></thead>';
-                html += '<tbody>';
-
-                entries.forEach(([key, value]) => {
-                    const type = getValueType(value);
-                    html += '<tr>';
-                    html += `<td class="property-name">${escapeHtml(key)}</td>`;
-                    html += '<td>';
-
-                    if (typeof value === 'object' && value !== null) {
-                        if (Array.isArray(value)) {
-                            html += createArrayView(value, depth + 1);
-                        } else {
-                            html += createNestedObjectView(value, depth + 1);
-                        }
-                    } else {
-                        html += formatValue(value, key);
-                    }
-
-                    html += '</td>';
-                    html += `<td><span class="property-type">${type}</span></td>`;
-                    html += '</tr>';
-                });
-
-                html += '</tbody></table>';
-                return html;
-            }
-
-            function createArrayView(arr, depth) {
-                if (arr.length === 0) return '<span class="property-value">空の配列</span>';
-
-                let html = `<div class="array-list">`;
-                html += `<div style="margin-bottom: 8px; color: #64748b; font-size: 13px;">配列 (${arr.length}項目)</div>`;
-
-                arr.forEach((item, index) => {
-                    html += `<div class="array-list-item">`;
-                    html += `<strong style="color: #64748b; font-size: 12px;">Item ${index + 1}</strong>`;
-
-                    if (typeof item === 'object' && item !== null) {
-                        html += `<div style="margin-top: 8px;">`;
-                        html += createTableView(item, depth + 1);
-                        html += `</div>`;
-                    } else {
-                        html += `: ${formatValue(item)}`;
-                    }
-
-                    html += `</div>`;
-                });
-
-                html += `</div>`;
-                return html;
-            }
-
-            function createNestedObjectView(obj, depth) {
-                const id = `nested-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-                const entries = Object.entries(obj);
-
-                if (entries.length === 0) return '<span class="property-value">空のオブジェクト</span>';
-
-                let preview = entries.slice(0, 3).map(([k, v]) => {
-                    const val = typeof v === 'object' ? '...' : formatSimpleValue(v);
-                    return `${k}: ${val}`;
-                }).join(', ');
-
-                if (entries.length > 3) preview += '...';
-
-                let html = `
-                <div>
-                    <span class="expandable" onclick="toggleNested('${id}', this)">
-                        オブジェクト {${preview}}
-                    </span>
-                    <div class="nested-content" id="${id}">
-                        <div class="nested-object">
-                            <div class="table-view">${createTableView(obj, depth)}</div>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-                return html;
-            }
-
-            function toggleNested(id, element) {
-                const content = document.getElementById(id);
-                element.classList.toggle('collapsed');
-                content.classList.toggle('collapsed');
-            }
-
-            function formatValue(value, key) {
-                if (value === null) return '<span class="property-value">null</span>';
-                if (value === undefined) return '<span class="property-value">undefined</span>';
-
-                if (typeof value === 'string') {
-                    // descriptionなど、<br> が含まれる文字列は意図した改行を反映
-                    if (hasHtmlBr(value) || (key && key.toLowerCase() === 'description')) {
-                        const escaped = escapeHtml(value);
-                        const withBreaks = escaped.replace(/&lt;br\s*\/?&gt;/gi, '<br>');
-                        return `<span class="property-value">${withBreaks}</span>`;
-                    }
-                    if (value.match(/^https?:\/\//)) {
-                        // 画像URLはサムネイル付きで表示
-                        if (isImageUrl(value)) {
-                            const safe = escapeHtml(value);
-                            return `
-                            <span class="image-value">
-                                <img src="${safe}" alt="image" class="image-thumb" loading="lazy" referrerpolicy="no-referrer" />
-                                <a href="${safe}" target="_blank" class="url-value">${safe}</a>
-                            </span>
-                        `;
-                        }
-                        return `<a href="${escapeHtml(value)}" target="_blank" class="url-value">${escapeHtml(value)}</a>`;
-                    }
-                    return `<span class="property-value">${escapeHtml(value)}</span>`;
-                }
-
-                if (typeof value === 'boolean') {
-                    return `<span class="property-value" style="color: #dc2626;">${value}</span>`;
-                }
-
-                if (typeof value === 'number') {
-                    return `<span class="property-value" style="color: #ea580c;">${value}</span>`;
-                }
-
-                return `<span class="property-value">${escapeHtml(String(value))}</span>`;
-            }
-
-            function isImageUrl(url) {
-                try {
-                    const u = new URL(url);
-                    const pathname = u.pathname.toLowerCase();
-                    return pathname.match(/\.(png|jpe?g|gif|webp|svg)$/);
-                } catch (_) {
-                    return false;
-                }
-            }
-
-            // スキーマタイプごとのドキュメントリンク生成
-            function buildDocLinks(schema) {
-                const googleDocsMap = {
-                    JobPosting: 'https://developers.google.com/search/docs/appearance/structured-data/job-posting?hl=ja',
-                    Article: 'https://developers.google.com/search/docs/appearance/structured-data/article?hl=ja',
-                    BreadcrumbList: 'https://developers.google.com/search/docs/appearance/structured-data/breadcrumb?hl=ja',
-                    Product: 'https://developers.google.com/search/docs/appearance/structured-data/product?hl=ja',
-                    FAQPage: 'https://developers.google.com/search/docs/appearance/structured-data/faqpage?hl=ja',
-                    HowTo: 'https://developers.google.com/search/docs/appearance/structured-data/how-to?hl=ja',
-                    Event: 'https://developers.google.com/search/docs/appearance/structured-data/event?hl=ja',
-                    LocalBusiness: 'https://developers.google.com/search/docs/appearance/structured-data/local-business?hl=ja',
-                    Organization: 'https://developers.google.com/search/docs/appearance/structured-data/logo?hl=ja',
-                    WebSite: 'https://developers.google.com/search/docs/appearance/structured-data/sitelinks-searchbox?hl=ja',
-                    VideoObject: 'https://developers.google.com/search/docs/appearance/structured-data/video?hl=ja',
-                    Recipe: 'https://developers.google.com/search/docs/appearance/structured-data/recipe?hl=ja'
-                };
-
-                let types = [];
-                if (schema && schema['@type']) {
-                    types = Array.isArray(schema['@type']) ? schema['@type'] : [schema['@type']];
-                } else if (schema && schema['@graph']) {
-                    // @graphの場合、代表的な@typeを抽出
-                    try {
-                        const graph = Array.isArray(schema['@graph']) ? schema['@graph'] : [];
-                        types = [...new Set(graph.map(n => n['@type']).filter(Boolean))].slice(0, 2);
-                    } catch (_) { /* noop */ }
-                }
-
-                if (types.length === 0) return '';
-
-                const pills = types.slice(0, 2).map(t => {
-                    const sUrl = `https://schema.org/${encodeURIComponent(t)}`;
-                    const gUrl = googleDocsMap[t];
-                    const schemaLink = `<a class="doc-pill" target="_blank" rel="noopener noreferrer" href="${sUrl}">schema.org/${t}</a>`;
-                    const googleLink = gUrl ? `<a class=\"doc-pill\" target=\"_blank\" rel=\"noopener noreferrer\" href=\"${gUrl}\">Google ${t}</a>` : '';
-                    return [schemaLink, googleLink].filter(Boolean).join('');
-                }).join('');
-
-                return pills;
-            }
-
-            function hasHtmlBr(text) {
-                return /<br\s*\/?\s*>/i.test(text);
-            }
-
-            function formatSimpleValue(value) {
-                if (value === null) return 'null';
-                if (value === undefined) return 'undefined';
-                if (typeof value === 'string') return value.length > 20 ? value.substr(0, 20) + '...' : value;
-                return String(value);
-            }
-
-            function getValueType(value) {
-                if (value === null) return 'null';
-                if (Array.isArray(value)) return 'array';
-                return typeof value;
-            }
-
-            function getSchemaType(schema) {
-                if (Array.isArray(schema)) {
-                    return 'Array';
-                }
-                if (schema['@type']) {
-                    if (Array.isArray(schema['@type'])) {
-                        return schema['@type'].join(', ');
-                    }
-                    return schema['@type'];
-                }
-                if (schema['@graph']) {
-                    return '@graph';
-                }
-                return 'Object';
-            }
-
-            function formatJson(obj, indent = 0) {
-                const spaces = '  '.repeat(indent);
-
-                if (obj === null) {
-                    return `<span class="json-null">null</span>`;
-                }
-
-                if (typeof obj === 'boolean') {
-                    return `<span class="json-boolean">${obj}</span>`;
-                }
-
-                if (typeof obj === 'number') {
-                    return `<span class="json-number">${obj}</span>`;
-                }
-
-                if (typeof obj === 'string') {
-                    return `<span class="json-string">"${escapeHtml(obj)}"</span>`;
-                }
-
-                if (Array.isArray(obj)) {
-                    if (obj.length === 0) return '<span class="json-bracket">[]</span>';
-                    let result = '<span class="json-bracket">[</span>\n';
-                    obj.forEach((item, i) => {
-                        result += spaces + '  ' + formatJson(item, indent + 1);
-                        if (i < obj.length - 1) result += ',';
-                        result += '\n';
-                    });
-                    result += spaces + '<span class="json-bracket">]</span>';
-                    return result;
-                }
-
-                if (typeof obj === 'object') {
-                    const keys = Object.keys(obj);
-                    if (keys.length === 0) return '<span class="json-bracket">{}</span>';
-                    let result = '<span class="json-bracket">{</span>\n';
-                    keys.forEach((key, i) => {
-                        result += spaces + '  ' + `<span class="json-key">"${escapeHtml(key)}"</span>: `;
-                        result += formatJson(obj[key], indent + 1);
-                        if (i < keys.length - 1) result += ',';
-                        result += '\n';
-                    });
-                    result += spaces + '<span class="json-bracket">}</span>';
-                    return result;
-                }
-
-                return String(obj);
-            }
-
-            function escapeHtml(text) {
-                const map = {
-                    '&': '&amp;',
-                    '<': '&lt;',
-                    '>': '&gt;',
-                    '"': '&quot;',
-                    "'": '&#039;'
-                };
-                return String(text).replace(/[&<>"']/g, m => map[m]);
-            }
-
-            async function copyToClipboard(elementId, button) {
-                const element = document.getElementById(elementId);
-                const rawData = element.dataset.raw;
-
-                try {
-                    const formatted = JSON.stringify(JSON.parse(rawData), null, 2);
-                    await navigator.clipboard.writeText(formatted);
-
-                    button.textContent = 'コピー完了';
-                    button.classList.add('copied');
-
-                    setTimeout(() => {
-                        button.textContent = 'コピー';
-                        button.classList.remove('copied');
-                    }, 2000);
-                } catch (err) {
-                    console.error('Failed to copy:', err);
-                    button.textContent = 'エラー';
-                    setTimeout(() => {
-                        button.textContent = 'コピー';
-                    }, 2000);
-                }
-            }
-
-            function showNoData() {
-                const container = document.getElementById('schemasContainer');
-                container.innerHTML = `
-                <div class="no-data">
-                    <h3>JSON-LDスキーマが見つかりませんでした</h3>
-                    <p>このページには構造化データが含まれていないようです</p>
-                </div>
-            `;
-                showResults();
-                showSnackbar('JSON-LDスキーマが見つかりませんでした', 'warning', 4000);
-            }
-
-            function showLoading(show) {
-                document.getElementById('loading').classList.toggle('active', show);
-                document.getElementById('fetchButton').disabled = show;
-            }
-
-            function showError(message) {
-                const errorEl = document.getElementById('errorMessage');
-                const errorTextEl = document.getElementById('errorMessageText');
-                errorTextEl.textContent = message;
-                // 明示的にエラーカラーへリセット（前回の成功スタイルが残らないように）
-                errorEl.style.background = '#fef2f2';
-                errorEl.style.borderColor = '#fecaca';
-                errorEl.style.color = '#dc2626';
-                errorEl.classList.add('active');
-            }
-
-            function hideError() {
-                document.getElementById('errorMessage').classList.remove('active');
-            }
-
-            function showResults() {
-                document.getElementById('results').classList.add('active');
-            }
-
-            function hideResults() {
-                document.getElementById('results').classList.remove('active');
-            }
-
-            // Enterキーでの送信に対応
-            document.getElementById('urlInput').addEventListener('keypress', function (e) {
-                if (e.key === 'Enter') {
-                    fetchAndDisplay();
-                }
-            });
-
-            document.getElementById('urlInput').addEventListener('blur', function (e) {
-                const url = e.target.value.trim();
-                if (url) {
-                    autoFillAuthForUrl(url);
-                }
-            });
-
-            // ショートカットキー: Cmd+K (Mac) / Ctrl+K (Windows) でURL入力欄にフォーカス
-            document.addEventListener('keydown', function (e) {
-                // Cmd+K (Mac) または Ctrl+K (Windows/Linux)
-                if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-                    e.preventDefault();
-                    const urlInput = document.getElementById('urlInput');
-                    urlInput.focus();
-                    urlInput.select();
-                }
-            });
-        </script>
-        <script type="module">
-            // SEO分析モジュールをインポート
-            import { extractBasicMeta, validateBasicMeta } from './modules/meta-extractor.js';
-            import { extractOpenGraph, validateOpenGraph } from './modules/og-extractor.js';
-            import { extractTwitterCards, validateTwitterCards } from './modules/twitter-extractor.js';
-            import { renderSummaryCard, renderMetaTab, renderSNSTab } from './modules/ui-renderer.js';
-
-            // タブ切り替え機能
-            function initTabNavigation() {
-                const tabButtons = document.querySelectorAll('.tab-button');
-                tabButtons.forEach(button => {
-                    button.addEventListener('click', () => {
-                        const targetTab = button.dataset.tab;
-                        tabButtons.forEach(btn => btn.classList.remove('active'));
-                        document.querySelectorAll('.tab-content').forEach(content => {
-                            content.classList.remove('active');
-                        });
-                        button.classList.add('active');
-                        document.getElementById(targetTab).classList.add('active');
-                    });
-                });
-            }
-
-            // SEO分析を実行
-            function analyzeSEO(html, schemas) {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-
-                const meta = extractBasicMeta(doc);
-                const og = extractOpenGraph(doc);
-                const twitter = extractTwitterCards(doc);
-
-                const metaIssues = validateBasicMeta(meta);
-                const ogIssues = validateOpenGraph(og);
-                const twitterIssues = validateTwitterCards(twitter, og);
-
-                const scores = calculateScores(meta, og, twitter, metaIssues, ogIssues, twitterIssues, schemas);
-                const totalScore = scores.meta + scores.sns + scores.schema;
-
-                return {
-                    analysisData: { meta, og, twitter, metaIssues, ogIssues, twitterIssues, scores },
-                    totalScore,
-                };
-            }
-
-            // SEOスコアを計算
-            function calculateScores(meta, og, twitter, metaIssues, ogIssues, twitterIssues, schemas) {
-                // メタタグスコア (25点満点)
-                let metaScore = 25;
-                const metaErrors = metaIssues.filter(i => i.type === 'error').length;
-                const metaWarnings = metaIssues.filter(i => i.type === 'warning').length;
-                metaScore -= metaErrors * 5;
-                metaScore -= metaWarnings * 2;
-                metaScore = Math.max(0, metaScore);
-
-                // SNSスコア (15点満点) - Open Graphのみで判定
-                let snsScore = 15;
-                const ogRequired = ['title', 'description', 'image', 'url', 'type'];
-                const ogMissing = ogRequired.filter(field => !og[field]).length;
-                snsScore -= ogMissing * 1.5;
-                snsScore = Math.max(0, snsScore);
-
-                // 構造化データスコア (20点満点)
-                let schemaScore = 0;
-                if (!schemas || schemas.length === 0) {
-                    schemaScore = 0;
-                } else {
-                    // 基本点: スキーマが存在する場合 10点
-                    schemaScore = 10;
-
-                    // スキーマの質を評価
-                    let qualityBonus = 0;
-                    schemas.forEach(schema => {
-                        // @typeが存在するか確認 (+2点/スキーマ、最大6点)
-                        if (schema['@type']) {
-                            qualityBonus += 2;
-                        }
-
-                        // 主要プロパティの存在確認 (+1点、最大4点)
-                        const hasMainProperties = ['name', 'description', 'url', 'image'].some(prop => schema[prop]);
-                        if (hasMainProperties) {
-                            qualityBonus += 1;
-                        }
-                    });
-
-                    // 質ボーナスは最大10点
-                    schemaScore += Math.min(10, qualityBonus);
-                }
-                schemaScore = Math.min(20, schemaScore);
-
-                return {
-                    meta: Math.round(metaScore),
-                    sns: Math.round(snsScore),
-                    schema: schemaScore,
-                };
-            }
-
-            // 概要タブの内容を描画
-            function renderOverviewTab(analysisData, totalScore) {
-                const overviewTab = document.getElementById('tab-overview');
-                const allIssues = [
-                    ...analysisData.metaIssues,
-                    ...analysisData.ogIssues,
-                    ...analysisData.twitterIssues,
-                ];
-                const errorCount = allIssues.filter(i => i.type === 'error').length;
-                const warningCount = allIssues.filter(i => i.type === 'warning').length;
-
-                let issuesHtml = '';
-                if (allIssues.length > 0) {
-                    issuesHtml = `
-                        <details class="issues-section" open>
-                            <summary style="cursor: pointer; list-style: none;">
-                                <h3 style="display: inline;">検出された問題 (全${allIssues.length}件)</h3>
-                            </summary>
-                            <div style="margin-top: 12px; margin-bottom: 12px;">
-                                <span class="status-badge error">エラー: ${errorCount}件</span>
-                                <span class="status-badge warning" style="margin-left: 8px;">警告: ${warningCount}件</span>
-                            </div>
-                            ${allIssues.slice(0, 10).map(issue => `
-                                <div class="status-badge ${issue.type}">
-                                    ${issue.type === 'error' ? 'x' : '!'} ${issue.message}
-                                </div>
-                            `).join('')}
-                            ${allIssues.length > 10 ? `<p style="color: #64748b; font-size: 13px; margin-top: 8px;">他${allIssues.length - 10}件の問題があります。各タブで詳細を確認してください。</p>` : ''}
-                        </details>
-                    `;
-                }
-
-                // メタタグのステータスを取得する関数
-                function getMetaStatus(field, meta, issues) {
-                    const hasIssue = issues.some(i => i.field === field);
-                    if (!meta[field]) {
-                        return '<span class="status-badge error">x 未設定</span>';
-                    }
-                    if (hasIssue) {
-                        const issue = issues.find(i => i.field === field);
-                        return `<span class="status-badge ${issue.type}">! 問題あり</span>`;
-                    }
-                    return '<span class="status-badge success">○ 正常</span>';
-                }
-
-                overviewTab.innerHTML = `
-                    <h2>概要・メタタグ</h2>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin: 20px 0;">
-                        <div style="background: #f8fafc; padding: 16px; border-radius: 6px;">
-                            <div style="color: #64748b; font-size: 13px; margin-bottom: 4px;">総合スコア</div>
-                            <div style="font-size: 32px; font-weight: 700; color: ${totalScore >= 80 ? '#10b981' : totalScore >= 60 ? '#f59e0b' : '#ef4444'};">${totalScore}/100</div>
-                        </div>
-                        <div style="background: #f8fafc; padding: 16px; border-radius: 6px;">
-                            <div style="color: #64748b; font-size: 13px; margin-bottom: 4px;">メタタグ</div>
-                            <div style="font-size: 24px; font-weight: 600; color: #334155;">${analysisData.scores.meta}/25</div>
-                        </div>
-                        <div style="background: #f8fafc; padding: 16px; border-radius: 6px;">
-                            <div style="color: #64748b; font-size: 13px; margin-bottom: 4px;">SNS最適化</div>
-                            <div style="font-size: 24px; font-weight: 600; color: #334155;">${analysisData.scores.sns}/15</div>
-                        </div>
-                        <div style="background: #f8fafc; padding: 16px; border-radius: 6px;">
-                            <div style="color: #64748b; font-size: 13px; margin-bottom: 4px;">構造化データ</div>
-                            <div style="font-size: 24px; font-weight: 600; color: #334155;">${analysisData.scores.schema}/20</div>
-                        </div>
-                    </div>
-                    ${issuesHtml}
-                    <div style="margin-top: 24px;">
-                        <h3>基本メタタグ</h3>
-                        <table class="meta-table">
-                            <thead>
-                                <tr>
-                                    <th>項目</th>
-                                    <th>値</th>
-                                    <th>ステータス</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Title</td>
-                                    <td class="meta-value">${escapeHtml(analysisData.meta.title)} <span style="color: #64748b;">(${analysisData.meta.titleLength}文字)</span></td>
-                                    <td>${getMetaStatus('title', analysisData.meta, analysisData.metaIssues)}</td>
-                                </tr>
-                                <tr>
-                                    <td>Description</td>
-                                    <td class="meta-value">${escapeHtml(analysisData.meta.description)} <span style="color: #64748b;">(${analysisData.meta.descriptionLength}文字)</span></td>
-                                    <td>${getMetaStatus('description', analysisData.meta, analysisData.metaIssues)}</td>
-                                </tr>
-                                <tr>
-                                    <td>Canonical</td>
-                                    <td class="meta-value">${analysisData.meta.canonical ? `<a href="${escapeHtml(analysisData.meta.canonical)}" target="_blank" style="color: #5a7ca3;">${escapeHtml(analysisData.meta.canonical)}</a>` : '未設定'}</td>
-                                    <td>${getMetaStatus('canonical', analysisData.meta, analysisData.metaIssues)}</td>
-                                </tr>
-                                <tr>
-                                    <td>Robots</td>
-                                    <td class="meta-value">${escapeHtml(analysisData.meta.robots) || '未設定'}</td>
-                                    <td>${getMetaStatus('robots', analysisData.meta, analysisData.metaIssues)}</td>
-                                </tr>
-                                <tr>
-                                    <td>Viewport</td>
-                                    <td class="meta-value">${escapeHtml(analysisData.meta.viewport) || '未設定'}</td>
-                                    <td>${analysisData.meta.viewport ? '<span class="status-badge success">○ 設定済</span>' : '<span class="status-badge warning">! 未設定</span>'}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                `;
-            }
-
-            // HTML構造タブを描画
-            function renderHTMLTab(html) {
-                const htmlTab = document.getElementById('tab-html');
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-
-                // HTML構造を解析
-                const structure = {
-                    headTags: Array.from(doc.head.children).length,
-                    metaTags: doc.querySelectorAll('meta').length,
-                    linkTags: doc.querySelectorAll('link').length,
-                    scriptTags: doc.querySelectorAll('script').length,
-                    headings: {
-                        h1: Array.from(doc.querySelectorAll('h1')).map(el => el.textContent.trim()),
-                        h2: Array.from(doc.querySelectorAll('h2')).map(el => el.textContent.trim()),
-                        h3: Array.from(doc.querySelectorAll('h3')).map(el => el.textContent.trim()),
-                        h4: Array.from(doc.querySelectorAll('h4')).map(el => el.textContent.trim()),
-                        h5: Array.from(doc.querySelectorAll('h5')).map(el => el.textContent.trim()),
-                        h6: Array.from(doc.querySelectorAll('h6')).map(el => el.textContent.trim()),
-                    },
-                    images: doc.querySelectorAll('img').length,
-                    links: doc.querySelectorAll('a').length,
-                };
-
-                htmlTab.innerHTML = `
-                    <h2>HTML構造</h2>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin: 20px 0;">
-                        <div style="background: #f8fafc; padding: 16px; border-radius: 6px;">
-                            <div style="color: #64748b; font-size: 13px; margin-bottom: 4px;">Headタグ</div>
-                            <div style="font-size: 24px; font-weight: 600; color: #334155;">${structure.headTags}個</div>
-                        </div>
-                        <div style="background: #f8fafc; padding: 16px; border-radius: 6px;">
-                            <div style="color: #64748b; font-size: 13px; margin-bottom: 4px;">Metaタグ</div>
-                            <div style="font-size: 24px; font-weight: 600; color: #334155;">${structure.metaTags}個</div>
-                        </div>
-                        <div style="background: #f8fafc; padding: 16px; border-radius: 6px;">
-                            <div style="color: #64748b; font-size: 13px; margin-bottom: 4px;">Linkタグ</div>
-                            <div style="font-size: 24px; font-weight: 600; color: #334155;">${structure.linkTags}個</div>
-                        </div>
-                        <div style="background: #f8fafc; padding: 16px; border-radius: 6px;">
-                            <div style="color: #64748b; font-size: 13px; margin-bottom: 4px;">Scriptタグ</div>
-                            <div style="font-size: 24px; font-weight: 600; color: #334155;">${structure.scriptTags}個</div>
-                        </div>
-                    </div>
-
-                    <div style="margin-top: 24px;">
-                        <h3>見出しタグ</h3>
-                        <table class="meta-table">
-                            <thead>
-                                <tr>
-                                    <th style="width: 80px;">タグ</th>
-                                    <th style="width: 80px;">数</th>
-                                    <th>内容</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>H1</td>
-                                    <td>${structure.headings.h1.length}個</td>
-                                    <td class="meta-value">${structure.headings.h1.length > 0 ? structure.headings.h1.map(text => escapeHtml(text)).join('<br>') : '-'}</td>
-                                </tr>
-                                <tr>
-                                    <td>H2</td>
-                                    <td>${structure.headings.h2.length}個</td>
-                                    <td class="meta-value">${structure.headings.h2.length > 0 ? structure.headings.h2.slice(0, 5).map(text => escapeHtml(text)).join('<br>') + (structure.headings.h2.length > 5 ? `<br><span style="color: #64748b; font-size: 12px;">...他${structure.headings.h2.length - 5}件</span>` : '') : '-'}</td>
-                                </tr>
-                                <tr>
-                                    <td>H3</td>
-                                    <td>${structure.headings.h3.length}個</td>
-                                    <td class="meta-value">${structure.headings.h3.length > 0 ? structure.headings.h3.slice(0, 5).map(text => escapeHtml(text)).join('<br>') + (structure.headings.h3.length > 5 ? `<br><span style="color: #64748b; font-size: 12px;">...他${structure.headings.h3.length - 5}件</span>` : '') : '-'}</td>
-                                </tr>
-                                <tr>
-                                    <td>H4</td>
-                                    <td>${structure.headings.h4.length}個</td>
-                                    <td class="meta-value">${structure.headings.h4.length > 0 ? structure.headings.h4.slice(0, 3).map(text => escapeHtml(text)).join('<br>') + (structure.headings.h4.length > 3 ? `<br><span style="color: #64748b; font-size: 12px;">...他${structure.headings.h4.length - 3}件</span>` : '') : '-'}</td>
-                                </tr>
-                                <tr>
-                                    <td>H5</td>
-                                    <td>${structure.headings.h5.length}個</td>
-                                    <td class="meta-value">${structure.headings.h5.length > 0 ? structure.headings.h5.slice(0, 3).map(text => escapeHtml(text)).join('<br>') + (structure.headings.h5.length > 3 ? `<br><span style="color: #64748b; font-size: 12px;">...他${structure.headings.h5.length - 3}件</span>` : '') : '-'}</td>
-                                </tr>
-                                <tr>
-                                    <td>H6</td>
-                                    <td>${structure.headings.h6.length}個</td>
-                                    <td class="meta-value">${structure.headings.h6.length > 0 ? structure.headings.h6.slice(0, 3).map(text => escapeHtml(text)).join('<br>') + (structure.headings.h6.length > 3 ? `<br><span style="color: #64748b; font-size: 12px;">...他${structure.headings.h6.length - 3}件</span>` : '') : '-'}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div style="margin-top: 24px;">
-                        <h3>その他の要素</h3>
-                        <table class="meta-table">
-                            <thead>
-                                <tr>
-                                    <th>要素</th>
-                                    <th>数</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>画像 (img)</td>
-                                    <td>${structure.images}個</td>
-                                </tr>
-                                <tr>
-                                    <td>リンク (a)</td>
-                                    <td>${structure.links}個</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                `;
-            }
-
-            // SEO分析結果を表示
-            window.displaySEOAnalysis = function(html, schemas) {
-                const { analysisData, totalScore } = analyzeSEO(html, schemas);
-                renderSummaryCard(analysisData, totalScore);
-                renderSNSTab(analysisData.og, analysisData.twitter, analysisData.ogIssues, analysisData.twitterIssues);
-                renderOverviewTab(analysisData, totalScore);
-                renderHTMLTab(html);
-
-                document.getElementById('seoSummarySection').style.display = 'block';
-                document.getElementById('tabNavigation').style.display = 'flex';
-            };
-
-            // 初期化
-            document.addEventListener('DOMContentLoaded', () => {
-                initTabNavigation();
-            });
-        </script>
+    <script src="/app.js"></script>
+    <script type="module" src="/modules/seo-analyzer.js"></script>
 </body>
 
 </html>

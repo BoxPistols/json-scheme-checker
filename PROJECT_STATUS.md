@@ -19,6 +19,7 @@
 #### Phase 1: 基本メタタグ分析 - **完了**
 
 **ファイル構成:**
+
 - `public/modules/meta-extractor.js` - メタタグ抽出・バリデーション
 - `public/modules/og-extractor.js` - Open Graph抽出・バリデーション
 - `public/modules/twitter-extractor.js` - Twitter Cards抽出・バリデーション
@@ -27,6 +28,7 @@
 - `public/styles.css` - スタイル（タブ、ステータスバッジ、プレビューカード）
 
 **実装済み機能:**
+
 - [x] 基本メタタグ抽出・表示
   - title（文字数カウント、推奨範囲チェック）
   - description（文字数カウント、推奨範囲チェック）
@@ -69,6 +71,7 @@
 #### HTML構造タブ（Phase 2の一部を先行実装） - **完了**
 
 **実装済み:**
+
 - [x] Headタグ統計
   - 総Headタグ数
   - Metaタグ数
@@ -97,12 +100,14 @@
 **実装ファイル: `public/modules/heading-analyzer.js`（新規作成）**
 
 **機能:**
+
 - [ ] H1数のバリデーション（推奨: 1個）
 - [ ] 階層スキップ検出（例: H2の後にいきなりH4）
 - [ ] 空見出し検出
 - [ ] 見出しツリー構造の構築・表示
 
 **表示イメージ:**
+
 ```
 H1: メインタイトル (20文字)
   H2: セクション1 (12文字)
@@ -115,11 +120,12 @@ H1: メインタイトル (20文字)
 **実装ファイル: `public/modules/link-analyzer.js`（新規作成）**
 
 **機能:**
+
 - [ ] 内部リンク数
 - [ ] 外部リンク数
 - [ ] nofollow/sponsored属性
 - [ ] 壊れたリンク検出（href="#"、空のhref）
-- [ ] target="_blank"チェック
+- [ ] target="\_blank"チェック
 - [ ] リンク一覧表示（展開可能）
 
 #### 画像分析
@@ -127,6 +133,7 @@ H1: メインタイトル (20文字)
 **実装ファイル: `public/modules/image-analyzer.js`（新規作成）**
 
 **機能:**
+
 - [ ] 総画像数
 - [ ] alt属性なし画像の検出・一覧表示
 - [ ] loading属性の使用状況
@@ -159,16 +166,19 @@ H1: メインタイトル (20文字)
 ### Phase 4: URL比較・差分検出機能（優先度: 中）
 
 **ユースケース:**
+
 - A/Bテスト前後の比較
 - リニューアル前後の比較
 - 求人ページの差分確認
 - 競合サイトとの比較
 
 **実装ファイル:**
+
 - `public/modules/diff-detector.js`（新規作成）
 - `public/modules/comparison-renderer.js`（新規作成）
 
 **機能:**
+
 - [ ] 2URL入力UI
 - [ ] 差分検出アルゴリズム
   - メタタグの差分
@@ -241,6 +251,7 @@ json-ld-viewer/
 **推定工数: 2-3日** → 実績: 3日
 
 **完了条件:**
+
 - [x] メタタグ（title/description/canonical）の抽出・表示
 - [x] Open Graphタグの抽出・SNSプレビュー表示
 - [x] Twitter Cardsの抽出・プレビュー表示
@@ -255,6 +266,7 @@ json-ld-viewer/
 **推定工数: 2-3日**
 
 **完了条件:**
+
 - [x] 見出し構造（H1-H6）の数と内容表示
 - [ ] 見出し階層表示（ツリー構造）
 - [ ] リンク分析（内部/外部/nofollow統計）
@@ -268,6 +280,7 @@ json-ld-viewer/
 **推定工数: 2-3日**
 
 **実装内容:**
+
 - 総合SEOスコアの精緻化
 - 問題検出アラートの強化
 - エクスポート機能（JSON/CSV）
@@ -281,6 +294,7 @@ json-ld-viewer/
 **推定工数: 2-3日**
 
 **実装内容:**
+
 - 2URL入力UI
 - 差分検出アルゴリズム
 - 差分ハイライト表示
@@ -295,6 +309,7 @@ json-ld-viewer/
 **推定工数: 3-5日**
 
 **実装内容:**
+
 - hreflang分析
 - パフォーマンス指標（ページサイズ・リソース数）
 - ヒストリー機能（過去の分析結果保存）
@@ -316,13 +331,13 @@ json-ld-viewer/
 
 ### 新規追加ライブラリ候補
 
-| ライブラリ | 用途 | 優先度 | 状態 |
-|-----------|------|--------|------|
-| cheerio | サーバーサイドHTML解析 | 中 | 検討中 |
-| validator.js | URL・メールバリデーション | 低 | 検討中 |
-| chart.js | グラフ表示 | 低 | 検討中 |
-| diff-match-patch | テキスト差分検出 | 中 | Phase 4で必要 |
-| deep-diff | オブジェクト差分検出 | 中 | Phase 4で必要 |
+| ライブラリ       | 用途                      | 優先度 | 状態          |
+| ---------------- | ------------------------- | ------ | ------------- |
+| cheerio          | サーバーサイドHTML解析    | 中     | 検討中        |
+| validator.js     | URL・メールバリデーション | 低     | 検討中        |
+| chart.js         | グラフ表示                | 低     | 検討中        |
+| diff-match-patch | テキスト差分検出          | 中     | Phase 4で必要 |
+| deep-diff        | オブジェクト差分検出      | 中     | Phase 4で必要 |
 
 ### SEOスコア計算ロジック
 
@@ -345,12 +360,12 @@ snsScore = Math.max(0, snsScore);
 // 構造化データスコア（20点満点）
 let schemaScore = 0;
 if (schemas.length > 0) {
-    schemaScore = 10; // 基本点
-    schemas.forEach(schema => {
-        if (schema['@type']) schemaScore += 2; // 最大6点
-        if (hasMainProperties(schema)) schemaScore += 1; // 最大4点
-    });
-    schemaScore = Math.min(20, schemaScore);
+  schemaScore = 10; // 基本点
+  schemas.forEach(schema => {
+    if (schema['@type']) schemaScore += 2; // 最大6点
+    if (hasMainProperties(schema)) schemaScore += 1; // 最大4点
+  });
+  schemaScore = Math.min(20, schemaScore);
 }
 
 // 総合スコア
@@ -358,6 +373,7 @@ totalScore = metaScore + snsScore + schemaScore; // 最大60点
 ```
 
 **Phase 2以降の拡張予定:**
+
 - 見出し構造スコア（15点）
 - 画像最適化スコア（10点）
 - リンク品質スコア（10点）

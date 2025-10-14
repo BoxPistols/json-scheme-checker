@@ -467,12 +467,7 @@ MIT
 
 プルリクエストを歓迎します。大きな変更の場合は、まずissueを開いて変更内容を議論してください。
 
-## 作者
-
-BoxPistols
-
 ## リンク
 
-- [GitHub Repository](https://github.com/BoxPistols/json-scheme-checker)
 - [Schema.org](https://schema.org/)
 - [JSON-LD仕様](https://json-ld.org/)
