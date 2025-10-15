@@ -20,6 +20,7 @@ WebサイトのJSON-LD構造化データを可視化するツール
 - ワンクリックでJSONをコピー
 - 画像URLはサムネイル付きで表示
 - 外部API不要・完全自己完結型
+- **サンプル管理機能（NEW）** - 分析結果を保存・管理できるローカルCRUD機能
 
 ## 技術スタック
 
@@ -232,7 +233,9 @@ Vercelダッシュボードで以下の環境変数を設定可能:
 
 ## API エンドポイント
 
-### GET /proxy
+### プロキシAPI
+
+#### GET /proxy
 
 指定されたURLのHTMLを取得します。
 
@@ -288,7 +291,7 @@ Content-Type: application/json
 }
 ```
 
-### GET /health
+#### GET /health
 
 サーバーのヘルスチェック。
 
@@ -304,6 +307,144 @@ GET /health
 {
   "status": "ok",
   "timestamp": "2025-10-12T06:00:00.000Z"
+}
+```
+
+### サンプル管理API
+
+分析結果を保存・管理するためのCRUD APIです。
+
+#### GET /api/samples
+
+全サンプルを取得します。
+
+**リクエスト:**
+
+```http
+GET /api/samples
+```
+
+**レスポンス:**
+
+```json
+{
+  "samples": [
+    {
+      "id": 1,
+      "name": "求人ページ分析",
+      "url": "https://example.com/jobs/123",
+      "data": {
+        "schemas": [...],
+        "meta": {...}
+      },
+      "createdAt": "2025-10-15T12:00:00.000Z",
+      "updatedAt": "2025-10-15T12:00:00.000Z"
+    }
+  ],
+  "count": 1
+}
+```
+
+#### GET /api/samples/:id
+
+特定のサンプルを取得します。
+
+**リクエスト:**
+
+```http
+GET /api/samples/1
+```
+
+**レスポンス:**
+
+```json
+{
+  "id": 1,
+  "name": "求人ページ分析",
+  "url": "https://example.com/jobs/123",
+  "data": {...},
+  "createdAt": "2025-10-15T12:00:00.000Z",
+  "updatedAt": "2025-10-15T12:00:00.000Z"
+}
+```
+
+#### POST /api/samples
+
+新しいサンプルを作成します。
+
+**リクエスト:**
+
+```http
+POST /api/samples
+Content-Type: application/json
+
+{
+  "name": "サンプル名",
+  "url": "https://example.com",
+  "data": {
+    "schemas": [...],
+    "meta": {...}
+  }
+}
+```
+
+**レスポンス:**
+
+```json
+{
+  "id": 2,
+  "name": "サンプル名",
+  "url": "https://example.com",
+  "data": {...},
+  "createdAt": "2025-10-15T12:00:00.000Z",
+  "updatedAt": "2025-10-15T12:00:00.000Z"
+}
+```
+
+#### PUT /api/samples/:id
+
+既存のサンプルを更新します。
+
+**リクエスト:**
+
+```http
+PUT /api/samples/1
+Content-Type: application/json
+
+{
+  "name": "更新されたサンプル名"
+}
+```
+
+**レスポンス:**
+
+```json
+{
+  "id": 1,
+  "name": "更新されたサンプル名",
+  "url": "https://example.com",
+  "data": {...},
+  "createdAt": "2025-10-15T12:00:00.000Z",
+  "updatedAt": "2025-10-15T13:00:00.000Z"
+}
+```
+
+#### DELETE /api/samples/:id
+
+サンプルを削除します。
+
+**リクエスト:**
+
+```http
+DELETE /api/samples/1
+```
+
+**レスポンス:**
+
+```json
+{
+  "message": "Sample deleted successfully",
+  "sample": {...}
 }
 ```
 

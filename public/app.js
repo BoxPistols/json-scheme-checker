@@ -665,6 +665,9 @@ Express: server.js に app.use(cors()) を追加
         const html = await response.text();
         const schemas = extractJsonLd(html);
 
+        // 分析データをグローバルに保存（サンプル保存用）
+        window.currentSchemas = schemas;
+
         // SEO分析を実行（schemasを渡す）
         if (typeof displaySEOAnalysis === 'function') {
             displaySEOAnalysis(html, schemas);
@@ -1200,3 +1203,99 @@ document.addEventListener('keydown', function (e) {
         urlInput.select();
     }
 });
+
+// サンプル管理機能の初期化
+(async function initSampleManagement() {
+    const { renderSampleList, saveCurrentAsSample } = await import('./modules/sample-ui.js');
+
+    // サンプル管理パネルの開閉
+    const btnOpenSamples = document.getElementById('btnOpenSamples');
+    const btnCloseSamples = document.getElementById('btnCloseSamples');
+    const samplePanel = document.getElementById('samplePanel');
+    const samplePanelContent = document.getElementById('samplePanelContent');
+
+    if (btnOpenSamples) {
+        btnOpenSamples.addEventListener('click', async () => {
+            samplePanel.classList.add('active');
+            await renderSampleList(samplePanelContent);
+        });
+    }
+
+    if (btnCloseSamples) {
+        btnCloseSamples.addEventListener('click', () => {
+            samplePanel.classList.remove('active');
+        });
+    }
+
+    // サンプル読み込みイベントの処理
+    document.addEventListener('sample-loaded', (e) => {
+        const { sample } = e.detail;
+        
+        // 保存されたデータを使って分析結果を再表示
+        if (sample.data) {
+            const { schemas, meta, og, twitter } = sample.data;
+            
+            // Schemaタブの表示
+            if (schemas) {
+                displaySchemas(schemas);
+            }
+            
+            // 概要タブの表示（メタタグ、OG、Twitter等）
+            if (meta || og || twitter) {
+                // SEO分析の再実行
+                const tabOverview = document.getElementById('tab-overview');
+                if (tabOverview && window.analyzeSEO) {
+                    window.analyzeSEO({ meta: meta || {}, og: og || {}, twitter: twitter || {}, schemas: schemas || [] });
+                }
+            }
+        }
+    });
+
+    // 「サンプルとして保存」ボタンを追加
+    const resultsSection = document.querySelector('.results-section');
+    if (resultsSection && !document.getElementById('btnSaveSample')) {
+        const saveButton = document.createElement('button');
+        saveButton.id = 'btnSaveSample';
+        saveButton.className = 'btn-save-sample';
+        saveButton.textContent = 'サンプルとして保存';
+        saveButton.style.display = 'none';
+        
+        saveButton.addEventListener('click', async () => {
+            const url = document.getElementById('urlInput').value;
+            const schemasData = window.currentSchemas || [];
+            const metaData = window.currentMeta || {};
+            const ogData = window.currentOG || {};
+            const twitterData = window.currentTwitter || {};
+            
+            await saveCurrentAsSample(url, {
+                schemas: schemasData,
+                meta: metaData,
+                og: ogData,
+                twitter: twitterData,
+            });
+        });
+        
+        const inputSection = document.querySelector('.input-section');
+        if (inputSection) {
+            const actionDiv = document.createElement('div');
+            actionDiv.style.marginTop = '8px';
+            actionDiv.style.textAlign = 'right';
+            actionDiv.appendChild(saveButton);
+            inputSection.appendChild(actionDiv);
+        }
+    }
+
+    // 分析結果が表示されたら保存ボタンを表示
+    const observer = new MutationObserver(() => {
+        const btnSaveSample = document.getElementById('btnSaveSample');
+        const schemasContainer = document.getElementById('schemasContainer');
+        if (btnSaveSample && schemasContainer && schemasContainer.children.length > 0) {
+            btnSaveSample.style.display = 'inline-block';
+        }
+    });
+
+    const schemasContainer = document.getElementById('schemasContainer');
+    if (schemasContainer) {
+        observer.observe(schemasContainer, { childList: true, subtree: true });
+    }
+})();

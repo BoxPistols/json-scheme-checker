@@ -338,9 +338,17 @@ window.displaySEOAnalysis = function (html, schemas) {
     renderOverviewTab(analysisData, totalScore);
     renderHTMLTab(html);
 
+    // 分析データをグローバルに保存（サンプル保存用）
+    window.currentMeta = analysisData.meta;
+    window.currentOG = analysisData.og;
+    window.currentTwitter = analysisData.twitter;
+
     document.getElementById('seoSummarySection').classList.remove('section-hidden');
     document.getElementById('tabNavigation').classList.remove('section-hidden');
 };
+
+// サンプル読み込み用の関数をエクスポート
+window.analyzeSEO = analyzeSEO;
 
 // 初期化
 document.addEventListener('DOMContentLoaded', () => {

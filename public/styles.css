@@ -1614,3 +1614,211 @@ button:disabled {
   display: block;
   margin: 4px 0;
 }
+
+/* サンプル管理UI */
+.sample-panel {
+  position: fixed;
+  right: -400px;
+  top: 0;
+  width: 400px;
+  height: 100vh;
+  background: white;
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+  transition: right 0.3s ease;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.sample-panel.active {
+  right: 0;
+}
+
+.sample-panel-header {
+  padding: 16px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sample-panel-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.sample-panel-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #64748b;
+  padding: 4px 8px;
+}
+
+.sample-panel-close:hover {
+  color: #2c3e50;
+}
+
+.sample-panel-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.sample-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sample-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.sample-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 8px;
+}
+
+.sample-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.sample-date {
+  font-size: 0.75rem;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.sample-url {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin-bottom: 12px;
+  word-break: break-all;
+}
+
+.sample-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-sample-load,
+.btn-sample-delete {
+  flex: 1;
+  padding: 6px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-sample-load {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+.btn-sample-load:hover {
+  background: #2563eb;
+}
+
+.btn-sample-delete {
+  background: white;
+  color: #ef4444;
+  border-color: #ef4444;
+}
+
+.btn-sample-delete:hover {
+  background: #ef4444;
+  color: white;
+}
+
+.sample-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #64748b;
+}
+
+.sample-empty-hint {
+  font-size: 0.875rem;
+  margin-top: 8px;
+}
+
+.sample-error {
+  padding: 20px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  color: #991b1b;
+}
+
+.sample-error-detail {
+  font-size: 0.875rem;
+  margin-top: 8px;
+  font-family: monospace;
+}
+
+.btn-open-samples {
+  padding: 8px 16px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background 0.2s;
+}
+
+.btn-open-samples:hover {
+  background: #2563eb;
+}
+
+.btn-save-sample {
+  padding: 8px 16px;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background 0.2s;
+  margin-left: 8px;
+}
+
+.btn-save-sample:hover {
+  background: #059669;
+}
+
+/* 通知 */
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 2000;
+  transition: opacity 0.3s;
+  font-size: 0.875rem;
+}
+
+.notification-success {
+  background: #10b981;
+  color: white;
+}
+
+.notification-error {
+  background: #ef4444;
+  color: white;
+}
