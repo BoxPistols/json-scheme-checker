@@ -21,6 +21,9 @@
                 <button type="button" class="btn-guide" id="btnGuide">
                     使い方
                 </button>
+                <button type="button" class="btn-open-samples" id="btnOpenSamples">
+                    サンプル管理
+                </button>
             </div>
         </header>
 
@@ -376,6 +379,17 @@
         </div>
 
         <div id="snackbar" class="snackbar" role="status" aria-live="polite" aria-atomic="true"></div>
+
+        <!-- サンプル管理パネル -->
+        <div class="sample-panel" id="samplePanel">
+            <div class="sample-panel-header">
+                <h2 class="sample-panel-title">保存済みサンプル</h2>
+                <button class="sample-panel-close" id="btnCloseSamples" aria-label="閉じる">&times;</button>
+            </div>
+            <div class="sample-panel-content" id="samplePanelContent">
+                <!-- サンプル一覧がここに表示されます -->
+            </div>
+        </div>
 
     <script src="/app.js"></script>
     <script type="module" src="/modules/seo-analyzer.js"></script>

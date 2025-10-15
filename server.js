@@ -10,6 +10,10 @@ const PORT = process.env.PORT || 3333;
 app.use(cors());
 app.use(express.json());
 
+// メモリベースのサンプルデータストレージ
+let samples = [];
+let nextId = 1;
+
 // 静的ファイルの提供
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -149,6 +153,91 @@ app.post('/extract-jsonld', async (req, res) => {
 // ヘルスチェック
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// サンプルCRUD API
+
+// 全サンプル取得
+app.get('/api/samples', (req, res) => {
+  res.json({
+    samples: samples,
+    count: samples.length,
+  });
+});
+
+// サンプル1件取得
+app.get('/api/samples/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const sample = samples.find(s => s.id === id);
+
+  if (!sample) {
+    return res.status(404).json({ error: 'Sample not found' });
+  }
+
+  res.json(sample);
+});
+
+// サンプル作成
+app.post('/api/samples', (req, res) => {
+  const { name, url, data } = req.body;
+
+  if (!name || !url || !data) {
+    return res.status(400).json({ error: 'name, url, and data are required' });
+  }
+
+  const newSample = {
+    id: nextId++,
+    name,
+    url,
+    data,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  samples.push(newSample);
+  console.log(`Sample created: ${newSample.id} - ${newSample.name}`);
+
+  res.status(201).json(newSample);
+});
+
+// サンプル更新
+app.put('/api/samples/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const { name, url, data } = req.body;
+
+  const index = samples.findIndex(s => s.id === id);
+
+  if (index === -1) {
+    return res.status(404).json({ error: 'Sample not found' });
+  }
+
+  const updatedSample = {
+    ...samples[index],
+    name: name || samples[index].name,
+    url: url || samples[index].url,
+    data: data || samples[index].data,
+    updatedAt: new Date().toISOString(),
+  };
+
+  samples[index] = updatedSample;
+  console.log(`Sample updated: ${updatedSample.id} - ${updatedSample.name}`);
+
+  res.json(updatedSample);
+});
+
+// サンプル削除
+app.delete('/api/samples/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const index = samples.findIndex(s => s.id === id);
+
+  if (index === -1) {
+    return res.status(404).json({ error: 'Sample not found' });
+  }
+
+  const deletedSample = samples.splice(index, 1)[0];
+  console.log(`Sample deleted: ${deletedSample.id} - ${deletedSample.name}`);
+
+  res.json({ message: 'Sample deleted successfully', sample: deletedSample });
 });
 
 // ルートパス
