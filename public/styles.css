@@ -45,7 +45,7 @@ h1 {
   padding: 4px 10px;
 
   border-radius: 20px;
-  font-size: 11px;
+  font-size: 12px;
   margin: 3px 2px;
   background: transparent;
   color: #10b981;
@@ -110,14 +110,55 @@ button:disabled {
 
 .sample-links {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-start;
+  padding: 8px 0;
 }
 
-.sample-links span {
+.sample-links > span:first-child {
   color: #64748b;
   font-size: 14px;
+  margin-right: 4px;
+  padding-top: 6px;
+}
+
+/* サンプルアイテムコンテナ */
+.sample-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: move;
+  position: relative;
+  transition: transform 0.2s ease;
+}
+
+.sample-item.dragging {
+  opacity: 0.5;
+  transform: scale(1.05);
+}
+
+.sample-item.drag-over-left::before {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: #5a7ca3;
+  border-radius: 2px;
+}
+
+.sample-item.drag-over-right::after {
+  content: '';
+  position: absolute;
+  right: -6px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: #5a7ca3;
+  border-radius: 2px;
 }
 
 .sample-link {
@@ -130,10 +171,112 @@ button:disabled {
   transition: all 0.2s ease;
   cursor: pointer;
   border: 1px solid #e2e8f0;
+  display: block;
+  /* 最小幅を編集+削除ボタンより少し広めに設定 */
+  min-width: 80px;
+  /* 最大幅を設定 */
+  max-width: 150px;
+  /* 長いテキストは省略 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
 }
 
 .sample-link:hover {
   background: #e2e8f0;
+}
+
+/* アクションボタンコンテナ */
+.sample-actions {
+  display: flex;
+  gap: 2px;
+  justify-content: flex-end;
+  width: 100%;
+  padding-right: 2px;
+}
+
+/* サンプルURL編集・削除・移動ボタン */
+.sample-edit-btn,
+.sample-delete-btn,
+.sample-move-btn {
+  padding: 3px 8px;
+  font-size: 12px;
+  border-radius: 3px;
+  min-width: auto;
+  background: transparent;
+  border: 1px solid #e2e8f0;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1.2;
+}
+
+.sample-move-btn {
+  padding: 3px 6px;
+  font-size: 12px;
+}
+
+.sample-edit-btn:hover {
+  background: #f8fafc;
+  border-color: #5a7ca3;
+  color: #5a7ca3;
+}
+
+.sample-delete-btn:hover {
+  background: #fef2f2;
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.sample-move-btn:hover {
+  background: #f8fafc;
+  border-color: #64748b;
+  color: #64748b;
+}
+
+/* サンプルボタンコンテナ */
+.sample-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* サンプルURL追加ボタン */
+.sample-add-btn {
+  padding: 6px 12px;
+  font-size: 14px;
+  background: transparent;
+  border: 1px dashed #94a3b8;
+  color: #64748b;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sample-add-btn:hover {
+  background: #f8fafc;
+  border-color: #5a7ca3;
+  color: #5a7ca3;
+  border-style: solid;
+}
+
+/* サンプルURL初期化ボタン */
+.sample-reset-btn {
+  padding: 6px 12px;
+  font-size: 14px;
+  background: transparent;
+  border: 1px solid #cbd5e1;
+  color: #94a3b8;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sample-reset-btn:hover {
+  background: #fef2f2;
+  border-color: #f87171;
+  color: #ef4444;
 }
 
 .results-section {
@@ -312,7 +455,7 @@ button:disabled {
   padding: 2px 6px;
   background: #f1f5f9;
   border-radius: 3px;
-  font-size: 11px;
+  font-size: 12px;
   color: #64748b;
   margin-left: 8px;
   font-weight: normal;
@@ -545,7 +688,7 @@ button:disabled {
   display: inline-block;
   margin-right: 6px;
   transition: transform 0.2s;
-  font-size: 10px;
+  font-size: 12px;
 }
 .expandable.collapsed::before {
   content: '▶';
@@ -739,7 +882,7 @@ button:disabled {
 
 /* Issues Section */
 .issues-section {
-  background: #fef3c7;
+  background: #fffcee;
   border: 1px solid #fcd34d;
   border-radius: 6px;
   padding: 16px;
@@ -759,7 +902,7 @@ button:disabled {
   content: '▼';
   display: inline-block;
   margin-right: 8px;
-  font-size: 10px;
+  font-size: 12px;
   transition: transform 0.2s;
   color: #92400e;
 }
@@ -1047,7 +1190,7 @@ button:disabled {
 .modal-container {
   background: white;
   border-radius: 8px;
-  max-width: 700px;
+  max-width: 900px;
   max-height: 85vh;
   overflow-y: auto;
   margin: 20px;
@@ -1180,7 +1323,7 @@ button:disabled {
 }
 
 .modal-info-box--yellow {
-  background: #fffbeb;
+  background: #fffdf5;
   border-color: #f59e0b;
 }
 
@@ -1198,7 +1341,7 @@ button:disabled {
 }
 
 .modal-info-box--orange {
-  background: #fffbeb;
+  background: #fffdf5;
   border-color: #f59e0b;
 }
 
@@ -1291,7 +1434,7 @@ button:disabled {
 .auth-hint {
   margin-top: 6px;
   margin-bottom: 10px;
-  font-size: 11px;
+  font-size: 12px;
   color: #94a3b8;
   text-align: right;
 }

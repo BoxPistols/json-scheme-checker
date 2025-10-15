@@ -243,10 +243,30 @@
 
                         <!-- サンプルリンクの使い方 -->
                         <section class="modal-section">
-                            <h3>サンプルリンクの使い方</h3>
+                            <h3>サンプルリンクの管理</h3>
                             <p>
-                                入力欄の下にある「サンプル」リンクをクリックすると、実際のWebサイトのJSON-LDを確認できます。初めて使う方は、まずサンプルリンクから試してみてください。
+                                入力欄の下にある「サンプル」リンクをカスタマイズできます。よく使うURLを登録しておけば、ワンクリックで検証できます。
                             </p>
+                            <h4 style="font-size: 14px; margin-top: 12px; margin-bottom: 8px;">基本操作</h4>
+                            <ul>
+                                <li><strong>クリックで実行:</strong> サンプルURLをクリックすると、自動的にURLが入力されて取得が実行されます</li>
+                                <li><strong>追加:</strong> 「＋ 追加」ボタンをクリックして新しいURLを登録</li>
+                                <li><strong>編集:</strong> 各URLの下にある「編集」ボタンでURL名とアドレスを変更</li>
+                                <li><strong>削除:</strong> 「削除」ボタンで不要なURLを削除</li>
+                                <li><strong>並び替え:</strong> URLタグをドラッグ＆ドロップで並び順を変更</li>
+                                <li><strong>初期化:</strong> 「初期化」ボタンでデフォルトのサンプルURLに戻す</li>
+                            </ul>
+                            <h4 style="font-size: 14px; margin-top: 12px; margin-bottom: 8px;">データ保存</h4>
+                            <ul>
+                                <li>登録したサンプルURLは<strong>ブラウザのlocalStorage</strong>に自動保存されます</li>
+                                <li>ブラウザを閉じても設定は保持されます</li>
+                                <li>ブラウザのキャッシュをクリアすると設定も削除されます</li>
+                            </ul>
+                            <div class="modal-info-box modal-info-box--blue">
+                                <p>
+                                    <strong>ヒント:</strong> よく検証するステージング環境や開発環境のURLを登録しておくと便利です。
+                                </p>
+                            </div>
                         </section>
 
                         <!-- Basic認証について -->
@@ -328,16 +348,7 @@
 
             <div class="sample-links">
                 <span>サンプル:</span>
-                <a class="sample-link"
-                    data-sample-url="https://freelance-hub.jp/project/detail/281563/">freelance-hub</a>
-                <a class="sample-link"
-                    data-sample-url="https://freelance.levtech.jp/project/detail/28421/">levtech</a>
-                <a class="sample-link" data-sample-url="https://freelance-job.com/job/detail/146243">freelance-job
-                </a>
-                <a class="sample-link"
-                    data-sample-url="https://www.r-agent.com/kensaku/kyujin/20250107-188-01-052.html">RecruitAgent
-                </a>
-                <a class="sample-link" data-sample-url="https://pe-bank.jp/project/aws/47302-18/">PE-BANK</a>
+                <!-- 動的に生成される -->
             </div>
 
             <div class="error-message" id="errorMessage">
