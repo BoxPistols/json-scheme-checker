@@ -18,6 +18,9 @@
                 <span class="server-status" id="serverStatus">サーバー確認中...</span>
                 <a class="doc-pill" target="_blank" rel="noopener noreferrer"
                     href="https://developers.google.com/search/docs/appearance/structured-data/job-posting?hl=ja">Google公式リファレンス</a>
+                <button type="button" class="btn-guide" id="btnMemo">
+                    メモ
+                </button>
                 <button type="button" class="btn-guide" id="btnGuide">
                     使い方
                 </button>
@@ -198,6 +201,73 @@
                     <div class="modal-footer">
                         <button class="btn-modal-close" id="btnCloseSecurityModal">
                             閉じる
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- メモModal -->
+            <div id="memoModal" class="modal-overlay">
+                <div class="modal-container">
+                    <div class="modal-header modal-header--sticky">
+                        <h2>メモ管理</h2>
+                    </div>
+                    <div class="modal-body">
+                        <div class="memo-actions">
+                            <button class="btn-memo-action" id="btnAddMemo">
+                                ➕ 新規メモ作成
+                            </button>
+                            <div class="memo-import-export">
+                                <button class="btn-memo-action btn-memo-action--secondary" id="btnExportMemos">
+                                    📤 エクスポート
+                                </button>
+                                <button class="btn-memo-action btn-memo-action--secondary" id="btnImportMemos">
+                                    📥 インポート
+                                </button>
+                                <input type="file" id="memoFileInput" accept=".json" style="display: none;">
+                            </div>
+                        </div>
+                        
+                        <div id="memoList" class="memo-list">
+                            <!-- メモ一覧がここに表示されます -->
+                        </div>
+                        
+                        <div id="noMemos" class="no-memos">
+                            <p>メモがまだありません</p>
+                            <p class="no-memos-hint">「新規メモ作成」ボタンからメモを追加できます</p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-modal-close" id="btnCloseMemoModal">
+                            閉じる
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- メモ編集Modal -->
+            <div id="memoEditModal" class="modal-overlay">
+                <div class="modal-container modal-container--narrow">
+                    <div class="modal-header">
+                        <h2 id="memoEditTitle">新規メモ作成</h2>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="memoEditId">
+                        <div class="memo-form-group">
+                            <label for="memoEditTitleInput" class="memo-form-label">タイトル</label>
+                            <input type="text" id="memoEditTitleInput" class="memo-form-input" placeholder="メモのタイトルを入力">
+                        </div>
+                        <div class="memo-form-group">
+                            <label for="memoEditContent" class="memo-form-label">内容</label>
+                            <textarea id="memoEditContent" class="memo-form-textarea" rows="10" placeholder="メモの内容を入力"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-modal-cancel" id="btnCancelMemoEdit">
+                            キャンセル
+                        </button>
+                        <button class="btn-modal-primary" id="btnSaveMemo">
+                            保存
                         </button>
                     </div>
                 </div>

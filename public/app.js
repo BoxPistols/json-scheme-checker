@@ -79,6 +79,63 @@ function closeGuideModal() {
     }
 }
 
+// メモModalを表示
+function showMemoModal() {
+    const modal = document.getElementById('memoModal');
+    if (modal) {
+        modal.classList.add('modal-overlay--visible');
+        renderMemoList();
+    }
+}
+
+// メモModalを閉じる
+function closeMemoModal() {
+    const modal = document.getElementById('memoModal');
+    if (modal) {
+        modal.classList.remove('modal-overlay--visible');
+    }
+}
+
+// メモ編集Modalを表示
+function showMemoEditModal(memoId = null) {
+    const modal = document.getElementById('memoEditModal');
+    const titleElement = document.getElementById('memoEditTitle');
+    const idElement = document.getElementById('memoEditId');
+    const titleInput = document.getElementById('memoEditTitleInput');
+    const contentInput = document.getElementById('memoEditContent');
+
+    if (memoId) {
+        // 編集モード
+        const memo = getMemo(memoId);
+        if (memo) {
+            titleElement.textContent = 'メモを編集';
+            idElement.value = memoId;
+            titleInput.value = memo.title;
+            contentInput.value = memo.content;
+        }
+    } else {
+        // 新規作成モード
+        titleElement.textContent = '新規メモ作成';
+        idElement.value = '';
+        titleInput.value = '';
+        contentInput.value = '';
+    }
+
+    if (modal) {
+        modal.classList.add('modal-overlay--visible');
+        // フォーカスをタイトル入力欄に移動
+        setTimeout(() => titleInput.focus(), 100);
+    }
+}
+
+// メモ編集Modalを閉じる
+function closeMemoEditModal() {
+    const modal = document.getElementById('memoEditModal');
+    if (modal) {
+        modal.classList.remove('modal-overlay--visible');
+    }
+}
+
 // Modalの背景クリックで閉じる
 document.addEventListener('DOMContentLoaded', () => {
     // モーダル関連のイベントリスナー
@@ -100,14 +157,42 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    const memoModal = document.getElementById('memoModal');
+    if (memoModal) {
+        memoModal.addEventListener('click', (e) => {
+            if (e.target === memoModal) {
+                closeMemoModal();
+            }
+        });
+    }
+
+    const memoEditModal = document.getElementById('memoEditModal');
+    if (memoEditModal) {
+        memoEditModal.addEventListener('click', (e) => {
+            if (e.target === memoEditModal) {
+                closeMemoEditModal();
+            }
+        });
+    }
+
     // ボタンイベントリスナー登録
     document.getElementById('btnGuide')?.addEventListener('click', showGuideModal);
+    document.getElementById('btnMemo')?.addEventListener('click', showMemoModal);
     document.getElementById('fetchButton')?.addEventListener('click', fetchAndDisplay);
     document.getElementById('togglePassword')?.addEventListener('click', togglePasswordVisibility);
     document.getElementById('btnShowSecurityModal')?.addEventListener('click', showSecurityModal);
     document.getElementById('btnClearAuth')?.addEventListener('click', clearAuth);
     document.getElementById('btnCloseSecurityModal')?.addEventListener('click', closeSecurityModal);
     document.getElementById('btnCloseGuideModal')?.addEventListener('click', closeGuideModal);
+    document.getElementById('btnCloseMemoModal')?.addEventListener('click', closeMemoModal);
+    document.getElementById('btnAddMemo')?.addEventListener('click', () => showMemoEditModal());
+    document.getElementById('btnCancelMemoEdit')?.addEventListener('click', closeMemoEditModal);
+    document.getElementById('btnSaveMemo')?.addEventListener('click', saveMemo);
+    document.getElementById('btnExportMemos')?.addEventListener('click', exportMemos);
+    document.getElementById('btnImportMemos')?.addEventListener('click', () => {
+        document.getElementById('memoFileInput').click();
+    });
+    document.getElementById('memoFileInput')?.addEventListener('change', importMemos);
     document.getElementById('btnHideError')?.addEventListener('click', hideError);
 
     // 認証ストレージ方法変更のイベントリスナー
@@ -1200,3 +1285,256 @@ document.addEventListener('keydown', function (e) {
         urlInput.select();
     }
 });
+
+// ==========================================
+// メモ管理機能
+// ==========================================
+
+const MEMOS_STORAGE_KEY = 'jsonld_memos';
+
+/**
+ * すべてのメモを取得
+ * @returns {Array<Object>} メモオブジェクトの配列
+ */
+function getAllMemos() {
+    try {
+        const stored = localStorage.getItem(MEMOS_STORAGE_KEY);
+        return stored ? JSON.parse(stored) : [];
+    } catch (e) {
+        console.error('メモの読み込みに失敗しました:', e);
+        return [];
+    }
+}
+
+/**
+ * メモを保存
+ * @param {Array<Object>} memos - メモオブジェクトの配列
+ */
+function saveMemos(memos) {
+    try {
+        localStorage.setItem(MEMOS_STORAGE_KEY, JSON.stringify(memos));
+    } catch (e) {
+        console.error('メモの保存に失敗しました:', e);
+        showSnackbar('メモの保存に失敗しました', 'error');
+    }
+}
+
+/**
+ * 特定のメモを取得
+ * @param {string} id - メモID
+ * @returns {Object|null} メモオブジェクト
+ */
+function getMemo(id) {
+    const memos = getAllMemos();
+    return memos.find(memo => memo.id === id) || null;
+}
+
+/**
+ * メモを作成または更新
+ */
+function saveMemo() {
+    const id = document.getElementById('memoEditId').value;
+    const title = document.getElementById('memoEditTitleInput').value.trim();
+    const content = document.getElementById('memoEditContent').value.trim();
+
+    if (!title) {
+        showSnackbar('タイトルを入力してください', 'warning');
+        return;
+    }
+
+    if (!content) {
+        showSnackbar('内容を入力してください', 'warning');
+        return;
+    }
+
+    const memos = getAllMemos();
+    const now = new Date().toISOString();
+
+    if (id) {
+        // 更新
+        const index = memos.findIndex(memo => memo.id === id);
+        if (index !== -1) {
+            memos[index] = {
+                ...memos[index],
+                title,
+                content,
+                updatedAt: now
+            };
+            showSnackbar('メモを更新しました', 'success');
+        }
+    } else {
+        // 新規作成
+        const newMemo = {
+            id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+            title,
+            content,
+            createdAt: now,
+            updatedAt: now
+        };
+        memos.unshift(newMemo);
+        showSnackbar('メモを作成しました', 'success');
+    }
+
+    saveMemos(memos);
+    closeMemoEditModal();
+    renderMemoList();
+}
+
+/**
+ * メモを削除
+ * @param {string} id - メモID
+ */
+function deleteMemo(id) {
+    if (!confirm('このメモを削除してもよろしいですか？')) {
+        return;
+    }
+
+    const memos = getAllMemos();
+    const filtered = memos.filter(memo => memo.id !== id);
+    saveMemos(filtered);
+    showSnackbar('メモを削除しました', 'success');
+    renderMemoList();
+}
+
+/**
+ * メモ一覧を描画
+ */
+function renderMemoList() {
+    const memos = getAllMemos();
+    const listContainer = document.getElementById('memoList');
+    const noMemosEl = document.getElementById('noMemos');
+
+    if (memos.length === 0) {
+        listContainer.style.display = 'none';
+        noMemosEl.style.display = 'block';
+        return;
+    }
+
+    listContainer.style.display = 'flex';
+    noMemosEl.style.display = 'none';
+
+    listContainer.innerHTML = '';
+
+    memos.forEach(memo => {
+        const item = document.createElement('div');
+        item.className = 'memo-item';
+
+        const createdDate = new Date(memo.createdAt).toLocaleString('ja-JP');
+        const updatedDate = new Date(memo.updatedAt).toLocaleString('ja-JP');
+        const dateText = memo.createdAt === memo.updatedAt
+            ? `作成: ${createdDate}`
+            : `更新: ${updatedDate}`;
+
+        item.innerHTML = `
+            <div class="memo-item-header">
+                <div class="memo-item-title">${escapeHtml(memo.title)}</div>
+                <div class="memo-item-actions">
+                    <button class="btn-memo-edit" data-id="${memo.id}">編集</button>
+                    <button class="btn-memo-delete" data-id="${memo.id}">削除</button>
+                </div>
+            </div>
+            <div class="memo-item-content">${escapeHtml(memo.content)}</div>
+            <div class="memo-item-meta">
+                <span class="memo-item-date">${dateText}</span>
+            </div>
+        `;
+
+        // イベントリスナー
+        const editBtn = item.querySelector('.btn-memo-edit');
+        const deleteBtn = item.querySelector('.btn-memo-delete');
+
+        editBtn.addEventListener('click', () => {
+            showMemoEditModal(memo.id);
+        });
+
+        deleteBtn.addEventListener('click', () => {
+            deleteMemo(memo.id);
+        });
+
+        listContainer.appendChild(item);
+    });
+}
+
+/**
+ * メモをエクスポート
+ */
+function exportMemos() {
+    const memos = getAllMemos();
+
+    if (memos.length === 0) {
+        showSnackbar('エクスポートするメモがありません', 'warning');
+        return;
+    }
+
+    const dataStr = JSON.stringify(memos, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `json-ld-memos-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    showSnackbar('メモをエクスポートしました', 'success');
+}
+
+/**
+ * メモをインポート
+ * @param {Event} event - ファイル選択イベント
+ */
+function importMemos(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+        try {
+            const imported = JSON.parse(e.target.result);
+
+            if (!Array.isArray(imported)) {
+                throw new Error('無効なファイル形式です');
+            }
+
+            // 既存のメモと結合（重複を避けるため、IDが重複していれば新しいIDを生成）
+            const existingMemos = getAllMemos();
+            const existingIds = new Set(existingMemos.map(m => m.id));
+
+            const newMemos = imported.map(memo => {
+                if (!memo.id || !memo.title || !memo.content) {
+                    throw new Error('無効なメモデータです');
+                }
+
+                // 重複IDの場合は新しいIDを生成
+                if (existingIds.has(memo.id)) {
+                    return {
+                        ...memo,
+                        id: Date.now().toString() + Math.random().toString(36).substr(2, 9)
+                    };
+                }
+
+                return memo;
+            });
+
+            const allMemos = [...newMemos, ...existingMemos];
+            saveMemos(allMemos);
+            renderMemoList();
+            showSnackbar(`${newMemos.length}件のメモをインポートしました`, 'success');
+        } catch (error) {
+            console.error('インポートエラー:', error);
+            showSnackbar('ファイルの読み込みに失敗しました: ' + error.message, 'error');
+        }
+    };
+
+    reader.onerror = () => {
+        showSnackbar('ファイルの読み込みに失敗しました', 'error');
+    };
+
+    reader.readAsText(file);
+
+    // ファイル選択をリセット（同じファイルを再度選択できるようにする）
+    event.target.value = '';
+}
