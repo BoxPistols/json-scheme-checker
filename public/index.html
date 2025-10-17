@@ -45,8 +45,8 @@
                         <input type="text" id="username" placeholder="ユーザー名" class="auth-input">
                         <div class="auth-password-wrapper">
                             <input type="password" id="password" placeholder="パスワード" class="auth-password-input">
-                            <button type="button" id="togglePassword"
-                                class="auth-toggle-btn" aria-label="パスワードを表示/非表示" title="パスワードを表示/非表示">
+                            <button type="button" id="togglePassword" class="auth-toggle-btn" aria-label="パスワードを表示/非表示"
+                                title="パスワードを表示/非表示">
                                 <span id="iconEye" aria-hidden="true" class="icon-visible">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
@@ -78,23 +78,19 @@
 
                         <div class="auth-radio-group">
                             <label class="auth-radio-label">
-                                <input type="radio" name="authStorage" value="none" checked
-                                    class="auth-radio-input">
+                                <input type="radio" name="authStorage" value="none" checked class="auth-radio-input">
                                 <span>保存しない（最もセキュア）</span>
                             </label>
                             <label class="auth-radio-label">
-                                <input type="radio" name="authStorage" value="session"
-                                    class="auth-radio-input">
+                                <input type="radio" name="authStorage" value="session" class="auth-radio-input">
                                 <span>タブを閉じるまで保存（推奨）</span>
                             </label>
                             <label class="auth-radio-label">
-                                <input type="radio" name="authStorage" value="persistent"
-                                    class="auth-radio-input">
+                                <input type="radio" name="authStorage" value="persistent" class="auth-radio-input">
                                 <span>24時間保存（利便性重視）</span>
                             </label>
                             <label class="auth-radio-label">
-                                <input type="radio" name="authStorage" value="permanent"
-                                    class="auth-radio-input">
+                                <input type="radio" name="authStorage" value="permanent" class="auth-radio-input">
                                 <span>永続保存（期限なし）</span>
                             </label>
                         </div>
@@ -217,8 +213,8 @@
                                 JSON-LD Schema Viewerは、WebサイトのJSON-LD構造化データを抽出して可視化するツールです。
                             </p>
                             <ul>
-                                <li>CORSプロキシサーバーを使用してあらゆるURLにアクセス可能</li>
-                                <li>開発中のlocalhostサイトも検証可能</li>
+                                <!-- <li>CORSプロキシサーバーを使用してあらゆるURLにアクセス可能</li> -->
+                                <!-- <li>開発中のlocalhostサイトも検証可能</li> -->
                                 <li>テーブル形式とJSON形式の切り替え表示</li>
                                 <li>Basic認証が必要なサイトにも対応</li>
                             </ul>
@@ -353,8 +349,7 @@
 
             <div class="error-message" id="errorMessage">
                 <span id="errorMessageText"></span>
-                <button type="button" id="btnHideError" class="error-close-btn" aria-label="閉じる"
-                    title="閉じる">×</button>
+                <button type="button" id="btnHideError" class="error-close-btn" aria-label="閉じる" title="閉じる">×</button>
             </div>
 
             <div class="loading" id="loading">
@@ -388,8 +383,8 @@
 
         <div id="snackbar" class="snackbar" role="status" aria-live="polite" aria-atomic="true"></div>
 
-    <script src="/app.js"></script>
-    <script type="module" src="/modules/seo-analyzer.js"></script>
+        <script src="/app.js"></script>
+        <script type="module" src="/modules/seo-analyzer.js"></script>
 </body>
 
 </html>
