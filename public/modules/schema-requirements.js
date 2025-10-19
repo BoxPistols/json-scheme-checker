@@ -172,6 +172,75 @@ export const SCHEMA_REQUIREMENTS = {
     ],
   },
 
+  // WebPage: ウェブページ
+  'WebPage': {
+    label: 'ウェブページ',
+    required: [
+      { key: 'name', label: 'ページ名', description: 'ページのタイトル' },
+      { key: 'url', label: 'URL', description: 'ページのURL' },
+    ],
+    recommended: [
+      { key: 'description', label: '説明', description: 'ページの説明' },
+      { key: 'image', label: 'イメージ', description: 'ページのメイン画像' },
+      { key: 'datePublished', label: '公開日', description: 'ページの公開日' },
+      { key: 'dateModified', label: '更新日', description: 'ページの最終更新日' },
+      { key: 'author', label: '著者', description: 'Person または Organization' },
+      { key: 'breadcrumb', label: 'パンくず', description: 'BreadcrumbList への参照' },
+    ],
+    optimization: [
+      { key: 'inLanguage', label: '言語', description: 'ページの言語（ja, en など）' },
+      { key: 'isPartOf', label: '所属', description: 'WebSite への参照' },
+      { key: 'potentialAction', label: 'アクション', description: '可能なアクション' },
+    ],
+  },
+
+  // WebSite: ウェブサイト
+  'WebSite': {
+    label: 'ウェブサイト',
+    required: [
+      { key: 'name', label: 'サイト名', description: 'ウェブサイトの名前' },
+      { key: 'url', label: 'URL', description: 'ウェブサイトのURL' },
+    ],
+    recommended: [
+      { key: 'description', label: '説明', description: 'サイトの説明' },
+      { key: 'publisher', label: '発行者', description: 'Organization への参照' },
+      { key: 'inLanguage', label: '言語', description: 'サイトの言語' },
+    ],
+    optimization: [
+      { key: 'potentialAction', label: '検索アクション', description: 'サイト内検索の定義' },
+      { key: 'sameAs', label: 'SNSリンク', description: 'SNSプロフィールURL' },
+    ],
+  },
+
+  // BreadcrumbList: パンくずリスト
+  'BreadcrumbList': {
+    label: 'パンくずリスト',
+    required: [
+      { key: 'itemListElement', label: 'リスト要素', description: 'ListItem の配列' },
+    ],
+    recommended: [],
+    optimization: [],
+  },
+
+  // Person: 人物
+  'Person': {
+    label: '人物',
+    required: [
+      { key: 'name', label: '名前', description: '人物の名前' },
+    ],
+    recommended: [
+      { key: 'url', label: 'URL', description: 'プロフィールページのURL' },
+      { key: 'image', label: '画像', description: 'プロフィール画像' },
+      { key: 'jobTitle', label: '職種', description: '役職・職種' },
+      { key: 'worksFor', label: '所属', description: 'Organization への参照' },
+    ],
+    optimization: [
+      { key: 'email', label: 'メール', description: 'メールアドレス' },
+      { key: 'telephone', label: '電話番号', description: '電話番号' },
+      { key: 'sameAs', label: 'SNS', description: 'SNSプロフィールURL' },
+    ],
+  },
+
   // Event: イベント
   'Event': {
     label: 'イベント',

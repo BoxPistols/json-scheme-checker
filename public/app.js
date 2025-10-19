@@ -184,7 +184,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnCloseSecurityModal')?.addEventListener('click', closeSecurityModal);
   document.getElementById('btnCloseGuideModal')?.addEventListener('click', closeGuideModal);
   document.getElementById('btnCloseRobotsModal')?.addEventListener('click', closeRobotsModal);
-  document.getElementById('btnCloseTwitterCardModal')?.addEventListener('click', closeTwitterCardModal);
+  document
+    .getElementById('btnCloseTwitterCardModal')
+    ?.addEventListener('click', closeTwitterCardModal);
   document.getElementById('btnCloseOpenGraphModal')?.addEventListener('click', closeOpenGraphModal);
   document.getElementById('btnHideError')?.addEventListener('click', hideError);
 
@@ -400,11 +402,12 @@ const STORAGE_METHOD_KEY = 'jsonld_storage_method';
 // サンプルURLの管理
 const SAMPLE_URLS_KEY = 'jsonld_sample_urls';
 const DEFAULT_SAMPLE_URLS = [
-  { label: 'freelance-hub', url: 'https://freelance-hub.jp/project/detail/281563/' },
-  { label: 'levtech', url: 'https://freelance.levtech.jp/project/detail/28421/' },
-  { label: 'freelance-job', url: 'https://freelance-job.com/job/detail/146243' },
-  { label: 'RecruitAgent', url: 'https://www.r-agent.com/kensaku/kyujin/20250107-188-01-052.html' },
+  { label: 'f-hub', url: 'https://freelance-hub.jp/project/detail/281563/' },
+  { label: 'f-job', url: 'https://freelance-job.com/job/detail/146243' },
   { label: 'PE-BANK', url: 'https://pe-bank.jp/project/aws/47302-18/' },
+  { label: 'RecruitAgent', url: 'https://www.r-agent.com/kensaku/kyujin/20250107-188-01-052.html' },
+  { label: 'levtech', url: 'https://freelance.levtech.jp/project/detail/28421/' },
+  { label: 'レバテックLAB', url: 'https://levtech.jp/media/article/focus/detail_680/' },
 ];
 
 // サンプルURLリストを読み込み
@@ -1718,6 +1721,7 @@ document.getElementById('urlInput').addEventListener('blur', function (e) {
 });
 
 // ショートカットキー: Cmd+K (Mac) / Ctrl+K (Windows) でURL入力欄にフォーカス
+// Escape キーでモーダルを閉じる
 document.addEventListener('keydown', function (e) {
   // Cmd+K (Mac) または Ctrl+K (Windows/Linux)
   if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
@@ -1725,5 +1729,23 @@ document.addEventListener('keydown', function (e) {
     const urlInput = document.getElementById('urlInput');
     urlInput.focus();
     urlInput.select();
+  }
+
+  // Escape キーでモーダルを閉じる
+  if (e.key === 'Escape') {
+    const modals = [
+      { id: 'securityModal', close: closeSecurityModal },
+      { id: 'guideModal', close: closeGuideModal },
+      { id: 'robotsGuideModal', close: closeRobotsModal },
+      { id: 'twitterCardGuideModal', close: closeTwitterCardModal },
+      { id: 'openGraphGuideModal', close: closeOpenGraphModal },
+    ];
+
+    modals.forEach(modal => {
+      const element = document.getElementById(modal.id);
+      if (element && element.classList.contains('modal-overlay--visible')) {
+        modal.close();
+      }
+    });
   }
 });
