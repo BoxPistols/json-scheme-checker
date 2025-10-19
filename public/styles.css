@@ -708,8 +708,8 @@ button:disabled {
 }
 
 [data-theme='dark'] .json-view {
-  background: #1e293b;
-  color: #cbd5e1;
+  background: var(--surface-2);
+  color: var(--md-sys-color-on-surface-variant);
 }
 
 .json-view.hidden {
