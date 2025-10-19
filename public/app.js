@@ -19,6 +19,40 @@ if (isVercel) {
 
 console.log('Environment:', isVercel ? 'Vercel' : 'Local', 'Proxy:', PROXY_SERVER || 'API Routes');
 
+// ===== ダークモード管理 =====
+const THEME_STORAGE_KEY = 'jsonld_theme';
+
+// 保存されたテーマを取得（デフォルトはライト）
+function getSavedTheme() {
+  return localStorage.getItem(THEME_STORAGE_KEY) || 'light';
+}
+
+// テーマを保存
+function saveTheme(theme) {
+  localStorage.setItem(THEME_STORAGE_KEY, theme);
+}
+
+// テーマを適用
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+}
+
+// テーマを切り替え
+function toggleTheme() {
+  const currentTheme = getSavedTheme();
+  const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+  saveTheme(newTheme);
+  applyTheme(newTheme);
+  showSnackbar(
+    newTheme === 'dark' ? 'ダークモードに切り替えました' : 'ライトモードに切り替えました',
+    'success',
+    2000
+  );
+}
+
+// 初期化時にテーマを適用
+applyTheme(getSavedTheme());
+
 // パスワードの表示/非表示を切り替え
 function togglePasswordVisibility() {
   const passwordField = document.getElementById('password');
@@ -109,6 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnCloseSecurityModal')?.addEventListener('click', closeSecurityModal);
   document.getElementById('btnCloseGuideModal')?.addEventListener('click', closeGuideModal);
   document.getElementById('btnHideError')?.addEventListener('click', hideError);
+  document.getElementById('themeToggle')?.addEventListener('click', toggleTheme);
 
   // 認証ストレージ方法変更のイベントリスナー
   document.querySelectorAll('input[name="authStorage"]').forEach(radio => {
