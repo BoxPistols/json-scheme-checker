@@ -72,7 +72,7 @@ export function renderSummaryCard(analysisData, score, schemaGuidance = null, sc
         </div>
         <div style="font-size: 0.8125rem; line-height: 1.5;">
           スキーマに必須プロパティが不足しています。検索エンジンでの表示が正しく行われない可能性があります。
-          <br><a href="#" onclick="document.querySelector('[data-tab=tab-develop]')?.click(); return false;" style="color: #ef4444; text-decoration: underline;">詳細は Develop タブを確認</a>
+          <br><a href="#" class="develop-tab-link" data-severity="error" style="color: #ef4444; text-decoration: underline;" role="button">詳細は Develop タブを確認</a>
         </div>
       </div>
     `;
@@ -84,7 +84,7 @@ export function renderSummaryCard(analysisData, score, schemaGuidance = null, sc
         </div>
         <div style="font-size: 0.8125rem; line-height: 1.5;">
           SEO効果を最大化するため、推奨プロパティの追加をお勧めします。
-          <br><a href="#" onclick="document.querySelector('[data-tab=tab-develop]')?.click(); return false;" style="color: #f97316; text-decoration: underline;">詳細は Develop タブを確認</a>
+          <br><a href="#" class="develop-tab-link" data-severity="warning" style="color: #f97316; text-decoration: underline;" role="button">詳細は Develop タブを確認</a>
         </div>
       </div>
     `;
@@ -274,7 +274,7 @@ function renderOGTable(og, issues) {
               if (key === 'type') {
                 status = '<span class="status-badge error">✗ 未設定</span>';
               } else {
-                status = '<span class="status-badge error" style="cursor: pointer;" onclick="showOpenGraphModal()" title="クリックして設定方法を確認">✗ 未設定 (ガイド)</span>';
+                status = '<span class="status-badge error og-guide-link" style="cursor: pointer;" title="クリックして設定方法を確認" role="button" tabindex="0">✗ 未設定 (ガイド)</span>';
               }
             }
 
@@ -345,7 +345,7 @@ function renderTwitterTable(twitter, issues) {
                 ? '<span class="status-badge error">✗ 問題あり</span>'
                 : '<span class="status-badge success">✓ 正常</span>';
             } else if (isRequired) {
-              status = '<span class="status-badge error" style="cursor: pointer;" onclick="showTwitterCardModal()" title="クリックして設定方法を確認">✗ 未設定 (ガイド)</span>';
+              status = '<span class="status-badge error twitter-guide-link" style="cursor: pointer;" title="クリックして設定方法を確認" role="button" tabindex="0">✗ 未設定 (ガイド)</span>';
             } else {
               status = '<span class="status-badge warning">- オプション</span>';
             }

@@ -10,6 +10,16 @@
  * @returns {Object} ガイダンス情報
  */
 export function getSchemaScoreGuidance(schemaScore, schemas) {
+  // 入力検証
+  if (typeof schemaScore !== 'number' || isNaN(schemaScore)) {
+    console.warn('getSchemaScoreGuidance: 無効なschemaScore', schemaScore);
+    schemaScore = 0;
+  }
+  if (!Array.isArray(schemas)) {
+    console.warn('getSchemaScoreGuidance: schemasが配列ではありません', schemas);
+    schemas = [];
+  }
+
   const guidance = {
     score: schemaScore,
     maxScore: 20,
@@ -167,6 +177,20 @@ function determineScoreLevel(score, maxScore) {
  * @returns {Object} ガイダンス情報
  */
 export function getMetaScoreGuidance(metaScore, meta, issues) {
+  // 入力検証
+  if (typeof metaScore !== 'number' || isNaN(metaScore)) {
+    console.warn('getMetaScoreGuidance: 無効なmetaScore', metaScore);
+    metaScore = 0;
+  }
+  if (!meta || typeof meta !== 'object') {
+    console.warn('getMetaScoreGuidance: 無効なmeta', meta);
+    meta = {};
+  }
+  if (!Array.isArray(issues)) {
+    console.warn('getMetaScoreGuidance: issuesが配列ではありません', issues);
+    issues = [];
+  }
+
   const guidance = {
     score: metaScore,
     maxScore: 25,
@@ -297,6 +321,20 @@ export function getMetaScoreGuidance(metaScore, meta, issues) {
  * @returns {Object} ガイダンス情報
  */
 export function getSNSScoreGuidance(snsScore, og, twitter) {
+  // 入力検証
+  if (typeof snsScore !== 'number' || isNaN(snsScore)) {
+    console.warn('getSNSScoreGuidance: 無効なsnsScore', snsScore);
+    snsScore = 0;
+  }
+  if (!og || typeof og !== 'object') {
+    console.warn('getSNSScoreGuidance: 無効なog', og);
+    og = {};
+  }
+  if (!twitter || typeof twitter !== 'object') {
+    console.warn('getSNSScoreGuidance: 無効なtwitter', twitter);
+    twitter = {};
+  }
+
   const guidance = {
     score: snsScore,
     maxScore: 15,
@@ -359,6 +397,20 @@ export function getSNSScoreGuidance(snsScore, og, twitter) {
  * @returns {Object} 改善提案
  */
 export function getOverallSEOSuggestions(totalScore, analysisData) {
+  // 入力検証
+  if (typeof totalScore !== 'number' || isNaN(totalScore)) {
+    console.warn('getOverallSEOSuggestions: 無効なtotalScore', totalScore);
+    totalScore = 0;
+  }
+  if (!analysisData || typeof analysisData !== 'object') {
+    console.warn('getOverallSEOSuggestions: 無効なanalysisData', analysisData);
+    analysisData = { scores: { meta: 0, schema: 0, sns: 0 } };
+  }
+  if (!analysisData.scores || typeof analysisData.scores !== 'object') {
+    console.warn('getOverallSEOSuggestions: 無効なanalysisData.scores', analysisData.scores);
+    analysisData.scores = { meta: 0, schema: 0, sns: 0 };
+  }
+
   const suggestions = {
     totalScore,
     overallLevel: determineScoreLevel(totalScore, 100),

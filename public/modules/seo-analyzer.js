@@ -236,7 +236,7 @@ function renderOverviewTab(analysisData, totalScore, guidance) {
     if (!meta[field]) {
       // Robots タグが未設定の場合、クリック可能なガイドリンクを表示
       if (field === 'robots') {
-        return '<span class="status-badge error" style="cursor: pointer;" onclick="showRobotsModal()" title="クリックして設定方法を確認">x 未設定 (ガイド)</span>';
+        return '<span class="status-badge error robots-guide-link" style="cursor: pointer;" title="クリックして設定方法を確認" role="button" tabindex="0">x 未設定 (ガイド)</span>';
       }
       return '<span class="status-badge error">x 未設定</span>';
     }
@@ -709,4 +709,82 @@ function renderGuidanceTab(guidance) {
 // 初期化
 document.addEventListener('DOMContentLoaded', () => {
   initTabNavigation();
+
+  // 概要タブ内の動的要素のイベント委譲
+  const overviewTab = document.getElementById('tab-overview');
+  if (overviewTab) {
+    overviewTab.addEventListener('click', e => {
+      // Robotsガイドリンクのクリック
+      if (e.target.classList.contains('robots-guide-link')) {
+        if (typeof window.showRobotsModal === 'function') {
+          window.showRobotsModal();
+        }
+      }
+    });
+
+    // キーボード操作対応（Enter/Spaceキー）
+    overviewTab.addEventListener('keydown', e => {
+      if (e.target.classList.contains('robots-guide-link')) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          if (typeof window.showRobotsModal === 'function') {
+            window.showRobotsModal();
+          }
+        }
+      }
+    });
+  }
+
+  // サマリーカード内の動的要素のイベント委譲
+  const summaryCard = document.getElementById('summaryCard');
+  if (summaryCard) {
+    summaryCard.addEventListener('click', e => {
+      // Developタブリンクのクリック
+      if (e.target.classList.contains('develop-tab-link')) {
+        e.preventDefault();
+        const developTabButton = document.querySelector('[data-tab="tab-develop"]');
+        if (developTabButton) {
+          developTabButton.click();
+        }
+      }
+    });
+  }
+
+  // SNSタブ内の動的要素のイベント委譲
+  const snsTab = document.getElementById('tab-sns');
+  if (snsTab) {
+    snsTab.addEventListener('click', e => {
+      // Open Graphガイドリンクのクリック
+      if (e.target.classList.contains('og-guide-link')) {
+        if (typeof window.showOpenGraphModal === 'function') {
+          window.showOpenGraphModal();
+        }
+      }
+      // Twitter Cardガイドリンクのクリック
+      else if (e.target.classList.contains('twitter-guide-link')) {
+        if (typeof window.showTwitterCardModal === 'function') {
+          window.showTwitterCardModal();
+        }
+      }
+    });
+
+    // キーボード操作対応（Enter/Spaceキー）
+    snsTab.addEventListener('keydown', e => {
+      if (e.target.classList.contains('og-guide-link')) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          if (typeof window.showOpenGraphModal === 'function') {
+            window.showOpenGraphModal();
+          }
+        }
+      } else if (e.target.classList.contains('twitter-guide-link')) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          if (typeof window.showTwitterCardModal === 'function') {
+            window.showTwitterCardModal();
+          }
+        }
+      }
+    });
+  }
 });

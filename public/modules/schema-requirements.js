@@ -269,6 +269,12 @@ export const SCHEMA_REQUIREMENTS = {
  * @returns {Object|null} スキーマ要件オブジェクト、またはタイプが未定義の場合はnull
  */
 export function getSchemaRequirements(schemaType) {
+  // 入力検証
+  if (!schemaType || typeof schemaType !== 'string') {
+    console.warn('getSchemaRequirements: 無効なschemaType', schemaType);
+    return null;
+  }
+
   return SCHEMA_REQUIREMENTS[schemaType] || null;
 }
 
@@ -279,6 +285,21 @@ export function getSchemaRequirements(schemaType) {
  * @returns {Object} 詳細分析結果
  */
 export function analyzeSchemaDetail(schema, requirements) {
+  // 入力検証
+  if (!schema || typeof schema !== 'object') {
+    console.warn('analyzeSchemaDetail: 無効なschema', schema);
+    return {
+      isSupportedType: false,
+      checklist: [],
+      score: 0,
+      maxScore: 0,
+      severity: 'error',
+      message: '無効なスキーマオブジェクトです。',
+      missingRequired: [],
+      missingRecommended: [],
+    };
+  }
+
   if (!requirements) {
     return {
       isSupportedType: false,
@@ -287,7 +308,23 @@ export function analyzeSchemaDetail(schema, requirements) {
       maxScore: 0,
       severity: 'info',
       message: 'このスキーマタイプは自動分析の対象外です。手動で検証してください。',
+      missingRequired: [],
+      missingRecommended: [],
     };
+  }
+
+  // requirements の構造検証
+  if (!requirements.required || !Array.isArray(requirements.required)) {
+    console.warn('analyzeSchemaDetail: requirements.requiredが配列ではありません', requirements);
+    requirements.required = [];
+  }
+  if (!requirements.recommended || !Array.isArray(requirements.recommended)) {
+    console.warn('analyzeSchemaDetail: requirements.recommendedが配列ではありません', requirements);
+    requirements.recommended = [];
+  }
+  if (!requirements.optimization || !Array.isArray(requirements.optimization)) {
+    console.warn('analyzeSchemaDetail: requirements.optimizationが配列ではありません', requirements);
+    requirements.optimization = [];
   }
 
   const checklist = [];
