@@ -34,7 +34,7 @@
   --icon-color: #64748b;
 }
 
-body[data-theme='dark'] {
+html[data-theme='dark'] {
   /* Dark Theme */
   --bg-color: #111827; /* Gray 900 */
   --text-color: #d1d5db; /* Gray 300 */
@@ -59,6 +59,10 @@ body[data-theme='dark'] {
   --json-bracket: #9ca3af; /* Gray 400 */
   --icon-color: #9ca3af;
   --value-number-color: #f97316; /* Orange 500 */
+  --primary-hover-color: #6c75d3;
+  --primary-shadow-color: rgba(129, 140, 248, 0.2);
+  --accent-hover-bg-color: rgba(96, 165, 250, 0.1);
+  --accent-hover-color: #3b82f6;
 }
 
 body {
@@ -159,7 +163,7 @@ input[type='url'] {
 input[type='url']:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary-color) 20%, transparent);
+  box-shadow: 0 0 0 2px var(--primary-shadow-color);
 }
 
 button {
@@ -174,8 +178,10 @@ button {
   transition: all 0.2s ease;
 }
 
-button:hover {
-  background: color-mix(in srgb, var(--primary-color) 85%, black);
+  --primary-hover-color: #6c75d3;
+  --primary-shadow-color: rgba(129, 140, 248, 0.2);
+  --accent-hover-bg-color: rgba(96, 165, 250, 0.1);
+  --accent-hover-color: #3b82f6;
 }
 
 button:disabled {
@@ -842,7 +848,7 @@ button:disabled {
   text-align: center;
 }
 
-body[data-theme='dark'] .score-breakdown > div {
+html[data-theme='dark'] .score-breakdown > div {
   background: rgba(0, 0, 0, 0.2);
 }
 
@@ -1182,7 +1188,7 @@ body[data-theme='dark'] .score-breakdown > div {
 .port-input:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary-color) 20%, transparent);
+  box-shadow: 0 0 0 2px var(--primary-shadow-color);
 }
 
 /*
@@ -1478,7 +1484,7 @@ body[data-theme='dark'] .score-breakdown > div {
 }
 
 .btn-guide:hover {
-  background: color-mix(in srgb, var(--accent-color) 10%, transparent);
+  background: var(--accent-hover-bg-color);
   color: var(--accent-color);
 }
 
@@ -1494,7 +1500,7 @@ body[data-theme='dark'] .score-breakdown > div {
 }
 
 .btn-modal-close:hover {
-  background: color-mix(in srgb, var(--accent-color) 85%, black);
+  background: var(--accent-hover-color);
 }
 
 /*
@@ -1703,7 +1709,7 @@ body[data-theme='dark'] .score-breakdown > div {
 }
 
 .array-item-label.expandable:hover {
-  color: color-mix(in srgb, var(--primary-color) 85%, black);
+  color: var(--primary-hover-color);
 }
 
 .array-item-content {
