@@ -58,6 +58,7 @@ body[data-theme='dark'] {
   --json-null: #9ca3af; /* Gray 400 */
   --json-bracket: #9ca3af; /* Gray 400 */
   --icon-color: #9ca3af;
+  --value-number-color: #f97316; /* Orange 500 */
 }
 
 body {
@@ -1714,7 +1715,7 @@ body[data-theme='dark'] .score-breakdown > div {
 }
 
 .value-number {
-  color: #ea580c;
+  color: var(--value-number-color);
 }
 
 /*
