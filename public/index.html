@@ -4,8 +4,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JSON-LD Schema Viewer (Proxy Version)</title>
-    
+    <title>JSON-LD Schema Viewer - Webサイト構造化データの可視化ツール</title>
+    <meta name="description" content="JSON-LDスキーマを視覚化・検証するツール。JobPostingなどの構造化データをテーブル形式やJSON形式で表示。SEO対策に必須のメタタグやOG タグも自動チェック。">
+    <meta name="robots" content="index,follow">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="JSON-LD Schema Viewer">
+    <meta property="og:description" content="Webサイトのスキーマ構造化データを可視化・検証するツール">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://json-ld-view.vercel.app/">
+    <meta property="og:image" content="https://json-ld-view.vercel.app/og-image.png">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="JSON-LD Schema Viewer">
+    <meta name="twitter:description" content="JSON-LDスキーマを視覚化・検証するツール">
+
+    <!-- Canonical -->
+    <link rel="canonical" href="https://json-ld-view.vercel.app/">
+
+    <!-- JSON-LD Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "JSON-LD Schema Viewer",
+      "description": "JSON-LDスキーマを視覚化・検証するツール。Webサイトの構造化データをテーブル形式やJSON形式で表示し、SEO対策に必要なメタタグやOG タグを自動チェック。",
+      "url": "https://json-ld-view.vercel.app/",
+      "applicationCategory": "Utility",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "JPY"
+      },
+      "author": {
+        "@type": "Organization",
+        "name": "JSON-LD Schema Viewer"
+      }
+    }
+    </script>
+
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/styles.css">
     <script>
@@ -356,6 +395,112 @@
                     </div>
                     <div class="modal-footer">
                         <button class="btn-modal-close" id="btnCloseGuideModal">
+                            閉じる
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Robots メタタグ設定ガイド Modal -->
+            <div id="robotsGuideModal" class="modal-overlay">
+                <div class="modal-container">
+                    <div class="modal-header modal-header--sticky">
+                        <h2>Robots メタタグの設定方法</h2>
+                    </div>
+                    <div class="modal-body">
+                        <section class="modal-section">
+                            <h3>何をすべきか？</h3>
+                            <p>
+                                HTMLの <code>&lt;head&gt;</code> タグ内に以下のコードを追加してください。これにより、Googleが正しくページを認識し、検索結果に表示できるようになります。
+                            </p>
+                        </section>
+
+                        <section class="modal-section">
+                            <h3>コピー可能な実装例</h3>
+                            <p style="margin-bottom: 8px; font-size: 0.875rem; color: var(--secondary-text-color);">該当するセクションをコピーして使用してください</p>
+                        </section>
+
+                        <section class="modal-section">
+                            <h4 style="font-size: 14px; margin-bottom: 8px;">1. Static HTML（HTMLファイル直接編集）</h4>
+                            <div class="recommendation-example">
+&lt;head&gt;
+  &lt;meta name="robots" content="index,follow"&gt;
+&lt;/head&gt;
+                            </div>
+                        </section>
+
+                        <section class="modal-section">
+                            <h4 style="font-size: 14px; margin-bottom: 8px;">2. Vue / Nuxt.js</h4>
+                            <div class="recommendation-example">
+export default {
+  head() {
+    return {
+      meta: [
+        { name: 'robots', content: 'index,follow' }
+      ]
+    }
+  }
+}
+                            </div>
+                        </section>
+
+                        <section class="modal-section">
+                            <h4 style="font-size: 14px; margin-bottom: 8px;">3. React / Next.js</h4>
+                            <div class="recommendation-example">
+import Head from 'next/head';
+
+export default function Home() {
+  return (
+    &lt;Head&gt;
+      &lt;meta name="robots" content="index,follow" /&gt;
+    &lt;/Head&gt;
+  )
+}
+                            </div>
+                        </section>
+
+                        <section class="modal-section">
+                            <h3>各値の意味</h3>
+                            <table class="modal-table">
+                                <tr>
+                                    <td><strong>index</strong></td>
+                                    <td>Google が このページを検索対象に含めてもいい</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>follow</strong></td>
+                                    <td>ページ内のリンクをたどってもいい</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>noindex</strong></td>
+                                    <td>このページを検索結果から除外する</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>nofollow</strong></td>
+                                    <td>リンクをたどらない（ページは表示されるが）</td>
+                                </tr>
+                            </table>
+                        </section>
+
+                        <section class="modal-section">
+                            <div class="modal-info-box modal-info-box--blue">
+                                <h4>推奨設定</h4>
+                                <p>
+                                    ほとんどのWebサイトは <strong>index,follow</strong> が推奨です。この設定により、Googleはページを検索対象にでき、ページ内のリンクをたどってサイト全体をクロールできます。
+                                </p>
+                            </div>
+                        </section>
+
+                        <section class="modal-section">
+                            <div class="modal-info-box modal-info-box--green">
+                                <h4>確認方法</h4>
+                                <p>
+                                    設定後、<strong>このツールで再度URLを入力</strong>すると、Robots メタタグが正しく設定されたか確認できます。
+                                </p>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-modal-close" id="btnCloseRobotsModal">
                             閉じる
                         </button>
                     </div>

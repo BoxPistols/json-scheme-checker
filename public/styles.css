@@ -2193,3 +2193,19 @@ html[data-theme='dark'] .score-breakdown > div {
   content: ' ↗';
   font-size: 0.8em;
 }
+
+/* 実装例コードブロック */
+.recommendation-example {
+  background: var(--json-bg);
+  color: var(--json-key);
+  padding: 12px 16px;
+  border-radius: 4px;
+  font-family: 'Courier New', 'Monaco', monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  overflow-x: auto;
+  border: 1px solid var(--border-color);
+  margin: 8px 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+}

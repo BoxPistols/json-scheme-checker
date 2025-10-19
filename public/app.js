@@ -79,6 +79,22 @@ function closeGuideModal() {
   }
 }
 
+// Robots メタタグ設定ガイド Modal を開く
+function showRobotsModal() {
+  const modal = document.getElementById('robotsGuideModal');
+  if (modal) {
+    modal.classList.add('modal-overlay--visible');
+  }
+}
+
+// Robots メタタグ設定ガイド Modal を閉じる
+function closeRobotsModal() {
+  const modal = document.getElementById('robotsGuideModal');
+  if (modal) {
+    modal.classList.remove('modal-overlay--visible');
+  }
+}
+
 // Modalの背景クリックで閉じる
 document.addEventListener('DOMContentLoaded', () => {
   // モーダル関連のイベントリスナー
@@ -100,6 +116,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const robotsModal = document.getElementById('robotsGuideModal');
+  if (robotsModal) {
+    robotsModal.addEventListener('click', e => {
+      if (e.target === robotsModal) {
+        closeRobotsModal();
+      }
+    });
+  }
+
   // ボタンイベントリスナー登録
   document.getElementById('btnGuide')?.addEventListener('click', showGuideModal);
   document.getElementById('fetchButton')?.addEventListener('click', fetchAndDisplay);
@@ -108,6 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnClearAuth')?.addEventListener('click', clearAuth);
   document.getElementById('btnCloseSecurityModal')?.addEventListener('click', closeSecurityModal);
   document.getElementById('btnCloseGuideModal')?.addEventListener('click', closeGuideModal);
+  document.getElementById('btnCloseRobotsModal')?.addEventListener('click', closeRobotsModal);
   document.getElementById('btnHideError')?.addEventListener('click', hideError);
 
   // 認証ストレージ方法変更のイベントリスナー

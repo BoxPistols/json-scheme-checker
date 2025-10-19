@@ -171,6 +171,10 @@ function renderOverviewTab(analysisData, totalScore, guidance) {
   function getMetaStatus(field, meta, issues) {
     const hasIssue = issues.some(i => i.field === field);
     if (!meta[field]) {
+      // Robots タグが未設定の場合、クリック可能なガイドリンクを表示
+      if (field === 'robots') {
+        return '<span class="status-badge error" style="cursor: pointer;" onclick="showRobotsModal()" title="クリックして設定方法を確認">x 未設定 (ガイド)</span>';
+      }
       return '<span class="status-badge error">x 未設定</span>';
     }
     if (hasIssue) {
@@ -187,8 +191,9 @@ function renderOverviewTab(analysisData, totalScore, guidance) {
         ? 'score-card-value--warning'
         : 'score-card-value--danger';
 
-  const schemaGuidanceHtml = guidance && guidance.schema
-    ? `
+  const schemaGuidanceHtml =
+    guidance && guidance.schema
+      ? `
       <div class="guidance-section guidance-${guidance.schema.level}">
         <h4>構造化データについて</h4>
         <p class="guidance-message">${escapeHtml(guidance.schema.message)}</p>
@@ -198,7 +203,7 @@ function renderOverviewTab(analysisData, totalScore, guidance) {
         </div>
       </div>
     `
-    : '';
+      : '';
 
   overviewTab.innerHTML = `
                     <h2>概要・メタタグ</h2>
