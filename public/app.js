@@ -204,6 +204,81 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // サンプルURLリストを初期化
   renderSampleLinks();
+
+  // ===== Dark Mode Toggle =====
+  const themeToggleButton = document.getElementById('btnThemeToggle');
+  const lightIcon = document.getElementById('theme-icon-light');
+  const darkIcon = document.getElementById('theme-icon-dark');
+  const THEME_KEY = 'jsonld_theme';
+
+  // 現在のテーマを適用する
+  function applyTheme(theme) {
+    const isDark = theme === 'dark';
+    document.documentElement.dataset.theme = theme; // bodyではなくhtml(documentElement)に設定
+    if (lightIcon) lightIcon.style.display = isDark ? 'none' : 'inline-block';
+    if (darkIcon) darkIcon.style.display = isDark ? 'inline-block' : 'none';
+    if (themeToggleButton) {
+      const newLabel = `テーマを切り替え（現在: ${isDark ? 'ダーク' : 'ライト'}モード）`;
+      themeToggleButton.setAttribute('aria-label', newLabel);
+    }
+  }
+
+  // テーマを切り替える
+  function toggleTheme() {
+    const currentTheme = document.documentElement.dataset.theme;
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    try {
+      localStorage.setItem(THEME_KEY, newTheme);
+    } catch (error) {
+      console.warn('テーマの保存に失敗しました:', error);
+    }
+    applyTheme(newTheme);
+  }
+
+  // FOUC対策スクリプトで初期テーマが設定されているので、ここではaria-labelの更新のみ
+  if (document.documentElement.dataset.theme && themeToggleButton) {
+    const currentTheme = document.documentElement.dataset.theme;
+    const isDark = currentTheme === 'dark';
+    const newLabel = `テーマを切り替え（現在: ${isDark ? 'ダーク' : 'ライト'}モード）`;
+    themeToggleButton.setAttribute('aria-label', newLabel);
+    // アイコンの表示も同期
+    if (lightIcon) lightIcon.style.display = isDark ? 'none' : 'inline-block';
+    if (darkIcon) darkIcon.style.display = isDark ? 'inline-block' : 'none';
+  }
+
+  // イベントリスナー登録
+  if (themeToggleButton) {
+    themeToggleButton.addEventListener('click', toggleTheme);
+  }
+
+  // OSのテーマ変更を監視
+  if (window.matchMedia) {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+      // ユーザーが明示的に設定していない場合のみ反映
+      try {
+        if (!localStorage.getItem(THEME_KEY)) {
+          applyTheme(e.matches ? 'dark' : 'light');
+        }
+      } catch (error) {
+        console.warn('localStorageの読み取りに失敗しました:', error);
+      }
+    });
+  }
+
+  // ESCキーでモーダルを閉じる
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      const securityModal = document.getElementById('securityModal');
+      const guideModal = document.getElementById('guideModal');
+
+      if (securityModal?.classList.contains('modal-overlay--visible')) {
+        closeSecurityModal();
+      }
+      if (guideModal?.classList.contains('modal-overlay--visible')) {
+        closeGuideModal();
+      }
+    }
+  });
 });
 
 // 認証情報の保存方法を復元
