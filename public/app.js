@@ -1450,6 +1450,22 @@ function getValueType(value) {
 
 function getSchemaType(schema) {
   if (Array.isArray(schema)) {
+    // 配列の場合、最初の要素のタイプを取得して表示
+    if (schema.length > 0) {
+      const firstItem = schema[0];
+      if (firstItem && typeof firstItem === 'object') {
+        if (firstItem['@type']) {
+          if (Array.isArray(firstItem['@type'])) {
+            return firstItem['@type'].join(', ');
+          }
+          return firstItem['@type'];
+        }
+        if (firstItem['@graph']) {
+          return '@graph';
+        }
+        return 'Object';
+      }
+    }
     return 'Array';
   }
   if (schema['@type']) {

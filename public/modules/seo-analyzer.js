@@ -3,6 +3,13 @@ import { extractBasicMeta, validateBasicMeta } from './meta-extractor.js';
 import { extractOpenGraph, validateOpenGraph } from './og-extractor.js';
 import { extractTwitterCards, validateTwitterCards } from './twitter-extractor.js';
 import { renderSummaryCard, renderMetaTab, renderSNSTab } from './ui-renderer.js';
+import {
+  getSchemaScoreGuidance,
+  getMetaScoreGuidance,
+  getSNSScoreGuidance,
+  getOverallSEOSuggestions,
+  getScoreColor,
+} from './guidance-provider.js';
 
 // HTMLエスケープ
 function escapeHtml(text) {
@@ -46,11 +53,28 @@ function analyzeSEO(html, schemas) {
   const twitterIssues = validateTwitterCards(twitter, og);
 
   const scores = calculateScores(meta, og, twitter, metaIssues, ogIssues, twitterIssues, schemas);
-  const totalScore = scores.meta + scores.sns + scores.schema;
+  // 各スコアを0-100にスケーリングして加算し、3で割って総合スコアを算出
+  const normalizedMeta = (scores.meta / 25) * 100;
+  const normalizedSns = (scores.sns / 15) * 100;
+  const normalizedSchema = (scores.schema / 20) * 100;
+  const totalScore = Math.round((normalizedMeta + normalizedSns + normalizedSchema) / 3);
+
+  // ガイダンス情報を取得
+  const analysisData = { meta, og, twitter, metaIssues, ogIssues, twitterIssues, scores };
+  const schemaGuidance = getSchemaScoreGuidance(scores.schema, schemas);
+  const metaGuidance = getMetaScoreGuidance(scores.meta, meta, metaIssues);
+  const snsGuidance = getSNSScoreGuidance(scores.sns, og, twitter);
+  const overallSuggestions = getOverallSEOSuggestions(totalScore, analysisData);
 
   return {
-    analysisData: { meta, og, twitter, metaIssues, ogIssues, twitterIssues, scores },
+    analysisData,
     totalScore,
+    guidance: {
+      schema: schemaGuidance,
+      meta: metaGuidance,
+      sns: snsGuidance,
+      overall: overallSuggestions,
+    },
   };
 }
 
@@ -107,7 +131,7 @@ function calculateScores(meta, og, twitter, metaIssues, ogIssues, twitterIssues,
 }
 
 // 概要タブの内容を描画
-function renderOverviewTab(analysisData, totalScore) {
+function renderOverviewTab(analysisData, totalScore, guidance) {
   const overviewTab = document.getElementById('tab-overview');
   const allIssues = [
     ...analysisData.metaIssues,
@@ -163,6 +187,19 @@ function renderOverviewTab(analysisData, totalScore) {
         ? 'score-card-value--warning'
         : 'score-card-value--danger';
 
+  const schemaGuidanceHtml = guidance && guidance.schema
+    ? `
+      <div class="guidance-section guidance-${guidance.schema.level}">
+        <h4>構造化データについて</h4>
+        <p class="guidance-message">${escapeHtml(guidance.schema.message)}</p>
+        <p class="guidance-impact"><strong>SEO影響度:</strong> ${escapeHtml(guidance.schema.seoImpact)}</p>
+        <div class="guidance-details">
+          ${guidance.schema.details.map(detail => `<p>・ ${escapeHtml(detail)}</p>`).join('')}
+        </div>
+      </div>
+    `
+    : '';
+
   overviewTab.innerHTML = `
                     <h2>概要・メタタグ</h2>
                     <div class="score-grid">
@@ -183,6 +220,7 @@ function renderOverviewTab(analysisData, totalScore) {
                             <div class="score-card-value">${analysisData.scores.schema}/20</div>
                         </div>
                     </div>
+                    ${schemaGuidanceHtml}
                     ${issuesHtml}
                     <div class="section-spacing">
                         <h3>基本メタタグ</h3>
@@ -392,20 +430,103 @@ function renderHTMLTab(html) {
 
 // SEO分析結果を表示
 window.displaySEOAnalysis = function (html, schemas) {
-  const { analysisData, totalScore } = analyzeSEO(html, schemas);
-  renderSummaryCard(analysisData, totalScore);
+  const { analysisData, totalScore, guidance } = analyzeSEO(html, schemas);
+  renderSummaryCard(analysisData, totalScore, guidance.schema);
   renderSNSTab(
     analysisData.og,
     analysisData.twitter,
     analysisData.ogIssues,
     analysisData.twitterIssues
   );
-  renderOverviewTab(analysisData, totalScore);
+  renderOverviewTab(analysisData, totalScore, guidance);
   renderHTMLTab(html);
+  renderGuidanceTab(guidance);
 
   document.getElementById('seoSummarySection').classList.remove('section-hidden');
   document.getElementById('tabNavigation').classList.remove('section-hidden');
 };
+
+// ガイダンスタブを描画
+function renderGuidanceTab(guidance) {
+  const guidanceTab = document.getElementById('tab-guidance');
+  if (!guidanceTab) return;
+
+  let recommendationsHtml = '';
+  const allRecommendations = [
+    ...(guidance.meta?.recommendations || []),
+    ...(guidance.schema?.recommendations || []),
+    ...(guidance.sns?.recommendations || []),
+  ];
+
+  if (allRecommendations.length > 0) {
+    recommendationsHtml = `
+      <div class="section-spacing">
+        <h3>改善提案</h3>
+        <div class="recommendations-list">
+          ${allRecommendations
+            .map(
+              rec => `
+            <div class="recommendation-card recommendation-priority-${rec.priority}">
+              <div class="recommendation-header">
+                <span class="priority-badge">${rec.priority}</span>
+                <h4>${escapeHtml(rec.title)}</h4>
+              </div>
+              <p class="recommendation-description">${escapeHtml(rec.description)}</p>
+              <p class="recommendation-example"><strong>例:</strong> ${escapeHtml(rec.example)}</p>
+            </div>
+          `
+            )
+            .join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  let tipsHtml = '';
+  if (guidance.overall?.tips && guidance.overall.tips.length > 0) {
+    tipsHtml = `
+      <div class="section-spacing">
+        <h3>SEO最適化のヒント</h3>
+        <div class="tips-list">
+          ${guidance.overall.tips.map(tip => `<p class="tip-item">・ ${escapeHtml(tip)}</p>`).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  guidanceTab.innerHTML = `
+    <h2>SEO改善ガイダンス</h2>
+
+    <div class="section-spacing">
+      <h3>スコア別の改善方針</h3>
+      <div class="guidance-cards">
+        <div class="guidance-score-card">
+          <div class="guidance-score-category">メタタグ</div>
+          <div class="guidance-score-value">${guidance.meta?.score || 0}/25</div>
+          <p class="guidance-score-message">${escapeHtml(guidance.meta?.message || '')}</p>
+          <p class="guidance-score-impact"><small>${escapeHtml(guidance.meta?.seoImpact || '')}</small></p>
+        </div>
+
+        <div class="guidance-score-card">
+          <div class="guidance-score-category">SNS最適化</div>
+          <div class="guidance-score-value">${guidance.sns?.score || 0}/15</div>
+          <p class="guidance-score-message">${escapeHtml(guidance.sns?.message || '')}</p>
+          <p class="guidance-score-impact"><small>${escapeHtml(guidance.sns?.seoImpact || '')}</small></p>
+        </div>
+
+        <div class="guidance-score-card">
+          <div class="guidance-score-category">構造化データ</div>
+          <div class="guidance-score-value">${guidance.schema?.score || 0}/20</div>
+          <p class="guidance-score-message">${escapeHtml(guidance.schema?.message || '')}</p>
+          <p class="guidance-score-impact"><small>${escapeHtml(guidance.schema?.seoImpact || '')}</small></p>
+        </div>
+      </div>
+    </div>
+
+    ${tipsHtml}
+    ${recommendationsHtml}
+  `;
+}
 
 // 初期化
 document.addEventListener('DOMContentLoaded', () => {

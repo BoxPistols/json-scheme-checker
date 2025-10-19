@@ -33,48 +33,32 @@ export function extractTwitterCards(doc) {
 export function validateTwitterCards(twitter, og = {}) {
   const issues = [];
 
-  // 必須項目（画像以外）のチェック
-  const required = ['card', 'title', 'description'];
-  required.forEach(field => {
-    if (!twitter[field]) {
+  // Twitter Cardsは必須ではない。OGPで基本情報が揃っていれば問題なし
+  // ただし、Twitter Cardsが設定されている場合は検証する
+
+  if (twitter.card || twitter.title || twitter.description) {
+    // Twitter Cardsが部分的に設定されている場合のみ検証
+
+    // カードタイプのバリデーション（設定されている場合）
+    const validCards = ['summary', 'summary_large_image', 'app', 'player'];
+    if (twitter.card && !validCards.includes(twitter.card)) {
       issues.push({
-        type: 'warning',
-        field: `twitter:${field}`,
-        message: `twitter:${field}が設定されていません`,
+        type: 'error',
+        field: 'twitter:card',
+        message: `twitter:cardの値が無効です: ${twitter.card}`,
       });
     }
-  });
 
-  // 画像のチェック（og:imageで代替可能）
-  if (!twitter.image) {
-    if (!og.image) {
+    // 画像URLのバリデーション（設定されている場合）
+    if (twitter.image && !isValidUrl(twitter.image)) {
       issues.push({
-        type: 'warning',
-        field: `twitter:image`,
-        message: `twitter:imageが設定されていません（og:imageでも代替可能）`,
+        type: 'error',
+        field: 'twitter:image',
+        message: 'twitter:imageのURLが無効です',
       });
     }
-    // og:imageがあれば警告なし（代替できるため）
   }
-
-  // カードタイプのバリデーション
-  const validCards = ['summary', 'summary_large_image', 'app', 'player'];
-  if (twitter.card && !validCards.includes(twitter.card)) {
-    issues.push({
-      type: 'error',
-      field: 'twitter:card',
-      message: `twitter:cardの値が無効です: ${twitter.card}`,
-    });
-  }
-
-  // 画像URLのバリデーション
-  if (twitter.image && !isValidUrl(twitter.image)) {
-    issues.push({
-      type: 'error',
-      field: 'twitter:image',
-      message: 'twitter:imageのURLが無効です',
-    });
-  }
+  // Twitter Cardsが一切設定されていなくても、OGPで対応可能なので警告なし
 
   return issues;
 }

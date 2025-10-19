@@ -7,9 +7,24 @@
  * サマリーカードを描画
  * @param {Object} analysisData - 分析データ
  * @param {number} score - 総合スコア
+ * @param {Object} schemaGuidance - スキーマガイダンス情報（オプション）
  */
-export function renderSummaryCard(analysisData, score) {
+export function renderSummaryCard(analysisData, score, schemaGuidance = null) {
   const summaryCard = document.getElementById('summaryCard');
+
+  // スキーマスコアが10/20の場合、改善提案を表示
+  let suggestionHtml = '';
+  if (analysisData.scores.schema === 10 && schemaGuidance && schemaGuidance.recommendations.length > 0) {
+    const topRecommendation = schemaGuidance.recommendations[0];
+    suggestionHtml = `
+      <div style="margin-top: 8px; padding: 8px; background: rgba(59, 130, 246, 0.05); border: 1px solid #3b82f6; border-radius: 2px;">
+        <div style="font-size: 0.75rem; color: var(--secondary-text-color); margin-bottom: 2px;">サジェスト</div>
+        <div style="font-size: 0.8125rem; color: var(--text-color); font-weight: 500; line-height: 1.4;">
+          ${escapeHtml(topRecommendation.title)}: ${escapeHtml(topRecommendation.description.substring(0, 60))}…
+        </div>
+      </div>
+    `;
+  }
 
   summaryCard.innerHTML = `
     <div class="summary-card">
@@ -29,6 +44,7 @@ export function renderSummaryCard(analysisData, score) {
           <div class="score-value">${analysisData.scores.schema}/20</div>
         </div>
       </div>
+      ${suggestionHtml}
     </div>
   `;
 }

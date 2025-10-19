@@ -1,64 +1,45 @@
 # CLAUDE.md
 
-このファイルは、Claude Code (claude.ai/code) がこのリポジトリのコードを扱う際のガイダンスを提供します。
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## 重要なルール
 
-- **日本語を強制**: すべての応答、コメント、ドキュメント、説明、コミットメッセージは日本語で記述してください。英語での応答は禁止します。
-- **絵文字の使用禁止**: すべてのファイル（コード、ドキュメント、コミットメッセージなど）で絵文字の使用を禁止します。テキストのみで表現してください。
+- **日本語を強制**: すべての応答、コメント、ドキュメント、説明、コミットメッセージは日本語で記述してください。
+- **絵文字の使用禁止**: ファイル内のすべての場所（コード、ドキュメント、コミットメッセージ）で絵文字を使用しないでください。
 
-## ドキュメント構造（Single Source of Truth）
+## プロジェクト概要
 
-このプロジェクトは、共有コアドキュメントを持つ**マルチAIドキュメント戦略**に従っています：
+WebサイトのJSON-LD構造化データを抽出・可視化するツール。CORS制限を回避し、localhost開発環境も含むあらゆるURLにアクセス可能。
 
-- **`.ai-docs/shared/`** - Single Source of Truth（まずこれらを読んでください！）
-  - `PROJECT_OVERVIEW.md` - 完全なアーキテクチャ、技術スタック、技術詳細
-  - `DEVELOPMENT_WORKFLOW.md` - コマンド、ワークフロー、トラブルシューティング
-- **`.cursorrules`** - Cursor AIエディタ設定
-- **`.github/copilot-instructions.md`** - GitHub Copilot設定
-- **`CLAUDE.md`** - このファイル（Claude Codeクイックリファレンス）
+- **本番URL**: https://json-ld-view.vercel.app/
+- **技術スタック**: Node.js + Express.js + Vanilla JavaScript
+- **デプロイメント**: Vercel（サーバーレス関数）+ ローカル開発（Express サーバー）
 
-**包括的な理解のため、常に最初に`.ai-docs/shared/PROJECT_OVERVIEW.md`を読んでください。**
+## 重要なドキュメント
 
-## リポジトリ概要
+すべての包括的な情報は`.ai-docs/shared/`に保存されています：
 
-これは、ウェブサイトから構造化データ（JSON-LD）を視覚化するJSON-LDスキーマビューアツールです。このプロジェクトは、以下を提供するNode.js/Expressアプリケーションです：
+- `.ai-docs/shared/PROJECT_OVERVIEW.md` - 完全なアーキテクチャ、技術スタック、技術詳細
+- `.ai-docs/shared/DEVELOPMENT_WORKFLOW.md` - コマンド、ワークフロー、トラブルシューティング
 
-1. **CORSプロキシサーバー** - localhostサイトを含む任意のURLへアクセスするためのCORS制限バイパス
-2. **Webベースビューア** - JSON-LDデータをテーブル形式とJSON形式の両方で視覚化
+その他：
+- `.cursorrules` - Cursor AI設定
+- `.github/copilot-instructions.md` - GitHub Copilot設定
 
-## プロジェクト構造
+## よく使うコマンド
 
-```bash
-json-ld-viewer/
-├── server.js              # プロキシエンドポイント付きExpressサーバー
-├── package.json           # 依存関係：express、cors、axios
-├── package-lock.json      # ロックファイル
-├── vercel.json           # Vercelデプロイ設定
-├── README.md             # 日本語ドキュメント
-├── CLAUDE.md             # このファイル
-└── public/
-    └── index.html        # Webアプリケーション
-```
-
-## 一般的な開発コマンド
-
-**セットアップ：**
+### セットアップ・起動
 
 ```bash
-pnpm install
+pnpm install             # 依存関係をインストール
+pnpm dev                 # 開発サーバー起動（nodemon自動再起動）
+pnpm start               # 本番モード起動
+pnpm lint                # ESLint実行
+pnpm lint:fix            # ESLint自動修正
+pnpm format              # Prettier整形
 ```
 
-**開発：**
-
-```bash
-pnpm dev      # nodemon起動（変更時自動リロード）
-pnpm start    # 本番サーバー起動
-```
-
-サーバーはデフォルトで`http://localhost:3333`で起動します（`PORT`環境変数で設定可能）。
-
-**テスト：**
+### テスト・確認
 
 ```bash
 # ヘルスチェック
@@ -73,121 +54,199 @@ curl -X POST http://localhost:3333/extract-jsonld \
   -d '{"url": "https://example.com"}'
 ```
 
-**Vercelデプロイ：**
+### ポート管理
 
 ```bash
-# Vercel CLIをインストール（未インストールの場合）
-npm i -g vercel
+# ポート3333を使用中のプロセス確認
+lsof -i :3333
 
-# プレビューデプロイ
-vercel
-
-# 本番デプロイ
-vercel --prod
+# プロセスをkill
+kill $(lsof -t -i:3333)
 ```
-
-## アーキテクチャ
-
-### Node.jsプロキシサーバー（`server.js`）
-
-**技術スタック：** Express.js、Axios、CORSミドルウェア
-
-**APIエンドポイント：**
-
-1. `GET /proxy?url={TARGET_URL}&username={USER}&password={PASS}` - 任意のURLからHTMLを取得、CORSバイパス
-   - IPv6問題を避けるためlocalhostをIPv4（127.0.0.1）に変換
-   - ボット検出を避けるためブラウザライクなヘッダーを追加
-   - オプションの`username`と`password`クエリパラメータでBasic認証をサポート
-   - 認証失敗時は明確なエラーメッセージと共に401を返す
-   - 30秒タイムアウト、最大5リダイレクト
-
-2. `POST /extract-jsonld` - URLからJSON-LDを直接抽出・パース
-   - Body: `{ "url": "https://example.com" }`
-   - Returns: `{ url, schemas[], count }`
-   - 正規表現を使用してJSON-LDスクリプトタグを抽出
-
-3. `GET /health` - ヘルスチェックエンドポイント
-   - Returns: `{ status: "ok", timestamp }`
-
-4. `GET /` - APIドキュメント付きランディングページ
-
-**主要機能：**
-
-- 全オリジンに対してCORS有効化
-- パスワード保護サイト用Basic認証サポート
-- 適切なステータスコードで接続エラー（ECONNREFUSED、ETIMEDOUT）を処理
-- `public/`ディレクトリから静的フロントエンドを配信
-- localhost URL正規化（localhost → 127.0.0.1）
-- モバイルデバイスからのLANアクセス用に`0.0.0.0`でリッスン
-
-### フロントエンドアーキテクチャ（両ビューア）
-
-**コア関数：**
-
-- `fetchAndDisplay()` - メインオーケストレーション関数
-- `extractJsonLd(html)` - DOMParserを使用してHTMLを解析し、JSON-LDスクリプトを検出
-- `displaySchemas(schemas, url)` - 統計情報付きスキーマカードをレンダリング
-- `createTableView(obj, depth)` - ネストされたオブジェクト用の再帰的テーブル生成
-- `formatJson(obj, indent)` - シンタックスハイライト付きJSONフォーマッター
-- `toggleView(schemaId, view)` - テーブル/JSONビュー間の切り替え
-
-**表示モード：**
-
-- **テーブルビュー：** プロパティ名、値、型列を持つ階層的テーブル
-  - 配列は番号付きリスト項目としてレンダリング
-  - ネストされたオブジェクトは展開/折りたたみ可能（デフォルトで展開）
-  - URLはクリック可能なリンクとしてレンダリング
-  - 説明フィールドにはHTML含有可能（サニタイズ済み）
-- **JSONビュー：** 型別に色分けされたシンタックスハイライト（キー、文字列、数値、ブール値、null）
-
-**データ処理：**
-
-- ネストされたオブジェクトは可視性向上のためデフォルトで展開
-- 各スキーマカードはクリップボード操作用に`data-raw`属性に生のJSONを保存
-- コピー機能は2スペースインデントでJSONをフォーマット
-- 画像URLを検出してサムネイル表示
-- `@type`に基づいてSchema.orgとGoogleドキュメントリンクを自動生成
-
-**認証機能**（`public/index.html:620-663`）：
-
-- ユーザー名/パスワードフィールド付き折りたたみ可能なBasic認証セクション
-- パスワード表示切替（目アイコン）
-- "認証を記憶"チェックボックスでブラウザの`localStorage`に認証情報を保存
-- ドメイン固有の認証ストレージ - ドメインごとに保存された認証情報を自動ロード
-- すべての保存された認証情報を削除する認証クリアボタン
-- プライバシー重視：認証情報はローカルのみに保存、サーバーへの送信やログ記録なし
-- URLが以前認証されたドメインと一致する場合は認証情報を自動入力
-
-## 開発ノート
-
-### 環境検出（`public/index.html:695-712`）
-
-フロントエンドは環境を自動検出し、それに応じてプロキシURLを設定します：
-
-- **Vercel：** APIルート用の相対パスを使用（`/api/proxy`、`/api/health`）
-- **Localhost：** `http://localhost:3333`を使用
-- **LAN/モバイル：** `http://{IP_ADDRESS}:3333`を使用
-
-### 主要な実装詳細
-
-- アプリケーション（`public/index.html` + `server.js`）は、特に開発中のlocalhost URLを含む任意のURLへの信頼性の高いアクセスを提供
-- localhostサイトをテストする際、プロキシはIPv6解決問題を防ぐため自動的に`localhost`を`127.0.0.1`に変換（`server.js:30-35`）
-- Vercelデプロイ設定（`vercel.json`）でサーバーレス関数のタイムアウトを30秒に設定
-- フロントエンドは、プロキシサーバーからHTMLを受信後、DOMParserを使用してクライアントサイドでJSON-LDを抽出
-- サーバーは、同じWiFiネットワーク上のモバイルデバイスからのアクセスを許可するため`0.0.0.0`でリッスン
-- ネットワークIPアドレスが検出され、モバイルテストを容易にするため起動ログに表示
 
 ### Vercelデプロイ
 
-Vercelにデプロイした場合：
+```bash
+vercel              # プレビューデプロイ
+vercel --prod       # 本番デプロイ
+vercel logs         # ログ確認
+```
 
-- APIエンドポイントは直接サーバーエンドポイントではなく`/api/*`ルート経由でアクセス
-- `localhost` URLへのアクセス不可（ローカル開発でのみ動作）
-- 関数タイムアウトは30秒（`vercel.json`で設定可能）
+## プロジェクト構造
 
-### モバイルデバイスでのテスト
+```plaintext
+json-ld-viewer/
+├── server.js                 # ローカル開発用Expressサーバー
+├── public/
+│   ├── index.html           # Webアプリケーション（フロントエンド）
+│   ├── styles.css           # スタイルシート
+│   └── modules/             # フロントエンド用モジュール
+├── api/                      # Vercelサーバーレス関数
+│   ├── proxy.js
+│   └── health.js
+├── package.json             # 依存関係・スクリプト
+├── vercel.json              # Vercelデプロイ設定
+├── .eslintrc.json           # ESLint設定
+├── .prettierrc.json         # Prettier設定
+├── .cursorrules             # Cursor AI設定
+└── .ai-docs/                # AI開発者向けドキュメント
+```
 
-1. ローカルでサーバーを起動：`npm start`
-2. サーバーは`http://localhost:3333`とLAN IP（例：`http://192.168.1.100:3333`）の両方を表示
-3. 同じWiFiネットワーク上のモバイルデバイスからLAN IPにアクセス
-4. ファイアウォールでポート3333の許可が必要な場合あり
+## アーキテクチャの重要ポイント
+
+### CORS回避の仕組み
+
+ブラウザ側でのCORSエラーを回避するため、自社サーバーを経由：
+
+```text
+ブラウザ → 自社プロキシサーバー → 対象サイト
+```
+
+### 環境判定（フロントエンド）
+
+```javascript
+const isVercel = window.location.hostname.includes('vercel.app');
+const isLocalhost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+```
+
+- **Vercel環境**: `/api/proxy` を使用
+- **ローカル環境**: `http://localhost:3333/proxy` を使用
+- **LAN/モバイル**: `http://{IP_ADDRESS}:3333/proxy` を使用
+
+### 主要な実装詳細
+
+- **IPv6問題の回避**: localhost は自動的に 127.0.0.1 に変換（`server.js:30-35`）
+- **タイムアウト設定**: 30秒（ローカル・Vercel共通）
+- **ブラウザ風ヘッダー**: Bot検出回避のため実際のブラウザを模倣
+- **LAN対応**: `0.0.0.0` でリッスンしてモバイルデバイスからのアクセスを許可
+- **認証機能**: Basic認証をサポート、ローカルストレージにドメイン別保存
+
+## コードスタイル・規約
+
+### JavaScript
+
+- ES6+ の機能を使用（const/let、アロー関数、テンプレートリテラル）
+- 説明的な変数名を使用
+- 複雑な関数には JSDoc コメントを追加
+
+### HTML/CSS
+
+- セマンティックなHTML5タグを使用
+- モバイルファーストのレスポンシブデザイン
+- インラインスタイルまたは `public/styles.css` に記述
+
+### アイコン
+
+- **絵文字は使用禁止** - インラインSVG推奨（`fill`/`stroke`は `currentColor` 使用）
+- 装飾的なSVGは `aria-hidden="true"` を付与
+- 機能ボタンは `aria-label` または `title` を付与
+
+### エラーハンドリング
+
+```javascript
+try {
+  // リスク含む処理
+} catch (error) {
+  console.error('Context:', error);
+  showError(`ユーザー向けメッセージ: ${error.message}`);
+}
+```
+
+## 開発時の注意点
+
+### server.js 修正時
+
+```bash
+pnpm dev         # nodemonで自動再起動
+# または Ctrl+C → pnpm start で手動再起動
+```
+
+### public/index.html 修正時
+
+```bash
+# 静的ファイルなので再起動不要、ブラウザをリロード
+```
+
+### api/*.js 修正時（Vercel関数）
+
+```bash
+vercel dev       # ローカルテスト推奨
+# または git push で本番デプロイして確認
+```
+
+## テスト・デプロイ前チェックリスト
+
+### 新機能追加時
+
+- [ ] ローカル環境でテスト (`pnpm dev`)
+- [ ] Vercel環境でテスト (`vercel dev` または本番デプロイ)
+- [ ] エラーハンドリング追加
+- [ ] コンソールログで動作確認
+- [ ] README.md 更新（必要に応じて）
+
+### デプロイ前
+
+- [ ] `pnpm start` でローカル起動確認
+- [ ] サンプルURLでJSON-LD抽出成功
+- [ ] Basic認証が動作確認
+- [ ] モバイル表示確認（レスポンシブ）
+- [ ] コンソールエラーがない
+- [ ] `vercel.json` が正しい
+- [ ] すべてのAPIルートにCORSヘッダーがある
+
+## 認証機能の取り扱い
+
+- パスワードを平文でログに記録しない（ログでは `password ? '***' : '(none)'` 使用）
+- ローカルストレージのみに保存（サーバーサイドには保存しない）
+- ユーザーの明示的なアクションで削除
+- localStorageキー: `jsonld_basic_auth`、`jsonld_auth_{domain}`
+
+## Git ワークフロー
+
+### ブランチ戦略
+
+- **main**: 本番環境（Vercel自動デプロイ）
+- 機能開発は直接または feature ブランチ
+
+### コミットメッセージ（日本語）
+
+```bash
+# 機能追加
+git commit -m "機能: Basic認証のパスワード表示トグルを追加"
+
+# バグ修正
+git commit -m "修正: Vercelサーバーレス関数設定を修正"
+
+# ドキュメント
+git commit -m "ドキュメント: モバイルアクセス手順を更新"
+```
+
+## トラブルシューティング
+
+### ポート3333が使用中
+
+```bash
+lsof -i :3333
+kill $(lsof -t -i:3333)
+```
+
+### CORS エラー
+
+- プロキシサーバーが起動していることを確認
+- `/health` エンドポイントでステータス確認
+- ブラウザのコンソールでエラー詳細を確認
+
+### Basic認証が通らない
+
+```bash
+pnpm dev
+# → サーバーログを確認
+# → "Using Basic Authentication for user: xxx" を確認
+# → "Response status: 401" なら認証情報が誤り
+```
+
+### localhost にアクセスできない
+
+- Vercelではなく、ローカル環境で起動していることを確認
+- ポート番号が正しいか確認
+- 対象のlocalhostサーバーが起動しているか確認
