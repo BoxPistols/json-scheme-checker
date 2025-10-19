@@ -1389,7 +1389,7 @@ body[data-theme='dark'] .score-breakdown > div {
 }
 
 .modal-info-box--blue p {
-  color: var(--text-color);
+  color: var(--info-blue-text-color);
 }
 
 .modal-info-box--yellow {
@@ -1398,7 +1398,7 @@ body[data-theme='dark'] .score-breakdown > div {
 }
 
 .modal-info-box--yellow p {
-  color: var(--text-color);
+  color: var(--info-yellow-text-color);
 }
 
 .modal-info-box--green {
@@ -1407,7 +1407,7 @@ body[data-theme='dark'] .score-breakdown > div {
 }
 
 .modal-info-box--green p {
-  color: var(--text-color);
+  color: var(--info-green-text-color);
 }
 
 .modal-info-box--orange {
@@ -1416,7 +1416,7 @@ body[data-theme='dark'] .score-breakdown > div {
 }
 
 .modal-info-box--orange p {
-  color: var(--text-color);
+  color: var(--info-orange-text-color);
 }
 
 .modal-info-box--red {
@@ -1425,19 +1425,29 @@ body[data-theme='dark'] .score-breakdown > div {
 }
 
 .modal-info-box--red p {
-  color: var(--text-color);
+  color: var(--info-red-text-color);
 }
 
 .modal-info-box h4 {
   margin: 0 0 8px;
   font-size: 14px;
-  color: var(--text-color);
+  color: var(--text-color); /* Default h4 color */
 }
 
-.modal-info-box--green h4,
-.modal-info-box--orange h4,
+.modal-info-box--blue h4 {
+    color: var(--info-blue-heading-color);
+}
+.modal-info-box--yellow h4 {
+    color: var(--info-yellow-heading-color);
+}
+.modal-info-box--green h4 {
+  color: var(--info-green-heading-color);
+}
+.modal-info-box--orange h4 {
+  color: var(--info-orange-heading-color);
+}
 .modal-info-box--red h4 {
-  color: var(--text-color);
+  color: var(--info-red-heading-color);
 }
 
 .modal-note-box {
