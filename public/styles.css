@@ -1188,6 +1188,9 @@ html[data-theme='dark'] .score-breakdown > div {
 .port-input:focus {
   outline: none;
   border-color: var(--primary-color);
+  /* Fallback for browsers that do not support color-mix() */
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2); /* fallback using primary color with 20% opacity */
+  /* Enhanced effect for browsers that support color-mix() */
   box-shadow: 0 0 0 2px var(--primary-shadow-color);
 }
 
