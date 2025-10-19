@@ -331,51 +331,35 @@ export function analyzeSchemaDetail(schema, requirements) {
   let score = 0;
   let maxScore = 0;
 
-  // 必須プロパティのチェック
-  requirements.required.forEach(prop => {
-    maxScore += 3;
-    const hasProperty = schema[prop.key] !== undefined && schema[prop.key] !== null && schema[prop.key] !== '';
-    checklist.push({
-      level: 'required',
-      key: prop.key,
-      label: prop.label,
-      description: prop.description,
-      present: hasProperty,
-      score: hasProperty ? 3 : 0,
-    });
-    score += hasProperty ? 3 : 0;
-  });
+  // スコア定数
+  const SCORE_VALUES = {
+    required: 3,
+    recommended: 2,
+    optimization: 1,
+  };
 
-  // 推奨プロパティのチェック
-  requirements.recommended.forEach(prop => {
-    maxScore += 2;
-    const hasProperty = schema[prop.key] !== undefined && schema[prop.key] !== null && schema[prop.key] !== '';
-    checklist.push({
-      level: 'recommended',
-      key: prop.key,
-      label: prop.label,
-      description: prop.description,
-      present: hasProperty,
-      score: hasProperty ? 2 : 0,
+  // 共通プロパティチェック関数
+  function checkProperties(props, level) {
+    const scoreValue = SCORE_VALUES[level];
+    props.forEach(prop => {
+      maxScore += scoreValue;
+      const hasProperty = schema[prop.key] !== undefined && schema[prop.key] !== null && schema[prop.key] !== '';
+      checklist.push({
+        level,
+        key: prop.key,
+        label: prop.label,
+        description: prop.description,
+        present: hasProperty,
+        score: hasProperty ? scoreValue : 0,
+      });
+      score += hasProperty ? scoreValue : 0;
     });
-    score += hasProperty ? 2 : 0;
-  });
+  }
 
-  // 最適化プロパティのチェック
-  requirements.optimization.forEach(prop => {
-    maxScore += 1;
-    const hasProperty = schema[prop.key] !== undefined && schema[prop.key] !== null && schema[prop.key] !== '';
-    checklist.push({
-      level: 'optimization',
-      key: prop.key,
-      label: prop.label,
-      description: prop.description,
-      present: hasProperty,
-      score: hasProperty ? 1 : 0,
-    });
-    score += hasProperty ? 1 : 0;
-  });
-
+  // 必須・推奨・最適化プロパティのチェック
+  checkProperties(requirements.required, 'required');
+  checkProperties(requirements.recommended, 'recommended');
+  checkProperties(requirements.optimization, 'optimization');
   // 致命的欠損の判定
   const missingRequired = checklist.filter(item => item.level === 'required' && !item.present);
   let severity = 'success';
