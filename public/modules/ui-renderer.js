@@ -10,18 +10,29 @@
  * @param {Object} schemaGuidance - スキーマガイダンス情報（オプション）
  * @param {Array} schemaAnalysis - スキーマ詳細分析結果（オプション）
  */
+/**
+ * schemaAnalysis配列から全体のseverityを判定する
+ * @param {Array} schemaAnalysis
+ * @returns {'error'|'warning'|'success'}
+ */
+function determineOverallSeverity(schemaAnalysis) {
+  if (!schemaAnalysis || schemaAnalysis.length === 0) {
+    return 'success';
+  }
+  if (schemaAnalysis.some(a => a.severity === 'error')) {
+    return 'error';
+  }
+  if (schemaAnalysis.some(a => a.severity === 'warning')) {
+    return 'warning';
+  }
+  return 'success';
+}
+
 export function renderSummaryCard(analysisData, score, schemaGuidance = null, schemaAnalysis = null) {
   const summaryCard = document.getElementById('summaryCard');
 
   // スキーマの致命的欠損を判定
-  let schemaSeverity = 'success';
-  if (schemaAnalysis && schemaAnalysis.length > 0) {
-    if (schemaAnalysis.some(a => a.severity === 'error')) {
-      schemaSeverity = 'error';
-    } else if (schemaAnalysis.some(a => a.severity === 'warning')) {
-      schemaSeverity = 'warning';
-    }
-  }
+  let schemaSeverity = determineOverallSeverity(schemaAnalysis);
 
   // Score Card の背景色を決定
   let schemaCardClass = '';
