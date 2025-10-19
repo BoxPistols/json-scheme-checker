@@ -10,6 +10,7 @@ import {
   getOverallSEOSuggestions,
   getScoreColor,
 } from './guidance-provider.js';
+import { getSchemaRequirements, analyzeSchemaDetail } from './schema-requirements.js';
 
 // HTMLエスケープ
 function escapeHtml(text) {
@@ -41,6 +42,9 @@ function initTabNavigation() {
 
 // SEO分析を実行
 function analyzeSEO(html, schemas) {
+  console.log('[analyzeSEO] Called with schemas:', schemas);
+  console.log('[analyzeSEO] Schemas count:', schemas ? schemas.length : 0);
+
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
 
@@ -53,6 +57,7 @@ function analyzeSEO(html, schemas) {
   const twitterIssues = validateTwitterCards(twitter, og);
 
   const scores = calculateScores(meta, og, twitter, metaIssues, ogIssues, twitterIssues, schemas);
+  console.log('[analyzeSEO] Calculated scores:', scores);
   // 各スコアを0-100にスケーリングして加算し、3で割って総合スコアを算出
   const normalizedMeta = (scores.meta / 25) * 100;
   const normalizedSns = (scores.sns / 15) * 100;
@@ -95,62 +100,96 @@ function calculateScores(meta, og, twitter, metaIssues, ogIssues, twitterIssues,
   snsScore -= ogMissing * 1.5;
   snsScore = Math.max(0, snsScore);
 
-  // 構造化データスコア (20点満点)
-  let schemaScore = 0;
-  let schemaDetails = {
-    hasType: false,
-    missingMainProperties: [],
-    recommendations: []
-  };
-
-  if (!schemas || schemas.length === 0) {
-    schemaScore = 0;
-  } else {
-    // 基本点: スキーマが存在する場合 10点
-    schemaScore = 10;
-
-    // スキーマの質を評価
-    let qualityBonus = 0;
-    let hasAnyType = false;
-    let missingProps = new Set();
-
-    schemas.forEach((schema, idx) => {
-      // @typeが存在するか確認 (+2点/スキーマ、最大6点)
-      if (schema['@type']) {
-        qualityBonus += 2;
-        hasAnyType = true;
-      } else {
-        schemaDetails.recommendations.push(`スキーマ ${idx + 1}: @type を指定してください`);
-      }
-
-      // 主要プロパティの存在確認 (+1点、最大4点)
-      const mainProps = ['name', 'description', 'url', 'image'];
-      const hasMainProperties = mainProps.some(prop => schema[prop]);
-      if (hasMainProperties) {
-        qualityBonus += 1;
-      }
-
-      // 不足しているプロパティを検出
-      mainProps.forEach(prop => {
-        if (!schema[prop]) {
-          missingProps.add(prop);
-        }
-      });
-    });
-
-    schemaDetails.hasType = hasAnyType;
-    schemaDetails.missingMainProperties = Array.from(missingProps);
-
-    // 質ボーナスは最大10点
-    schemaScore += Math.min(10, qualityBonus);
-  }
-  schemaScore = Math.min(20, schemaScore);
+  // 構造化データスコア - 詳細分析
+  const schemaAnalysis = analyzeSchemas(schemas);
 
   return {
     meta: Math.round(metaScore),
     sns: Math.round(snsScore),
-    schema: schemaScore,
-    schemaDetails: schemaDetails,
+    schema: schemaAnalysis.score,
+    schemaDetails: schemaAnalysis.details,
+    schemaAnalysis: schemaAnalysis.fullAnalysis,
+  };
+}
+
+/**
+ * スキーマを詳細分析
+ * @param {Array} schemas - スキーマ配列
+ * @returns {Object} 分析結果
+ */
+function analyzeSchemas(schemas) {
+  const fullAnalysis = [];
+  let totalScore = 0;
+  let totalMaxScore = 0;
+  let hasCriticalError = false;
+  const missingMainProperties = new Set();
+  const recommendations = [];
+
+  if (!schemas || schemas.length === 0) {
+    return {
+      score: 0,
+      details: {
+        hasType: false,
+        missingMainProperties: [],
+        recommendations: ['スキーマが設定されていません'],
+      },
+      fullAnalysis: [],
+    };
+  }
+
+  schemas.forEach((schema, idx) => {
+    let schemaType = schema['@type'];
+
+    // @type が配列の場合、最初の要素を使用
+    if (Array.isArray(schemaType)) {
+      schemaType = schemaType[0];
+    }
+
+    const requirements = getSchemaRequirements(schemaType);
+
+    // デバッグログ
+    console.log(`[Schema Analysis] Type: ${schemaType}, Requirements found: ${requirements ? 'Yes' : 'No'}`);
+    if (requirements) {
+      console.log(`[Schema Analysis] Required properties: ${requirements.required.map(r => r.key).join(', ')}`);
+    }
+
+    const analysis = analyzeSchemaDetail(schema, requirements);
+    console.log(`[Schema Analysis] Score: ${analysis.score}/${analysis.maxScore}, Severity: ${analysis.severity}`);
+
+    fullAnalysis.push({
+      index: idx + 1,
+      type: schemaType || '不明なタイプ',
+      ...analysis,
+    });
+
+    totalScore += analysis.score;
+    totalMaxScore += analysis.maxScore;
+
+    if (analysis.severity === 'error') {
+      hasCriticalError = true;
+      analysis.missingRequired.forEach(prop => missingMainProperties.add(prop));
+    }
+
+    if (analysis.message) {
+      recommendations.push(`スキーマ ${idx + 1} (${schemaType}): ${analysis.message}`);
+    }
+  });
+
+  // スコアを 0-20 の範囲に正規化
+  let normalizedScore = 0;
+  if (totalMaxScore > 0) {
+    const percentage = totalScore / totalMaxScore;
+    normalizedScore = Math.round(percentage * 20);
+  }
+
+  return {
+    score: normalizedScore,
+    details: {
+      hasType: fullAnalysis.some(a => a.type && a.type !== '不明なタイプ'),
+      missingMainProperties: Array.from(missingMainProperties),
+      recommendations,
+    },
+    fullAnalysis,
   };
 }
 
@@ -460,7 +499,7 @@ function renderHTMLTab(html) {
 // SEO分析結果を表示
 window.displaySEOAnalysis = function (html, schemas) {
   const { analysisData, totalScore, guidance } = analyzeSEO(html, schemas);
-  renderSummaryCard(analysisData, totalScore, guidance.schema);
+  renderSummaryCard(analysisData, totalScore, guidance.schema, analysisData.schemaAnalysis);
   renderSNSTab(
     analysisData.og,
     analysisData.twitter,
@@ -474,6 +513,116 @@ window.displaySEOAnalysis = function (html, schemas) {
   document.getElementById('seoSummarySection').classList.remove('section-hidden');
   document.getElementById('tabNavigation').classList.remove('section-hidden');
 };
+
+// Developタブを描画（詳細ログ）
+function renderDevelopTab(schemaAnalysis, schemas) {
+  const developTab = document.getElementById('tab-develop');
+  if (!developTab) return;
+
+  if (!schemaAnalysis || schemaAnalysis.length === 0) {
+    developTab.innerHTML = '<h2>Develop</h2><p class="text-muted">スキーマが設定されていません</p>';
+    return;
+  }
+
+  let analysisHtml = '';
+
+  schemaAnalysis.forEach(analysis => {
+    const checklist = analysis.checklist || [];
+    const requiredItems = checklist.filter(item => item.level === 'required');
+    const recommendedItems = checklist.filter(item => item.level === 'recommended');
+    const optimizationItems = checklist.filter(item => item.level === 'optimization');
+
+    const severityBadge = {
+      error: '<span class="status-badge error">致命的欠損</span>',
+      warning: '<span class="status-badge warning">推奨不足</span>',
+      success: '<span class="status-badge success">完璧</span>',
+      info: '<span class="status-badge info">部分対応</span>',
+    }[analysis.severity] || '';
+
+    const scorePercentage = analysis.maxScore > 0 ? Math.round((analysis.score / analysis.maxScore) * 100) : 0;
+
+    analysisHtml += `
+      <div class="develop-schema-section" style="margin-bottom: 24px; border: 1px solid var(--border-color); border-radius: 4px; padding: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <div>
+            <h3 style="margin: 0 0 4px 0;">スキーマ ${analysis.index}: ${escapeHtml(analysis.type)}</h3>
+            <small style="color: var(--secondary-text-color);">Score: ${analysis.score}/${analysis.maxScore} (${scorePercentage}%)</small>
+          </div>
+          <div>${severityBadge}</div>
+        </div>
+
+        <div style="margin-bottom: 16px; padding: 12px; background: rgba(59, 130, 246, 0.05); border-radius: 4px; border-left: 3px solid #3b82f6;">
+          <strong>${analysis.message}</strong>
+        </div>
+
+        ${requiredItems.length > 0 ? `
+          <div style="margin-bottom: 16px;">
+            <h4 style="margin: 0 0 8px 0; font-size: 0.9375rem;">必須プロパティ (各3点)</h4>
+            <div style="display: grid; gap: 8px;">
+              ${requiredItems.map(item => `
+                <div style="display: flex; align-items: center; gap: 8px; padding: 8px; background: ${item.present ? 'rgba(34, 197, 94, 0.05)' : 'rgba(239, 68, 68, 0.05)'}; border-radius: 4px;">
+                  <span style="font-weight: bold; width: 24px;">${item.present ? '✓' : '✗'}</span>
+                  <div style="flex: 1;">
+                    <strong>${escapeHtml(item.label)}</strong>
+                    <div style="font-size: 0.8125rem; color: var(--secondary-text-color);">${escapeHtml(item.description)}</div>
+                  </div>
+                  <span style="font-size: 0.75rem; color: var(--secondary-text-color);">${item.present ? '+3' : '-3'}</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+
+        ${recommendedItems.length > 0 ? `
+          <div style="margin-bottom: 16px;">
+            <h4 style="margin: 0 0 8px 0; font-size: 0.9375rem;">推奨プロパティ (各2点)</h4>
+            <div style="display: grid; gap: 8px;">
+              ${recommendedItems.map(item => `
+                <div style="display: flex; align-items: center; gap: 8px; padding: 8px; background: ${item.present ? 'rgba(34, 197, 94, 0.05)' : 'rgba(156, 163, 175, 0.05)'}; border-radius: 4px;">
+                  <span style="font-weight: bold; width: 24px;">${item.present ? '✓' : '◯'}</span>
+                  <div style="flex: 1;">
+                    <strong>${escapeHtml(item.label)}</strong>
+                    <div style="font-size: 0.8125rem; color: var(--secondary-text-color);">${escapeHtml(item.description)}</div>
+                  </div>
+                  <span style="font-size: 0.75rem; color: var(--secondary-text-color);">${item.present ? '+2' : '0'}</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+
+        ${optimizationItems.length > 0 ? `
+          <div>
+            <h4 style="margin: 0 0 8px 0; font-size: 0.9375rem;">最適化プロパティ (各1点)</h4>
+            <div style="display: grid; gap: 8px;">
+              ${optimizationItems.map(item => `
+                <div style="display: flex; align-items: center; gap: 8px; padding: 8px; background: ${item.present ? 'rgba(34, 197, 94, 0.05)' : 'rgba(156, 163, 175, 0.05)'}; border-radius: 4px;">
+                  <span style="font-weight: bold; width: 24px;">${item.present ? '✓' : '◯'}</span>
+                  <div style="flex: 1;">
+                    <strong>${escapeHtml(item.label)}</strong>
+                    <div style="font-size: 0.8125rem; color: var(--secondary-text-color);">${escapeHtml(item.description)}</div>
+                  </div>
+                  <span style="font-size: 0.75rem; color: var(--secondary-text-color);">${item.present ? '+1' : '0'}</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  });
+
+  developTab.innerHTML = `
+    <h2>Develop - スキーマ詳細分析</h2>
+    <div style="margin-bottom: 16px; padding: 12px; background: rgba(99, 102, 241, 0.05); border-radius: 4px; border-left: 3px solid #6366f1;">
+      <p style="margin: 0; font-size: 0.9375rem;">
+        このタブでは、各スキーマの詳細な分析結果を確認できます。
+        <strong>必須</strong>プロパティが不足している場合、検索エンジンでの表示が正しく行われない可能性があります。
+      </p>
+    </div>
+    <div>${analysisHtml}</div>
+  `;
+}
 
 // ガイダンスタブを描画
 function renderGuidanceTab(guidance) {

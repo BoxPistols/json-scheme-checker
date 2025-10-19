@@ -8,9 +8,31 @@
  * @param {Object} analysisData - 分析データ
  * @param {number} score - 総合スコア
  * @param {Object} schemaGuidance - スキーマガイダンス情報（オプション）
+ * @param {Array} schemaAnalysis - スキーマ詳細分析結果（オプション）
  */
-export function renderSummaryCard(analysisData, score, schemaGuidance = null) {
+export function renderSummaryCard(analysisData, score, schemaGuidance = null, schemaAnalysis = null) {
   const summaryCard = document.getElementById('summaryCard');
+
+  // スキーマの致命的欠損を判定
+  let schemaSeverity = 'success';
+  if (schemaAnalysis && schemaAnalysis.length > 0) {
+    if (schemaAnalysis.some(a => a.severity === 'error')) {
+      schemaSeverity = 'error';
+    } else if (schemaAnalysis.some(a => a.severity === 'warning')) {
+      schemaSeverity = 'warning';
+    }
+  }
+
+  // Score Card の背景色を決定
+  let schemaCardClass = '';
+  let schemaCardStyle = '';
+  if (schemaSeverity === 'error') {
+    schemaCardStyle = 'background-color: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.3);';
+    schemaCardClass = 'score-card-alert--error';
+  } else if (schemaSeverity === 'warning') {
+    schemaCardStyle = 'background-color: rgba(251, 146, 60, 0.08); border: 1px solid rgba(251, 146, 60, 0.3);';
+    schemaCardClass = 'score-card-alert--warning';
+  }
 
   // スキーマスコアが満点でない場合、改善提案を表示
   let suggestionHtml = '';
@@ -40,6 +62,34 @@ export function renderSummaryCard(analysisData, score, schemaGuidance = null) {
     `;
   }
 
+  // 致命的欠損の警告メッセージ
+  let criticalWarningHtml = '';
+  if (schemaSeverity === 'error') {
+    criticalWarningHtml = `
+      <div style="margin-top: 12px; padding: 12px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 4px; color: var(--text-color);">
+        <div style="font-weight: bold; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+          <span style="font-size: 1rem;">!</span> 致命的な構造化データの欠損が検出されました
+        </div>
+        <div style="font-size: 0.8125rem; line-height: 1.5;">
+          スキーマに必須プロパティが不足しています。検索エンジンでの表示が正しく行われない可能性があります。
+          <br><a href="#" onclick="document.querySelector('[data-tab=tab-develop]')?.click(); return false;" style="color: #ef4444; text-decoration: underline;">詳細は Develop タブを確認</a>
+        </div>
+      </div>
+    `;
+  } else if (schemaSeverity === 'warning') {
+    criticalWarningHtml = `
+      <div style="margin-top: 12px; padding: 12px; background: rgba(251, 146, 60, 0.1); border: 1px solid rgba(251, 146, 60, 0.4); border-radius: 4px; color: var(--text-color);">
+        <div style="font-weight: bold; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+          <span style="font-size: 1rem;">!</span> 推奨プロパティが不足しています
+        </div>
+        <div style="font-size: 0.8125rem; line-height: 1.5;">
+          SEO効果を最大化するため、推奨プロパティの追加をお勧めします。
+          <br><a href="#" onclick="document.querySelector('[data-tab=tab-develop]')?.click(); return false;" style="color: #f97316; text-decoration: underline;">詳細は Develop タブを確認</a>
+        </div>
+      </div>
+    `;
+  }
+
   summaryCard.innerHTML = `
     <div class="summary-card">
       <h2>SEO分析結果</h2>
@@ -53,11 +103,12 @@ export function renderSummaryCard(analysisData, score, schemaGuidance = null) {
           <div class="score-label">SNS最適化</div>
           <div class="score-value">${analysisData.scores.sns}/15</div>
         </div>
-        <div>
+        <div style="${schemaCardStyle}; border-radius: 4px; padding: 8px;">
           <div class="score-label">構造化データ</div>
           <div class="score-value">${analysisData.scores.schema}/20</div>
         </div>
       </div>
+      ${criticalWarningHtml}
       ${suggestionHtml}
       ${schemaDetailsHtml}
     </div>
@@ -219,7 +270,12 @@ function renderOGTable(og, issues) {
                 ? '<span class="status-badge warning">⚠ 問題あり</span>'
                 : '<span class="status-badge success">✓ 正常</span>';
             } else {
-              status = '<span class="status-badge error" style="cursor: pointer;" onclick="showOGCardModal()" title="クリックして設定方法を確認">✗ 未設定 (ガイド)</span>';
+              // og:type は(ガイド)を付けない（Open Graph全体のModalを別途作成）
+              if (key === 'type') {
+                status = '<span class="status-badge error">✗ 未設定</span>';
+              } else {
+                status = '<span class="status-badge error" style="cursor: pointer;" onclick="showOpenGraphModal()" title="クリックして設定方法を確認">✗ 未設定 (ガイド)</span>';
+              }
             }
 
             return `

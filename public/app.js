@@ -111,6 +111,22 @@ function closeTwitterCardModal() {
   }
 }
 
+// Open Graph 設定ガイド Modal を開く
+function showOpenGraphModal() {
+  const modal = document.getElementById('openGraphGuideModal');
+  if (modal) {
+    modal.classList.add('modal-overlay--visible');
+  }
+}
+
+// Open Graph 設定ガイド Modal を閉じる
+function closeOpenGraphModal() {
+  const modal = document.getElementById('openGraphGuideModal');
+  if (modal) {
+    modal.classList.remove('modal-overlay--visible');
+  }
+}
+
 // Modalの背景クリックで閉じる
 document.addEventListener('DOMContentLoaded', () => {
   // モーダル関連のイベントリスナー
@@ -150,6 +166,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const openGraphModal = document.getElementById('openGraphGuideModal');
+  if (openGraphModal) {
+    openGraphModal.addEventListener('click', e => {
+      if (e.target === openGraphModal) {
+        closeOpenGraphModal();
+      }
+    });
+  }
+
   // ボタンイベントリスナー登録
   document.getElementById('btnGuide')?.addEventListener('click', showGuideModal);
   document.getElementById('fetchButton')?.addEventListener('click', fetchAndDisplay);
@@ -160,6 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnCloseGuideModal')?.addEventListener('click', closeGuideModal);
   document.getElementById('btnCloseRobotsModal')?.addEventListener('click', closeRobotsModal);
   document.getElementById('btnCloseTwitterCardModal')?.addEventListener('click', closeTwitterCardModal);
+  document.getElementById('btnCloseOpenGraphModal')?.addEventListener('click', closeOpenGraphModal);
   document.getElementById('btnHideError')?.addEventListener('click', hideError);
 
   // 認証ストレージ方法変更のイベントリスナー
@@ -1145,16 +1171,38 @@ function extractJsonLd(html) {
   const doc = parser.parseFromString(html, 'text/html');
   const scripts = doc.querySelectorAll('script[type="application/ld+json"]');
 
+  console.log(`[extractJsonLd] Found ${scripts.length} JSON-LD script tags`);
+
   const schemas = [];
-  scripts.forEach(script => {
+  scripts.forEach((script, index) => {
     try {
       const json = JSON.parse(script.textContent);
-      schemas.push(json);
+      console.log(`[extractJsonLd] Raw JSON ${index + 1}:`, json);
+
+      // 配列の場合は展開して個別に追加
+      if (Array.isArray(json)) {
+        console.log(`[extractJsonLd] JSON is array, expanding ${json.length} items`);
+        json.forEach((item, itemIndex) => {
+          console.log(`[extractJsonLd] Array item ${itemIndex + 1} @type:`, item['@type']);
+          schemas.push(item);
+        });
+      } else if (json['@graph'] && Array.isArray(json['@graph'])) {
+        // @graph 構造の場合は展開
+        console.log(`[extractJsonLd] JSON has @graph, expanding ${json['@graph'].length} items`);
+        json['@graph'].forEach((item, itemIndex) => {
+          console.log(`[extractJsonLd] @graph item ${itemIndex + 1} @type:`, item['@type']);
+          schemas.push(item);
+        });
+      } else {
+        console.log(`[extractJsonLd] JSON is object, @type:`, json['@type']);
+        schemas.push(json);
+      }
     } catch (e) {
       console.error('Failed to parse JSON-LD:', e);
     }
   });
 
+  console.log(`[extractJsonLd] Total schemas extracted: ${schemas.length}`);
   return schemas;
 }
 

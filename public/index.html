@@ -412,7 +412,7 @@
                         <section class="modal-section">
                             <h3>何をすべきか？</h3>
                             <p>
-                                HTMLの <code>&lt;head&gt;</code> タグ内に以下のコードを追加してください。これにより、Googleが正しくページを認識し、検索結果に表示できるようになります。
+                                HTMLの <code>&lt;head&gt;</code> タグ内に以下のコードを追加してください。この対応でGoogleが正しくページを認識し、検索結果に表示できるようになります。
                             </p>
                         </section>
 
@@ -508,6 +508,150 @@ export default function Home() {
                 </div>
             </div>
 
+            <!-- Open Graph 設定ガイド Modal -->
+            <div id="openGraphGuideModal" class="modal-overlay">
+                <div class="modal-container">
+                    <div class="modal-header modal-header--sticky">
+                        <h2>Open Graph タグの設定方法</h2>
+                    </div>
+                    <div class="modal-body">
+                        <section class="modal-section">
+                            <h3>何をすべきか？</h3>
+                            <p>
+                                HTMLの <code>&lt;head&gt;</code> タグ内に Open Graph タグを追加してください。この対応でページが Facebook、LinkedIn、Slack などで共有されたときに、タイトル、説明、画像が正しく表示されます。
+                            </p>
+                        </section>
+
+                        <section class="modal-section">
+                            <h3>必須プロパティ</h3>
+                            <table class="modal-table">
+                                <tr>
+                                    <td><strong>og:title</strong></td>
+                                    <td>ページのタイトル（60文字程度）</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>og:description</strong></td>
+                                    <td>ページの説明（160文字程度）</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>og:image</strong></td>
+                                    <td>共有時に表示される画像（推奨: 1200x630px）</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>og:url</strong></td>
+                                    <td>ページの正規URL</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>og:type</strong></td>
+                                    <td>ページタイプ（例: website, article など）</td>
+                                </tr>
+                            </table>
+                        </section>
+
+                        <section class="modal-section">
+                            <h3>コピー可能な実装例</h3>
+                            <p style="margin-bottom: 8px; font-size: 0.875rem; color: var(--secondary-text-color);">該当するセクションをコピーして使用してください</p>
+                        </section>
+
+                        <section class="modal-section">
+                            <h4 style="font-size: 14px; margin-bottom: 8px;">1. Static HTML（HTMLファイル直接編集）</h4>
+                            <div class="recommendation-example">
+&lt;head&gt;
+  &lt;meta property="og:title" content="ページタイトル"&gt;
+  &lt;meta property="og:description" content="ページの説明文"&gt;
+  &lt;meta property="og:image" content="https://example.com/image.jpg"&gt;
+  &lt;meta property="og:url" content="https://example.com/page"&gt;
+  &lt;meta property="og:type" content="website"&gt;
+&lt;/head&gt;
+                            </div>
+                        </section>
+
+                        <section class="modal-section">
+                            <h4 style="font-size: 14px; margin-bottom: 8px;">2. Vue / Nuxt.js</h4>
+                            <div class="recommendation-example">
+export default {
+  head() {
+    return {
+      meta: [
+        { property: 'og:title', content: 'ページタイトル' },
+        { property: 'og:description', content: 'ページの説明文' },
+        { property: 'og:image', content: 'https://example.com/image.jpg' },
+        { property: 'og:url', content: 'https://example.com/page' },
+        { property: 'og:type', content: 'website' }
+      ]
+    }
+  }
+}
+                            </div>
+                        </section>
+
+                        <section class="modal-section">
+                            <h4 style="font-size: 14px; margin-bottom: 8px;">3. React / Next.js</h4>
+                            <div class="recommendation-example">
+import Head from 'next/head';
+
+export default function Page() {
+  return (
+    &lt;Head&gt;
+      &lt;meta property="og:title" content="ページタイトル" /&gt;
+      &lt;meta property="og:description" content="ページの説明文" /&gt;
+      &lt;meta property="og:image" content="https://example.com/image.jpg" /&gt;
+      &lt;meta property="og:url" content="https://example.com/page" /&gt;
+      &lt;meta property="og:type" content="website" /&gt;
+    &lt;/Head&gt;
+  )
+}
+                            </div>
+                        </section>
+
+                        <section class="modal-section">
+                            <h3>og:type の値</h3>
+                            <table class="modal-table">
+                                <tr>
+                                    <td><strong>website</strong></td>
+                                    <td>一般的なウェブサイト（デフォルト）</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>article</strong></td>
+                                    <td>ブログ記事やニュース</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>product</strong></td>
+                                    <td>商品ページ</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>video.movie</strong></td>
+                                    <td>動画コンテンツ</td>
+                                </tr>
+                            </table>
+                        </section>
+
+                        <section class="modal-section">
+                            <div class="modal-info-box modal-info-box--blue">
+                                <h4>ヒント</h4>
+                                <p>
+                                    <strong>og:image</strong> は最も重要です。高品質で視覚的に目立つ画像を選ぶと、シェア時のクリック率が大幅に向上します。推奨サイズは 1200x630px です。
+                                </p>
+                            </div>
+                        </section>
+
+                        <section class="modal-section">
+                            <div class="modal-info-box modal-info-box--green">
+                                <h4>確認方法</h4>
+                                <p>
+                                    設定後、このツールで再度URLを入力すると、Open Graph タグが正しく設定されたか確認できます。また、<a href="https://developers.facebook.com/tools/debug/" target="_blank" rel="noopener noreferrer">Facebook のシェアデバッガー</a>でも確認できます。
+                                </p>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-modal-close" id="btnCloseOpenGraphModal">
+                            閉じる
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Twitter Card 設定ガイド Modal -->
             <div id="twitterCardGuideModal" class="modal-overlay">
                 <div class="modal-container">
@@ -518,7 +662,7 @@ export default function Home() {
                         <section class="modal-section">
                             <h3>何をすべきか？</h3>
                             <p>
-                                HTMLの <code>&lt;head&gt;</code> タグ内に Twitter Card のメタタグを追加してください。これにより、Twitterでページがシェアされたときに、美しいカード形式で表示されます。
+                                HTMLの <code>&lt;head&gt;</code> タグ内に Twitter Card のメタタグを追加してください。この対応でTwitterでページがシェアされたときに、美しいカード形式で表示されます。
                             </p>
                         </section>
 
