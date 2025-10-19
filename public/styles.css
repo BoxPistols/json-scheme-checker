@@ -51,7 +51,7 @@
   --border-color-hover: #cbd5e1;
   
   /* Text Colors */
-  --text-primary: #1a1c1e;
+  --text-primary: var(--md-sys-color-on-background);
   --text-secondary: #64748b;
   --text-tertiary: #94a3b8;
   
