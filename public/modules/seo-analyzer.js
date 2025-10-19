@@ -97,6 +97,12 @@ function calculateScores(meta, og, twitter, metaIssues, ogIssues, twitterIssues,
 
   // 構造化データスコア (20点満点)
   let schemaScore = 0;
+  let schemaDetails = {
+    hasType: false,
+    missingMainProperties: [],
+    recommendations: []
+  };
+
   if (!schemas || schemas.length === 0) {
     schemaScore = 0;
   } else {
@@ -105,18 +111,35 @@ function calculateScores(meta, og, twitter, metaIssues, ogIssues, twitterIssues,
 
     // スキーマの質を評価
     let qualityBonus = 0;
-    schemas.forEach(schema => {
+    let hasAnyType = false;
+    let missingProps = new Set();
+
+    schemas.forEach((schema, idx) => {
       // @typeが存在するか確認 (+2点/スキーマ、最大6点)
       if (schema['@type']) {
         qualityBonus += 2;
+        hasAnyType = true;
+      } else {
+        schemaDetails.recommendations.push(`スキーマ ${idx + 1}: @type を指定してください`);
       }
 
       // 主要プロパティの存在確認 (+1点、最大4点)
-      const hasMainProperties = ['name', 'description', 'url', 'image'].some(prop => schema[prop]);
+      const mainProps = ['name', 'description', 'url', 'image'];
+      const hasMainProperties = mainProps.some(prop => schema[prop]);
       if (hasMainProperties) {
         qualityBonus += 1;
       }
+
+      // 不足しているプロパティを検出
+      mainProps.forEach(prop => {
+        if (!schema[prop]) {
+          missingProps.add(prop);
+        }
+      });
     });
+
+    schemaDetails.hasType = hasAnyType;
+    schemaDetails.missingMainProperties = Array.from(missingProps);
 
     // 質ボーナスは最大10点
     schemaScore += Math.min(10, qualityBonus);
@@ -127,6 +150,7 @@ function calculateScores(meta, og, twitter, metaIssues, ogIssues, twitterIssues,
     meta: Math.round(metaScore),
     sns: Math.round(snsScore),
     schema: schemaScore,
+    schemaDetails: schemaDetails,
   };
 }
 

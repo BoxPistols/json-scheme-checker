@@ -13,12 +13,13 @@
     <meta property="og:description" content="Webサイトのスキーマ構造化データを可視化・検証するツール">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://json-ld-view.vercel.app/">
-    <meta property="og:image" content="https://json-ld-view.vercel.app/og-image.png">
+    <meta property="og:image" content="/og-image.png">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="JSON-LD Schema Viewer">
     <meta name="twitter:description" content="JSON-LDスキーマを視覚化・検証するツール">
+    <meta name="twitter:image" content="/og-image.png">
 
     <!-- Canonical -->
     <link rel="canonical" href="https://json-ld-view.vercel.app/">
@@ -33,15 +34,12 @@
       "url": "https://json-ld-view.vercel.app/",
       "applicationCategory": "Utility",
       "operatingSystem": "Web",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "JPY"
-      },
+      "image": "/og-image.png",
       "author": {
-        "@type": "Organization",
-        "name": "JSON-LD Schema Viewer"
-      }
+        "@type": "Person",
+        "name": "JSON-LD Schema Viewer Developer"
+      },
+      "dateModified": "2025-01-22"
     }
     </script>
 
@@ -67,7 +65,10 @@
 <body>
     <div class="container">
         <header>
-            <h1>JSON-LD Schema Viewer</h1>
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <img src="/logo.svg" alt="JSON-LD Schema Viewer ロゴ" style="width: 48px; height: 48px;">
+                <h1 style="margin: 0;">JSON-LD Schema Viewer</h1>
+            </div>
             <p class="subtitle">Webページ内のJSONスキーマ/SEO関連のチェックツール</p>
             <div class="header-actions">
                 <span class="server-status" id="serverStatus">サーバー確認中...</span>
@@ -507,6 +508,180 @@ export default function Home() {
                 </div>
             </div>
 
+            <!-- Twitter Card 設定ガイド Modal -->
+            <div id="twitterCardGuideModal" class="modal-overlay">
+                <div class="modal-container">
+                    <div class="modal-header modal-header--sticky">
+                        <h2>Twitter Card の設定方法</h2>
+                    </div>
+                    <div class="modal-body">
+                        <section class="modal-section">
+                            <h3>何をすべきか？</h3>
+                            <p>
+                                HTMLの <code>&lt;head&gt;</code> タグ内に Twitter Card のメタタグを追加してください。これにより、Twitterでページがシェアされたときに、美しいカード形式で表示されます。
+                            </p>
+                        </section>
+
+                        <section class="modal-section">
+                            <h3>Twitter Card の種類</h3>
+                            <table class="modal-table">
+                                <tr>
+                                    <td><strong>summary</strong></td>
+                                    <td>シンプルな形式（タイトル + 説明 + アイコン）</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>summary_large_image</strong></td>
+                                    <td>大きな画像付き形式（推奨）</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>app</strong></td>
+                                    <td>モバイルアプリのプロモーション</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>player</strong></td>
+                                    <td>動画やオーディオ再生用</td>
+                                </tr>
+                            </table>
+                        </section>
+
+                        <section class="modal-section">
+                            <h3>コピー可能な実装例</h3>
+                            <p style="margin-bottom: 8px; font-size: 0.875rem; color: var(--secondary-text-color);">該当するセクションをコピーして使用してください</p>
+                        </section>
+
+                        <section class="modal-section">
+                            <h4 style="font-size: 14px; margin-bottom: 8px;">基本的な設定（全ページ共通）</h4>
+                            <div class="recommendation-example">
+&lt;!-- Twitter Card 基本設定 --&gt;
+&lt;meta name="twitter:card" content="summary_large_image"&gt;
+&lt;meta name="twitter:site" content="@あなたのTwitterID"&gt;
+&lt;meta name="twitter:creator" content="@あなたのTwitterID"&gt;
+                            </div>
+                        </section>
+
+                        <section class="modal-section">
+                            <h4 style="font-size: 14px; margin-bottom: 8px;">1. Static HTML（HTMLファイル直接編集）</h4>
+                            <div class="recommendation-example">
+&lt;head&gt;
+  &lt;!-- Twitter Card --&gt;
+  &lt;meta name="twitter:card" content="summary_large_image"&gt;
+  &lt;meta name="twitter:title" content="ページのタイトル"&gt;
+  &lt;meta name="twitter:description" content="ページの説明（140字以内推奨）"&gt;
+  &lt;meta name="twitter:image" content="https://example.com/image.jpg"&gt;
+  &lt;meta name="twitter:site" content="@YourTwitterID"&gt;
+  &lt;meta name="twitter:creator" content="@YourTwitterID"&gt;
+&lt;/head&gt;
+                            </div>
+                        </section>
+
+                        <section class="modal-section">
+                            <h4 style="font-size: 14px; margin-bottom: 8px;">2. Vue / Nuxt.js</h4>
+                            <div class="recommendation-example">
+export default {
+  head() {
+    return {
+      meta: [
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:title', content: 'ページのタイトル' },
+        { name: 'twitter:description', content: 'ページの説明' },
+        { name: 'twitter:image', content: 'https://example.com/image.jpg' },
+        { name: 'twitter:site', content: '@YourTwitterID' },
+        { name: 'twitter:creator', content: '@YourTwitterID' }
+      ]
+    }
+  }
+}
+                            </div>
+                        </section>
+
+                        <section class="modal-section">
+                            <h4 style="font-size: 14px; margin-bottom: 8px;">3. React / Next.js</h4>
+                            <div class="recommendation-example">
+import Head from 'next/head';
+
+export default function Home() {
+  return (
+    &lt;Head&gt;
+      &lt;meta name="twitter:card" content="summary_large_image" /&gt;
+      &lt;meta name="twitter:title" content="ページのタイトル" /&gt;
+      &lt;meta name="twitter:description" content="ページの説明" /&gt;
+      &lt;meta name="twitter:image" content="https://example.com/image.jpg" /&gt;
+      &lt;meta name="twitter:site" content="@YourTwitterID" /&gt;
+      &lt;meta name="twitter:creator" content="@YourTwitterID" /&gt;
+    &lt;/Head&gt;
+  )
+}
+                            </div>
+                        </section>
+
+                        <section class="modal-section">
+                            <h3>各フィールドの説明</h3>
+                            <table class="modal-table">
+                                <tr>
+                                    <td><strong>twitter:card</strong></td>
+                                    <td>カード形式（summary_large_image 推奨）</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>twitter:title</strong></td>
+                                    <td>シェアされた時に表示されるタイトル（70字以内）</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>twitter:description</strong></td>
+                                    <td>ページの説明（140字以内推奨）</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>twitter:image</strong></td>
+                                    <td>シェア時に表示される画像URL（1200x630px推奨）</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>twitter:site</strong></td>
+                                    <td>サイトの Twitter アカウント（オプション）</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>twitter:creator</strong></td>
+                                    <td>記事著者の Twitter アカウント（オプション）</td>
+                                </tr>
+                            </table>
+                        </section>
+
+                        <section class="modal-section">
+                            <div class="modal-info-box modal-info-box--blue">
+                                <h4>実装のコツ</h4>
+                                <ul style="margin: 8px 0; padding-left: 20px;">
+                                    <li><strong>twitter:image</strong> は必ず HTTPS で指定</li>
+                                    <li>画像サイズは 1200x630px（または 1:1、2:1 のアスペクト比）</li>
+                                    <li>summary_large_image が最も効果的</li>
+                                    <li>動的に内容が変わるページの場合、各ページで異なる値を設定</li>
+                                </ul>
+                            </div>
+                        </section>
+
+                        <section class="modal-section">
+                            <div class="modal-info-box modal-info-box--yellow">
+                                <h4>テスト方法</h4>
+                                <p>
+                                    <a href="https://cards-dev.twitter.com/validator" target="_blank" rel="noopener noreferrer" style="color: var(--accent-color); font-weight: 500;">Twitter Card Validator</a> にURLを入力して、プレビューを確認できます。
+                                </p>
+                            </div>
+                        </section>
+
+                        <section class="modal-section">
+                            <div class="modal-info-box modal-info-box--green">
+                                <h4>Open Graph との関連性</h4>
+                                <p>
+                                    Open Graph（og:title, og:description, og:image）も同時に設定することで、Facebook や LinkedIn でも美しく表示されます。
+                                </p>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-modal-close" id="btnCloseTwitterCardModal">
+                            閉じる
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div class="sample-links">
                 <span>サンプル:</span>
                 <!-- 動的に生成される -->
@@ -532,6 +707,7 @@ export default function Home() {
                 <button class="tab-button" data-tab="tab-overview">概要・メタタグ</button>
                 <button class="tab-button" data-tab="tab-sns">SNS</button>
                 <button class="tab-button" data-tab="tab-guidance">改善ガイダンス</button>
+                <button class="tab-button" data-tab="tab-learning">スキーマ学習</button>
             </div>
 
             <div class="tab-contents" id="tabContents">
@@ -545,6 +721,140 @@ export default function Home() {
                 <div id="tab-overview" class="tab-content"></div>
                 <div id="tab-sns" class="tab-content"></div>
                 <div id="tab-guidance" class="tab-content"></div>
+                <div id="tab-learning" class="tab-content">
+                    <h2>スキーマ構造化データ学習ガイド</h2>
+
+                    <section class="learning-section">
+                        <h3>JSON-LD スキーマとは</h3>
+                        <p>JSON-LD（JSON for Linking Data）は、Webページの内容をGoogleなどの検索エンジンに正しく理解させるためのコード形式です。</p>
+                        <p>例えば、JobPosting スキーマを使うと、採用情報が「求人検索」の結果に表示される可能性があります。</p>
+                    </section>
+
+                    <section class="learning-section">
+                        <h3>JobPosting スキーマ（採用情報）</h3>
+                        <p><strong>用途:</strong> 求人情報をGoogleに正しく伝える</p>
+                        <p><strong>メリット:</strong> Google 求人検索に表示される可能性がある</p>
+
+                        <h4 style="margin-top: 16px;">最小限の実装例</h4>
+                        <div class="code-example">
+&lt;script type="application/ld+json"&gt;
+{
+  "@context": "https://schema.org",
+  "@type": "JobPosting",
+  "title": "エンジニア募集",
+  "description": "Javaエンジニアを募集しています",
+  "datePosted": "2025-01-22",
+  "validThrough": "2025-03-22",
+  "hiringOrganization": {
+    "@type": "Organization",
+    "name": "会社名"
+  },
+  "jobLocation": {
+    "@type": "Place",
+    "address": {
+      "@type": "PostalAddress",
+      "addressCountry": "JP"
+    }
+  },
+  "employmentType": "FULL_TIME",
+  "baseSalary": {
+    "@type": "MonetaryAmount",
+    "currency": "JPY",
+    "value": {
+      "@type": "QuantitativeValue",
+      "minValue": 600000,
+      "maxValue": 800000,
+      "unitText": "MONTH"
+    }
+  }
+}
+&lt;/script&gt;
+                        </div>
+                    </section>
+
+                    <section class="learning-section">
+                        <h3>Article スキーマ（ブログ記事）</h3>
+                        <p><strong>用途:</strong> ブログ記事情報をGoogleに伝える</p>
+                        <p><strong>メリット:</strong> リッチスニペット表示、Google ニュースに表示される可能性</p>
+
+                        <h4 style="margin-top: 16px;">実装例</h4>
+                        <div class="code-example">
+&lt;script type="application/ld+json"&gt;
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "記事のタイトル",
+  "description": "記事の説明",
+  "image": "https://example.com/image.jpg",
+  "datePublished": "2025-01-22",
+  "dateModified": "2025-01-23",
+  "author": {
+    "@type": "Person",
+    "name": "著者名"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "メディア名",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://example.com/logo.jpg"
+    }
+  }
+}
+&lt;/script&gt;
+                        </div>
+                    </section>
+
+                    <section class="learning-section">
+                        <h3>Organization スキーマ（組織情報）</h3>
+                        <p><strong>用途:</strong> 企業・組織情報をGoogleに伝える</p>
+                        <p><strong>メリット:</strong> ナレッジパネルに企業情報が表示される可能性</p>
+
+                        <h4 style="margin-top: 16px;">実装例</h4>
+                        <div class="code-example">
+&lt;script type="application/ld+json"&gt;
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "会社名",
+  "url": "https://example.com",
+  "logo": "https://example.com/logo.png",
+  "description": "会社の説明",
+  "sameAs": [
+    "https://twitter.com/company",
+    "https://www.facebook.com/company"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "Customer Support",
+    "email": "support@example.com"
+  }
+}
+&lt;/script&gt;
+                        </div>
+                    </section>
+
+                    <section class="learning-section">
+                        <div class="modal-info-box modal-info-box--blue">
+                            <h4>実装のコツ</h4>
+                            <ul style="margin: 8px 0; padding-left: 20px;">
+                                <li>JSONは正確に記述する（カンマやコロンの誤字に注意）</li>
+                                <li>Google 構造化データテストツールで検証する</li>
+                                <li>このツールでもスキーマの正確性をチェックできます</li>
+                            </ul>
+                        </div>
+                    </section>
+
+                    <section class="learning-section">
+                        <div class="modal-info-box modal-info-box--green">
+                            <h4>詳細は公式ドキュメント</h4>
+                            <p>
+                                <a href="https://schema.org/" target="_blank" rel="noopener noreferrer" style="color: var(--accent-color); font-weight: 500;">Schema.org 公式サイト</a><br>
+                                <a href="https://developers.google.com/search/docs/appearance/structured-data" target="_blank" rel="noopener noreferrer" style="color: var(--accent-color); font-weight: 500;">Google 構造化データドキュメント</a>
+                            </p>
+                        </div>
+                    </section>
+                </div>
             </div>
         </div>
 

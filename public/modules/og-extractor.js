@@ -86,6 +86,12 @@ export function validateOpenGraph(og) {
  * @returns {boolean} 有効なURLの場合true
  */
 function isValidUrl(string) {
+  // 相対パスの判定
+  if (string.startsWith('/') || string.startsWith('./') || string.startsWith('../') || string.startsWith('data:')) {
+    return true;
+  }
+
+  // 絶対URLの判定
   try {
     new URL(string);
     return true;

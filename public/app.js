@@ -95,6 +95,22 @@ function closeRobotsModal() {
   }
 }
 
+// Twitter Card 設定ガイド Modal を開く
+function showTwitterCardModal() {
+  const modal = document.getElementById('twitterCardGuideModal');
+  if (modal) {
+    modal.classList.add('modal-overlay--visible');
+  }
+}
+
+// Twitter Card 設定ガイド Modal を閉じる
+function closeTwitterCardModal() {
+  const modal = document.getElementById('twitterCardGuideModal');
+  if (modal) {
+    modal.classList.remove('modal-overlay--visible');
+  }
+}
+
 // Modalの背景クリックで閉じる
 document.addEventListener('DOMContentLoaded', () => {
   // モーダル関連のイベントリスナー
@@ -125,6 +141,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const twitterCardModal = document.getElementById('twitterCardGuideModal');
+  if (twitterCardModal) {
+    twitterCardModal.addEventListener('click', e => {
+      if (e.target === twitterCardModal) {
+        closeTwitterCardModal();
+      }
+    });
+  }
+
   // ボタンイベントリスナー登録
   document.getElementById('btnGuide')?.addEventListener('click', showGuideModal);
   document.getElementById('fetchButton')?.addEventListener('click', fetchAndDisplay);
@@ -134,6 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnCloseSecurityModal')?.addEventListener('click', closeSecurityModal);
   document.getElementById('btnCloseGuideModal')?.addEventListener('click', closeGuideModal);
   document.getElementById('btnCloseRobotsModal')?.addEventListener('click', closeRobotsModal);
+  document.getElementById('btnCloseTwitterCardModal')?.addEventListener('click', closeTwitterCardModal);
   document.getElementById('btnHideError')?.addEventListener('click', hideError);
 
   // 認証ストレージ方法変更のイベントリスナー

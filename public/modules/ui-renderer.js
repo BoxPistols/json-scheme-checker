@@ -12,15 +12,29 @@
 export function renderSummaryCard(analysisData, score, schemaGuidance = null) {
   const summaryCard = document.getElementById('summaryCard');
 
-  // スキーマスコアが10/20の場合、改善提案を表示
+  // スキーマスコアが満点でない場合、改善提案を表示
   let suggestionHtml = '';
-  if (analysisData.scores.schema === 10 && schemaGuidance && schemaGuidance.recommendations.length > 0) {
+  if (analysisData.scores.schema < 20 && schemaGuidance && schemaGuidance.recommendations.length > 0) {
     const topRecommendation = schemaGuidance.recommendations[0];
     suggestionHtml = `
       <div style="margin-top: 8px; padding: 8px; background: rgba(59, 130, 246, 0.05); border: 1px solid #3b82f6; border-radius: 2px;">
         <div style="font-size: 0.75rem; color: var(--secondary-text-color); margin-bottom: 2px;">サジェスト</div>
         <div style="font-size: 0.8125rem; color: var(--text-color); font-weight: 500; line-height: 1.4;">
           ${escapeHtml(topRecommendation.title)}: ${escapeHtml(topRecommendation.description.substring(0, 60))}…
+        </div>
+      </div>
+    `;
+  }
+
+  // スキーマの不足プロパティを表示
+  let schemaDetailsHtml = '';
+  if (analysisData.schemaDetails && analysisData.schemaDetails.missingMainProperties.length > 0) {
+    const missingProps = analysisData.schemaDetails.missingMainProperties;
+    schemaDetailsHtml = `
+      <div style="margin-top: 8px; padding: 8px; background: rgba(239, 68, 68, 0.05); border: 1px solid #fca5a5; border-radius: 2px;">
+        <div style="font-size: 0.75rem; color: var(--secondary-text-color); margin-bottom: 4px;">不足している主要プロパティ</div>
+        <div style="font-size: 0.8125rem; color: var(--text-color); line-height: 1.4;">
+          ${missingProps.map(prop => `<div>・ <strong>${escapeHtml(prop)}</strong></div>`).join('')}
         </div>
       </div>
     `;
@@ -45,6 +59,7 @@ export function renderSummaryCard(analysisData, score, schemaGuidance = null) {
         </div>
       </div>
       ${suggestionHtml}
+      ${schemaDetailsHtml}
     </div>
   `;
 }
@@ -197,11 +212,15 @@ function renderOGTable(og, issues) {
           .map(key => {
             const value = og[key] || '';
             const hasIssue = issues.some(i => i.field === `og:${key}`);
-            const status = value
-              ? hasIssue
-                ? '<span class="status-badge warning">⚠</span>'
-                : '<span class="status-badge success">✓</span>'
-              : '<span class="status-badge error">✗</span>';
+            let status;
+
+            if (value) {
+              status = hasIssue
+                ? '<span class="status-badge warning">⚠ 問題あり</span>'
+                : '<span class="status-badge success">✓ 正常</span>';
+            } else {
+              status = '<span class="status-badge error" style="cursor: pointer;" onclick="showOGCardModal()" title="クリックして設定方法を確認">✗ 未設定 (ガイド)</span>';
+            }
 
             return `
             <tr>
@@ -263,13 +282,17 @@ function renderTwitterTable(twitter, issues) {
             const value = twitter[key] || '';
             const hasIssue = issues.some(i => i.field === `twitter:${key}`);
             const isRequired = ['card', 'title', 'description'].includes(key);
-            const status = value
-              ? hasIssue
-                ? '<span class="status-badge error">✗</span>'
-                : '<span class="status-badge success">✓</span>'
-              : isRequired
-                ? '<span class="status-badge error">✗</span>'
-                : '<span class="status-badge warning">-</span>';
+            let status;
+
+            if (value) {
+              status = hasIssue
+                ? '<span class="status-badge error">✗ 問題あり</span>'
+                : '<span class="status-badge success">✓ 正常</span>';
+            } else if (isRequired) {
+              status = '<span class="status-badge error" style="cursor: pointer;" onclick="showTwitterCardModal()" title="クリックして設定方法を確認">✗ 未設定 (ガイド)</span>';
+            } else {
+              status = '<span class="status-badge warning">- オプション</span>';
+            }
 
             return `
             <tr>

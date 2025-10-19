@@ -2201,11 +2201,73 @@ html[data-theme='dark'] .score-breakdown > div {
   padding: 12px 16px;
   border-radius: 4px;
   font-family: 'Courier New', 'Monaco', monospace;
-  font-size: 0.875rem;
-  line-height: 1.5;
+  font-size: 1rem;
+  line-height: 1.6;
   overflow-x: auto;
   border: 1px solid var(--border-color);
   margin: 8px 0;
   white-space: pre-wrap;
   word-break: break-all;
+}
+
+/* 学習ガイドセクション */
+.learning-section {
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.learning-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.learning-section h3 {
+  font-size: 1.25rem;
+  margin-bottom: 12px;
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+.learning-section h4 {
+  font-size: 1rem;
+  margin-bottom: 8px;
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.learning-section p {
+  margin-bottom: 12px;
+  line-height: 1.6;
+  color: var(--text-color);
+}
+
+.learning-section ul {
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+.learning-section ul li {
+  margin-bottom: 6px;
+}
+
+.learning-section strong {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+/* コード例ブロック */
+.code-example {
+  background: var(--json-bg);
+  color: var(--json-bracket);
+  padding: 14px 16px;
+  border-radius: 4px;
+  font-family: 'Courier New', 'Monaco', monospace;
+  font-size: 1rem;
+  line-height: 1.6;
+  overflow-x: auto;
+  border: 1px solid var(--border-color);
+  margin: 12px 0;
+  white-space: pre;
 }
