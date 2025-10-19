@@ -204,6 +204,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // サンプルURLリストを初期化
   renderSampleLinks();
+
+  // ===== Dark Mode Toggle =====
+  const themeToggleButton = document.getElementById('btnThemeToggle');
+  const lightIcon = document.getElementById('theme-icon-light');
+  const darkIcon = document.getElementById('theme-icon-dark');
+  const THEME_KEY = 'jsonld_theme';
+
+  // 現在のテーマを適用する
+  function applyTheme(theme) {
+    if (theme === 'dark') {
+      document.body.dataset.theme = 'dark';
+      if (lightIcon) lightIcon.style.display = 'none';
+      if (darkIcon) darkIcon.style.display = 'inline-block';
+    } else {
+      document.body.dataset.theme = 'light';
+      if (lightIcon) lightIcon.style.display = 'inline-block';
+      if (darkIcon) darkIcon.style.display = 'none';
+    }
+  }
+
+  // テーマを切り替える
+  function toggleTheme() {
+    const currentTheme = localStorage.getItem(THEME_KEY) || 'light';
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    localStorage.setItem(THEME_KEY, newTheme);
+    applyTheme(newTheme);
+  }
+
+  // 初期テーマ適用
+  const savedTheme = localStorage.getItem(THEME_KEY) || 'light';
+  applyTheme(savedTheme);
+
+  // イベントリスナー登録
+  if (themeToggleButton) {
+    themeToggleButton.addEventListener('click', toggleTheme);
+  }
 });
 
 // 認証情報の保存方法を復元
