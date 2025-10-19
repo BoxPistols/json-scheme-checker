@@ -5,15 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JSON-LD Schema Viewer (Proxy Version)</title>
-    <script>
-      // DOMContentLoadedより前にテーマを適用してFOUCを防止
-      (function() {
-        const THEME_KEY = 'jsonld_theme';
-        const osPreferredTheme = window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        const savedTheme = localStorage.getItem(THEME_KEY) || osPreferredTheme;
-        document.documentElement.dataset.theme = savedTheme;
-      })();
-    </script>
+    
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/styles.css">
     <script>

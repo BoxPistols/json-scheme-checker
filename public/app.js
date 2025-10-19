@@ -234,20 +234,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     applyTheme(newTheme);
   }
-  
+
   // FOUC対策スクリプトで初期テーマが設定されているので、ここではaria-labelの更新のみ
   if (document.documentElement.dataset.theme) {
-      applyTheme(document.documentElement.dataset.theme);
+    applyTheme(document.documentElement.dataset.theme);
   }
 
   // イベントリスナー登録
   if (themeToggleButton) {
     themeToggleButton.addEventListener('click', toggleTheme);
   }
-  
+
   // OSのテーマ変更を監視
   if (window.matchMedia) {
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
       // ユーザーが明示的に設定していない場合のみ反映
       try {
         if (!localStorage.getItem(THEME_KEY)) {
@@ -258,18 +258,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-  // システム設定の変更を監視
-  if (window.matchMedia) {
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-      // ユーザーが明示的に設定していない場合のみ反映
-      if (!localStorage.getItem(THEME_KEY)) {
-        applyTheme(e.matches ? 'dark' : 'light');
-      }
-    });
-  }
 
   // ESCキーでモーダルを閉じる
-  document.addEventListener('keydown', (e) => {
+  document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       const securityModal = document.getElementById('securityModal');
       const guideModal = document.getElementById('guideModal');
