@@ -17,7 +17,9 @@
           const savedTheme = localStorage.getItem(themeKey) || osPreferredTheme;
           document.documentElement.dataset.theme = savedTheme;
         } catch (e) {
-          // localStorageが利用できない場合などは何もしない
+          // localStorageが利用できない場合（プライベートブラウジングモードなど）はOSのテーマ設定を使用
+          const osPreferredTheme = window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          document.documentElement.dataset.theme = osPreferredTheme;
         }
       })();
     </script>

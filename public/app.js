@@ -236,8 +236,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // FOUC対策スクリプトで初期テーマが設定されているので、ここではaria-labelの更新のみ
-  if (document.documentElement.dataset.theme) {
-    applyTheme(document.documentElement.dataset.theme);
+  if (document.documentElement.dataset.theme && themeToggleButton) {
+    const currentTheme = document.documentElement.dataset.theme;
+    const isDark = currentTheme === 'dark';
+    const newLabel = `テーマを切り替え（現在: ${isDark ? 'ダーク' : 'ライト'}モード）`;
+    themeToggleButton.setAttribute('aria-label', newLabel);
+    // アイコンの表示も同期
+    if (lightIcon) lightIcon.style.display = isDark ? 'none' : 'inline-block';
+    if (darkIcon) darkIcon.style.display = isDark ? 'inline-block' : 'none';
   }
 
   // イベントリスナー登録
