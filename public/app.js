@@ -79,6 +79,54 @@ function closeGuideModal() {
   }
 }
 
+// Robots メタタグ設定ガイド Modal を開く
+function showRobotsModal() {
+  const modal = document.getElementById('robotsGuideModal');
+  if (modal) {
+    modal.classList.add('modal-overlay--visible');
+  }
+}
+
+// Robots メタタグ設定ガイド Modal を閉じる
+function closeRobotsModal() {
+  const modal = document.getElementById('robotsGuideModal');
+  if (modal) {
+    modal.classList.remove('modal-overlay--visible');
+  }
+}
+
+// Twitter Card 設定ガイド Modal を開く
+function showTwitterCardModal() {
+  const modal = document.getElementById('twitterCardGuideModal');
+  if (modal) {
+    modal.classList.add('modal-overlay--visible');
+  }
+}
+
+// Twitter Card 設定ガイド Modal を閉じる
+function closeTwitterCardModal() {
+  const modal = document.getElementById('twitterCardGuideModal');
+  if (modal) {
+    modal.classList.remove('modal-overlay--visible');
+  }
+}
+
+// Open Graph 設定ガイド Modal を開く
+function showOpenGraphModal() {
+  const modal = document.getElementById('openGraphGuideModal');
+  if (modal) {
+    modal.classList.add('modal-overlay--visible');
+  }
+}
+
+// Open Graph 設定ガイド Modal を閉じる
+function closeOpenGraphModal() {
+  const modal = document.getElementById('openGraphGuideModal');
+  if (modal) {
+    modal.classList.remove('modal-overlay--visible');
+  }
+}
+
 // Modalの背景クリックで閉じる
 document.addEventListener('DOMContentLoaded', () => {
   // モーダル関連のイベントリスナー
@@ -100,6 +148,33 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const robotsModal = document.getElementById('robotsGuideModal');
+  if (robotsModal) {
+    robotsModal.addEventListener('click', e => {
+      if (e.target === robotsModal) {
+        closeRobotsModal();
+      }
+    });
+  }
+
+  const twitterCardModal = document.getElementById('twitterCardGuideModal');
+  if (twitterCardModal) {
+    twitterCardModal.addEventListener('click', e => {
+      if (e.target === twitterCardModal) {
+        closeTwitterCardModal();
+      }
+    });
+  }
+
+  const openGraphModal = document.getElementById('openGraphGuideModal');
+  if (openGraphModal) {
+    openGraphModal.addEventListener('click', e => {
+      if (e.target === openGraphModal) {
+        closeOpenGraphModal();
+      }
+    });
+  }
+
   // ボタンイベントリスナー登録
   document.getElementById('btnGuide')?.addEventListener('click', showGuideModal);
   document.getElementById('fetchButton')?.addEventListener('click', fetchAndDisplay);
@@ -108,6 +183,11 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnClearAuth')?.addEventListener('click', clearAuth);
   document.getElementById('btnCloseSecurityModal')?.addEventListener('click', closeSecurityModal);
   document.getElementById('btnCloseGuideModal')?.addEventListener('click', closeGuideModal);
+  document.getElementById('btnCloseRobotsModal')?.addEventListener('click', closeRobotsModal);
+  document
+    .getElementById('btnCloseTwitterCardModal')
+    ?.addEventListener('click', closeTwitterCardModal);
+  document.getElementById('btnCloseOpenGraphModal')?.addEventListener('click', closeOpenGraphModal);
   document.getElementById('btnHideError')?.addEventListener('click', hideError);
 
   // 認証ストレージ方法変更のイベントリスナー
@@ -322,11 +402,12 @@ const STORAGE_METHOD_KEY = 'jsonld_storage_method';
 // サンプルURLの管理
 const SAMPLE_URLS_KEY = 'jsonld_sample_urls';
 const DEFAULT_SAMPLE_URLS = [
-  { label: 'freelance-hub', url: 'https://freelance-hub.jp/project/detail/281563/' },
-  { label: 'levtech', url: 'https://freelance.levtech.jp/project/detail/28421/' },
-  { label: 'freelance-job', url: 'https://freelance-job.com/job/detail/146243' },
-  { label: 'RecruitAgent', url: 'https://www.r-agent.com/kensaku/kyujin/20250107-188-01-052.html' },
+  { label: 'f-hub', url: 'https://freelance-hub.jp/project/detail/281563/' },
+  { label: 'f-job', url: 'https://freelance-job.com/job/detail/146243' },
   { label: 'PE-BANK', url: 'https://pe-bank.jp/project/aws/47302-18/' },
+  { label: 'RecruitAgent', url: 'https://www.r-agent.com/kensaku/kyujin/20250107-188-01-052.html' },
+  { label: 'levtech', url: 'https://freelance.levtech.jp/project/detail/28421/' },
+  { label: 'レバテックLAB', url: 'https://levtech.jp/media/article/focus/detail_680/' },
 ];
 
 // サンプルURLリストを読み込み
@@ -1093,16 +1174,38 @@ function extractJsonLd(html) {
   const doc = parser.parseFromString(html, 'text/html');
   const scripts = doc.querySelectorAll('script[type="application/ld+json"]');
 
+  console.log(`[extractJsonLd] Found ${scripts.length} JSON-LD script tags`);
+
   const schemas = [];
-  scripts.forEach(script => {
+  scripts.forEach((script, index) => {
     try {
       const json = JSON.parse(script.textContent);
-      schemas.push(json);
+      console.log(`[extractJsonLd] Raw JSON ${index + 1}:`, json);
+
+      // 配列の場合は展開して個別に追加
+      if (Array.isArray(json)) {
+        console.log(`[extractJsonLd] JSON is array, expanding ${json.length} items`);
+        json.forEach((item, itemIndex) => {
+          console.log(`[extractJsonLd] Array item ${itemIndex + 1} @type:`, item['@type']);
+          schemas.push(item);
+        });
+      } else if (json['@graph'] && Array.isArray(json['@graph'])) {
+        // @graph 構造の場合は展開
+        console.log(`[extractJsonLd] JSON has @graph, expanding ${json['@graph'].length} items`);
+        json['@graph'].forEach((item, itemIndex) => {
+          console.log(`[extractJsonLd] @graph item ${itemIndex + 1} @type:`, item['@type']);
+          schemas.push(item);
+        });
+      } else {
+        console.log(`[extractJsonLd] JSON is object, @type:`, json['@type']);
+        schemas.push(json);
+      }
     } catch (e) {
       console.error('Failed to parse JSON-LD:', e);
     }
   });
 
+  console.log(`[extractJsonLd] Total schemas extracted: ${schemas.length}`);
   return schemas;
 }
 
@@ -1450,6 +1553,22 @@ function getValueType(value) {
 
 function getSchemaType(schema) {
   if (Array.isArray(schema)) {
+    // 配列の場合、最初の要素のタイプを取得して表示
+    if (schema.length > 0) {
+      const firstItem = schema[0];
+      if (firstItem && typeof firstItem === 'object') {
+        if (firstItem['@type']) {
+          if (Array.isArray(firstItem['@type'])) {
+            return firstItem['@type'].join(', ');
+          }
+          return firstItem['@type'];
+        }
+        if (firstItem['@graph']) {
+          return '@graph';
+        }
+        return 'Object';
+      }
+    }
     return 'Array';
   }
   if (schema['@type']) {
@@ -1602,6 +1721,7 @@ document.getElementById('urlInput').addEventListener('blur', function (e) {
 });
 
 // ショートカットキー: Cmd+K (Mac) / Ctrl+K (Windows) でURL入力欄にフォーカス
+// Escape キーでモーダルを閉じる
 document.addEventListener('keydown', function (e) {
   // Cmd+K (Mac) または Ctrl+K (Windows/Linux)
   if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
@@ -1609,5 +1729,23 @@ document.addEventListener('keydown', function (e) {
     const urlInput = document.getElementById('urlInput');
     urlInput.focus();
     urlInput.select();
+  }
+
+  // Escape キーでモーダルを閉じる
+  if (e.key === 'Escape') {
+    const modals = [
+      { id: 'securityModal', close: closeSecurityModal },
+      { id: 'guideModal', close: closeGuideModal },
+      { id: 'robotsGuideModal', close: closeRobotsModal },
+      { id: 'twitterCardGuideModal', close: closeTwitterCardModal },
+      { id: 'openGraphGuideModal', close: closeOpenGraphModal },
+    ];
+
+    modals.forEach(modal => {
+      const element = document.getElementById(modal.id);
+      if (element && element.classList.contains('modal-overlay--visible')) {
+        modal.close();
+      }
+    });
   }
 });

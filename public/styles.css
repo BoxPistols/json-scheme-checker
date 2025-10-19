@@ -8,6 +8,10 @@
   box-sizing: border-box;
 }
 
+html {
+  font-size: 14px;
+}
+
 :root {
   /* Light Theme (Default) */
   --bg-color: #f5f7fa;
@@ -98,6 +102,8 @@ body {
   min-height: 100vh;
   padding: 20px;
   color: var(--text-color);
+  font-size: 1rem;
+  font-weight: 400;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -574,7 +580,7 @@ button:disabled {
   padding: 10px;
   margin: 6px 0;
   border-radius: 4px;
-  border-left: 3px solid var(--primary-color);
+  border: 1px solid var(--primary-color);
 }
 
 .compact-array-table {
@@ -594,7 +600,7 @@ button:disabled {
 .nested-object {
   margin-left: 0;
   padding-left: 16px;
-  border-left: 2px solid var(--border-color);
+  border-left: 1px solid var(--border-color);
   overflow-x: auto;
 }
 
@@ -838,46 +844,50 @@ button:disabled {
 }
 
 .summary-card {
-  background: var(--primary-color);
-  color: var(--primary-text-color);
-  border-radius: 8px;
-  padding: 12px 14px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  background: var(--secondary-bg-color);
+  color: var(--text-color);
+  border-radius: 6px;
+  padding: 10px 12px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--border-color);
 }
 
 .summary-card h2 {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   margin-bottom: 0;
   line-height: 1.2;
+  color: var(--secondary-text-color);
 }
 
 .seo-score {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 700;
-  margin: 6px 0 3px;
+  margin: 4px 0 2px;
   text-align: center;
+  color: var(--primary-color);
 }
 
 .score-breakdown {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
-  gap: 6px;
-  margin-top: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 4px;
+  margin-top: 8px;
 }
 
 .score-breakdown > div {
-  background: rgba(255, 255, 255, 0.2);
-  padding: 6px 8px;
-  border-radius: 4px;
+  background: var(--card-bg-color);
+  padding: 4px 6px;
+  border-radius: 3px;
   text-align: center;
+  border: 1px solid var(--border-color);
 }
 
 html[data-theme='dark'] .score-breakdown > div {
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--card-bg-color);
 }
 
 .score-label {
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   opacity: 0.9;
   margin-bottom: 2px;
 }
@@ -891,7 +901,7 @@ html[data-theme='dark'] .score-breakdown > div {
   display: flex;
   gap: 4px;
   background: var(--card-bg-color);
-  padding: 8px 8px 0 8px;
+  padding: 8px;
   border-radius: 8px 8px 0 0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   overflow-x: auto;
@@ -901,26 +911,27 @@ html[data-theme='dark'] .score-breakdown > div {
 
 .tab-button {
   padding: 10px 18px;
-  background: transparent;
+  background: var(--card-bg-color);
   color: var(--secondary-text-color);
-  border: none;
-  border-bottom: 2px solid transparent;
+  border: 1px solid var(--border-color);
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
   transition: all 0.2s ease;
   white-space: nowrap;
+  border-radius: 4px;
 }
 
 .tab-button:hover {
   background: var(--secondary-bg-color);
   color: var(--text-color);
+  border-color: var(--primary-color);
 }
 
 .tab-button.active {
   color: var(--primary-color);
+  background: var(--secondary-bg-color);
   border-color: var(--primary-color);
-  background: transparent;
 }
 
 .tab-contents {
@@ -1353,8 +1364,6 @@ html[data-theme='dark'] .score-breakdown > div {
   font-size: 16px;
   color: var(--text-color);
   margin: 0 0 12px;
-  border-left: 4px solid var(--accent-color);
-  padding-left: 12px;
 }
 
 .modal-section p {
@@ -1408,7 +1417,7 @@ html[data-theme='dark'] .score-breakdown > div {
   margin-bottom: 16px;
   padding: 12px;
   border-radius: 4px;
-  border-left: 4px solid;
+  border: 1px solid;
 }
 
 .modal-info-box p {
@@ -1536,7 +1545,7 @@ html[data-theme='dark'] .score-breakdown > div {
 
 .auth-hint {
   margin-top: 6px;
-  margin-bottom: 10px;
+  margin-bottom: 4px;
   font-size: 12px;
   color: var(--secondary-text-color);
   text-align: right;
@@ -1942,4 +1951,323 @@ html[data-theme='dark'] .score-breakdown > div {
     max-width: 95vw;
     max-height: 90vh;
   }
+}
+
+/* ガイダンス関連のスタイル */
+
+.guidance-section {
+  background: var(--secondary-bg-color);
+  border: 1px solid var(--info-blue-text-color);
+  padding: 16px;
+  margin: 16px 0;
+  border-radius: 4px;
+}
+
+.guidance-section.guidance-excellent {
+  border-color: var(--success-color);
+}
+
+.guidance-section.guidance-good {
+  border-color: var(--warning-color);
+}
+
+.guidance-section.guidance-fair {
+  border-color: var(--warning-color);
+}
+
+.guidance-section.guidance-poor {
+  border-color: var(--error-color);
+}
+
+.guidance-section h4 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: var(--text-color);
+}
+
+.guidance-message {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+.guidance-impact {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--secondary-text-color);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.guidance-details {
+  font-size: 0.9rem;
+  color: var(--secondary-text-color);
+  line-height: 1.6;
+}
+
+.guidance-details p {
+  margin: 6px 0;
+}
+
+/* ガイダンスカード */
+
+.guidance-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.guidance-score-card {
+  background: var(--card-bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.guidance-score-category {
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.guidance-score-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--accent-color);
+  margin-bottom: 12px;
+}
+
+.guidance-score-message {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-color);
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+.guidance-score-impact {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--secondary-text-color);
+}
+
+/* 改善提案カード */
+
+.recommendations-list {
+  display: grid;
+  gap: 16px;
+  margin: 16px 0;
+}
+
+.recommendation-card {
+  background: var(--card-bg-color);
+  border: 1px solid var(--info-blue-text-color);
+  border-radius: 4px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.recommendation-card.recommendation-priority-高 {
+  border-color: var(--error-color);
+  background: linear-gradient(90deg, var(--error-bg-color) 0%, var(--card-bg-color) 100%);
+}
+
+.recommendation-card.recommendation-priority-中 {
+  border-color: var(--warning-color);
+}
+
+.recommendation-card.recommendation-priority-低 {
+  border-color: var(--success-color);
+}
+
+.recommendation-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.priority-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.recommendation-card.recommendation-priority-高 .priority-badge {
+  background: var(--error-color);
+  color: white;
+}
+
+.recommendation-card.recommendation-priority-中 .priority-badge {
+  background: var(--warning-color);
+  color: #000;
+}
+
+.recommendation-card.recommendation-priority-低 .priority-badge {
+  background: var(--success-color);
+  color: white;
+}
+
+.recommendation-header h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.recommendation-description {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-color);
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+.recommendation-example {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--secondary-text-color);
+  padding: 12px;
+  background: var(--secondary-bg-color);
+  border-radius: 4px;
+  margin-top: 8px;
+  font-family: 'Courier New', monospace;
+  overflow-x: auto;
+  line-height: 1.5;
+}
+
+/* ヒントリスト */
+
+.tips-list {
+  display: grid;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.tip-item {
+  background: var(--secondary-bg-color);
+  padding: 12px 16px;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+/* 参考リンク */
+
+.reference-links {
+  list-style: none;
+  display: grid;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.reference-links li {
+  padding: 12px;
+  background: var(--secondary-bg-color);
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+}
+
+.reference-links a {
+  color: var(--accent-color);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.reference-links a:hover {
+  text-decoration: underline;
+  color: var(--accent-hover-color);
+}
+
+.reference-links a::after {
+  content: ' ↗';
+  font-size: 0.8em;
+}
+
+/* 実装例コードブロック */
+.recommendation-example {
+  background: var(--json-bg);
+  color: var(--json-key);
+  padding: 12px 16px;
+  border-radius: 4px;
+  font-family: 'Courier New', 'Monaco', monospace;
+  font-size: 1rem;
+  line-height: 1.6;
+  overflow-x: auto;
+  border: 1px solid var(--border-color);
+  margin: 8px 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* 学習ガイドセクション */
+.learning-section {
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.learning-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.learning-section h3 {
+  font-size: 1.25rem;
+  margin-bottom: 12px;
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+.learning-section h4 {
+  font-size: 1rem;
+  margin-bottom: 8px;
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.learning-section p {
+  margin-bottom: 12px;
+  line-height: 1.6;
+  color: var(--text-color);
+}
+
+.learning-section ul {
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+.learning-section ul li {
+  margin-bottom: 6px;
+}
+
+.learning-section strong {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+/* コード例ブロック */
+.code-example {
+  background: var(--json-bg);
+  color: var(--json-bracket);
+  padding: 14px 16px;
+  border-radius: 4px;
+  font-family: 'Courier New', 'Monaco', monospace;
+  font-size: 1rem;
+  line-height: 1.6;
+  overflow-x: auto;
+  border: 1px solid var(--border-color);
+  margin: 12px 0;
+  white-space: pre;
 }
