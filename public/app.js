@@ -1251,6 +1251,11 @@ function displaySchemas(schemas, url) {
   });
 
   showResults();
+
+  // AI Advisor: JobPosting検出
+  if (typeof advisorManager !== 'undefined') {
+    advisorManager.detectJobPosting(schemas);
+  }
 }
 
 function countProperties(obj) {

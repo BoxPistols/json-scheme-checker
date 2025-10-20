@@ -232,6 +232,17 @@ app.get('/', (req, res) => {
     `);
 });
 
+// Advisor APIエンドポイント（ローカル開発用）
+app.post('/api/advisor', async (req, res) => {
+  try {
+    const advisorHandler = require('./api/advisor');
+    await advisorHandler(req, res);
+  } catch (error) {
+    console.error('Advisor API error:', error);
+    res.status(500).json({ error: 'Internal server error', details: error.message });
+  }
+});
+
 // ネットワークIPアドレスを取得
 const os = require('os');
 const networkInterfaces = os.networkInterfaces();
