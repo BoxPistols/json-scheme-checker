@@ -8,5 +8,9 @@
     "**/CVS": true,
     "**/.ruby-lsp": true,
     "**/node_modules": true
+  },
+  "markdownlint.config": {
+    "MD040": false,
+    "MD024": false
   }
 }
