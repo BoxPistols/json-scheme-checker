@@ -12,6 +12,8 @@ class AdvisorManager {
    * @param {Array} jsonLdData - 抽出されたJSON-LDデータ
    */
   detectJobPosting(jsonLdData) {
+    console.log('[AdvisorManager] detectJobPosting called with:', jsonLdData);
+
     // 既存のボタンを削除
     this.hideAdvisorButton();
 
@@ -20,9 +22,14 @@ class AdvisorManager {
       item => item['@type'] === 'JobPosting' || item['@type']?.includes('JobPosting')
     );
 
+    console.log('[AdvisorManager] JobPosting detected:', jobPosting);
+
     if (jobPosting) {
       this.currentJobPosting = jobPosting;
       this.showAdvisorButton();
+      console.log('[AdvisorManager] Advisor button shown');
+    } else {
+      console.log('[AdvisorManager] No JobPosting found in schemas');
     }
   }
 
@@ -30,18 +37,26 @@ class AdvisorManager {
    * アドバイスボタンを表示
    */
   showAdvisorButton() {
-    const resultDiv = document.getElementById('result');
-    if (!resultDiv) return;
+    const resultDiv = document.getElementById('results');
+    console.log('[AdvisorManager] showAdvisorButton - results div:', resultDiv);
+
+    if (!resultDiv) {
+      console.error('[AdvisorManager] ERROR: results div not found');
+      return;
+    }
 
     const existingBtn = document.getElementById('advisorTriggerBtn');
-    if (existingBtn) return;
+    if (existingBtn) {
+      console.log('[AdvisorManager] Advisor button already exists');
+      return;
+    }
 
     const button = document.createElement('button');
     button.id = 'advisorTriggerBtn';
     button.className = 'advisor-trigger-btn';
     button.innerHTML = `
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" 
+        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       AIアドバイスを受ける
@@ -49,6 +64,7 @@ class AdvisorManager {
     button.onclick = () => this.showModeSelector();
 
     resultDiv.insertBefore(button, resultDiv.firstChild);
+    console.log('[AdvisorManager] Advisor button inserted into DOM');
   }
 
   /**
