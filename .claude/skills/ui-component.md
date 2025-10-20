@@ -20,6 +20,7 @@
 ### カラーパレット（Material Design 3準拠）
 
 #### ライトモード
+
 ```css
 :root {
   --md-sys-color-primary: #6750a4;
@@ -31,8 +32,9 @@
 ```
 
 #### ダークモード
+
 ```css
-[data-theme="dark"] {
+[data-theme='dark'] {
   --md-sys-color-primary: #d0bcff;
   --md-sys-color-on-primary: #381e72;
   --md-sys-color-surface: #1d1b20;
@@ -42,15 +44,32 @@
 ```
 
 ### タイポグラフィ
+
 ```css
-.display-large { font-size: 57px; line-height: 64px; }
-.headline-large { font-size: 32px; line-height: 40px; }
-.title-large { font-size: 22px; line-height: 28px; }
-.body-large { font-size: 16px; line-height: 24px; }
-.label-large { font-size: 14px; line-height: 20px; }
+.display-large {
+  font-size: 57px;
+  line-height: 64px;
+}
+.headline-large {
+  font-size: 32px;
+  line-height: 40px;
+}
+.title-large {
+  font-size: 22px;
+  line-height: 28px;
+}
+.body-large {
+  font-size: 16px;
+  line-height: 24px;
+}
+.label-large {
+  font-size: 14px;
+  line-height: 20px;
+}
 ```
 
 ### スペーシング
+
 ```css
 --spacing-xs: 4px;
 --spacing-sm: 8px;
@@ -62,6 +81,7 @@
 ## コンポーネント例
 
 ### ボタン
+
 ```html
 <button class="md-button md-button--filled">
   <span class="md-button__label">送信</span>
@@ -96,6 +116,7 @@
 ```
 
 ### カード
+
 ```html
 <div class="md-card">
   <div class="md-card__content">
@@ -120,6 +141,7 @@
 ```
 
 ### モーダル
+
 ```html
 <dialog class="md-dialog" aria-labelledby="dialog-title">
   <div class="md-dialog__header">
@@ -139,18 +161,23 @@
 ## レスポンシブデザイン
 
 ### ブレークポイント
+
 ```css
 /* モバイル */
-@media (max-width: 599px) { }
+@media (max-width: 599px) {
+}
 
 /* タブレット */
-@media (min-width: 600px) and (max-width: 1023px) { }
+@media (min-width: 600px) and (max-width: 1023px) {
+}
 
 /* デスクトップ */
-@media (min-width: 1024px) { }
+@media (min-width: 1024px) {
+}
 ```
 
 ### Flexbox/Grid
+
 ```css
 /* フレキシブルレイアウト */
 .container {
@@ -170,10 +197,12 @@
 ## アニメーション
 
 ### トランジション
+
 ```css
 .element {
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-              opacity 0.2s ease-in-out;
+  transition:
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.2s ease-in-out;
 }
 
 .element:hover {
@@ -182,10 +211,17 @@
 ```
 
 ### キーフレーム
+
 ```css
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .fade-in {
@@ -196,6 +232,7 @@
 ## ダークモード実装
 
 ### テーマ切り替え
+
 ```javascript
 function setTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
@@ -211,6 +248,7 @@ function toggleTheme() {
 ```
 
 ### システムテーマ検出
+
 ```javascript
 const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
 
@@ -223,7 +261,7 @@ function initTheme() {
   }
 }
 
-prefersDark.addEventListener('change', (e) => {
+prefersDark.addEventListener('change', e => {
   if (!localStorage.getItem('theme')) {
     setTheme(e.matches ? 'dark' : 'light');
   }
@@ -233,13 +271,15 @@ prefersDark.addEventListener('change', (e) => {
 ## SVGアイコン
 
 ### インラインSVG（推奨）
+
 ```html
 <svg class="icon" aria-hidden="true" viewBox="0 0 24 24">
-  <path fill="currentColor" d="M..."/>
+  <path fill="currentColor" d="M..." />
 </svg>
 ```
 
 ### CSSスタイリング
+
 ```css
 .icon {
   width: 24px;

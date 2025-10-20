@@ -49,11 +49,11 @@ AI開発支援
 
 ### MCPが提供するもの
 
-| 機能 | 説明 | 例 |
-|------|------|-----|
-| **リソースアクセス** | ローカルファイル・プロジェクト情報へのアクセス | プロジェクト構造、設定ファイル |
-| **ツール実行** | 標準化されたツール実行インターフェース | コマンド実行、ファイル操作 |
-| **プロンプトキャッシュ** | 頻繁に使用する情報をキャッシュ | 開発ガイドライン、API仕様 |
+| 機能                     | 説明                                           | 例                             |
+| ------------------------ | ---------------------------------------------- | ------------------------------ |
+| **リソースアクセス**     | ローカルファイル・プロジェクト情報へのアクセス | プロジェクト構造、設定ファイル |
+| **ツール実行**           | 標準化されたツール実行インターフェース         | コマンド実行、ファイル操作     |
+| **プロンプトキャッシュ** | 頻繁に使用する情報をキャッシュ                 | 開発ガイドライン、API仕様      |
 
 ---
 
@@ -63,11 +63,11 @@ AI開発支援
 
 ### 主な機能
 
-| 機能 | 説明 | 利点 |
-|------|------|-----|
-| **ライブラリ自動検索** | npm/yarn/pip等のパッケージマネージャー統合 | 依存パッケージの仕様を自動認識 |
-| **ドキュメント自動取得** | 最新のAPI仕様、使用例を取得 | 常に最新の情報に基づいたコード生成 |
-| **リアルタイム同期** | パッケージ更新時にドキュメント自動更新 | 廃止されたAPIを使うことを防止 |
+| 機能                     | 説明                                       | 利点                               |
+| ------------------------ | ------------------------------------------ | ---------------------------------- |
+| **ライブラリ自動検索**   | npm/yarn/pip等のパッケージマネージャー統合 | 依存パッケージの仕様を自動認識     |
+| **ドキュメント自動取得** | 最新のAPI仕様、使用例を取得                | 常に最新の情報に基づいたコード生成 |
+| **リアルタイム同期**     | パッケージ更新時にドキュメント自動更新     | 廃止されたAPIを使うことを防止      |
 
 ### 実用例
 
@@ -99,12 +99,12 @@ AI開発支援
 
 ### 主な機能
 
-| 機能 | ファイル | 説明 |
-|------|---------|------|
-| **プロジェクト設定** | `.serena/project.yml` | 言語、エンコーディング、除外パス等を設定 |
-| **AI初期指示** | `.serena/project.yml` の `initial_prompt` | プロジェクト固有のガイドラインをAIに提供 |
-| **メモリシステム** | `.serena/memories/` | アーキテクチャ決定事項、ベストプラクティス等を永続化 |
-| **シンボル検索** | Serena内蔵ツール | 関数・クラス定義を高速検索 |
+| 機能                 | ファイル                                  | 説明                                                 |
+| -------------------- | ----------------------------------------- | ---------------------------------------------------- |
+| **プロジェクト設定** | `.serena/project.yml`                     | 言語、エンコーディング、除外パス等を設定             |
+| **AI初期指示**       | `.serena/project.yml` の `initial_prompt` | プロジェクト固有のガイドラインをAIに提供             |
+| **メモリシステム**   | `.serena/memories/`                       | アーキテクチャ決定事項、ベストプラクティス等を永続化 |
+| **シンボル検索**     | Serena内蔵ツール                          | 関数・クラス定義を高速検索                           |
 
 ---
 
@@ -208,7 +208,7 @@ IDEのコマンドパレットで確認：
 
 ```yaml
 language: typescript
-encoding: "utf-8"
+encoding: 'utf-8'
 ignore_all_files_in_gitignore: true
 
 # 除外パス（検索から除外）
@@ -221,7 +221,7 @@ ignored_paths:
   - coverage
   - .vscode
   - .DS_Store
-  - "*.log"
+  - '*.log'
 
 # 読み取り専用モード（編集を防止する場合のみ）
 read_only: false
@@ -261,8 +261,8 @@ initial_prompt: |
   - <RULE_2>
 
 # プロジェクトメタデータ
-project_name: "<PROJECT_NAME>"
-project_description: "<PROJECT_DESCRIPTION>"
+project_name: '<PROJECT_NAME>'
+project_description: '<PROJECT_DESCRIPTION>'
 development_port: <PORT_NUMBER>
 main_entry_points:
   - <FILE_1>
@@ -276,7 +276,7 @@ excluded_tools: []
 
 ```yaml
 language: python
-encoding: "utf-8"
+encoding: 'utf-8'
 ignore_all_files_in_gitignore: true
 
 ignored_paths:
@@ -285,7 +285,7 @@ ignored_paths:
   - venv
   - dist
   - build
-  - "*.egg-info"
+  - '*.egg-info'
   - .pytest_cache
   - .coverage
 
@@ -312,8 +312,8 @@ initial_prompt: |
   - pytest
   - python -m flake8
 
-project_name: "<PROJECT_NAME>"
-project_description: "<PROJECT_DESCRIPTION>"
+project_name: '<PROJECT_NAME>'
+project_description: '<PROJECT_DESCRIPTION>'
 main_entry_points:
   - main.py
   - app.py
@@ -325,7 +325,7 @@ excluded_tools: []
 
 ```yaml
 language: go
-encoding: "utf-8"
+encoding: 'utf-8'
 ignore_all_files_in_gitignore: true
 
 ignored_paths:
@@ -357,8 +357,8 @@ initial_prompt: |
   - go test ./...
   - go build
 
-project_name: "<PROJECT_NAME>"
-project_description: "<PROJECT_DESCRIPTION>"
+project_name: '<PROJECT_NAME>'
+project_description: '<PROJECT_DESCRIPTION>'
 main_entry_points:
   - main.go
 
@@ -375,11 +375,11 @@ excluded_tools: []
       "command": "npx",
       "args": ["-y", "@upstash/context7-mcp@latest"],
       "env": {
-        "CONTEXT7_DEBUG": "false"           // true で詳細ログ出力
+        "CONTEXT7_DEBUG": "false" // true で詳細ログ出力
       },
-      "timeout": 30000,                    // タイムアウト（ミリ秒）
-      "maxRetries": 3,                     // ネットワーク失敗時のリトライ回数
-      "retryDelayMs": 1000,                // リトライ間隔（ミリ秒）
+      "timeout": 30000, // タイムアウト（ミリ秒）
+      "maxRetries": 3, // ネットワーク失敗時のリトライ回数
+      "retryDelayMs": 1000, // リトライ間隔（ミリ秒）
       "description": "MCPサーバーの説明"
     }
   }
@@ -433,7 +433,7 @@ json-ld-viewer/
 
 ```yaml
 language: typescript
-encoding: "utf-8"
+encoding: 'utf-8'
 ignore_all_files_in_gitignore: true
 
 ignored_paths:
@@ -445,7 +445,7 @@ ignored_paths:
   - coverage
   - .vscode
   - .DS_Store
-  - "*.log"
+  - '*.log'
 
 read_only: false
 
@@ -480,8 +480,8 @@ initial_prompt: |
   - IPv6問題対応: localhost は自動的に127.0.0.1に変換
   - Basic認証対応：ドメイン別にローカルストレージに保存
 
-project_name: "json-ld-viewer"
-project_description: "WebサイトのJSON-LD構造化データを抽出・可視化するツール。CORS制限を回避し、ローカル開発環境を含むあらゆるURLにアクセス可能。"
+project_name: 'json-ld-viewer'
+project_description: 'WebサイトのJSON-LD構造化データを抽出・可視化するツール。CORS制限を回避し、ローカル開発環境を含むあらゆるURLにアクセス可能。'
 development_port: 3333
 main_entry_points:
   - server.js
@@ -497,12 +497,12 @@ excluded_tools: []
 
 ### 開発効率の向上
 
-| 項目 | 従来 | 導入後 | 改善率 |
-|------|------|--------|--------|
-| **API調査** | 5-10分 | 30秒 | 90% 削減 |
-| **プロジェクト理解** | 15-30分 | 瞬時 | 99% 削減 |
-| **コード生成精度** | 70-80% | 95-98% | 25% 向上 |
-| **新メンバーオンボーディング** | 数時間 | 30分 | 85% 削減 |
+| 項目                           | 従来    | 導入後 | 改善率   |
+| ------------------------------ | ------- | ------ | -------- |
+| **API調査**                    | 5-10分  | 30秒   | 90% 削減 |
+| **プロジェクト理解**           | 15-30分 | 瞬時   | 99% 削減 |
+| **コード生成精度**             | 70-80%  | 95-98% | 25% 向上 |
+| **新メンバーオンボーディング** | 数時間  | 30分   | 85% 削減 |
 
 ### 具体的なシナリオ
 
@@ -591,9 +591,9 @@ rm -rf ~/.config/Cursor/User/workspaceStorage/*/
 
 ```json
 {
-  "timeout": 60000,      // 30000 から 60000 に増加
-  "maxRetries": 5,       // 3 から 5 に増加
-  "retryDelayMs": 2000   // 1000 から 2000 に増加
+  "timeout": 60000, // 30000 から 60000 に増加
+  "maxRetries": 5, // 3 から 5 に増加
+  "retryDelayMs": 2000 // 1000 から 2000 に増加
 }
 ```
 

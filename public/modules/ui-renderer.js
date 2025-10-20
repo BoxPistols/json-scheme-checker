@@ -28,7 +28,12 @@ function determineOverallSeverity(schemaAnalysis) {
   return 'success';
 }
 
-export function renderSummaryCard(analysisData, score, schemaGuidance = null, schemaAnalysis = null) {
+export function renderSummaryCard(
+  analysisData,
+  score,
+  schemaGuidance = null,
+  schemaAnalysis = null
+) {
   const summaryCard = document.getElementById('summaryCard');
 
   // スキーマの致命的欠損を判定
@@ -38,16 +43,22 @@ export function renderSummaryCard(analysisData, score, schemaGuidance = null, sc
   let schemaCardClass = '';
   let schemaCardStyle = '';
   if (schemaSeverity === 'error') {
-    schemaCardStyle = 'background-color: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.3);';
+    schemaCardStyle =
+      'background-color: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.3);';
     schemaCardClass = 'score-card-alert--error';
   } else if (schemaSeverity === 'warning') {
-    schemaCardStyle = 'background-color: rgba(251, 146, 60, 0.08); border: 1px solid rgba(251, 146, 60, 0.3);';
+    schemaCardStyle =
+      'background-color: rgba(251, 146, 60, 0.08); border: 1px solid rgba(251, 146, 60, 0.3);';
     schemaCardClass = 'score-card-alert--warning';
   }
 
   // スキーマスコアが満点でない場合、改善提案を表示
   let suggestionHtml = '';
-  if (analysisData.scores.schema < 20 && schemaGuidance && schemaGuidance.recommendations.length > 0) {
+  if (
+    analysisData.scores.schema < 20 &&
+    schemaGuidance &&
+    schemaGuidance.recommendations.length > 0
+  ) {
     const topRecommendation = schemaGuidance.recommendations[0];
     suggestionHtml = `
       <div style="margin-top: 8px; padding: 8px; background: rgba(59, 130, 246, 0.05); border: 1px solid #3b82f6; border-radius: 2px;">
@@ -285,7 +296,8 @@ function renderOGTable(og, issues) {
               if (key === 'type') {
                 status = '<span class="status-badge error">✗ 未設定</span>';
               } else {
-                status = '<span class="status-badge error og-guide-link" style="cursor: pointer;" title="クリックして設定方法を確認" role="button" tabindex="0">✗ 未設定 (ガイド)</span>';
+                status =
+                  '<span class="status-badge error og-guide-link" style="cursor: pointer;" title="クリックして設定方法を確認" role="button" tabindex="0">✗ 未設定 (ガイド)</span>';
               }
             }
 
@@ -356,7 +368,8 @@ function renderTwitterTable(twitter, issues) {
                 ? '<span class="status-badge error">✗ 問題あり</span>'
                 : '<span class="status-badge success">✓ 正常</span>';
             } else if (isRequired) {
-              status = '<span class="status-badge error twitter-guide-link" style="cursor: pointer;" title="クリックして設定方法を確認" role="button" tabindex="0">✗ 未設定 (ガイド)</span>';
+              status =
+                '<span class="status-badge error twitter-guide-link" style="cursor: pointer;" title="クリックして設定方法を確認" role="button" tabindex="0">✗ 未設定 (ガイド)</span>';
             } else {
               status = '<span class="status-badge warning">- オプション</span>';
             }

@@ -220,6 +220,9 @@ class AdvisorManager {
       }
     }
 
+    // descriptionをHTMLに変換
+    const formattedDescription = this.formatDescription(description);
+
     return `
       <div class="job-field">
         <label>職種</label>
@@ -239,9 +242,56 @@ class AdvisorManager {
       </div>
       <div class="job-field">
         <label>職務内容</label>
-        <div class="job-value job-description">${this.escapeHtml(description)}</div>
+        <div class="job-value job-description">${formattedDescription}</div>
       </div>
     `;
+  }
+
+  /**
+   * description を HTML に変換
+   * @param {string} text - description テキスト
+   * @returns {string} HTML文字列
+   */
+  formatDescription(text) {
+    if (!text) return '';
+
+    // HTMLエスケープ
+    let html = this.escapeHtml(text);
+
+    // <br /> タグを改行に変換
+    html = html.replace(/&lt;br\s*\/?&gt;/gi, '<br>');
+
+    // 複数の改行を段落に変換
+    const paragraphs = html.split(/\n\n+/);
+
+    return paragraphs
+      .map(paragraph => {
+        // 箇条書きを検出（・、-、*で始まる行）
+        const lines = paragraph.split('\n');
+        const listItems = [];
+        const normalLines = [];
+
+        lines.forEach(line => {
+          const trimmed = line.trim();
+          if (/^[・\-\*]/.test(trimmed)) {
+            // 箇条書き
+            const content = trimmed.replace(/^[・\-\*]\s*/, '');
+            listItems.push(`<li>${content}</li>`);
+          } else if (trimmed) {
+            normalLines.push(trimmed);
+          }
+        });
+
+        let result = '';
+        if (normalLines.length > 0) {
+          result += `<p>${normalLines.join('<br>')}</p>`;
+        }
+        if (listItems.length > 0) {
+          result += `<ul>${listItems.join('')}</ul>`;
+        }
+        return result;
+      })
+      .join('');
   }
 
   /**

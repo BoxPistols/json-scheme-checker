@@ -18,18 +18,22 @@ JSON-LD構造化データのバリデーションとSchema.org準拠チェック
 ## 主な機能
 
 ### 1. スキーマタイプ検証
+
 - JobPosting, BlogPosting, Article, Product, Organization, Person, WebPage, WebSite, BreadcrumbList, Event, LocalBusiness, FAQ など
 
 ### 2. 必須プロパティチェック
+
 各スキーマタイプの必須フィールドが存在するか確認
 
 ### 3. データ型検証
+
 - URL形式
 - 日付形式（ISO 8601）
 - 数値範囲
 - 列挙型の値
 
 ### 4. 構造チェック
+
 - @context, @type の存在
 - @graph構造のサポート
 - ネストされたスキーマの検証

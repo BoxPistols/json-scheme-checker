@@ -23,11 +23,13 @@
 ### 1. フロントエンド
 
 **ファイル構成:**
+
 - `public/index.html` - ユーザーインターフェース
 - `public/app.js` - メインロジック（fetch処理、環境判定）
 - `public/modules/` - 各種分析モジュール（SEO、OG、Twitterカード等）
 
 **役割:**
+
 - ユーザーからURLを受け取る
 - プロキシサーバーにリクエストを送信
 - 取得したHTMLからJSON-LDスキーマを抽出・可視化
@@ -35,10 +37,12 @@
 ### 2. バックエンド（プロキシサーバー）
 
 **ファイル構成:**
+
 - `server.js` - ローカル開発用のExpressサーバー（ポート3333）
 - `api/proxy.js` - Vercel本番環境用のサーバーレス関数
 
 **役割:**
+
 - CORSヘッダーを付与してリクエストを中継
 - Basic認証対応
 - ブラウザ風ヘッダーでBot検出を回避
@@ -131,7 +135,7 @@ app.get('/proxy', async (req, res) => {
   try {
     const headers = {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36...',
-      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
       'Accept-Language': 'ja,en-US;q=0.9,en;q=0.8',
     };
 
@@ -146,7 +150,7 @@ app.get('/proxy', async (req, res) => {
       headers,
       timeout: 30000,
       maxRedirects: 5,
-      validateStatus: (status) => status >= 200 && status < 500,
+      validateStatus: status => status >= 200 && status < 500,
     });
 
     // HTMLコンテンツを返す

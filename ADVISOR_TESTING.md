@@ -66,14 +66,14 @@ pnpm start
 
 ### ログメッセージの意味
 
-| ログ | 意味 |
-|------|------|
-| `detectJobPosting called with` | JobPosting 検出関数が呼ばれた |
-| `JobPosting detected:` | JobPosting スキーマが見つかった（非 null ）|
-| `No JobPosting found in schemas` | JSON-LD に JobPosting が含まれていない |
-| `results div:` | DOM の results div を取得できた |
-| `ERROR: results div not found` | DOM に results div がない（バグ） |
-| `Advisor button inserted into DOM` | ボタンが正常に表示されたボタン |
+| ログ                               | 意味                                        |
+| ---------------------------------- | ------------------------------------------- |
+| `detectJobPosting called with`     | JobPosting 検出関数が呼ばれた               |
+| `JobPosting detected:`             | JobPosting スキーマが見つかった（非 null ） |
+| `No JobPosting found in schemas`   | JSON-LD に JobPosting が含まれていない      |
+| `results div:`                     | DOM の results div を取得できた             |
+| `ERROR: results div not found`     | DOM に results div がない（バグ）           |
+| `Advisor button inserted into DOM` | ボタンが正常に表示されたボタン              |
 
 ## 期待される動作フロー
 
@@ -108,8 +108,7 @@ OpenAI API へリクエスト
 #### チェックリスト
 
 1. **コンソールエラーを確認**
-   - F12 で開発者ツールを開く
-   -「コンソール」タブで赤いエラーが出ていないか確認
+   - F12 で開発者ツールを開く -「コンソール」タブで赤いエラーが出ていないか確認
 
 2. **JSON-LD が抽出されているか**
    - 「Schema」タブで JSON-LD データが表示されているか確認
@@ -132,6 +131,7 @@ OpenAI API へリクエスト
 ```
 
 **解決方法:**
+
 - `.env` ファイルに `OPENAI_API_KEY` が設定されているか確認
 - API キーの形式が正しいか確認（`sk-` で始まる必要あり）
 - サーバーを再起動（`pnpm dev` を Ctrl+C で停止し、再実行）
@@ -145,6 +145,7 @@ OpenAI API へリクエスト
 ```
 
 **解決方法:**
+
 - OpenAI API キーが有効か確認
 - API の月間クォータを確認
 - ネットワーク接続を確認

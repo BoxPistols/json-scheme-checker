@@ -148,13 +148,19 @@ function analyzeSchemas(schemas) {
     const requirements = getSchemaRequirements(schemaType);
 
     // デバッグログ
-    console.log(`[Schema Analysis] Type: ${schemaType}, Requirements found: ${requirements ? 'Yes' : 'No'}`);
+    console.log(
+      `[Schema Analysis] Type: ${schemaType}, Requirements found: ${requirements ? 'Yes' : 'No'}`
+    );
     if (requirements) {
-      console.log(`[Schema Analysis] Required properties: ${requirements.required.map(r => r.key).join(', ')}`);
+      console.log(
+        `[Schema Analysis] Required properties: ${requirements.required.map(r => r.key).join(', ')}`
+      );
     }
 
     const analysis = analyzeSchemaDetail(schema, requirements);
-    console.log(`[Schema Analysis] Score: ${analysis.score}/${analysis.maxScore}, Severity: ${analysis.severity}`);
+    console.log(
+      `[Schema Analysis] Score: ${analysis.score}/${analysis.maxScore}, Severity: ${analysis.severity}`
+    );
 
     fullAnalysis.push({
       index: idx + 1,
@@ -532,14 +538,16 @@ function renderDevelopTab(schemaAnalysis, schemas) {
     const recommendedItems = checklist.filter(item => item.level === 'recommended');
     const optimizationItems = checklist.filter(item => item.level === 'optimization');
 
-    const severityBadge = {
-      error: '<span class="status-badge error">致命的欠損</span>',
-      warning: '<span class="status-badge warning">推奨不足</span>',
-      success: '<span class="status-badge success">完璧</span>',
-      info: '<span class="status-badge info">部分対応</span>',
-    }[analysis.severity] || '';
+    const severityBadge =
+      {
+        error: '<span class="status-badge error">致命的欠損</span>',
+        warning: '<span class="status-badge warning">推奨不足</span>',
+        success: '<span class="status-badge success">完璧</span>',
+        info: '<span class="status-badge info">部分対応</span>',
+      }[analysis.severity] || '';
 
-    const scorePercentage = analysis.maxScore > 0 ? Math.round((analysis.score / analysis.maxScore) * 100) : 0;
+    const scorePercentage =
+      analysis.maxScore > 0 ? Math.round((analysis.score / analysis.maxScore) * 100) : 0;
 
     analysisHtml += `
       <div class="develop-schema-section" style="margin-bottom: 24px; border: 1px solid var(--border-color); border-radius: 4px; padding: 16px;">
@@ -555,11 +563,15 @@ function renderDevelopTab(schemaAnalysis, schemas) {
           <strong>${analysis.message}</strong>
         </div>
 
-        ${requiredItems.length > 0 ? `
+        ${
+          requiredItems.length > 0
+            ? `
           <div style="margin-bottom: 16px;">
             <h4 style="margin: 0 0 8px 0; font-size: 0.9375rem;">必須プロパティ (各3点)</h4>
             <div style="display: grid; gap: 8px;">
-              ${requiredItems.map(item => `
+              ${requiredItems
+                .map(
+                  item => `
                 <div style="display: flex; align-items: center; gap: 8px; padding: 8px; background: ${item.present ? 'rgba(34, 197, 94, 0.05)' : 'rgba(239, 68, 68, 0.05)'}; border-radius: 4px;">
                   <span style="font-weight: bold; width: 24px;">${item.present ? '✓' : '✗'}</span>
                   <div style="flex: 1;">
@@ -568,16 +580,24 @@ function renderDevelopTab(schemaAnalysis, schemas) {
                   </div>
                   <span style="font-size: 0.75rem; color: var(--secondary-text-color);">${item.present ? '+3' : '-3'}</span>
                 </div>
-              `).join('')}
+              `
+                )
+                .join('')}
             </div>
           </div>
-        ` : ''}
+        `
+            : ''
+        }
 
-        ${recommendedItems.length > 0 ? `
+        ${
+          recommendedItems.length > 0
+            ? `
           <div style="margin-bottom: 16px;">
             <h4 style="margin: 0 0 8px 0; font-size: 0.9375rem;">推奨プロパティ (各2点)</h4>
             <div style="display: grid; gap: 8px;">
-              ${recommendedItems.map(item => `
+              ${recommendedItems
+                .map(
+                  item => `
                 <div style="display: flex; align-items: center; gap: 8px; padding: 8px; background: ${item.present ? 'rgba(34, 197, 94, 0.05)' : 'rgba(156, 163, 175, 0.05)'}; border-radius: 4px;">
                   <span style="font-weight: bold; width: 24px;">${item.present ? '✓' : '◯'}</span>
                   <div style="flex: 1;">
@@ -586,16 +606,24 @@ function renderDevelopTab(schemaAnalysis, schemas) {
                   </div>
                   <span style="font-size: 0.75rem; color: var(--secondary-text-color);">${item.present ? '+2' : '0'}</span>
                 </div>
-              `).join('')}
+              `
+                )
+                .join('')}
             </div>
           </div>
-        ` : ''}
+        `
+            : ''
+        }
 
-        ${optimizationItems.length > 0 ? `
+        ${
+          optimizationItems.length > 0
+            ? `
           <div>
             <h4 style="margin: 0 0 8px 0; font-size: 0.9375rem;">最適化プロパティ (各1点)</h4>
             <div style="display: grid; gap: 8px;">
-              ${optimizationItems.map(item => `
+              ${optimizationItems
+                .map(
+                  item => `
                 <div style="display: flex; align-items: center; gap: 8px; padding: 8px; background: ${item.present ? 'rgba(34, 197, 94, 0.05)' : 'rgba(156, 163, 175, 0.05)'}; border-radius: 4px;">
                   <span style="font-weight: bold; width: 24px;">${item.present ? '✓' : '◯'}</span>
                   <div style="flex: 1;">
@@ -604,10 +632,14 @@ function renderDevelopTab(schemaAnalysis, schemas) {
                   </div>
                   <span style="font-size: 0.75rem; color: var(--secondary-text-color);">${item.present ? '+1' : '0'}</span>
                 </div>
-              `).join('')}
+              `
+                )
+                .join('')}
             </div>
           </div>
-        ` : ''}
+        `
+            : ''
+        }
       </div>
     `;
   });
