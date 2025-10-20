@@ -6,17 +6,25 @@
 
 export const SCHEMA_REQUIREMENTS = {
   // SoftwareApplication: 一般的なウェブアプリケーション
-  'SoftwareApplication': {
+  SoftwareApplication: {
     label: 'ソフトウェア/ウェブアプリケーション',
     required: [
       { key: 'name', label: '名前', description: 'アプリケーション名' },
       { key: 'description', label: '説明', description: 'アプリケーションの説明' },
     ],
     recommended: [
-      { key: 'applicationCategory', label: 'カテゴリー', description: 'Utility, Productivity など' },
+      {
+        key: 'applicationCategory',
+        label: 'カテゴリー',
+        description: 'Utility, Productivity など',
+      },
       { key: 'operatingSystem', label: 'OS対応', description: 'Windows, iOS, Web など' },
       { key: 'url', label: 'URL', description: 'アプリケーションのURL' },
-      { key: 'image', label: 'イメージ', description: 'アプリケーションのロゴ・スクリーンショット' },
+      {
+        key: 'image',
+        label: 'イメージ',
+        description: 'アプリケーションのロゴ・スクリーンショット',
+      },
       { key: 'author', label: '作成者', description: 'Organization または Person オブジェクト' },
     ],
     optimization: [
@@ -28,7 +36,7 @@ export const SCHEMA_REQUIREMENTS = {
   },
 
   // JobPosting: 求人情報（Google for Jobs対応）
-  'JobPosting': {
+  JobPosting: {
     label: '求人情報',
     required: [
       { key: 'title', label: 'タイトル', description: '職種名' },
@@ -48,13 +56,17 @@ export const SCHEMA_REQUIREMENTS = {
     ],
     optimization: [
       { key: 'educationRequirements', label: '学歴要件', description: '学位や資格の要件' },
-      { key: 'incentiveCompensation', label: 'インセンティブ', description: 'ボーナス、コミッション' },
+      {
+        key: 'incentiveCompensation',
+        label: 'インセンティブ',
+        description: 'ボーナス、コミッション',
+      },
       { key: 'workHours', label: '勤務時間', description: '勤務形態（フレックスなど）' },
     ],
   },
 
   // BlogPosting: ブログ記事
-  'BlogPosting': {
+  BlogPosting: {
     label: 'ブログ記事',
     required: [
       { key: 'headline', label: 'タイトル', description: '記事のタイトル' },
@@ -75,7 +87,7 @@ export const SCHEMA_REQUIREMENTS = {
   },
 
   // Article: 汎用記事
-  'Article': {
+  Article: {
     label: '記事',
     required: [
       { key: 'headline', label: 'タイトル', description: '記事のタイトル' },
@@ -94,7 +106,7 @@ export const SCHEMA_REQUIREMENTS = {
   },
 
   // NewsArticle: ニュース記事
-  'NewsArticle': {
+  NewsArticle: {
     label: 'ニュース記事',
     required: [
       { key: 'headline', label: 'タイトル', description: 'ニュースのタイトル' },
@@ -113,11 +125,9 @@ export const SCHEMA_REQUIREMENTS = {
   },
 
   // Organization: 組織・企業
-  'Organization': {
+  Organization: {
     label: '組織・企業',
-    required: [
-      { key: 'name', label: '名前', description: '企業名・組織名' },
-    ],
+    required: [{ key: 'name', label: '名前', description: '企業名・組織名' }],
     recommended: [
       { key: 'url', label: 'URL', description: '公式ウェブサイト' },
       { key: 'image', label: 'ロゴ', description: '企業ロゴ' },
@@ -134,7 +144,7 @@ export const SCHEMA_REQUIREMENTS = {
   },
 
   // LocalBusiness: ローカルビジネス（店舗等）
-  'LocalBusiness': {
+  LocalBusiness: {
     label: 'ローカルビジネス',
     required: [
       { key: 'name', label: 'ビジネス名', description: '店舗名・サービス名' },
@@ -145,7 +155,11 @@ export const SCHEMA_REQUIREMENTS = {
       { key: 'url', label: 'URL', description: 'ウェブサイト' },
       { key: 'image', label: 'イメージ', description: 'ビジネスの写真' },
       { key: 'priceRange', label: '料金帯', description: '$$, $$$, $$$$ など' },
-      { key: 'openingHoursSpecification', label: '営業時間', description: 'OpeningHoursSpecification' },
+      {
+        key: 'openingHoursSpecification',
+        label: '営業時間',
+        description: 'OpeningHoursSpecification',
+      },
     ],
     optimization: [
       { key: 'aggregateRating', label: 'レーティング', description: 'ビジネスへの評価' },
@@ -154,11 +168,9 @@ export const SCHEMA_REQUIREMENTS = {
   },
 
   // Product: 商品
-  'Product': {
+  Product: {
     label: '商品',
-    required: [
-      { key: 'name', label: '商品名', description: '商品の名前' },
-    ],
+    required: [{ key: 'name', label: '商品名', description: '商品の名前' }],
     recommended: [
       { key: 'image', label: '画像', description: '商品画像' },
       { key: 'description', label: '説明', description: '商品説明' },
@@ -173,7 +185,7 @@ export const SCHEMA_REQUIREMENTS = {
   },
 
   // WebPage: ウェブページ
-  'WebPage': {
+  WebPage: {
     label: 'ウェブページ',
     required: [
       { key: 'name', label: 'ページ名', description: 'ページのタイトル' },
@@ -195,7 +207,7 @@ export const SCHEMA_REQUIREMENTS = {
   },
 
   // WebSite: ウェブサイト
-  'WebSite': {
+  WebSite: {
     label: 'ウェブサイト',
     required: [
       { key: 'name', label: 'サイト名', description: 'ウェブサイトの名前' },
@@ -213,21 +225,17 @@ export const SCHEMA_REQUIREMENTS = {
   },
 
   // BreadcrumbList: パンくずリスト
-  'BreadcrumbList': {
+  BreadcrumbList: {
     label: 'パンくずリスト',
-    required: [
-      { key: 'itemListElement', label: 'リスト要素', description: 'ListItem の配列' },
-    ],
+    required: [{ key: 'itemListElement', label: 'リスト要素', description: 'ListItem の配列' }],
     recommended: [],
     optimization: [],
   },
 
   // Person: 人物
-  'Person': {
+  Person: {
     label: '人物',
-    required: [
-      { key: 'name', label: '名前', description: '人物の名前' },
-    ],
+    required: [{ key: 'name', label: '名前', description: '人物の名前' }],
     recommended: [
       { key: 'url', label: 'URL', description: 'プロフィールページのURL' },
       { key: 'image', label: '画像', description: 'プロフィール画像' },
@@ -242,7 +250,7 @@ export const SCHEMA_REQUIREMENTS = {
   },
 
   // Event: イベント
-  'Event': {
+  Event: {
     label: 'イベント',
     required: [
       { key: 'name', label: 'イベント名', description: 'イベントの名前' },
@@ -323,7 +331,10 @@ export function analyzeSchemaDetail(schema, requirements) {
     requirements.recommended = [];
   }
   if (!requirements.optimization || !Array.isArray(requirements.optimization)) {
-    console.warn('analyzeSchemaDetail: requirements.optimizationが配列ではありません', requirements);
+    console.warn(
+      'analyzeSchemaDetail: requirements.optimizationが配列ではありません',
+      requirements
+    );
     requirements.optimization = [];
   }
 
@@ -343,7 +354,8 @@ export function analyzeSchemaDetail(schema, requirements) {
     const scoreValue = SCORE_VALUES[level];
     props.forEach(prop => {
       maxScore += scoreValue;
-      const hasProperty = schema[prop.key] !== undefined && schema[prop.key] !== null && schema[prop.key] !== '';
+      const hasProperty =
+        schema[prop.key] !== undefined && schema[prop.key] !== null && schema[prop.key] !== '';
       checklist.push({
         level,
         key: prop.key,
@@ -369,7 +381,9 @@ export function analyzeSchemaDetail(schema, requirements) {
     severity = 'error';
     message = `致命的な欠損: ${missingRequired.map(item => item.label).join(', ')} が未設定です`;
   } else {
-    const missingRecommended = checklist.filter(item => item.level === 'recommended' && !item.present);
+    const missingRecommended = checklist.filter(
+      item => item.level === 'recommended' && !item.present
+    );
     if (missingRecommended.length > 0) {
       severity = 'warning';
       message = `推奨: ${missingRecommended.map(item => item.label).join(', ')} を追加することをお勧めします`;
@@ -385,6 +399,8 @@ export function analyzeSchemaDetail(schema, requirements) {
     severity,
     message,
     missingRequired: missingRequired.map(item => item.key),
-    missingRecommended: checklist.filter(item => item.level === 'recommended' && !item.present).map(item => item.key),
+    missingRecommended: checklist
+      .filter(item => item.level === 'recommended' && !item.present)
+      .map(item => item.key),
   };
 }

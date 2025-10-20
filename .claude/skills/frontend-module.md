@@ -18,6 +18,7 @@ Vanilla JavaScriptモジュール開発を支援するスキル
 ## モジュール設計原則
 
 ### 1. IIFE（即時実行関数）パターン
+
 ```javascript
 const ModuleName = (() => {
   // プライベート変数・関数
@@ -31,12 +32,13 @@ const ModuleName = (() => {
   return {
     publicMethod() {
       // ...
-    }
+    },
   };
 })();
 ```
 
 ### 2. シングルトンパターン
+
 ```javascript
 const Singleton = (() => {
   let instance;
@@ -53,12 +55,13 @@ const Singleton = (() => {
         instance = createInstance();
       }
       return instance;
-    }
+    },
   };
 })();
 ```
 
 ### 3. モジュール分離
+
 - `public/modules/` に配置
 - 単一責任の原則
 - 明確なAPI設計
@@ -67,19 +70,23 @@ const Singleton = (() => {
 ## このプロジェクトの既存モジュール
 
 ### seo-analyzer.js
+
 - SEO分析のメインロジック
 - スコア計算
 - JSON-LD抽出
 
 ### schema-requirements.js
+
 - スキーマタイプごとの要件定義
 - 必須フィールド管理
 
 ### guidance-provider.js
+
 - ガイダンスメッセージ生成
 - スコアベースの提案
 
 ### ui-renderer.js
+
 - 分析結果の表示
 - モーダル管理
 - DOM操作
@@ -87,11 +94,13 @@ const Singleton = (() => {
 ## コーディング規約
 
 ### 命名規則
+
 - 関数: キャメルケース `calculateScore()`
 - 定数: アッパースネークケース `MAX_SCORE`
 - プライベート: アンダースコアプレフィックス `_privateMethod()`
 
 ### エラーハンドリング
+
 ```javascript
 try {
   // リスク含む処理
@@ -102,6 +111,7 @@ try {
 ```
 
 ### 非同期処理
+
 ```javascript
 async function fetchData(url) {
   try {

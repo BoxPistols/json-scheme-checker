@@ -20,6 +20,11 @@ WebサイトのJSON-LD構造化データを可視化するツール
 - ワンクリックでJSONをコピー
 - 画像URLはサムネイル付きで表示
 - 外部API不要・完全自己完結型
+- **✨ NEW: AI求人票アドバイザー機能**
+  - JobPostingスキーマを自動検出
+  - 採用側向け: 求人票の改善提案
+  - 応募者向け: 面接対策と要件分析
+  - OpenAI GPT-4o miniによるリアルタイム分析
 
 ## 技術スタック
 
@@ -151,7 +156,26 @@ Webアプリケーション。クライアントサイドで動作：
 pnpm install
 ```
 
-### 2. サーバーの起動
+### 2. 環境変数の設定（AI Advisor機能を使用する場合）
+
+```bash
+# .env.exampleをコピー
+cp .env.example .env
+
+# .envファイルを編集してOpenAI APIキーを設定
+OPENAI_API_KEY=sk-your-api-key-here
+OPENAI_MODEL=gpt-4o-mini
+```
+
+**APIキーの取得方法:**
+
+1. [OpenAI Platform](https://platform.openai.com/)にアクセス
+2. API Keysセクションで新しいキーを作成
+3. 作成したキーを`.env`ファイルに貼り付け
+
+> **注意:** `.env`ファイルは`.gitignore`に含まれており、コミットされません。
+
+### 3. サーバーの起動
 
 ```bash
 # 開発モード（自動再起動）
@@ -161,19 +185,30 @@ pnpm dev
 pnpm start
 ```
 
-### 3. ブラウザでアクセス
+### 4. ブラウザでアクセス
 
 ```text
 http://localhost:3333
 ```
 
-### 4. 使用例
+### 5. 使用例
+
+#### 基本的な使い方
 
 1. URLフィールドに対象URLを入力（例: `https://schema.org`）
 2. 「取得」ボタンをクリック
 3. JSON-LDスキーマがテーブル形式で表示されます
 4. 「JSON」タブでJSON形式に切り替え可能
 5. 「コピー」ボタンでJSONをクリップボードにコピー
+
+#### AI Advisor機能の使い方（JobPosting限定）
+
+1. 求人票のURLを入力して取得
+2. JobPostingスキーマが検出されると「AIアドバイスを受ける」ボタンが表示
+3. ボタンをクリックしてモード選択
+   - **採用側向け**: 求人票の改善提案を取得
+   - **応募者向け**: 面接対策と要件分析を取得
+4. AI分析結果が左右分割画面でリアルタイム表示
 
 ### localhost サイトのテスト
 
@@ -224,11 +259,30 @@ vercel --prod
 
 GitHubリポジトリと連携すると、`main` ブランチへのプッシュで自動的に本番環境が更新されます。
 
-### 環境変数（オプション）
+### 環境変数の設定
 
-Vercelダッシュボードで以下の環境変数を設定可能:
+#### AI Advisor機能を有効化する場合（必須）
 
-- `PORT` - サーバーポート（デフォルト: 3333）
+Vercelダッシュボードで以下の環境変数を設定:
+
+1. [Vercel Dashboard](https://vercel.com/dashboard) → プロジェクト選択
+2. **Settings** → **Environment Variables**
+3. 以下を追加:
+
+| 変数名           | 値               | 説明                   |
+| ---------------- | ---------------- | ---------------------- |
+| `OPENAI_API_KEY` | `sk-your-key...` | OpenAI APIキー（必須） |
+| `OPENAI_MODEL`   | `gpt-4o-mini`    | 使用するモデル（推奨） |
+
+**注意:**
+
+- 環境変数を追加後、再デプロイが必要です
+- APIキーは必ず秘密情報として扱ってください
+- 無料枠: OpenAI新規アカウントは$5のクレジット付与
+
+#### その他の環境変数（オプション）
+
+- `PORT` - サーバーポート（デフォルト: 3333、Vercelでは不要）
 
 ## API エンドポイント
 
@@ -287,6 +341,51 @@ Content-Type: application/json
   "count": 1
 }
 ```
+
+### POST /api/advisor
+
+JobPostingスキーマに対してAI分析を実行します（ストリーミング）。
+
+**リクエスト:**
+
+```json
+POST /api/advisor
+Content-Type: application/json
+
+{
+  "jobPosting": {
+    "@type": "JobPosting",
+    "title": "フロントエンドエンジニア",
+    "description": "React/TypeScriptを使った開発...",
+    ...
+  },
+  "mode": "employer" // または "applicant"
+}
+```
+
+**レスポンス（Server-Sent Events）:**
+
+```
+Content-Type: text/event-stream
+
+data: {"content":"## 総合評価\n"}
+data: {"content":"★★★★☆\n\n"}
+data: {"content":"この求人票は..."}
+...
+data: [DONE]
+```
+
+**パラメータ:**
+
+- `jobPosting` (object, 必須): JobPosting JSON-LDオブジェクト
+- `mode` (string, 必須): `employer` (採用側) または `applicant` (応募者)
+
+**エラーレスポンス:**
+
+- `400` - 不正なリクエスト
+- `500` - OpenAI API エラー
+
+**使用モデル:** GPT-4o mini (環境変数で変更可能)
 
 ### GET /health
 

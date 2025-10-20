@@ -2271,3 +2271,669 @@ html[data-theme='dark'] .score-breakdown > div {
   margin: 12px 0;
   white-space: pre;
 }
+
+/* ============================================
+   AI Advisor Styles
+   ============================================ */
+
+/* Advisor Trigger Button */
+.advisor-trigger-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  margin-bottom: 20px;
+}
+
+.advisor-trigger-btn:hover {
+  opacity: 0.9;
+}
+
+.advisor-trigger-btn:active {
+  opacity: 0.8;
+}
+
+/* Advisor Modal Overlay */
+.advisor-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.advisor-overlay.active {
+  opacity: 1;
+}
+
+/* Advisor Modal */
+.advisor-modal {
+  background: var(--card-bg-color);
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 600px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  transform: scale(0.9);
+  transition: transform 0.3s ease;
+}
+
+.advisor-overlay.active .advisor-modal {
+  transform: scale(1);
+}
+
+.advisor-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.advisor-modal-header h2 {
+  font-size: 1.5rem;
+  color: var(--text-color);
+  margin: 0;
+  flex: 1;
+}
+
+/* Small Mode Buttons */
+.advisor-mode-buttons-small {
+  display: flex;
+  gap: 8px;
+  margin-right: 12px;
+}
+
+.advisor-mode-btn-small {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  background: var(--secondary-bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--secondary-text-color);
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.advisor-mode-btn-small:hover {
+  opacity: 0.8;
+  border-color: var(--accent-color);
+  color: var(--text-color);
+}
+
+.advisor-modal-close {
+  background: none;
+  border: none;
+  color: var(--secondary-text-color);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.advisor-modal-close:hover {
+  background: var(--secondary-bg-color);
+  color: var(--text-color);
+}
+
+.advisor-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Rate Limit Info */
+.advisor-rate-info {
+  background: var(--secondary-bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px 16px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--secondary-text-color);
+}
+
+.advisor-rate-unlimited {
+  background: rgba(52, 211, 153, 0.1);
+  border-color: rgba(52, 211, 153, 0.3);
+  color: rgb(52, 211, 153);
+}
+
+.advisor-rate-stakeholder {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.3);
+  color: rgb(59, 130, 246);
+}
+
+.advisor-rate-exceeded {
+  background: rgba(248, 113, 113, 0.1);
+  border-color: rgba(248, 113, 113, 0.3);
+  color: rgb(248, 113, 113);
+}
+
+/* API Key Section */
+.advisor-api-key-section {
+  border-top: 1px solid var(--border-color);
+  padding-top: 16px;
+  margin-bottom: 16px;
+}
+
+.advisor-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+
+.advisor-checkbox-label input[type="checkbox"] {
+  cursor: pointer;
+}
+
+.advisor-checkbox-label span {
+  font-size: 0.95rem;
+  color: var(--text-color);
+}
+
+.advisor-api-key-input {
+  margin-top: 12px;
+  padding: 12px;
+  background: var(--secondary-bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+
+.advisor-api-key-wrapper {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.advisor-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-color);
+  color: var(--text-color);
+  font-size: 0.9rem;
+  font-family: 'Courier New', monospace;
+}
+
+.advisor-input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+}
+
+.advisor-btn-icon {
+  padding: 8px 12px;
+  background: var(--card-bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text-color);
+  transition: opacity 0.2s ease;
+}
+
+.advisor-btn-icon:hover {
+  opacity: 0.8;
+}
+
+.advisor-notice {
+  font-size: 0.85rem;
+  color: var(--secondary-text-color);
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.advisor-notice a {
+  color: var(--accent-color);
+  text-decoration: none;
+}
+
+.advisor-notice a:hover {
+  text-decoration: underline;
+}
+
+.advisor-notice-warning {
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: 6px;
+  padding: 10px;
+  color: rgb(251, 191, 36);
+}
+
+.advisor-notice-warning strong {
+  color: rgb(251, 191, 36);
+}
+
+/* Mode Selection Buttons Container */
+.advisor-modal-body > .advisor-mode-btn:first-of-type,
+.advisor-modal-body > .advisor-mode-btn:last-of-type {
+  flex: 1;
+}
+
+.advisor-mode-buttons-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Confirm Modal (Stakeholder/Developer) */
+.advisor-confirm-modal {
+  max-width: 450px;
+}
+
+.advisor-developer-modal {
+  max-width: 500px;
+}
+
+.advisor-confirm-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.advisor-btn-primary,
+.advisor-btn-secondary {
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  border: none;
+}
+
+.advisor-btn-primary {
+  background: var(--accent-color);
+  color: white;
+}
+
+.advisor-btn-primary:hover {
+  opacity: 0.9;
+}
+
+.advisor-btn-secondary {
+  background: var(--secondary-bg-color);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+}
+
+.advisor-btn-secondary:hover {
+  opacity: 0.8;
+}
+
+/* Mode Selection Buttons */
+.advisor-mode-btn {
+  background: var(--card-bg-color);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.advisor-mode-btn:hover {
+  border-color: var(--accent-color);
+  background: var(--hover-bg-color);
+}
+
+.advisor-mode-icon {
+  font-size: 3rem;
+  margin-bottom: 12px;
+  color: var(--text-color);
+}
+
+.advisor-mode-btn h3 {
+  font-size: 1.2rem;
+  color: var(--text-color);
+  margin-bottom: 8px;
+}
+
+.advisor-mode-btn p {
+  font-size: 0.9rem;
+  color: var(--secondary-text-color);
+  line-height: 1.5;
+}
+
+.advisor-mode-employer:hover {
+  border-color: var(--accent-color);
+}
+
+.advisor-mode-applicant:hover {
+  border-color: var(--accent-color);
+}
+
+/* Advisor View (Full Screen) */
+.advisor-view {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--bg-color);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.advisor-view.active {
+  opacity: 1;
+}
+
+.advisor-view-header {
+  background: var(--header-bg-color);
+  border-bottom: 1px solid var(--border-color);
+  padding: 20px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.advisor-view-header h2 {
+  font-size: 1.5rem;
+  color: var(--text-color);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.advisor-view-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.advisor-btn-primary,
+.advisor-btn-secondary {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.advisor-btn-primary {
+  background: var(--accent-color);
+  color: white;
+}
+
+.advisor-btn-primary:hover {
+  background: var(--accent-hover-color);
+}
+
+.advisor-btn-secondary {
+  background: var(--secondary-bg-color);
+  color: var(--text-color);
+}
+
+.advisor-btn-secondary:hover {
+  background: var(--border-color);
+}
+
+/* Advisor Content (Split View) */
+.advisor-view-content {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  overflow: hidden;
+}
+
+.advisor-job-panel,
+.advisor-advice-panel {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--card-bg-color);
+}
+
+.advisor-job-panel {
+  border-right: 1px solid var(--border-color);
+}
+
+.advisor-job-panel h3,
+.advisor-advice-panel h3 {
+  padding: 16px 24px;
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--text-color);
+  border-bottom: 1px solid var(--border-color);
+  background: var(--secondary-bg-color);
+}
+
+.advisor-job-content,
+.advisor-advice-content {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+/* Job Posting Display */
+.job-field {
+  margin-bottom: 20px;
+}
+
+.job-field label {
+  display: block;
+  font-weight: 600;
+  color: var(--secondary-text-color);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.job-field .job-value {
+  color: var(--text-color);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.job-description {
+  background: var(--secondary-bg-color);
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.job-description p {
+  margin: 0 0 12px 0;
+  line-height: 1.7;
+}
+
+.job-description p:last-child {
+  margin-bottom: 0;
+}
+
+.job-description ul {
+  margin: 8px 0;
+  padding-left: 20px;
+  list-style-type: disc;
+}
+
+.job-description li {
+  margin-bottom: 6px;
+  line-height: 1.6;
+}
+
+/* Loading Spinner */
+.advisor-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: var(--secondary-text-color);
+}
+
+.advisor-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--border-color);
+  border-top-color: var(--accent-color);
+  border-radius: 50%;
+  animation: advisor-spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes advisor-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Markdown Rendering */
+.advisor-markdown {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--text-color);
+}
+
+.advisor-markdown h1 {
+  font-size: 1.8rem;
+  margin-top: 20px;
+  margin-bottom: 12px;
+  color: var(--text-color);
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 8px;
+}
+
+.advisor-markdown h1:first-child {
+  margin-top: 0;
+}
+
+.advisor-markdown h2 {
+  font-size: 1.5rem;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  color: var(--text-color);
+}
+
+.advisor-markdown h2:first-child {
+  margin-top: 0;
+}
+
+.advisor-markdown h3 {
+  font-size: 1.2rem;
+  margin-top: 16px;
+  margin-bottom: 8px;
+  color: var(--text-color);
+}
+
+.advisor-markdown p {
+  margin-bottom: 10px;
+}
+
+.advisor-markdown ul,
+.advisor-markdown ol {
+  margin-left: 20px;
+  margin-bottom: 10px;
+}
+
+.advisor-markdown li {
+  margin-bottom: 4px;
+}
+
+.advisor-markdown strong {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.advisor-markdown code {
+  background: var(--secondary-bg-color);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+}
+
+/* Error Display */
+.advisor-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.advisor-error svg {
+  color: var(--error-color);
+  margin-bottom: 16px;
+}
+
+.advisor-error p {
+  color: var(--text-color);
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+}
+
+.advisor-error-detail {
+  color: var(--secondary-text-color);
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .advisor-view-content {
+    grid-template-columns: 1fr;
+    grid-template-rows: 40% 60%;
+  }
+
+  .advisor-job-panel {
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+  }
+}
+
+@media (max-width: 768px) {
+  .advisor-modal {
+    padding: 24px;
+  }
+
+  .advisor-modal-body {
+    grid-template-columns: 1fr;
+  }
+
+  .advisor-view-header {
+    padding: 16px 20px;
+  }
+
+  .advisor-view-header h2 {
+    font-size: 1.2rem;
+  }
+
+  .advisor-job-content,
+  .advisor-advice-content {
+    padding: 16px;
+  }
+}

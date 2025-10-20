@@ -108,7 +108,8 @@ CORSエラーを回避するためのコア機能です。クライアントか�
 **リクエスト (GET):**
 `/api/proxy?url={TARGET_URL}&username={USER}&password={PASS}`
 
-**実装の要点 (`api/proxy.js` / `server.js`):
+\*\*実装の要点 (`api/proxy.js` / `server.js`):
+
 ```javascript
 // クエリパラメータで認証情報を受け取る
 const { url, username, password } = req.query;
@@ -131,7 +132,8 @@ const response = await axios.get(targetUrl, { headers });
 `Content-Type: application/json`
 `{ "url": "https://example.com" }`
 
-**実装の要点 (`server.js`):
+\*\*実装の要点 (`server.js`):
+
 ```javascript
 app.post('/extract-jsonld', async (req, res) => {
   const { url } = req.body;
@@ -140,7 +142,7 @@ app.post('/extract-jsonld', async (req, res) => {
 
   // 正規表現でJSON-LDスクリプトタグを抽出
   const jsonLdRegex = /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
-  
+
   // ... 抽出したJSONをパースしてレスポンスとして返す ...
 });
 ```
@@ -199,6 +201,7 @@ vercel --prod
 この処理は、ローカル開発サーバー (`server.js`) とVercel上のサーバーレス関数 (`api/proxy.js`) の両方で一貫して行われ、安定した動作を保証します。
 
 **実装 (`server.js` および `api/proxy.js`):**
+
 ```javascript
 // 受け取ったURLを取得
 const { url, username, password } = req.query;

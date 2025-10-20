@@ -70,7 +70,12 @@ export function validateTwitterCards(twitter, og = {}) {
  */
 function isValidUrl(string) {
   // 相対パスの判定
-  if (string.startsWith('/') || string.startsWith('./') || string.startsWith('../') || string.startsWith('data:')) {
+  if (
+    string.startsWith('/') ||
+    string.startsWith('./') ||
+    string.startsWith('../') ||
+    string.startsWith('data:')
+  ) {
     return true;
   }
 

@@ -1,8 +1,11 @@
 {
   "version": 2,
   "functions": {
-    "api/*.js": {
+    "api/proxy.js": {
       "maxDuration": 30
+    },
+    "api/advisor.js": {
+      "maxDuration": 60
     }
   }
 }
