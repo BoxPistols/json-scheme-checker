@@ -7,7 +7,9 @@ class AdvisorManager {
     this.isStreaming = false;
     this.RATE_LIMIT_KEY = 'jsonld_advisor_usage';
     this.USER_API_KEY = 'jsonld_user_openai_key';
+    this.STAKEHOLDER_MODE_KEY = 'jsonld_advisor_stakeholder';
     this.MAX_REQUESTS_PER_DAY = 10;
+    this.MAX_REQUESTS_STAKEHOLDER = 30;
   }
 
   /**
@@ -18,7 +20,13 @@ class AdvisorManager {
     // ユーザーAPIキーがある場合はレート制限をバイパス
     const userApiKey = this.getUserApiKey();
     if (userApiKey) {
-      return { allowed: true, remaining: Infinity, resetTime: null, usingUserKey: true };
+      return {
+        allowed: true,
+        remaining: Infinity,
+        resetTime: null,
+        usingUserKey: true,
+        mode: 'developer',
+      };
     }
 
     const now = Date.now();
@@ -29,13 +37,24 @@ class AdvisorManager {
     // 24時間以内のリクエストをフィルタ
     const recentRequests = usageData.filter(timestamp => now - timestamp < oneDayMs);
 
-    const remaining = this.MAX_REQUESTS_PER_DAY - recentRequests.length;
+    // 関係者モードのチェック
+    const isStakeholder = this.isStakeholderMode();
+    const maxRequests = isStakeholder ? this.MAX_REQUESTS_STAKEHOLDER : this.MAX_REQUESTS_PER_DAY;
+
+    const remaining = maxRequests - recentRequests.length;
     const allowed = remaining > 0;
 
     // 最も古いリクエストから24時間後がリセット時刻
     const resetTime = recentRequests.length > 0 ? new Date(recentRequests[0] + oneDayMs) : null;
 
-    return { allowed, remaining, resetTime, usingUserKey: false };
+    return {
+      allowed,
+      remaining,
+      resetTime,
+      usingUserKey: false,
+      mode: isStakeholder ? 'stakeholder' : 'normal',
+      maxRequests,
+    };
   }
 
   /**
@@ -71,6 +90,164 @@ class AdvisorManager {
       localStorage.setItem(this.USER_API_KEY, apiKey.trim());
     } else {
       localStorage.removeItem(this.USER_API_KEY);
+    }
+  }
+
+  /**
+   * 関係者モードかチェック
+   * @returns {boolean}
+   */
+  isStakeholderMode() {
+    return localStorage.getItem(this.STAKEHOLDER_MODE_KEY) === 'true';
+  }
+
+  /**
+   * 関係者モードを有効化
+   */
+  enableStakeholderMode() {
+    localStorage.setItem(this.STAKEHOLDER_MODE_KEY, 'true');
+  }
+
+  /**
+   * 関係者モードを無効化
+   */
+  disableStakeholderMode() {
+    localStorage.removeItem(this.STAKEHOLDER_MODE_KEY);
+  }
+
+  /**
+   * 関係者確認ダイアログを表示
+   */
+  showStakeholderPrompt() {
+    const overlay = document.createElement('div');
+    overlay.className = 'advisor-overlay active';
+    overlay.innerHTML = `
+      <div class="advisor-modal advisor-confirm-modal">
+        <div class="advisor-modal-header">
+          <h2>関係者確認</h2>
+        </div>
+        <div class="advisor-modal-body">
+          <p style="margin-bottom: 20px; text-align: center;">あなたは関係者ですか？</p>
+          <p style="font-size: 0.85rem; color: var(--secondary-text-color); margin-bottom: 20px; text-align: center;">
+            関係者の場合、利用回数が30回/24時間に増加します
+          </p>
+          <div class="advisor-confirm-buttons">
+            <button class="advisor-btn-secondary" onclick="advisorManager.closeStakeholderPrompt()">いいえ</button>
+            <button class="advisor-btn-primary" onclick="advisorManager.confirmStakeholder()">はい</button>
+          </div>
+        </div>
+      </div>
+    `;
+    overlay.id = 'stakeholderPrompt';
+    document.body.appendChild(overlay);
+  }
+
+  /**
+   * 関係者確認ダイアログを閉じる
+   */
+  closeStakeholderPrompt() {
+    const overlay = document.getElementById('stakeholderPrompt');
+    if (overlay) {
+      overlay.classList.remove('active');
+      setTimeout(() => overlay.remove(), 300);
+    }
+  }
+
+  /**
+   * 関係者モード確定
+   */
+  confirmStakeholder() {
+    this.enableStakeholderMode();
+    this.closeStakeholderPrompt();
+    // モード選択画面を再表示
+    this.showModeSelector();
+  }
+
+  /**
+   * 開発者モード（APIキー入力）ダイアログを表示
+   */
+  showDeveloperPrompt() {
+    const currentKey = this.getUserApiKey() || '';
+    const overlay = document.createElement('div');
+    overlay.className = 'advisor-overlay active';
+    overlay.innerHTML = `
+      <div class="advisor-modal advisor-developer-modal">
+        <div class="advisor-modal-header">
+          <h2>開発者モード</h2>
+          <button class="advisor-modal-close" onclick="advisorManager.closeDeveloperPrompt()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+        <div class="advisor-modal-body">
+          <p style="margin-bottom: 16px; color: var(--secondary-text-color); font-size: 0.9rem;">
+            自分のOpenAI APIキーを使用すると、無制限で利用できます。
+          </p>
+
+          <div class="advisor-api-key-wrapper">
+            <input type="password" id="developerApiKeyInput" placeholder="sk-proj-..." value="${currentKey}" class="advisor-input">
+            <button type="button" onclick="advisorManager.toggleDeveloperKeyVisibility()" class="advisor-btn-icon" title="表示/非表示">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/>
+                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </button>
+          </div>
+
+          <p class="advisor-notice" style="margin-top: 12px;">
+            このAPIキーはあなたのブラウザにのみ保存され、サーバーには送信されません。
+            OpenAI APIキーは <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer">OpenAI Platform</a> で取得できます。
+          </p>
+
+          <p class="advisor-notice advisor-notice-warning" style="margin-top: 12px;">
+            <strong>重要:</strong> 開発者モードでは、あなた自身のAPIキーを使用します。
+            サービス提供者のAPIキーは使用されません。
+            OpenAIの利用規約を遵守してください。
+          </p>
+
+          <div class="advisor-confirm-buttons" style="margin-top: 20px;">
+            <button class="advisor-btn-secondary" onclick="advisorManager.closeDeveloperPrompt()">キャンセル</button>
+            <button class="advisor-btn-primary" onclick="advisorManager.saveDeveloperKey()">保存</button>
+          </div>
+        </div>
+      </div>
+    `;
+    overlay.id = 'developerPrompt';
+    document.body.appendChild(overlay);
+  }
+
+  /**
+   * 開発者モードダイアログを閉じる
+   */
+  closeDeveloperPrompt() {
+    const overlay = document.getElementById('developerPrompt');
+    if (overlay) {
+      overlay.classList.remove('active');
+      setTimeout(() => overlay.remove(), 300);
+    }
+  }
+
+  /**
+   * 開発者APIキーを保存
+   */
+  saveDeveloperKey() {
+    const input = document.getElementById('developerApiKeyInput');
+    if (input) {
+      this.saveUserApiKey(input.value.trim());
+      this.closeDeveloperPrompt();
+      // モード選択画面を再表示
+      this.showModeSelector();
+    }
+  }
+
+  /**
+   * 開発者APIキーの表示/非表示を切り替え
+   */
+  toggleDeveloperKeyVisibility() {
+    const input = document.getElementById('developerApiKeyInput');
+    if (input) {
+      input.type = input.type === 'password' ? 'text' : 'password';
     }
   }
 
@@ -147,19 +324,33 @@ class AdvisorManager {
    */
   showModeSelector() {
     const rateLimit = this.checkRateLimit();
-    const userApiKey = this.getUserApiKey();
 
     let rateLimitHtml = '';
-    if (rateLimit.usingUserKey) {
+    let modeLabel = '';
+    if (rateLimit.mode === 'developer') {
       rateLimitHtml =
-        '<div class="advisor-rate-info advisor-rate-unlimited">自分のAPIキーを使用中（制限なし）</div>';
-    } else if (!rateLimit.allowed) {
-      const resetTimeStr = rateLimit.resetTime
-        ? rateLimit.resetTime.toLocaleString('ja-JP')
-        : '不明';
-      rateLimitHtml = `<div class="advisor-rate-info advisor-rate-exceeded">利用制限に達しました（リセット: ${resetTimeStr}）<br>自分のAPIキーを使用すると制限なしで利用できます</div>`;
+        '<div class="advisor-rate-info advisor-rate-unlimited">開発者モード（無制限）</div>';
+      modeLabel = '開発者モード';
+    } else if (rateLimit.mode === 'stakeholder') {
+      if (!rateLimit.allowed) {
+        const resetTimeStr = rateLimit.resetTime
+          ? rateLimit.resetTime.toLocaleString('ja-JP')
+          : '不明';
+        rateLimitHtml = `<div class="advisor-rate-info advisor-rate-exceeded">利用制限に達しました（リセット: ${resetTimeStr}）</div>`;
+      } else {
+        rateLimitHtml = `<div class="advisor-rate-info advisor-rate-stakeholder">関係者モード - 残り ${rateLimit.remaining} 回 / ${rateLimit.maxRequests} 回（24時間）</div>`;
+      }
+      modeLabel = '関係者モード';
     } else {
-      rateLimitHtml = `<div class="advisor-rate-info">残り ${rateLimit.remaining} 回 / ${this.MAX_REQUESTS_PER_DAY} 回（24時間）</div>`;
+      if (!rateLimit.allowed) {
+        const resetTimeStr = rateLimit.resetTime
+          ? rateLimit.resetTime.toLocaleString('ja-JP')
+          : '不明';
+        rateLimitHtml = `<div class="advisor-rate-info advisor-rate-exceeded">利用制限に達しました（リセット: ${resetTimeStr}）</div>`;
+      } else {
+        rateLimitHtml = `<div class="advisor-rate-info">残り ${rateLimit.remaining} 回 / ${rateLimit.maxRequests} 回（24時間）</div>`;
+      }
+      modeLabel = '通常モード';
     }
 
     const overlay = document.createElement('div');
@@ -169,6 +360,14 @@ class AdvisorManager {
       <div class="advisor-modal">
         <div class="advisor-modal-header">
           <h2>どちらの視点でアドバイスしますか？</h2>
+          <div class="advisor-mode-buttons-small">
+            <button class="advisor-mode-btn-small" onclick="advisorManager.showStakeholderPrompt()" title="関係者は30回/24時間まで利用可能">
+              関係者
+            </button>
+            <button class="advisor-mode-btn-small" onclick="advisorManager.showDeveloperPrompt()" title="自分のAPIキーで無制限利用">
+              開発者
+            </button>
+          </div>
           <button class="advisor-modal-close" onclick="advisorManager.closeModeSelector()">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -177,33 +376,6 @@ class AdvisorManager {
         </div>
         <div class="advisor-modal-body">
           ${rateLimitHtml}
-
-          <div class="advisor-api-key-section">
-            <label class="advisor-checkbox-label">
-              <input type="checkbox" id="useUserApiKey" ${userApiKey ? 'checked' : ''} onchange="advisorManager.toggleApiKeyInput()">
-              <span>自分のOpenAI APIキーを使用する</span>
-            </label>
-            <div id="apiKeyInputContainer" class="advisor-api-key-input" style="display: ${userApiKey ? 'block' : 'none'}">
-              <div class="advisor-api-key-wrapper">
-                <input type="password" id="userApiKeyInput" placeholder="sk-proj-..." value="${userApiKey || ''}" class="advisor-input">
-                <button type="button" onclick="advisorManager.toggleApiKeyVisibility()" class="advisor-btn-icon" title="表示/非表示">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/>
-                    <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
-                  </svg>
-                </button>
-              </div>
-              <p class="advisor-notice">
-                このAPIキーはあなたのブラウザにのみ保存され、サーバーには送信されません。
-                OpenAI APIキーは <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer">OpenAI Platform</a> で取得できます。
-              </p>
-              <p class="advisor-notice advisor-notice-warning">
-                <strong>適切な利用について:</strong> このツールは求人情報の分析を目的としています。
-                APIキーの不正利用や過度なリクエストは避けてください。
-                OpenAIの利用規約を遵守してください。
-              </p>
-            </div>
-          </div>
 
           <div class="advisor-mode-buttons-grid">
             <button class="advisor-mode-btn advisor-mode-employer" onclick="advisorManager.startAnalysis('employer')">
@@ -235,36 +407,6 @@ class AdvisorManager {
   }
 
   /**
-   * APIキー入力欄の表示/非表示を切り替え
-   */
-  toggleApiKeyInput() {
-    const checkbox = document.getElementById('useUserApiKey');
-    const container = document.getElementById('apiKeyInputContainer');
-    const input = document.getElementById('userApiKeyInput');
-
-    if (checkbox.checked) {
-      container.style.display = 'block';
-      input.focus();
-    } else {
-      container.style.display = 'none';
-      input.value = '';
-      this.saveUserApiKey('');
-    }
-  }
-
-  /**
-   * APIキーの表示/非表示を切り替え
-   */
-  toggleApiKeyVisibility() {
-    const input = document.getElementById('userApiKeyInput');
-    if (input.type === 'password') {
-      input.type = 'text';
-    } else {
-      input.type = 'password';
-    }
-  }
-
-  /**
    * モード選択UIを閉じる
    */
   closeModeSelector() {
@@ -280,12 +422,6 @@ class AdvisorManager {
    * @param {string} mode - 'employer' or 'applicant'
    */
   async startAnalysis(mode) {
-    // ユーザーAPIキーを保存（入力されている場合）
-    const apiKeyInput = document.getElementById('userApiKeyInput');
-    if (apiKeyInput && apiKeyInput.value.trim()) {
-      this.saveUserApiKey(apiKeyInput.value.trim());
-    }
-
     // レート制限チェック
     const rateLimit = this.checkRateLimit();
     if (!rateLimit.allowed) {
@@ -293,9 +429,15 @@ class AdvisorManager {
       const resetTimeStr = rateLimit.resetTime
         ? rateLimit.resetTime.toLocaleString('ja-JP')
         : '不明';
-      alert(
-        `利用制限に達しました。\n\nリセット時刻: ${resetTimeStr}\n\n自分のOpenAI APIキーを使用すると制限なしで利用できます。`
-      );
+
+      let message = `利用制限に達しました。\n\nリセット時刻: ${resetTimeStr}\n\n`;
+      if (rateLimit.mode === 'stakeholder') {
+        message += '開発者モードで自分のAPIキーを使用すると制限なしで利用できます。';
+      } else {
+        message += '関係者モードで30回/24時間、または開発者モードで無制限利用が可能です。';
+      }
+
+      alert(message);
       return;
     }
 

@@ -2343,12 +2343,38 @@ html[data-theme='dark'] .score-breakdown > div {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
+  position: relative;
 }
 
 .advisor-modal-header h2 {
   font-size: 1.5rem;
   color: var(--text-color);
   margin: 0;
+  flex: 1;
+}
+
+/* Small Mode Buttons */
+.advisor-mode-buttons-small {
+  display: flex;
+  gap: 8px;
+  margin-right: 12px;
+}
+
+.advisor-mode-btn-small {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  background: var(--secondary-bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--secondary-text-color);
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.advisor-mode-btn-small:hover {
+  opacity: 0.8;
+  border-color: var(--accent-color);
+  color: var(--text-color);
 }
 
 .advisor-modal-close {
@@ -2390,6 +2416,12 @@ html[data-theme='dark'] .score-breakdown > div {
   background: rgba(52, 211, 153, 0.1);
   border-color: rgba(52, 211, 153, 0.3);
   color: rgb(52, 211, 153);
+}
+
+.advisor-rate-stakeholder {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.3);
+  color: rgb(59, 130, 246);
 }
 
 .advisor-rate-exceeded {
@@ -2504,6 +2536,50 @@ html[data-theme='dark'] .score-breakdown > div {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
+}
+
+/* Confirm Modal (Stakeholder/Developer) */
+.advisor-confirm-modal {
+  max-width: 450px;
+}
+
+.advisor-developer-modal {
+  max-width: 500px;
+}
+
+.advisor-confirm-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.advisor-btn-primary,
+.advisor-btn-secondary {
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  border: none;
+}
+
+.advisor-btn-primary {
+  background: var(--accent-color);
+  color: white;
+}
+
+.advisor-btn-primary:hover {
+  opacity: 0.9;
+}
+
+.advisor-btn-secondary {
+  background: var(--secondary-bg-color);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+}
+
+.advisor-btn-secondary:hover {
+  opacity: 0.8;
 }
 
 /* Mode Selection Buttons */
