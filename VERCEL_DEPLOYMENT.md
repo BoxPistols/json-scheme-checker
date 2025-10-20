@@ -42,6 +42,7 @@ git push origin feature/add-adviser
 #### PR説明テンプレート
 
 \`\`\`markdown
+
 ## 概要
 
 JSON-LD の JobPosting スキーマを検出し、AIによるアドバイスを提供する機能を追加しました。
@@ -56,17 +57,20 @@ JSON-LD の JobPosting スキーマを検出し、AIによるアドバイスを�
 ## 実装内容
 
 ### バックエンド
+
 - `api/advisor.js`: OpenAI API 統合（GPT-4.1-mini）
 - Server-Sent Events (SSE) でストリーミング対応
 - タイムアウト: 60秒
 
 ### フロントエンド
+
 - `public/modules/advisor.js`: UI/UXロジック
 - JobPosting 自動検出
 - モード選択ダイアログ
 - HTML変換による見やすい職務内容表示
 
 ### スタイル
+
 - 433行の専用CSS追加
 - レスポンシブデザイン対応
 - ダークテーマ対応
@@ -97,12 +101,13 @@ JSON-LD の JobPosting スキーマを検出し、AIによるアドバイスを�
 3. 「Settings」タブ → 「Environment Variables」
 4. 以下の変数を追加：
 
-| Key | Value | Environment |
-|-----|-------|-------------|
-| `OPENAI_API_KEY` | `sk-proj-...` | Production, Preview |
-| `OPENAI_MODEL` | `gpt-4.1-mini` | Production, Preview |
+| Key              | Value          | Environment         |
+| ---------------- | -------------- | ------------------- |
+| `OPENAI_API_KEY` | `sk-proj-...`  | Production, Preview |
+| `OPENAI_MODEL`   | `gpt-4.1-mini` | Production, Preview |
 
 **注意**:
+
 - `OPENAI_API_KEY` は必ず **Production** と **Preview** の両方にチェック
 - API キーは `.env` ファイルから取得（絶対にGitHubにpushしない）
 
@@ -148,6 +153,7 @@ vercel logs
    - 例: `https://json-ld-view.vercel.app/`
 
 2. **テストURL を入力**
+
    ```
    https://freelance-hub.jp/project/detail/281563/
    ```
@@ -187,6 +193,7 @@ vercel logs
 ### エラー1: APIキーが設定されていない
 
 **エラーメッセージ:**
+
 ```json
 {
   "error": "OpenAI API key not configured"
@@ -194,6 +201,7 @@ vercel logs
 ```
 
 **解決方法:**
+
 1. Vercel Dashboard → Settings → Environment Variables
 2. `OPENAI_API_KEY` が設定されているか確認
 3. Production と Preview の両方にチェックが入っているか確認
@@ -205,15 +213,18 @@ vercel logs
 ### エラー2: タイムアウトエラー
 
 **エラーメッセージ:**
+
 ```
 Error: Function execution timed out
 ```
 
 **原因:**
+
 - OpenAI APIのレスポンスが遅い
 - Vercelの無料プランは10秒制限（Proプランは60秒）
 
 **解決方法:**
+
 1. `vercel.json` のタイムアウト設定を確認（現在60秒）
 2. Vercel プランを確認（HobbyプランではなくProプランが必要）
 3. または、モデルを `gpt-4o-mini` に変更（レスポンスが速い）
@@ -221,6 +232,7 @@ Error: Function execution timed out
 ### エラー3: 401 Unauthorized
 
 **エラーメッセージ:**
+
 ```json
 {
   "error": "Incorrect API key provided"
@@ -228,6 +240,7 @@ Error: Function execution timed out
 ```
 
 **解決方法:**
+
 1. OpenAI APIキーが有効か確認
 2. OpenAI Platform でキーを再生成
 3. Vercel環境変数を更新
@@ -236,6 +249,7 @@ Error: Function execution timed out
 ### エラー4: モデルが存在しない
 
 **エラーメッセージ:**
+
 ```json
 {
   "error": "The model 'gpt-4.1-mini' does not exist"
@@ -243,6 +257,7 @@ Error: Function execution timed out
 ```
 
 **解決方法:**
+
 1. OpenAI アカウントで利用可能なモデルを確認
 2. `gpt-4.1-mini` が利用できない場合、`gpt-4o-mini` に変更：
    - Vercel環境変数 `OPENAI_MODEL` を `gpt-4o-mini` に更新
@@ -265,11 +280,12 @@ Error: Function execution timed out
 
 ### 各項目の説明
 
-| 項目 | 値 | 説明 |
-|-----|---|------|
+| 項目          | 値   | 説明                     |
+| ------------- | ---- | ------------------------ |
 | `maxDuration` | `60` | 関数の最大実行時間（秒） |
 
 **注意:**
+
 - **Hobby（無料）プラン**: maxDuration は最大 10秒
 - **Pro プラン**: maxDuration は最大 60秒（デフォルト）
 - **Enterprise プラン**: maxDuration は最大 900秒
@@ -282,21 +298,22 @@ Error: Function execution timed out
 
 ### OpenAI API コスト（gpt-4.1-mini）
 
-| 項目 | コスト |
-|-----|--------|
-| Input tokens | 要確認（OpenAI Platformで確認） |
+| 項目          | コスト                          |
+| ------------- | ------------------------------- |
+| Input tokens  | 要確認（OpenAI Platformで確認） |
 | Output tokens | 要確認（OpenAI Platformで確認） |
 
 ※ `gpt-4.1-mini` の料金は OpenAI Platform で最新情報を確認してください。
 
 ### 代替案: gpt-4o-mini（最安値）
 
-| 項目 | コスト |
-|-----|--------|
-| Input tokens | $0.15/1M tokens |
+| 項目          | コスト          |
+| ------------- | --------------- |
+| Input tokens  | $0.15/1M tokens |
 | Output tokens | $0.60/1M tokens |
 
 **推定コスト（1回あたり）:**
+
 - 求人票データ: 約 1,000 tokens
 - AIレスポンス: 約 500-1,000 tokens
 - **合計**: 約 $0.001-0.002/回
@@ -320,11 +337,13 @@ Error: Function execution timed out
 ### APIキーの保護
 
 ✅ **実施済み:**
+
 - `.env` ファイルは `.gitignore` に登録済み
 - APIキーはサーバーサイド（Vercel環境変数）のみに保存
 - クライアント側にAPIキーは露出しない
 
 ❌ **禁止:**
+
 - APIキーをGitHubにコミット
 - APIキーをフロントエンドJavaScriptに記述
 - APIキーをURLパラメータに含める
@@ -338,7 +357,7 @@ Error: Function execution timed out
 // api/advisor.js に追加を検討
 const rateLimit = {
   windowMs: 24 * 60 * 60 * 1000, // 24時間
-  max: 10 // 10リクエスト/日
+  max: 10, // 10リクエスト/日
 };
 ```
 

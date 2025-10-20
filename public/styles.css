@@ -2289,18 +2289,17 @@ html[data-theme='dark'] .score-breakdown > div {
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: opacity 0.2s ease;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
   margin-bottom: 20px;
 }
 
 .advisor-trigger-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  opacity: 0.9;
 }
 
 .advisor-trigger-btn:active {
-  transform: translateY(0);
+  opacity: 0.8;
 }
 
 /* Advisor Modal Overlay */
