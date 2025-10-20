@@ -28,6 +28,7 @@
 
 - **[PROJECT_OVERVIEW.md](./shared/PROJECT_OVERVIEW.md)** - プロジェクトの全体像、技術スタック、アーキテクチャ
 - **[DEVELOPMENT_WORKFLOW.md](./shared/DEVELOPMENT_WORKFLOW.md)** - 開発コマンド、ワークフロー、トラブルシューティング
+- **[CLAUDE_CODE_CONCEPTS_GUIDE.md](./shared/CLAUDE_CODE_CONCEPTS_GUIDE.md)** - Claude Code の全機能解説と比較ガイド
 
 ### Claude Code
 
@@ -73,6 +74,8 @@
 | デバッグ方法           | `shared/DEVELOPMENT_WORKFLOW.md` → デバッグ方法           |
 | デプロイ手順           | `shared/DEVELOPMENT_WORKFLOW.md` → デプロイメント         |
 | トラブルシューティング | `shared/DEVELOPMENT_WORKFLOW.md` → トラブルシューティング |
+| Claude Code 機能の説明 | `shared/CLAUDE_CODE_CONCEPTS_GUIDE.md`                    |
+| MCP・Context7 導入方法 | `shared/AI_DEVELOPMENT_TOOLS_SETUP.md`                    |
 | コーディング規約       | 各AIツールの設定ファイル                                  |
 
 ### 3. ドキュメントを更新する場合
