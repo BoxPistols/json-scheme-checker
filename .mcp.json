@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "context7": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp@latest"
+      ],
+      "env": {
+        "CONTEXT7_DEBUG": "false"
+      },
+      "timeout": 30000,
+      "maxRetries": 3,
+      "retryDelayMs": 1000,
+      "description": "ライブラリドキュメント自動取得・コード例検索用"
+    }
+  }
+}
