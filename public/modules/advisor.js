@@ -5,6 +5,73 @@ class AdvisorManager {
     this.currentJobPosting = null;
     this.currentMode = null;
     this.isStreaming = false;
+    this.RATE_LIMIT_KEY = 'jsonld_advisor_usage';
+    this.USER_API_KEY = 'jsonld_user_openai_key';
+    this.MAX_REQUESTS_PER_DAY = 10;
+  }
+
+  /**
+   * レート制限をチェック
+   * @returns {Object} { allowed: boolean, remaining: number, resetTime: Date }
+   */
+  checkRateLimit() {
+    // ユーザーAPIキーがある場合はレート制限をバイパス
+    const userApiKey = this.getUserApiKey();
+    if (userApiKey) {
+      return { allowed: true, remaining: Infinity, resetTime: null, usingUserKey: true };
+    }
+
+    const now = Date.now();
+    const oneDayMs = 24 * 60 * 60 * 1000;
+
+    const usageData = JSON.parse(localStorage.getItem(this.RATE_LIMIT_KEY) || '[]');
+
+    // 24時間以内のリクエストをフィルタ
+    const recentRequests = usageData.filter(timestamp => now - timestamp < oneDayMs);
+
+    const remaining = this.MAX_REQUESTS_PER_DAY - recentRequests.length;
+    const allowed = remaining > 0;
+
+    // 最も古いリクエストから24時間後がリセット時刻
+    const resetTime = recentRequests.length > 0 ? new Date(recentRequests[0] + oneDayMs) : null;
+
+    return { allowed, remaining, resetTime, usingUserKey: false };
+  }
+
+  /**
+   * レート制限使用履歴を記録
+   */
+  recordUsage() {
+    const now = Date.now();
+    const oneDayMs = 24 * 60 * 60 * 1000;
+
+    const usageData = JSON.parse(localStorage.getItem(this.RATE_LIMIT_KEY) || '[]');
+
+    // 24時間以内のリクエストのみ保持
+    const recentRequests = usageData.filter(timestamp => now - timestamp < oneDayMs);
+    recentRequests.push(now);
+
+    localStorage.setItem(this.RATE_LIMIT_KEY, JSON.stringify(recentRequests));
+  }
+
+  /**
+   * ユーザーAPIキーを取得
+   * @returns {string|null}
+   */
+  getUserApiKey() {
+    return localStorage.getItem(this.USER_API_KEY);
+  }
+
+  /**
+   * ユーザーAPIキーを保存
+   * @param {string} apiKey
+   */
+  saveUserApiKey(apiKey) {
+    if (apiKey && apiKey.trim()) {
+      localStorage.setItem(this.USER_API_KEY, apiKey.trim());
+    } else {
+      localStorage.removeItem(this.USER_API_KEY);
+    }
   }
 
   /**
@@ -79,6 +146,22 @@ class AdvisorManager {
    * モード選択UIを表示
    */
   showModeSelector() {
+    const rateLimit = this.checkRateLimit();
+    const userApiKey = this.getUserApiKey();
+
+    let rateLimitHtml = '';
+    if (rateLimit.usingUserKey) {
+      rateLimitHtml =
+        '<div class="advisor-rate-info advisor-rate-unlimited">自分のAPIキーを使用中（制限なし）</div>';
+    } else if (!rateLimit.allowed) {
+      const resetTimeStr = rateLimit.resetTime
+        ? rateLimit.resetTime.toLocaleString('ja-JP')
+        : '不明';
+      rateLimitHtml = `<div class="advisor-rate-info advisor-rate-exceeded">利用制限に達しました（リセット: ${resetTimeStr}）<br>自分のAPIキーを使用すると制限なしで利用できます</div>`;
+    } else {
+      rateLimitHtml = `<div class="advisor-rate-info">残り ${rateLimit.remaining} 回 / ${this.MAX_REQUESTS_PER_DAY} 回（24時間）</div>`;
+    }
+
     const overlay = document.createElement('div');
     overlay.id = 'advisorModeOverlay';
     overlay.className = 'advisor-overlay';
@@ -93,24 +176,55 @@ class AdvisorManager {
           </button>
         </div>
         <div class="advisor-modal-body">
-          <button class="advisor-mode-btn advisor-mode-employer" onclick="advisorManager.startAnalysis('employer')">
-            <div class="advisor-mode-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M6 2h12v4H6zM4 6h16v2H4zM5 9h14v10H5zM7 13h2v4H7zM11 13h2v4h-2zM15 13h2v4h-2zM3 20h18v1H3z" stroke="currentColor" stroke-width="1.5" fill="none"/>
-              </svg>
+          ${rateLimitHtml}
+
+          <div class="advisor-api-key-section">
+            <label class="advisor-checkbox-label">
+              <input type="checkbox" id="useUserApiKey" ${userApiKey ? 'checked' : ''} onchange="advisorManager.toggleApiKeyInput()">
+              <span>自分のOpenAI APIキーを使用する</span>
+            </label>
+            <div id="apiKeyInputContainer" class="advisor-api-key-input" style="display: ${userApiKey ? 'block' : 'none'}">
+              <div class="advisor-api-key-wrapper">
+                <input type="password" id="userApiKeyInput" placeholder="sk-proj-..." value="${userApiKey || ''}" class="advisor-input">
+                <button type="button" onclick="advisorManager.toggleApiKeyVisibility()" class="advisor-btn-icon" title="表示/非表示">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/>
+                    <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                </button>
+              </div>
+              <p class="advisor-notice">
+                このAPIキーはあなたのブラウザにのみ保存され、サーバーには送信されません。
+                OpenAI APIキーは <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer">OpenAI Platform</a> で取得できます。
+              </p>
+              <p class="advisor-notice advisor-notice-warning">
+                <strong>適切な利用について:</strong> このツールは求人情報の分析を目的としています。
+                APIキーの不正利用や過度なリクエストは避けてください。
+                OpenAIの利用規約を遵守してください。
+              </p>
             </div>
-            <h3>採用側向け</h3>
-            <p>求人票の内容をレビューし、<br>改善提案を提供します</p>
-          </button>
-          <button class="advisor-mode-btn advisor-mode-applicant" onclick="advisorManager.startAnalysis('applicant')">
-            <div class="advisor-mode-icon">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" stroke="currentColor" stroke-width="1" fill="none"/>
-              </svg>
-            </div>
-            <h3>応募者向け</h3>
-            <p>面接対策と要件傾向の<br>分析を提供します</p>
-          </button>
+          </div>
+
+          <div class="advisor-mode-buttons-grid">
+            <button class="advisor-mode-btn advisor-mode-employer" onclick="advisorManager.startAnalysis('employer')">
+              <div class="advisor-mode-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6 2h12v4H6zM4 6h16v2H4zM5 9h14v10H5zM7 13h2v4H7zM11 13h2v4h-2zM15 13h2v4h-2zM3 20h18v1H3z" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                </svg>
+              </div>
+              <h3>採用側向け</h3>
+              <p>求人票の内容をレビューし、<br>改善提案を提供します</p>
+            </button>
+            <button class="advisor-mode-btn advisor-mode-applicant" onclick="advisorManager.startAnalysis('applicant')">
+              <div class="advisor-mode-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" stroke="currentColor" stroke-width="1" fill="none"/>
+                </svg>
+              </div>
+              <h3>応募者向け</h3>
+              <p>面接対策と要件傾向の<br>分析を提供します</p>
+            </button>
+          </div>
         </div>
       </div>
     `;
@@ -118,6 +232,36 @@ class AdvisorManager {
     document.body.appendChild(overlay);
 
     setTimeout(() => overlay.classList.add('active'), 10);
+  }
+
+  /**
+   * APIキー入力欄の表示/非表示を切り替え
+   */
+  toggleApiKeyInput() {
+    const checkbox = document.getElementById('useUserApiKey');
+    const container = document.getElementById('apiKeyInputContainer');
+    const input = document.getElementById('userApiKeyInput');
+
+    if (checkbox.checked) {
+      container.style.display = 'block';
+      input.focus();
+    } else {
+      container.style.display = 'none';
+      input.value = '';
+      this.saveUserApiKey('');
+    }
+  }
+
+  /**
+   * APIキーの表示/非表示を切り替え
+   */
+  toggleApiKeyVisibility() {
+    const input = document.getElementById('userApiKeyInput');
+    if (input.type === 'password') {
+      input.type = 'text';
+    } else {
+      input.type = 'password';
+    }
   }
 
   /**
@@ -136,6 +280,25 @@ class AdvisorManager {
    * @param {string} mode - 'employer' or 'applicant'
    */
   async startAnalysis(mode) {
+    // ユーザーAPIキーを保存（入力されている場合）
+    const apiKeyInput = document.getElementById('userApiKeyInput');
+    if (apiKeyInput && apiKeyInput.value.trim()) {
+      this.saveUserApiKey(apiKeyInput.value.trim());
+    }
+
+    // レート制限チェック
+    const rateLimit = this.checkRateLimit();
+    if (!rateLimit.allowed) {
+      this.closeModeSelector();
+      const resetTimeStr = rateLimit.resetTime
+        ? rateLimit.resetTime.toLocaleString('ja-JP')
+        : '不明';
+      alert(
+        `利用制限に達しました。\n\nリセット時刻: ${resetTimeStr}\n\n自分のOpenAI APIキーを使用すると制限なしで利用できます。`
+      );
+      return;
+    }
+
     this.currentMode = mode;
     this.closeModeSelector();
     this.showAdvisorView(mode);
@@ -308,6 +471,8 @@ class AdvisorManager {
       const isVercel = window.location.hostname.includes('vercel.app');
       const apiUrl = isVercel ? '/api/advisor' : 'http://127.0.0.1:3333/api/advisor';
 
+      const userApiKey = this.getUserApiKey();
+
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
@@ -316,6 +481,7 @@ class AdvisorManager {
         body: JSON.stringify({
           jobPosting: this.currentJobPosting,
           mode: mode,
+          userApiKey: userApiKey || undefined,
         }),
       });
 
@@ -331,35 +497,42 @@ class AdvisorManager {
       let buffer = '';
       let fullText = '';
 
-      while (this.isStreaming) {
-        const { done, value } = await reader.read();
-        if (done) break;
+      try {
+        while (this.isStreaming) {
+          const { done, value } = await reader.read();
+          if (done) break;
 
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop();
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop();
 
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = line.slice(6);
-            if (data === '[DONE]') {
-              this.isStreaming = false;
-              break;
-            }
-
-            try {
-              const parsed = JSON.parse(data);
-              if (parsed.content) {
-                fullText += parsed.content;
-                markdownDiv.innerHTML = this.renderMarkdown(fullText);
-              } else if (parsed.error) {
-                throw new Error(parsed.error);
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const data = line.slice(6);
+              if (data === '[DONE]') {
+                this.isStreaming = false;
+                // 使用履歴を記録（成功時のみ）
+                this.recordUsage();
+                break;
               }
-            } catch (e) {
-              console.error('Parse error:', e);
+
+              try {
+                const parsed = JSON.parse(data);
+                if (parsed.content) {
+                  fullText += parsed.content;
+                  markdownDiv.innerHTML = this.renderMarkdown(fullText);
+                } else if (parsed.error) {
+                  throw new Error(parsed.error);
+                }
+              } catch (e) {
+                console.error('Parse error:', e);
+              }
             }
           }
         }
+      } finally {
+        // ストリームを確実にキャンセル
+        reader.cancel().catch(err => console.warn('Reader cancel failed:', err));
       }
     } catch (error) {
       console.error('Advisor fetch error:', error);
@@ -395,15 +568,17 @@ class AdvisorManager {
     // 太字
     html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
 
-    // リスト
+    // リスト（ハイフン）
     html = html.replace(/^\- (.*$)/gim, '<li>$1</li>');
-    html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
 
     // 番号付きリスト
     html = html.replace(/^\d+\. (.*$)/gim, '<li>$1</li>');
 
     // 改行
     html = html.replace(/\n/g, '<br>');
+
+    // 連続する<li>タグを<ul>で囲む（改行変換後に実行）
+    html = html.replace(/((?:<li>.*?<\/li>(?:<br>)*)+)/g, '<ul>$1</ul>');
 
     return html;
   }

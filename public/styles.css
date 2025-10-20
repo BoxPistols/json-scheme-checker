@@ -2370,6 +2370,137 @@ html[data-theme='dark'] .score-breakdown > div {
 }
 
 .advisor-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Rate Limit Info */
+.advisor-rate-info {
+  background: var(--secondary-bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px 16px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--secondary-text-color);
+}
+
+.advisor-rate-unlimited {
+  background: rgba(52, 211, 153, 0.1);
+  border-color: rgba(52, 211, 153, 0.3);
+  color: rgb(52, 211, 153);
+}
+
+.advisor-rate-exceeded {
+  background: rgba(248, 113, 113, 0.1);
+  border-color: rgba(248, 113, 113, 0.3);
+  color: rgb(248, 113, 113);
+}
+
+/* API Key Section */
+.advisor-api-key-section {
+  border-top: 1px solid var(--border-color);
+  padding-top: 16px;
+  margin-bottom: 16px;
+}
+
+.advisor-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+
+.advisor-checkbox-label input[type="checkbox"] {
+  cursor: pointer;
+}
+
+.advisor-checkbox-label span {
+  font-size: 0.95rem;
+  color: var(--text-color);
+}
+
+.advisor-api-key-input {
+  margin-top: 12px;
+  padding: 12px;
+  background: var(--secondary-bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+
+.advisor-api-key-wrapper {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.advisor-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-color);
+  color: var(--text-color);
+  font-size: 0.9rem;
+  font-family: 'Courier New', monospace;
+}
+
+.advisor-input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+}
+
+.advisor-btn-icon {
+  padding: 8px 12px;
+  background: var(--card-bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text-color);
+  transition: opacity 0.2s ease;
+}
+
+.advisor-btn-icon:hover {
+  opacity: 0.8;
+}
+
+.advisor-notice {
+  font-size: 0.85rem;
+  color: var(--secondary-text-color);
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.advisor-notice a {
+  color: var(--accent-color);
+  text-decoration: none;
+}
+
+.advisor-notice a:hover {
+  text-decoration: underline;
+}
+
+.advisor-notice-warning {
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: 6px;
+  padding: 10px;
+  color: rgb(251, 191, 36);
+}
+
+.advisor-notice-warning strong {
+  color: rgb(251, 191, 36);
+}
+
+/* Mode Selection Buttons Container */
+.advisor-modal-body > .advisor-mode-btn:first-of-type,
+.advisor-modal-body > .advisor-mode-btn:last-of-type {
+  flex: 1;
+}
+
+.advisor-mode-buttons-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;

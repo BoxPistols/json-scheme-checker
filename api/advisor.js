@@ -145,19 +145,30 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const { jobPosting, mode } = req.body;
+    const { jobPosting, mode, userApiKey } = req.body;
 
-    if (!jobPosting) {
-      return res.status(400).json({ error: 'jobPosting is required' });
+    // 入力検証: jobPostingの存在と型チェック
+    if (!jobPosting || typeof jobPosting !== 'object') {
+      return res.status(400).json({ error: 'jobPosting は有効なオブジェクトである必要があります' });
     }
 
+    // 入力検証: 最低限の必須フィールド
+    if (!jobPosting.title && !jobPosting.description) {
+      return res.status(400).json({ error: 'jobPosting には title または description が必要です' });
+    }
+
+    // 入力検証: mode
     if (!mode || !['employer', 'applicant'].includes(mode)) {
-      return res.status(400).json({ error: 'mode must be "employer" or "applicant"' });
+      return res
+        .status(400)
+        .json({ error: 'mode は "employer" または "applicant" である必要があります' });
     }
 
-    const apiKey = process.env.OPENAI_API_KEY;
+    // APIキーの取得: ユーザー提供 > 環境変数
+    const apiKey = userApiKey || process.env.OPENAI_API_KEY;
     if (!apiKey) {
-      return res.status(500).json({ error: 'OpenAI API key not configured' });
+      console.error('[Advisor API] OPENAI_API_KEY not configured');
+      return res.status(503).json({ error: 'AI分析サービスは現在利用できません' });
     }
 
     const openai = new OpenAI({ apiKey });
