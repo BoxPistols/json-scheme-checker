@@ -97,15 +97,52 @@ if (isVercel) {
 }
 ```
 
-### Basic認証実装
+### 主要なエンドポイント
 
+本アプリケーションは、主に2つのサーバーサイドエンドポイントを提供します。
+
+#### 1. プロキシエンドポイント (`/proxy`)
+
+CORSエラーを回避するためのコア機能です。クライアントから受け取ったURLにサーバーサイドでリクエストを送り、取得したHTMLコンテンツをそのままクライアントに返します。Basic認証にも対応しています。
+
+**リクエスト (GET):**
+`/api/proxy?url={TARGET_URL}&username={USER}&password={PASS}`
+
+**実装の要点 (`api/proxy.js` / `server.js`):
 ```javascript
-// クエリパラメータで送信
-/api/proxy?url={TARGET_URL}&username={USER}&password={PASS}
+// クエリパラメータで認証情報を受け取る
+const { url, username, password } = req.query;
 
-// サーバー側でBase64エンコード
-const auth = Buffer.from(`${username}:${password}`).toString('base64');
-headers['Authorization'] = `Basic ${auth}`;
+// Basic認証ヘッダーを生成
+if (username && password) {
+  const auth = Buffer.from(`${username}:${password}`).toString('base64');
+  headers['Authorization'] = `Basic ${auth}`;
+}
+
+// AxiosでターゲットURLにリクエスト
+const response = await axios.get(targetUrl, { headers });
+```
+
+#### 2. JSON-LD抽出エンドポイント (`/extract-jsonld`)
+
+このエンドポイントはローカル開発サーバー (`server.js`) にのみ存在し、指定されたURLから直接JSON-LDを抽出する機能を提供します。主に開発時のテストやデバッグに利用されます。
+
+**リクエスト (POST):**
+`Content-Type: application/json`
+`{ "url": "https://example.com" }`
+
+**実装の要点 (`server.js`):
+```javascript
+app.post('/extract-jsonld', async (req, res) => {
+  const { url } = req.body;
+  // ... AxiosでURLのHTMLを取得 ...
+  const html = response.data;
+
+  // 正規表現でJSON-LDスクリプトタグを抽出
+  const jsonLdRegex = /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
+  
+  // ... 抽出したJSONをパースしてレスポンスとして返す ...
+});
 ```
 
 ---
@@ -155,13 +192,30 @@ vercel --prod
 
 ## 重要な技術的詳細
 
-### localhost URL変換
+### localhost URLの取り扱い
 
+ローカル開発時に `http://localhost:xxxx` のようなURLを扱う際、環境によってIPv6の解決に問題が発生することがあります。この問題を回避するため、プロキシサーバーは `localhost` を `127.0.0.1` に明示的に変換します。
+
+この処理は、ローカル開発サーバー (`server.js`) とVercel上のサーバーレス関数 (`api/proxy.js`) の両方で一貫して行われ、安定した動作を保証します。
+
+**実装 (`server.js` および `api/proxy.js`):**
 ```javascript
-// IPv6問題を回避
+// 受け取ったURLを取得
+const { url, username, password } = req.query;
+
+// ... (中略) ...
+
+// localhostをIPv4に変換（IPv6の問題を回避）
+let targetUrl = url;
 if (url.includes('localhost:')) {
-  url = url.replace('localhost:', '127.0.0.1:');
+  targetUrl = url.replace('localhost:', '127.0.0.1:');
+  console.log(`Converting localhost to IPv4: ${targetUrl}`);
 }
+
+// 変換後の `targetUrl` を使用してリクエスト
+const response = await axios.get(targetUrl, {
+  /* ... */
+});
 ```
 
 ### ブラウザ風ヘッダー

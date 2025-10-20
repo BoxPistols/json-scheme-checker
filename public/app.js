@@ -944,6 +944,7 @@ async function checkServerStatus() {
     // Vercel環境では /api/health、ローカルでは /health
     const healthUrl = isVercel ? '/api/health' : `${PROXY_SERVER}/health`;
     const response = await fetch(healthUrl);
+
     if (response.ok) {
       statusElement.textContent = isVercel ? 'Vercel API稼働中' : 'サーバー稼働中';
       statusElement.className = 'server-status';
@@ -954,6 +955,7 @@ async function checkServerStatus() {
     statusElement.className = 'server-status offline';
     return false;
   }
+  return false;
 }
 
 // 初期化時にサーバー状態をチェックと認証情報を復元
