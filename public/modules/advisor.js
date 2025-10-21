@@ -5,33 +5,11 @@ class AdvisorManager {
     this.currentJobPosting = null;
     this.currentMode = null;
     this.isStreaming = false;
-    this.currentUsage = null; // API usage情報
     this.RATE_LIMIT_KEY = 'jsonld_advisor_usage';
     this.USER_API_KEY = 'jsonld_user_openai_key';
     this.STAKEHOLDER_MODE_KEY = 'jsonld_advisor_stakeholder';
-    this.USAGE_TOTAL_KEY = 'jsonld_usage_total'; // 共通累積
-    this.USAGE_MODE_KEY = 'jsonld_usage_mode'; // 'daily' | 'session' | 'permanent'
-    this.USD_TO_JPY = 150;
     this.MAX_REQUESTS_PER_DAY = 10;
     this.MAX_REQUESTS_STAKEHOLDER = 30;
-    // 既定は gpt-4o-mini（目安単価）
-    this.PRICE_PER_INPUT_TOKEN = 0.00000015;
-    this.PRICE_PER_OUTPUT_TOKEN = 0.0000006;
-  }
-
-  /**
-   * モーダルにEscapeキーリスナーを追加
-   * @param {HTMLElement} overlay - オーバーレイ要素
-   * @param {Function} closeFunc - 閉じる関数
-   */
-  addEscapeKeyListener(overlay, closeFunc) {
-    const handleEscape = (e) => {
-      if (e.key === 'Escape') {
-        closeFunc.call(this);
-        document.removeEventListener('keydown', handleEscape);
-      }
-    };
-    document.addEventListener('keydown', handleEscape);
   }
 
   /**
@@ -162,7 +140,6 @@ class AdvisorManager {
     `;
     overlay.id = 'stakeholderPrompt';
     document.body.appendChild(overlay);
-    this.addEscapeKeyListener(overlay, this.closeStakeholderPrompt);
   }
 
   /**
@@ -218,7 +195,6 @@ class AdvisorManager {
             </button>
           </div>
 
-
           <p class="advisor-notice" style="margin-top: 12px;">
             このAPIキーはあなたのブラウザにのみ保存され、サーバーには送信されません。
             OpenAI APIキーは <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer">OpenAI Platform</a> で取得できます。
@@ -239,7 +215,6 @@ class AdvisorManager {
     `;
     overlay.id = 'developerPrompt';
     document.body.appendChild(overlay);
-    this.addEscapeKeyListener(overlay, this.closeDeveloperPrompt);
   }
 
   /**
@@ -251,21 +226,6 @@ class AdvisorManager {
       overlay.classList.remove('active');
       setTimeout(() => overlay.remove(), 300);
     }
-    setTimeout(() => advisorView.classList.add('active'), 10);
-+    // 初期化: モデルセレクトとチップ
-+    setTimeout(() => {
-+      const sel = document.getElementById('advisorModelSelect');
-+      if (sel) {
-+        sel.value = this.getSelectedModel();
-+        sel.addEventListener('change', () => this.setSelectedModel(sel.value));
-+      }
-+      const resetBtn = document.getElementById('advisorUsageResetBtn');
-+      if (resetBtn) resetBtn.addEventListener('click', () => this.resetAccumulatedUsage());
-+      const modeBtn = document.getElementById('advisorUsageModeBtn');
-+      if (modeBtn) modeBtn.addEventListener('click', () => this.cycleUsageMode());
-+      this.updateHeaderUsageChip();
-+    }, 20);
-
   }
 
   /**
@@ -301,17 +261,10 @@ class AdvisorManager {
     // 既存のボタンを削除
     this.hideAdvisorButton();
 
-    // JobPostingを検索（大文字小文字/配列/ヒューリスティック対応）
-    const jobPosting = jsonLdData.find(item => {
-      const t = item['@type'];
-      if (t) {
-        const arr = Array.isArray(t) ? t : [t];
-        if (arr.some(v => String(v).toLowerCase().includes('jobposting'))) return true;
-      }
-      // 代表的なJobPostingプロパティでヒューリスティック判定
-      const keys = ['employmentType', 'hiringOrganization', 'jobLocation', 'baseSalary', 'applicantLocationRequirements', 'validThrough'];
-      return keys.some(k => k in item);
-    });
+    // JobPostingを検索
+    const jobPosting = jsonLdData.find(
+      item => item['@type'] === 'JobPosting' || item['@type']?.includes('JobPosting')
+    );
 
     console.log('[AdvisorManager] JobPosting detected:', jobPosting);
 
@@ -353,146 +306,6 @@ class AdvisorManager {
       AIアドバイスを受ける
     `;
     button.onclick = () => this.showModeSelector();
-  /** ヘッダ使用量チップ更新 */
-  updateHeaderUsageChip() {
-    const chip = document.getElementById('advisorHeaderUsage');
-    const curTok = document.getElementById('advisorHeaderTokens');
-    const curCost = document.getElementById('advisorHeaderCost');
-    const totTok = document.getElementById('advisorHeaderTotalTokens');
-    const totCost = document.getElementById('advisorHeaderTotalCost');
-    if (!chip || !curTok || !curCost || !totTok || !totCost) return;
-
-    if (this.currentUsage) {
-      const { total_tokens = 0, prompt_tokens = 0, completion_tokens = 0 } = this.currentUsage;
-      const inputCost = prompt_tokens * this.PRICE_PER_INPUT_TOKEN;
-      const outputCost = completion_tokens * this.PRICE_PER_OUTPUT_TOKEN;
-      const totalCost = inputCost + outputCost;
-      curTok.textContent = `${total_tokens.toLocaleString()} tok`;
-      curCost.textContent = `$${totalCost.toFixed(6)} (¥${(totalCost * this.USD_TO_JPY).toFixed(2)})`;
-      chip.style.display = 'inline-flex';
-    // トリガー横のモデルセレクトと累積チップを配置
-    let sel = document.getElementById('advisorTriggerModel');
-    if (!sel) {
-      sel = document.createElement('select');
-      sel.id = 'advisorTriggerModel';
-      sel.className = 'advisor-select';
-      sel.style.cssText = 'margin-left:8px; font-size:12px; padding:4px 8px; background: var(--secondary-bg-color); color: var(--text-color); border: 1px solid var(--border-color);';
-      sel.innerHTML = `
-        <option value="gpt-4o-mini">gpt-4o-mini</option>
-        <option value="gpt-4o">gpt-4o</option>
-        <option value="gpt-4.1-nano">gpt-4.1-nano</option>
-        <option value="gpt-4.1-mini">gpt-4.1-mini</option>
-        <option value="gpt-4.1">gpt-4.1</option>
-        <option value="o3-mini">o3-mini</option>
-        <option value="o3">o3</option>
-      `;
-      button.insertAdjacentElement('afterend', sel);
-      sel.value = this.getSelectedModel();
-      sel.addEventListener('change', () => this.setSelectedModel(sel.value));
-    }
-    let chip = document.getElementById('advisorTriggerUsage');
-    if (!chip) {
-      chip = document.createElement('span');
-      chip.id = 'advisorTriggerUsage';
-      chip.style.cssText = 'margin-left:8px; padding:4px 8px; font-size:12px; color:var(--secondary-text-color); border:1px solid var(--border-color); border-radius:999px;';
-      button.insertAdjacentElement('afterend', chip);
-    }
-    // チップの内容更新
-    const acc = this.getAccumulatedUsage();
-    const usd = (acc.prompt_tokens || 0) * this.PRICE_PER_INPUT_TOKEN + (acc.completion_tokens || 0) * this.PRICE_PER_OUTPUT_TOKEN;
-    chip.textContent = `累計: ${(acc.total_tokens||0).toLocaleString()} tok / $${usd.toFixed(4)} (¥${(usd*this.USD_TO_JPY).toFixed(0)})`;
-
-    }
-
-    const acc = this.getAccumulatedUsage();
-    const t = acc.total_tokens || 0;
-    const accCostUSD = (acc.prompt_tokens || 0) * this.PRICE_PER_INPUT_TOKEN + (acc.completion_tokens || 0) * this.PRICE_PER_OUTPUT_TOKEN;
-    totTok.textContent = `${t.toLocaleString()} tok`;
-    totCost.textContent = `$${accCostUSD.toFixed(6)} (¥${(accCostUSD * this.USD_TO_JPY).toFixed(2)})`;
-  }
-
-  /** 累積管理（共通・日別既定） */
-  getAccumulatedUsage() {
-    try {
-      const mode = localStorage.getItem(this.USAGE_MODE_KEY) || 'daily';
-      if (mode === 'session') {
-        const raw = sessionStorage.getItem(this.USAGE_TOTAL_KEY);
-        return raw ? JSON.parse(raw) : { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 };
-      } else if (mode === 'permanent') {
-        const raw = localStorage.getItem(this.USAGE_TOTAL_KEY);
-        return raw ? JSON.parse(raw) : { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 };
-      } else {
-        const today = new Date().toISOString().slice(0, 10);
-        const raw = localStorage.getItem(this.USAGE_TOTAL_KEY);
-        const obj = raw ? JSON.parse(raw) : { date: today, prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 };
-        if (obj.date !== today) return { date: today, prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 };
-        return obj;
-      }
-    } catch { return { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 }; }
-  }
-  saveAccumulatedUsage(val) {
-    try {
-      const mode = localStorage.getItem(this.USAGE_MODE_KEY) || 'daily';
-      if (mode === 'session') sessionStorage.setItem(this.USAGE_TOTAL_KEY, JSON.stringify(val));
-      else localStorage.setItem(this.USAGE_TOTAL_KEY, JSON.stringify(val));
-    } catch {}
-  }
-  addToAccumulatedUsage(usage) {
-    const acc = this.getAccumulatedUsage();
-    const today = new Date().toISOString().slice(0, 10);
-    const base = { date: acc.date || today, prompt_tokens: acc.prompt_tokens || 0, completion_tokens: acc.completion_tokens || 0, total_tokens: acc.total_tokens || 0 };
-    const next = {
-      date: base.date === today ? base.date : today,
-      prompt_tokens: base.date === today ? base.prompt_tokens + (usage.prompt_tokens || 0) : (usage.prompt_tokens || 0),
-      completion_tokens: base.date === today ? base.completion_tokens + (usage.completion_tokens || 0) : (usage.completion_tokens || 0),
-      total_tokens: base.date === today ? base.total_tokens + (usage.total_tokens || 0) : (usage.total_tokens || 0),
-    };
-    this.saveAccumulatedUsage(next);
-    this.updateHeaderUsageChip();
-  }
-  resetAccumulatedUsage() {
-    try {
-      sessionStorage.removeItem(this.USAGE_TOTAL_KEY);
-      localStorage.removeItem(this.USAGE_TOTAL_KEY);
-      this.updateHeaderUsageChip();
-    } catch {}
-  }
-  cycleUsageMode() {
-    const mode = localStorage.getItem(this.USAGE_MODE_KEY) || 'daily';
-    const order = ['daily', 'session', 'permanent'];
-    const next = order[(order.indexOf(mode) + 1) % order.length];
-    localStorage.setItem(this.USAGE_MODE_KEY, next);
-    this.updateHeaderUsageChip();
-    alert(`集計モード: ${next}`);
-  }
-
-  /** モデル選択/単価 */
-  getSelectedModel() {
-    try { return localStorage.getItem('jsonld_model_common') || 'gpt-4o-mini'; } catch { return 'gpt-4o-mini'; }
-  }
-  setSelectedModel(model) {
-    try {
-      localStorage.setItem('jsonld_model_common', model);
-      const p = this.getModelPricing(model);
-      this.PRICE_PER_INPUT_TOKEN = p.input; this.PRICE_PER_OUTPUT_TOKEN = p.output;
-      const sel = document.getElementById('advisorModelSelect');
-      if (sel) sel.value = model;
-      this.updateHeaderUsageChip();
-      if (this.currentUsage) this.displayUsage();
-    } catch {}
-  }
-  getModelPricing(model) {
-    const table = {
-      'gpt-4o-mini': { input: 0.00000015, output: 0.0000006 },
-      'gpt-4o': { input: 0.0000025, output: 0.00001 },
-      'gpt-4.1-mini': { input: 0.00000015, output: 0.0000006 },
-      'gpt-4.1': { input: 0.000003, output: 0.000015 },
-      'o3-mini': { input: 0.0000006, output: 0.0000024 },
-      'o3': { input: 0.000003, output: 0.000015 },
-    };
-    return table[model] || table['gpt-4o-mini'];
-  }
-
 
     resultDiv.insertBefore(button, resultDiv.firstChild);
     console.log('[AdvisorManager] Advisor button inserted into DOM');
@@ -504,25 +317,6 @@ class AdvisorManager {
   hideAdvisorButton() {
     const btn = document.getElementById('advisorTriggerBtn');
     if (btn) btn.remove();
-  }
-
-  /**
-   * 通常モードに戻す（関係者モード・開発者モードを解除）
-   */
-  resetToNormalMode() {
-    // 関係者モードを解除
-    localStorage.removeItem(this.STAKEHOLDER_MODE_KEY);
-
-    // 開発者モード（APIキー）を解除
-    localStorage.removeItem(this.USER_API_KEY);
-
-    // モード選択ダイアログを閉じて再表示
-    this.closeModeSelector();
-
-    alert('通常モードに戻しました。');
-
-    // ダイアログを再表示
-    setTimeout(() => this.showModeSelector(), 100);
   }
 
   /**
@@ -564,28 +358,21 @@ class AdvisorManager {
     overlay.className = 'advisor-overlay';
     overlay.innerHTML = `
       <div class="advisor-modal">
-        <div class="advisor-modal-header" style="display: flex; flex-direction: column; align-items: stretch;">
-          <div style="display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-bottom: 12px;">
-            <div class="advisor-mode-buttons-small">
-              ${rateLimit.mode !== 'normal' ? `
-                <button class="advisor-mode-btn-small" onclick="advisorManager.resetToNormalMode()" title="通常モード（10回/24時間）に戻す" style="background: var(--secondary-bg-color); border-color: var(--border-color);">
-                  通常モード
-                </button>
-              ` : ''}
-              <button class="advisor-mode-btn-small" onclick="advisorManager.showStakeholderPrompt()" title="関係者は30回/24時間まで利用可能">
-                関係者
-              </button>
-              <button class="advisor-mode-btn-small" onclick="advisorManager.showDeveloperPrompt()" title="自分のAPIキーで無制限利用">
-                開発者
-              </button>
-            </div>
-            <button class="advisor-modal-close" onclick="advisorManager.closeModeSelector()">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              </svg>
+        <div class="advisor-modal-header">
+          <h2>どちらの視点でアドバイスしますか？</h2>
+          <div class="advisor-mode-buttons-small">
+            <button class="advisor-mode-btn-small" onclick="advisorManager.showStakeholderPrompt()" title="関係者は30回/24時間まで利用可能">
+              関係者
+            </button>
+            <button class="advisor-mode-btn-small" onclick="advisorManager.showDeveloperPrompt()" title="自分のAPIキーで無制限利用">
+              開発者
             </button>
           </div>
-          <h2 style="margin: 0; width: 100%;">どちらの視点でアドバイスしますか？</h2>
+          <button class="advisor-modal-close" onclick="advisorManager.closeModeSelector()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
         </div>
         <div class="advisor-modal-body">
           ${rateLimitHtml}
@@ -615,7 +402,6 @@ class AdvisorManager {
     `;
 
     document.body.appendChild(overlay);
-    this.addEscapeKeyListener(overlay, this.closeModeSelector);
 
     setTimeout(() => overlay.classList.add('active'), 10);
   }
@@ -877,11 +663,6 @@ class AdvisorManager {
                 if (parsed.content) {
                   fullText += parsed.content;
                   markdownDiv.innerHTML = this.renderMarkdown(fullText);
-                } else if (parsed.usage) {
-                  // usage情報を保存して表示
-                  console.log('[Advisor] Received usage:', parsed.usage);
-                  this.currentUsage = parsed.usage;
-                  this.displayUsage();
                 } else if (parsed.error) {
                   throw new Error(parsed.error);
                 }
@@ -910,64 +691,6 @@ class AdvisorManager {
           </button>
         </div>
       `;
-    }
-  }
-
-  /**
-   * API usage情報を表示
-   */
-  displayUsage() {
-    if (!this.currentUsage) {
-      console.log('[Advisor] No usage data to display');
-      return;
-    }
-
-    console.log('[Advisor] Displaying usage:', this.currentUsage);
-    const { prompt_tokens, completion_tokens, total_tokens } = this.currentUsage;
-
-    // 料金計算
-    const inputCost = prompt_tokens * this.PRICE_PER_INPUT_TOKEN;
-    const outputCost = completion_tokens * this.PRICE_PER_OUTPUT_TOKEN;
-    const totalCost = inputCost + outputCost;
-
-    // 日本円換算（1 USD = 150 JPY）
-    const totalCostJPY = totalCost * 150;
-
-    // usage表示用のHTML
-    const usageHtml = `
-      <div class="advisor-usage-panel" style="margin-top: 20px; padding: 16px; background: var(--secondary-bg-color); border: 1px solid var(--border-color); border-radius: 8px;">
-        <h4 style="margin: 0 0 12px 0; font-size: 0.9rem; color: var(--secondary-text-color);">API使用量</h4>
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; font-size: 0.85rem;">
-          <div>
-            <div style="color: var(--secondary-text-color); margin-bottom: 4px;">入力トークン</div>
-            <div style="font-weight: 600;">${prompt_tokens.toLocaleString()} tokens</div>
-          </div>
-          <div>
-            <div style="color: var(--secondary-text-color); margin-bottom: 4px;">出力トークン</div>
-            <div style="font-weight: 600;">${completion_tokens.toLocaleString()} tokens</div>
-          </div>
-          <div>
-            <div style="color: var(--secondary-text-color); margin-bottom: 4px;">合計トークン</div>
-            <div style="font-weight: 600;">${total_tokens.toLocaleString()} tokens</div>
-          </div>
-          <div>
-            <div style="color: var(--secondary-text-color); margin-bottom: 4px;">推定料金</div>
-            <div style="font-weight: 600;">$${totalCost.toFixed(6)} (約 ¥${totalCostJPY.toFixed(4)})</div>
-          </div>
-        </div>
-      </div>
-    `;
-
-    // アドバイスコンテンツの末尾に追加
-    const adviceContent = document.getElementById('advisorAdviceContent');
-    console.log('[Advisor] adviceContent element:', adviceContent);
-    if (adviceContent) {
-      const markdownDiv = adviceContent.querySelector('.advisor-markdown');
-      console.log('[Advisor] markdownDiv element:', markdownDiv);
-      if (markdownDiv) {
-        markdownDiv.insertAdjacentHTML('afterend', usageHtml);
-        console.log('[Advisor] Usage HTML inserted');
-      }
     }
   }
 
