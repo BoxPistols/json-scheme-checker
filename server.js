@@ -243,6 +243,17 @@ app.post('/api/advisor', async (req, res) => {
   }
 });
 
+// Blog Reviewer APIエンドポイント（ローカル開発用）
+app.post('/api/blog-reviewer', async (req, res) => {
+  try {
+    const blogReviewerHandler = require('./api/blog-reviewer');
+    await blogReviewerHandler(req, res);
+  } catch (error) {
+    console.error('Blog Reviewer API error:', error);
+    res.status(500).json({ error: 'Internal server error', details: error.message });
+  }
+});
+
 // ネットワークIPアドレスを取得
 const os = require('os');
 const networkInterfaces = os.networkInterfaces();
