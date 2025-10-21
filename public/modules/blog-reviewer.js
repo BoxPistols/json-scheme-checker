@@ -309,6 +309,11 @@ class BlogReviewerManager {
     if (input) {
       this.saveUserApiKey(input.value.trim());
       this.closeDeveloperPrompt();
+      // 確認画面を再表示
+      this.showConfirmDialog();
+    }
+  }
+
   /**
    * トリガーボタン横の累積使用量チップ更新
    */
@@ -324,11 +329,6 @@ class BlogReviewerManager {
     }
     const acc = this.getAccumulatedUsage();
     chip.textContent = `累計: ${(acc.total_tokens || 0).toLocaleString()} tok`;
-  }
-
-      // 確認画面を再表示
-      this.showConfirmDialog();
-    }
   }
 
   /**
@@ -366,9 +366,20 @@ class BlogReviewerManager {
    */
   detectBlogPost(jsonLdData) {
     console.log('[BlogReviewerManager] detectBlogPost called with:', jsonLdData);
+    console.log('[BlogReviewerManager] Number of schemas:', jsonLdData?.length);
 
     // 既存のボタンを削除
     this.hideReviewButton();
+
+    if (!jsonLdData || !Array.isArray(jsonLdData) || jsonLdData.length === 0) {
+      console.warn('[BlogReviewerManager] jsonLdData is empty or not an array');
+      return;
+    }
+
+    // デバッグ: 各アイテムの@typeをログ出力
+    jsonLdData.forEach((item, index) => {
+      console.log(`[BlogReviewerManager] Schema ${index + 1} @type:`, item['@type']);
+    });
 
     // Article または BlogPosting を検索
     const article = jsonLdData.find(
@@ -560,10 +571,20 @@ class BlogReviewerManager {
    */
   showReviewButton() {
     const resultDiv = document.getElementById('results');
-    console.log('[BlogReviewerManager] showReviewButton - results div:', resultDiv);
+    console.log('[BlogReviewerManager] showReviewButton called');
+    console.log('[BlogReviewerManager] results div:', resultDiv);
+    console.log('[BlogReviewerManager] results div found:', !!resultDiv);
 
     if (!resultDiv) {
       console.error('[BlogReviewerManager] ERROR: results div not found');
+      // フォールバック: schemasContainerを探す
+      const schemasContainer = document.getElementById('schemasContainer');
+      if (schemasContainer) {
+        console.log('[BlogReviewerManager] Using schemasContainer as fallback');
+        const button = this.createReviewButton();
+        schemasContainer.parentElement.insertBefore(button, schemasContainer);
+        return;
+      }
       return;
     }
 
@@ -573,6 +594,16 @@ class BlogReviewerManager {
       return;
     }
 
+    const button = this.createReviewButton();
+    resultDiv.insertBefore(button, resultDiv.firstChild);
+    console.log('[BlogReviewerManager] Review button inserted into DOM');
+  }
+
+  /**
+   * レビューボタンを作成
+   * @returns {HTMLButtonElement}
+   */
+  createReviewButton() {
     const button = document.createElement('button');
     button.id = 'blogReviewerTriggerBtn';
     button.className = 'advisor-trigger-btn';
@@ -584,9 +615,8 @@ class BlogReviewerManager {
       </svg>
       ブログ記事レビューを受ける
     `;
-
-    resultDiv.insertBefore(button, resultDiv.firstChild);
-    console.log('[BlogReviewerManager] Review button inserted into DOM');
+    console.log('[BlogReviewerManager] Review button created');
+    return button;
   }
 
   /**
@@ -743,9 +773,10 @@ class BlogReviewerManager {
         </h2>
         <div class="advisor-view-actions" style="display:flex; align-items:center; gap:8px;">
           <label for="blogReviewerModelSelect" class="text-muted" style="font-size:12px;">モデル</label>
-          <select id="blogReviewerModelSelect" class="advisor-select" style="font-size:12px; padding:4px 8px;">
+          <select id="blogReviewerModelSelect" class="advisor-select" style="font-size:12px; padding:4px 8px; background: var(--secondary-bg-color); color: var(--text-color); border: 1px solid var(--border-color);">
             <option value="gpt-4o-mini" selected>gpt-4o-mini</option>
             <option value="gpt-4o">gpt-4o</option>
+            <option value="gpt-4.1-nano">gpt-4.1-nano</option>
             <option value="gpt-4.1-mini">gpt-4.1-mini</option>
             <option value="gpt-4.1">gpt-4.1</option>
             <option value="o3-mini">o3-mini</option>
@@ -1008,6 +1039,22 @@ class BlogReviewerManager {
   }
 
   /**
+  // トップのトリガー横の累積チップも金額併記
+  updateTriggerUsageChip() {
+    const btn = document.getElementById('blogReviewerTriggerBtn');
+    if (!btn) return;
+    let chip = document.getElementById('blogReviewerTriggerUsage');
+    if (!chip) {
+      chip = document.createElement('span');
+      chip.id = 'blogReviewerTriggerUsage';
+      chip.style.cssText = 'margin-left:8px; padding:4px 8px; font-size:12px; color:var(--secondary-text-color); border:1px solid var(--border-color); border-radius:999px;';
+      btn.insertAdjacentElement('afterend', chip);
+    }
+    const acc = this.getAccumulatedUsage();
+    const usd = (acc.prompt_tokens || 0) * this.PRICE_PER_INPUT_TOKEN + (acc.completion_tokens || 0) * this.PRICE_PER_OUTPUT_TOKEN;
+    chip.textContent = `累計: ${(acc.total_tokens||0).toLocaleString()} tok / $${usd.toFixed(4)} (¥${(usd*150).toFixed(0)})`;
+  }
+
    * ヘッダの使用量チップを更新
    */
   updateHeaderUsageChip() {
