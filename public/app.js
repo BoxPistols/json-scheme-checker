@@ -1149,11 +1149,6 @@ Express: server.js に app.use(cors()) を追加
       displaySEOAnalysis(html, schemas);
     }
 
-    // Blog Reviewer がHTML本文を必要とするため、渡す
-    if (typeof blogReviewerManager !== 'undefined' && blogReviewerManager && typeof blogReviewerManager.setRemoteHtml === 'function') {
-      blogReviewerManager.setRemoteHtml(html);
-    }
-
     if (schemas.length === 0) {
       showNoData();
     } else {
@@ -1260,11 +1255,6 @@ function displaySchemas(schemas, url) {
   // AI Advisor: JobPosting検出
   if (typeof advisorManager !== 'undefined') {
     advisorManager.detectJobPosting(schemas);
-  }
-
-  // Blog Reviewer: Article/BlogPosting検出
-  if (typeof blogReviewerManager !== 'undefined') {
-    blogReviewerManager.detectBlogPost(schemas);
   }
 }
 
