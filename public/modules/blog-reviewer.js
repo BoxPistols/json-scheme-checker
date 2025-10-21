@@ -5,10 +5,44 @@ class BlogReviewerManager {
     this.currentArticle = null;
     this.isStreaming = false;
     this.RATE_LIMIT_KEY = 'jsonld_blog_reviewer_usage';
-    this.USER_API_KEY = 'jsonld_user_openai_key';
+    this.USER_API_KEY = 'jsonld_blog_reviewer_openai_key';
     this.STAKEHOLDER_MODE_KEY = 'jsonld_blog_reviewer_stakeholder';
     this.MAX_REQUESTS_PER_DAY = 10;
     this.MAX_REQUESTS_STAKEHOLDER = 30;
+    this.initEventListeners();
+  }
+
+  /**
+   * イベントリスナーを初期化
+   */
+  initEventListeners() {
+    document.addEventListener('click', (event) => {
+      const target = event.target.closest('button');
+      if (!target) return;
+
+      const action = target.dataset.action;
+      if (!action) return;
+
+      // onclick属性を使用していた関数のマッピング
+      const handlers = {
+        'close-stakeholder-prompt': () => this.closeStakeholderPrompt(),
+        'confirm-stakeholder': () => this.confirmStakeholder(),
+        'close-developer-prompt': () => this.closeDeveloperPrompt(),
+        'toggle-developer-key-visibility': () => this.toggleDeveloperKeyVisibility(),
+        'save-developer-key': () => this.saveDeveloperKey(),
+        'show-stakeholder-prompt': () => this.showStakeholderPrompt(),
+        'show-developer-prompt': () => this.showDeveloperPrompt(),
+        'close-confirm-dialog': () => this.closeConfirmDialog(),
+        'start-review': () => this.startReview(),
+        'close-review-view': () => this.closeReviewView(),
+        'fetch-review': () => this.fetchReview(),
+      };
+
+      if (handlers[action]) {
+        event.preventDefault();
+        handlers[action]();
+      }
+    });
   }
 
   /**
@@ -131,8 +165,8 @@ class BlogReviewerManager {
             関係者の場合、利用回数が30回/24時間に増加します
           </p>
           <div class="advisor-confirm-buttons">
-            <button class="advisor-btn-secondary" onclick="blogReviewerManager.closeStakeholderPrompt()">いいえ</button>
-            <button class="advisor-btn-primary" onclick="blogReviewerManager.confirmStakeholder()">はい</button>
+            <button class="advisor-btn-secondary" data-action="close-stakeholder-prompt">いいえ</button>
+            <button class="advisor-btn-primary" data-action="confirm-stakeholder">はい</button>
           </div>
         </div>
       </div>
@@ -173,7 +207,7 @@ class BlogReviewerManager {
       <div class="advisor-modal advisor-developer-modal">
         <div class="advisor-modal-header">
           <h2>開発者モード</h2>
-          <button class="advisor-modal-close" onclick="blogReviewerManager.closeDeveloperPrompt()">
+          <button class="advisor-modal-close" data-action="close-developer-prompt">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             </svg>
@@ -186,7 +220,7 @@ class BlogReviewerManager {
 
           <div class="advisor-api-key-wrapper">
             <input type="password" id="developerApiKeyInputBlog" placeholder="sk-proj-..." value="${currentKey}" class="advisor-input">
-            <button type="button" onclick="blogReviewerManager.toggleDeveloperKeyVisibility()" class="advisor-btn-icon" title="表示/非表示">
+            <button type="button" data-action="toggle-developer-key-visibility" class="advisor-btn-icon" title="表示/非表示">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/>
                 <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
@@ -206,8 +240,8 @@ class BlogReviewerManager {
           </p>
 
           <div class="advisor-confirm-buttons" style="margin-top: 20px;">
-            <button class="advisor-btn-secondary" onclick="blogReviewerManager.closeDeveloperPrompt()">キャンセル</button>
-            <button class="advisor-btn-primary" onclick="blogReviewerManager.saveDeveloperKey()">保存</button>
+            <button class="advisor-btn-secondary" data-action="close-developer-prompt">キャンセル</button>
+            <button class="advisor-btn-primary" data-action="save-developer-key">保存</button>
           </div>
         </div>
       </div>
@@ -364,14 +398,14 @@ class BlogReviewerManager {
         <div class="advisor-modal-header">
           <h2>ブログ記事レビュー</h2>
           <div class="advisor-mode-buttons-small">
-            <button class="advisor-mode-btn-small" onclick="blogReviewerManager.showStakeholderPrompt()" title="関係者は30回/24時間まで利用可能">
+            <button class="advisor-mode-btn-small" data-action="show-stakeholder-prompt" title="関係者は30回/24時間まで利用可能">
               関係者
             </button>
-            <button class="advisor-mode-btn-small" onclick="blogReviewerManager.showDeveloperPrompt()" title="自分のAPIキーで無制限利用">
+            <button class="advisor-mode-btn-small" data-action="show-developer-prompt" title="自分のAPIキーで無制限利用">
               開発者
             </button>
           </div>
-          <button class="advisor-modal-close" onclick="blogReviewerManager.closeConfirmDialog()">
+          <button class="advisor-modal-close" data-action="close-confirm-dialog">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             </svg>
@@ -385,8 +419,8 @@ class BlogReviewerManager {
           </p>
 
           <div class="advisor-confirm-buttons">
-            <button class="advisor-btn-secondary" onclick="blogReviewerManager.closeConfirmDialog()">キャンセル</button>
-            <button class="advisor-btn-primary" onclick="blogReviewerManager.startReview()">レビュー開始</button>
+            <button class="advisor-btn-secondary" data-action="close-confirm-dialog">キャンセル</button>
+            <button class="advisor-btn-primary" data-action="start-review">レビュー開始</button>
           </div>
         </div>
       </div>
@@ -458,7 +492,7 @@ class BlogReviewerManager {
           ブログ記事レビュー
         </h2>
         <div class="advisor-view-actions">
-          <button class="advisor-btn-secondary" onclick="blogReviewerManager.closeReviewView()">
+          <button class="advisor-btn-secondary" data-action="close-review-view">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -575,6 +609,22 @@ class BlogReviewerManager {
       });
 
       if (!response.ok) {
+        // 429 Too Many Requests: レート制限エラー
+        if (response.status === 429) {
+          try {
+            const errorData = await response.json();
+            const resetTime = new Date(errorData.resetTime).toLocaleTimeString('ja-JP');
+            throw new Error(
+              `レート制限に達しました。${resetTime}にリセットされます。` +
+              '\n\n開発者モードで自分のOpenAI APIキーを使用すると、無制限で利用できます。'
+            );
+          } catch (e) {
+            throw new Error(
+              'レート制限に達しました。24時間後に再度試してください。' +
+              '\n\n開発者モードで自分のOpenAI APIキーを使用すると、無制限で利用できます。'
+            );
+          }
+        }
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
@@ -633,7 +683,7 @@ class BlogReviewerManager {
           </svg>
           <p>AI分析に失敗しました</p>
           <p class="advisor-error-detail">${this.escapeHtml(error.message)}</p>
-          <button class="advisor-btn-primary" onclick="blogReviewerManager.fetchReview()">
+          <button class="advisor-btn-primary" data-action="fetch-review">
             再試行
           </button>
         </div>
@@ -667,7 +717,7 @@ class BlogReviewerManager {
     html = html.replace(/\n/g, '<br>');
 
     // 連続する<li>タグを<ul>で囲む（改行変換後に実行）
-    html = html.replace(/((?:<li>.*?<\/li>(?:<br>)*)+)/g, '<ul>$1</ul>');
+    html = html.replace(/((?:<li>.*?<\/li>(?:<br>)*)+)/g, (match) => `<ul>${match.replace(/<br>/g, '')}</ul>`);
 
     return html;
   }

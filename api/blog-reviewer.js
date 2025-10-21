@@ -1,5 +1,69 @@
 const OpenAI = require('openai');
 
+// メモリベースのレート制限管理
+const rateLimitStore = new Map();
+const RATE_LIMIT_WINDOW = 24 * 60 * 60 * 1000; // 24時間
+const MAX_REQUESTS_PER_IP = 10; // IP単位での制限
+const RATE_LIMIT_CLEANUP_INTERVAL = 60 * 60 * 1000; // 1時間ごとにクリーンアップ
+
+// 定期的に古いエントリをクリーンアップ
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, entries] of rateLimitStore.entries()) {
+    const activeEntries = entries.filter(timestamp => now - timestamp < RATE_LIMIT_WINDOW);
+    if (activeEntries.length === 0) {
+      rateLimitStore.delete(key);
+    } else if (activeEntries.length !== entries.length) {
+      rateLimitStore.set(key, activeEntries);
+    }
+  }
+}, RATE_LIMIT_CLEANUP_INTERVAL);
+
+/**
+ * クライアントのIPアドレスを取得
+ */
+function getClientIp(req) {
+  return (
+    req.headers['x-forwarded-for']?.split(',')[0].trim() ||
+    req.headers['x-real-ip'] ||
+    req.connection?.remoteAddress ||
+    '0.0.0.0'
+  );
+}
+
+/**
+ * レート制限をチェック
+ */
+function checkRateLimit(ip) {
+  const now = Date.now();
+  let entries = rateLimitStore.get(ip) || [];
+
+  // 有効なエントリ（24時間以内）をフィルタリング
+  entries = entries.filter(timestamp => now - timestamp < RATE_LIMIT_WINDOW);
+
+  // 上限チェック
+  if (entries.length >= MAX_REQUESTS_PER_IP) {
+    const oldestTimestamp = entries[0];
+    const resetTime = new Date(oldestTimestamp + RATE_LIMIT_WINDOW);
+    return {
+      allowed: false,
+      remaining: 0,
+      resetTime: resetTime.toISOString(),
+      retryAfter: Math.ceil((oldestTimestamp + RATE_LIMIT_WINDOW - now) / 1000),
+    };
+  }
+
+  // 新しいリクエストを記録
+  entries.push(now);
+  rateLimitStore.set(ip, entries);
+
+  return {
+    allowed: true,
+    remaining: MAX_REQUESTS_PER_IP - entries.length,
+    resetTime: new Date(now + RATE_LIMIT_WINDOW).toISOString(),
+  };
+}
+
 const BLOG_REVIEW_PROMPT = `あなたはSEO・コンテンツマーケティングの専門家です。以下のArticle/BlogPosting JSON-LDデータとHTMLコンテンツを分析し、SEO観点、EEAT観点、アクセシビリティ観点でレビューを提供してください。
 
 【重要な制約】
@@ -128,7 +192,26 @@ module.exports = async (req, res) => {
   }
 
   try {
+    // レート制限チェック（ユーザーのAPIキー使用時はスキップ）
     const { article, userApiKey } = req.body;
+    if (!userApiKey) {
+      const clientIp = getClientIp(req);
+      const rateLimitResult = checkRateLimit(clientIp);
+
+      if (!rateLimitResult.allowed) {
+        res.setHeader('Retry-After', rateLimitResult.retryAfter);
+        return res.status(429).json({
+          error: 'レート制限に達しました',
+          remaining: rateLimitResult.remaining,
+          resetTime: rateLimitResult.resetTime,
+          retryAfter: rateLimitResult.retryAfter,
+        });
+      }
+
+      // レート制限情報をレスポンスヘッダーに含める
+      res.setHeader('X-RateLimit-Remaining', rateLimitResult.remaining);
+      res.setHeader('X-RateLimit-Reset', rateLimitResult.resetTime);
+    }
 
     // 入力検証: articleの存在と型チェック
     if (!article || typeof article !== 'object') {
