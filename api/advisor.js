@@ -189,12 +189,18 @@ module.exports = async (req, res) => {
       ],
       stream: true,
       temperature: 0.7,
+      stream_options: { include_usage: true },
     });
 
     for await (const chunk of stream) {
       const content = chunk.choices[0]?.delta?.content;
       if (content) {
         res.write(`data: ${JSON.stringify({ content })}\n\n`);
+      }
+
+      // usage情報を送信
+      if (chunk.usage) {
+        res.write(`data: ${JSON.stringify({ usage: chunk.usage })}\n\n`);
       }
     }
 

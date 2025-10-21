@@ -5,11 +5,30 @@ class AdvisorManager {
     this.currentJobPosting = null;
     this.currentMode = null;
     this.isStreaming = false;
+    this.currentUsage = null; // API usage情報
     this.RATE_LIMIT_KEY = 'jsonld_advisor_usage';
     this.USER_API_KEY = 'jsonld_user_openai_key';
     this.STAKEHOLDER_MODE_KEY = 'jsonld_advisor_stakeholder';
     this.MAX_REQUESTS_PER_DAY = 10;
     this.MAX_REQUESTS_STAKEHOLDER = 30;
+    // GPT-4o-miniの料金（1トークンあたりのUSD）
+    this.PRICE_PER_INPUT_TOKEN = 0.00000015; // $0.15 / 1M tokens
+    this.PRICE_PER_OUTPUT_TOKEN = 0.0000006; // $0.6 / 1M tokens
+  }
+
+  /**
+   * モーダルにEscapeキーリスナーを追加
+   * @param {HTMLElement} overlay - オーバーレイ要素
+   * @param {Function} closeFunc - 閉じる関数
+   */
+  addEscapeKeyListener(overlay, closeFunc) {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        closeFunc.call(this);
+        document.removeEventListener('keydown', handleEscape);
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
   }
 
   /**
@@ -140,6 +159,7 @@ class AdvisorManager {
     `;
     overlay.id = 'stakeholderPrompt';
     document.body.appendChild(overlay);
+    this.addEscapeKeyListener(overlay, this.closeStakeholderPrompt);
   }
 
   /**
@@ -215,6 +235,7 @@ class AdvisorManager {
     `;
     overlay.id = 'developerPrompt';
     document.body.appendChild(overlay);
+    this.addEscapeKeyListener(overlay, this.closeDeveloperPrompt);
   }
 
   /**
@@ -320,6 +341,25 @@ class AdvisorManager {
   }
 
   /**
+   * 通常モードに戻す（関係者モード・開発者モードを解除）
+   */
+  resetToNormalMode() {
+    // 関係者モードを解除
+    localStorage.removeItem(this.STAKEHOLDER_MODE_KEY);
+
+    // 開発者モード（APIキー）を解除
+    localStorage.removeItem(this.USER_API_KEY);
+
+    // モード選択ダイアログを閉じて再表示
+    this.closeModeSelector();
+
+    alert('通常モードに戻しました。');
+
+    // ダイアログを再表示
+    setTimeout(() => this.showModeSelector(), 100);
+  }
+
+  /**
    * モード選択UIを表示
    */
   showModeSelector() {
@@ -358,21 +398,28 @@ class AdvisorManager {
     overlay.className = 'advisor-overlay';
     overlay.innerHTML = `
       <div class="advisor-modal">
-        <div class="advisor-modal-header">
-          <h2>どちらの視点でアドバイスしますか？</h2>
-          <div class="advisor-mode-buttons-small">
-            <button class="advisor-mode-btn-small" onclick="advisorManager.showStakeholderPrompt()" title="関係者は30回/24時間まで利用可能">
-              関係者
-            </button>
-            <button class="advisor-mode-btn-small" onclick="advisorManager.showDeveloperPrompt()" title="自分のAPIキーで無制限利用">
-              開発者
+        <div class="advisor-modal-header" style="display: flex; flex-direction: column; align-items: stretch;">
+          <div style="display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-bottom: 12px;">
+            <div class="advisor-mode-buttons-small">
+              ${rateLimit.mode !== 'normal' ? `
+                <button class="advisor-mode-btn-small" onclick="advisorManager.resetToNormalMode()" title="通常モード（10回/24時間）に戻す" style="background: var(--secondary-bg-color); border-color: var(--border-color);">
+                  通常モード
+                </button>
+              ` : ''}
+              <button class="advisor-mode-btn-small" onclick="advisorManager.showStakeholderPrompt()" title="関係者は30回/24時間まで利用可能">
+                関係者
+              </button>
+              <button class="advisor-mode-btn-small" onclick="advisorManager.showDeveloperPrompt()" title="自分のAPIキーで無制限利用">
+                開発者
+              </button>
+            </div>
+            <button class="advisor-modal-close" onclick="advisorManager.closeModeSelector()">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
             </button>
           </div>
-          <button class="advisor-modal-close" onclick="advisorManager.closeModeSelector()">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </button>
+          <h2 style="margin: 0; width: 100%;">どちらの視点でアドバイスしますか？</h2>
         </div>
         <div class="advisor-modal-body">
           ${rateLimitHtml}
@@ -402,6 +449,7 @@ class AdvisorManager {
     `;
 
     document.body.appendChild(overlay);
+    this.addEscapeKeyListener(overlay, this.closeModeSelector);
 
     setTimeout(() => overlay.classList.add('active'), 10);
   }
@@ -663,6 +711,11 @@ class AdvisorManager {
                 if (parsed.content) {
                   fullText += parsed.content;
                   markdownDiv.innerHTML = this.renderMarkdown(fullText);
+                } else if (parsed.usage) {
+                  // usage情報を保存して表示
+                  console.log('[Advisor] Received usage:', parsed.usage);
+                  this.currentUsage = parsed.usage;
+                  this.displayUsage();
                 } else if (parsed.error) {
                   throw new Error(parsed.error);
                 }
@@ -691,6 +744,64 @@ class AdvisorManager {
           </button>
         </div>
       `;
+    }
+  }
+
+  /**
+   * API usage情報を表示
+   */
+  displayUsage() {
+    if (!this.currentUsage) {
+      console.log('[Advisor] No usage data to display');
+      return;
+    }
+
+    console.log('[Advisor] Displaying usage:', this.currentUsage);
+    const { prompt_tokens, completion_tokens, total_tokens } = this.currentUsage;
+
+    // 料金計算
+    const inputCost = prompt_tokens * this.PRICE_PER_INPUT_TOKEN;
+    const outputCost = completion_tokens * this.PRICE_PER_OUTPUT_TOKEN;
+    const totalCost = inputCost + outputCost;
+
+    // 日本円換算（1 USD = 150 JPY）
+    const totalCostJPY = totalCost * 150;
+
+    // usage表示用のHTML
+    const usageHtml = `
+      <div class="advisor-usage-panel" style="margin-top: 20px; padding: 16px; background: var(--secondary-bg-color); border: 1px solid var(--border-color); border-radius: 8px;">
+        <h4 style="margin: 0 0 12px 0; font-size: 0.9rem; color: var(--secondary-text-color);">API使用量</h4>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; font-size: 0.85rem;">
+          <div>
+            <div style="color: var(--secondary-text-color); margin-bottom: 4px;">入力トークン</div>
+            <div style="font-weight: 600;">${prompt_tokens.toLocaleString()} tokens</div>
+          </div>
+          <div>
+            <div style="color: var(--secondary-text-color); margin-bottom: 4px;">出力トークン</div>
+            <div style="font-weight: 600;">${completion_tokens.toLocaleString()} tokens</div>
+          </div>
+          <div>
+            <div style="color: var(--secondary-text-color); margin-bottom: 4px;">合計トークン</div>
+            <div style="font-weight: 600;">${total_tokens.toLocaleString()} tokens</div>
+          </div>
+          <div>
+            <div style="color: var(--secondary-text-color); margin-bottom: 4px;">推定料金</div>
+            <div style="font-weight: 600;">$${totalCost.toFixed(6)} (約 ¥${totalCostJPY.toFixed(4)})</div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // アドバイスコンテンツの末尾に追加
+    const adviceContent = document.getElementById('advisorAdviceContent');
+    console.log('[Advisor] adviceContent element:', adviceContent);
+    if (adviceContent) {
+      const markdownDiv = adviceContent.querySelector('.advisor-markdown');
+      console.log('[Advisor] markdownDiv element:', markdownDiv);
+      if (markdownDiv) {
+        markdownDiv.insertAdjacentHTML('afterend', usageHtml);
+        console.log('[Advisor] Usage HTML inserted');
+      }
     }
   }
 
