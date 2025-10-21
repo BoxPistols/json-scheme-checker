@@ -217,13 +217,6 @@ class AdvisorManager {
               </svg>
             </button>
           </div>
-  updateTriggerUsageChip() {
-    const chip = document.getElementById('advisorTriggerUsage');
-    if (!chip) return;
-    const acc = this.getAccumulatedUsage();
-    const usd = (acc.prompt_tokens || 0) * this.PRICE_PER_INPUT_TOKEN + (acc.completion_tokens || 0) * this.PRICE_PER_OUTPUT_TOKEN;
-    chip.textContent = `累計: ${((acc.total_tokens||0)).toLocaleString()} tok / $${usd.toFixed(4)} (¥${(usd*this.USD_TO_JPY).toFixed(0)})`;
-  }
 
 
           <p class="advisor-notice" style="margin-top: 12px;">
@@ -377,6 +370,38 @@ class AdvisorManager {
       curTok.textContent = `${total_tokens.toLocaleString()} tok`;
       curCost.textContent = `$${totalCost.toFixed(6)} (¥${(totalCost * this.USD_TO_JPY).toFixed(2)})`;
       chip.style.display = 'inline-flex';
+    // トリガー横のモデルセレクトと累積チップを配置
+    let sel = document.getElementById('advisorTriggerModel');
+    if (!sel) {
+      sel = document.createElement('select');
+      sel.id = 'advisorTriggerModel';
+      sel.className = 'advisor-select';
+      sel.style.cssText = 'margin-left:8px; font-size:12px; padding:4px 8px; background: var(--secondary-bg-color); color: var(--text-color); border: 1px solid var(--border-color);';
+      sel.innerHTML = `
+        <option value="gpt-4o-mini">gpt-4o-mini</option>
+        <option value="gpt-4o">gpt-4o</option>
+        <option value="gpt-4.1-nano">gpt-4.1-nano</option>
+        <option value="gpt-4.1-mini">gpt-4.1-mini</option>
+        <option value="gpt-4.1">gpt-4.1</option>
+        <option value="o3-mini">o3-mini</option>
+        <option value="o3">o3</option>
+      `;
+      button.insertAdjacentElement('afterend', sel);
+      sel.value = this.getSelectedModel();
+      sel.addEventListener('change', () => this.setSelectedModel(sel.value));
+    }
+    let chip = document.getElementById('advisorTriggerUsage');
+    if (!chip) {
+      chip = document.createElement('span');
+      chip.id = 'advisorTriggerUsage';
+      chip.style.cssText = 'margin-left:8px; padding:4px 8px; font-size:12px; color:var(--secondary-text-color); border:1px solid var(--border-color); border-radius:999px;';
+      button.insertAdjacentElement('afterend', chip);
+    }
+    // チップの内容更新
+    const acc = this.getAccumulatedUsage();
+    const usd = (acc.prompt_tokens || 0) * this.PRICE_PER_INPUT_TOKEN + (acc.completion_tokens || 0) * this.PRICE_PER_OUTPUT_TOKEN;
+    chip.textContent = `累計: ${(acc.total_tokens||0).toLocaleString()} tok / $${usd.toFixed(4)} (¥${(usd*this.USD_TO_JPY).toFixed(0)})`;
+
     }
 
     const acc = this.getAccumulatedUsage();
