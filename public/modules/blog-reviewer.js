@@ -388,9 +388,6 @@ class BlogReviewerManager {
       console.log('[BlogReviewerManager] Review button shown with enriched data:', this.currentArticle);
     } else {
       console.log('[BlogReviewerManager] No Article/BlogPosting found in schemas');
-    // 累積表示チップの更新（schemas検出時点で表示）
-    this.updateTriggerUsageChip();
-
     }
   }
 
@@ -439,36 +436,48 @@ class BlogReviewerManager {
         }
       }
 
-      // 方法3: 本文と思われる大きなコンテンツブロックを探す
+      // 方法3: 汎用的なセレクタで本文候補を探し、最も長いテキストを採用
       if (!bodyText) {
-        console.log('[BlogReviewer] Trying content selectors...');
+        console.log('[BlogReviewer] Trying generic content selectors...');
+
+        // セマンティックHTMLと一般的なCMSクラスを優先順に試す
         const contentSelectors = [
-          'article .article-body',
-          'article .post-content',
-          'article .entry-content',
+          // セマンティックHTML（最優先）
           'article',
-          'main .article-body',
-          'main .post-content',
-          'main .entry-content',
           'main',
-          '.article-body',
-          '.post-content',
+          '[role="main"]',
+          // 一般的なCMS・ブログプラットフォーム共通クラス
           '.entry-content',
+          '.post-content',
+          '.article-content',
+          '.content',
+          // WordPress系共通パターン
+          '[class*="entry"][class*="content"]',
+          '[class*="post"][class*="content"]',
+          '[class*="article"][class*="content"]',
+          // 汎用パターン（最も緩い）
+          '[class*="content"]',
           '[class*="article"]',
-          '[class*="post"]',
-          '[class*="content"]'
+          '[class*="post"]'
         ];
 
+        let candidates = [];
         for (const selector of contentSelectors) {
-          const element = root.querySelector(selector);
-          if (element) {
+          const elements = root.querySelectorAll(selector);
+          elements.forEach(element => {
             const text = this.extractTextContent(element);
-            console.log(`[BlogReviewer] Found element with selector "${selector}", length: ${text.length}`);
-            if (text.length > bodyText.length) {
-              bodyText = text;
-              console.log(`[BlogReviewer] Using text from "${selector}":`, text.substring(0, 200));
+            if (text.length > 100) { // 最低100文字以上
+              candidates.push({ selector, element, text, length: text.length });
+              console.log(`[BlogReviewer] Candidate "${selector}": ${text.length} chars`);
             }
-          }
+          });
+        }
+
+        // 最も長いテキストを持つ候補を選択
+        if (candidates.length > 0) {
+          candidates.sort((a, b) => b.length - a.length);
+          bodyText = candidates[0].text;
+          console.log(`[BlogReviewer] Selected best candidate "${candidates[0].selector}" with ${bodyText.length} chars`);
         }
       }
 
@@ -705,6 +714,7 @@ class BlogReviewerManager {
       return;
     }
 
+
     this.closeConfirmDialog();
     this.showReviewView();
     await this.fetchReview();
@@ -732,6 +742,15 @@ class BlogReviewerManager {
           ブログ記事レビュー
         </h2>
         <div class="advisor-view-actions" style="display:flex; align-items:center; gap:8px;">
+          <label for="blogReviewerModelSelect" class="text-muted" style="font-size:12px;">モデル</label>
+          <select id="blogReviewerModelSelect" class="advisor-select" style="font-size:12px; padding:4px 8px;">
+            <option value="gpt-4o-mini" selected>gpt-4o-mini</option>
+            <option value="gpt-4o">gpt-4o</option>
+            <option value="gpt-4.1-mini">gpt-4.1-mini</option>
+            <option value="gpt-4.1">gpt-4.1</option>
+            <option value="o3-mini">o3-mini</option>
+            <option value="o3">o3</option>
+          </select>
           <div id="blogReviewerHeaderUsage" class="advisor-usage-chip" style="display:none; align-items:center; gap:8px; padding:6px 10px; border:1px solid var(--border-color); border-radius:999px; font-size:12px; color:var(--secondary-text-color);">
             <span>本回: <span id="blogReviewerHeaderUsageTokens">-</span></span>
             <span style="opacity:.6;">/ 累計: <span id="blogReviewerHeaderUsageTotal">-</span></span>
@@ -768,6 +787,12 @@ class BlogReviewerManager {
 
     setTimeout(() => {
       reviewView.classList.add('active');
+      // モデルセレクト初期化
+      const sel = document.getElementById('blogReviewerModelSelect');
+      if (sel) {
+        sel.value = this.getSelectedModel();
+        sel.addEventListener('change', () => this.setSelectedModel(sel.value));
+      }
       // 初期表示時点で累積表示を更新
       this.updateHeaderUsageChip();
     }, 10);
@@ -910,6 +935,10 @@ class BlogReviewerManager {
                 if (parsed.content) {
                   fullText += parsed.content;
                   markdownDiv.innerHTML = this.renderMarkdown(fullText);
+                } else if (parsed.model) {
+                  // サーバーから推定モデル名が送られてきたらUIに反映
+                  console.log('[BlogReviewer] Model detected:', parsed.model);
+                  this.setSelectedModel(parsed.model);
                 } else if (parsed.usage) {
                   // usage情報を保存して表示
                   console.log('[BlogReviewer] Received usage:', parsed.usage);
@@ -1003,6 +1032,42 @@ class BlogReviewerManager {
   /**
    * 累積使用量の取得/保存
    */
+  /**
+   * モデル選択の保存/取得
+   */
+  getSelectedModel() {
+    try {
+      return localStorage.getItem('jsonld_model_blog_reviewer') || 'gpt-4o-mini';
+    } catch { return 'gpt-4o-mini'; }
+  }
+  setSelectedModel(model) {
+    try {
+      localStorage.setItem('jsonld_model_blog_reviewer', model);
+      // モデルごとの料金に応じて単価を切り替え
+      const pricing = this.getModelPricing(model);
+      this.PRICE_PER_INPUT_TOKEN = pricing.input;
+      this.PRICE_PER_OUTPUT_TOKEN = pricing.output;
+      // セレクトに反映
+      const sel = document.getElementById('blogReviewerModelSelect');
+      if (sel) sel.value = model;
+      // ヘッダ/最下部の表示更新
+      this.updateHeaderUsageChip();
+      if (this.currentUsage) this.displayUsage();
+    } catch {}
+  }
+  getModelPricing(model) {
+    // USD per token（参考・簡易値。最新料金と異なる場合があります）
+    const table = {
+      'gpt-4o-mini': { input: 0.00000015, output: 0.0000006 },
+      'gpt-4o': { input: 0.0000025, output: 0.00001 },
+      'gpt-4.1-mini': { input: 0.00000015, output: 0.0000006 },
+      'gpt-4.1': { input: 0.000003, output: 0.000015 },
+      'o3-mini': { input: 0.0000006, output: 0.0000024 },
+      'o3': { input: 0.000003, output: 0.000015 },
+    };
+    return table[model] || table['gpt-4o-mini'];
+  }
+
   getAccumulatedUsage() {
     try {
       const mode = localStorage.getItem(this.USAGE_MODE_KEY) || 'session';
@@ -1121,6 +1186,9 @@ class BlogReviewerManager {
     if (container) {
       container.style.display = '';
     }
+
+    // トリガー側の累積チップを更新
+    this.updateTriggerUsageChip();
   }
 
   /**

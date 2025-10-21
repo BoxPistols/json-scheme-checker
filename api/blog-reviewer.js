@@ -241,8 +241,10 @@ module.exports = async (req, res) => {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
+    const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+
     const stream = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+      model,
       messages: [
         { role: 'system', content: BLOG_REVIEW_PROMPT },
         { role: 'user', content: userContent },
@@ -251,6 +253,9 @@ module.exports = async (req, res) => {
       temperature: 0.7,
       stream_options: { include_usage: true },
     });
+
+    // モデル情報を最初に通知（フロントで料金計算モデル自動選択用）
+    res.write(`data: ${JSON.stringify({ model })}\n\n`);
 
     for await (const chunk of stream) {
       const content = chunk.choices[0]?.delta?.content;
