@@ -1256,6 +1256,11 @@ function displaySchemas(schemas, url) {
   if (typeof advisorManager !== 'undefined') {
     advisorManager.detectJobPosting(schemas);
   }
+
+  // Blog Reviewer: Article/BlogPosting検出
+  if (typeof blogReviewerManager !== 'undefined') {
+    blogReviewerManager.detectBlogPost(schemas);
+  }
 }
 
 function countProperties(obj) {

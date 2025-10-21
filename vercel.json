@@ -6,6 +6,9 @@
     },
     "api/advisor.js": {
       "maxDuration": 60
+    },
+    "api/blog-reviewer.js": {
+      "maxDuration": 60
     }
   }
 }
