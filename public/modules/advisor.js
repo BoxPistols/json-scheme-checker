@@ -9,11 +9,14 @@ class AdvisorManager {
     this.RATE_LIMIT_KEY = 'jsonld_advisor_usage';
     this.USER_API_KEY = 'jsonld_user_openai_key';
     this.STAKEHOLDER_MODE_KEY = 'jsonld_advisor_stakeholder';
+    this.USAGE_TOTAL_KEY = 'jsonld_usage_total'; // 共通累積
+    this.USAGE_MODE_KEY = 'jsonld_usage_mode'; // 'daily' | 'session' | 'permanent'
+    this.USD_TO_JPY = 150;
     this.MAX_REQUESTS_PER_DAY = 10;
     this.MAX_REQUESTS_STAKEHOLDER = 30;
-    // GPT-4o-miniの料金（1トークンあたりのUSD）
-    this.PRICE_PER_INPUT_TOKEN = 0.00000015; // $0.15 / 1M tokens
-    this.PRICE_PER_OUTPUT_TOKEN = 0.0000006; // $0.6 / 1M tokens
+    // 既定は gpt-4o-mini（目安単価）
+    this.PRICE_PER_INPUT_TOKEN = 0.00000015;
+    this.PRICE_PER_OUTPUT_TOKEN = 0.0000006;
   }
 
   /**
@@ -214,6 +217,14 @@ class AdvisorManager {
               </svg>
             </button>
           </div>
+  updateTriggerUsageChip() {
+    const chip = document.getElementById('advisorTriggerUsage');
+    if (!chip) return;
+    const acc = this.getAccumulatedUsage();
+    const usd = (acc.prompt_tokens || 0) * this.PRICE_PER_INPUT_TOKEN + (acc.completion_tokens || 0) * this.PRICE_PER_OUTPUT_TOKEN;
+    chip.textContent = `累計: ${((acc.total_tokens||0)).toLocaleString()} tok / $${usd.toFixed(4)} (¥${(usd*this.USD_TO_JPY).toFixed(0)})`;
+  }
+
 
           <p class="advisor-notice" style="margin-top: 12px;">
             このAPIキーはあなたのブラウザにのみ保存され、サーバーには送信されません。
@@ -247,6 +258,21 @@ class AdvisorManager {
       overlay.classList.remove('active');
       setTimeout(() => overlay.remove(), 300);
     }
+    setTimeout(() => advisorView.classList.add('active'), 10);
++    // 初期化: モデルセレクトとチップ
++    setTimeout(() => {
++      const sel = document.getElementById('advisorModelSelect');
++      if (sel) {
++        sel.value = this.getSelectedModel();
++        sel.addEventListener('change', () => this.setSelectedModel(sel.value));
++      }
++      const resetBtn = document.getElementById('advisorUsageResetBtn');
++      if (resetBtn) resetBtn.addEventListener('click', () => this.resetAccumulatedUsage());
++      const modeBtn = document.getElementById('advisorUsageModeBtn');
++      if (modeBtn) modeBtn.addEventListener('click', () => this.cycleUsageMode());
++      this.updateHeaderUsageChip();
++    }, 20);
+
   }
 
   /**
@@ -282,10 +308,17 @@ class AdvisorManager {
     // 既存のボタンを削除
     this.hideAdvisorButton();
 
-    // JobPostingを検索
-    const jobPosting = jsonLdData.find(
-      item => item['@type'] === 'JobPosting' || item['@type']?.includes('JobPosting')
-    );
+    // JobPostingを検索（大文字小文字/配列/ヒューリスティック対応）
+    const jobPosting = jsonLdData.find(item => {
+      const t = item['@type'];
+      if (t) {
+        const arr = Array.isArray(t) ? t : [t];
+        if (arr.some(v => String(v).toLowerCase().includes('jobposting'))) return true;
+      }
+      // 代表的なJobPostingプロパティでヒューリスティック判定
+      const keys = ['employmentType', 'hiringOrganization', 'jobLocation', 'baseSalary', 'applicantLocationRequirements', 'validThrough'];
+      return keys.some(k => k in item);
+    });
 
     console.log('[AdvisorManager] JobPosting detected:', jobPosting);
 
@@ -327,6 +360,114 @@ class AdvisorManager {
       AIアドバイスを受ける
     `;
     button.onclick = () => this.showModeSelector();
+  /** ヘッダ使用量チップ更新 */
+  updateHeaderUsageChip() {
+    const chip = document.getElementById('advisorHeaderUsage');
+    const curTok = document.getElementById('advisorHeaderTokens');
+    const curCost = document.getElementById('advisorHeaderCost');
+    const totTok = document.getElementById('advisorHeaderTotalTokens');
+    const totCost = document.getElementById('advisorHeaderTotalCost');
+    if (!chip || !curTok || !curCost || !totTok || !totCost) return;
+
+    if (this.currentUsage) {
+      const { total_tokens = 0, prompt_tokens = 0, completion_tokens = 0 } = this.currentUsage;
+      const inputCost = prompt_tokens * this.PRICE_PER_INPUT_TOKEN;
+      const outputCost = completion_tokens * this.PRICE_PER_OUTPUT_TOKEN;
+      const totalCost = inputCost + outputCost;
+      curTok.textContent = `${total_tokens.toLocaleString()} tok`;
+      curCost.textContent = `$${totalCost.toFixed(6)} (¥${(totalCost * this.USD_TO_JPY).toFixed(2)})`;
+      chip.style.display = 'inline-flex';
+    }
+
+    const acc = this.getAccumulatedUsage();
+    const t = acc.total_tokens || 0;
+    const accCostUSD = (acc.prompt_tokens || 0) * this.PRICE_PER_INPUT_TOKEN + (acc.completion_tokens || 0) * this.PRICE_PER_OUTPUT_TOKEN;
+    totTok.textContent = `${t.toLocaleString()} tok`;
+    totCost.textContent = `$${accCostUSD.toFixed(6)} (¥${(accCostUSD * this.USD_TO_JPY).toFixed(2)})`;
+  }
+
+  /** 累積管理（共通・日別既定） */
+  getAccumulatedUsage() {
+    try {
+      const mode = localStorage.getItem(this.USAGE_MODE_KEY) || 'daily';
+      if (mode === 'session') {
+        const raw = sessionStorage.getItem(this.USAGE_TOTAL_KEY);
+        return raw ? JSON.parse(raw) : { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 };
+      } else if (mode === 'permanent') {
+        const raw = localStorage.getItem(this.USAGE_TOTAL_KEY);
+        return raw ? JSON.parse(raw) : { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 };
+      } else {
+        const today = new Date().toISOString().slice(0, 10);
+        const raw = localStorage.getItem(this.USAGE_TOTAL_KEY);
+        const obj = raw ? JSON.parse(raw) : { date: today, prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 };
+        if (obj.date !== today) return { date: today, prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 };
+        return obj;
+      }
+    } catch { return { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 }; }
+  }
+  saveAccumulatedUsage(val) {
+    try {
+      const mode = localStorage.getItem(this.USAGE_MODE_KEY) || 'daily';
+      if (mode === 'session') sessionStorage.setItem(this.USAGE_TOTAL_KEY, JSON.stringify(val));
+      else localStorage.setItem(this.USAGE_TOTAL_KEY, JSON.stringify(val));
+    } catch {}
+  }
+  addToAccumulatedUsage(usage) {
+    const acc = this.getAccumulatedUsage();
+    const today = new Date().toISOString().slice(0, 10);
+    const base = { date: acc.date || today, prompt_tokens: acc.prompt_tokens || 0, completion_tokens: acc.completion_tokens || 0, total_tokens: acc.total_tokens || 0 };
+    const next = {
+      date: base.date === today ? base.date : today,
+      prompt_tokens: base.date === today ? base.prompt_tokens + (usage.prompt_tokens || 0) : (usage.prompt_tokens || 0),
+      completion_tokens: base.date === today ? base.completion_tokens + (usage.completion_tokens || 0) : (usage.completion_tokens || 0),
+      total_tokens: base.date === today ? base.total_tokens + (usage.total_tokens || 0) : (usage.total_tokens || 0),
+    };
+    this.saveAccumulatedUsage(next);
+    this.updateHeaderUsageChip();
+  }
+  resetAccumulatedUsage() {
+    try {
+      sessionStorage.removeItem(this.USAGE_TOTAL_KEY);
+      localStorage.removeItem(this.USAGE_TOTAL_KEY);
+      this.updateHeaderUsageChip();
+    } catch {}
+  }
+  cycleUsageMode() {
+    const mode = localStorage.getItem(this.USAGE_MODE_KEY) || 'daily';
+    const order = ['daily', 'session', 'permanent'];
+    const next = order[(order.indexOf(mode) + 1) % order.length];
+    localStorage.setItem(this.USAGE_MODE_KEY, next);
+    this.updateHeaderUsageChip();
+    alert(`集計モード: ${next}`);
+  }
+
+  /** モデル選択/単価 */
+  getSelectedModel() {
+    try { return localStorage.getItem('jsonld_model_common') || 'gpt-4o-mini'; } catch { return 'gpt-4o-mini'; }
+  }
+  setSelectedModel(model) {
+    try {
+      localStorage.setItem('jsonld_model_common', model);
+      const p = this.getModelPricing(model);
+      this.PRICE_PER_INPUT_TOKEN = p.input; this.PRICE_PER_OUTPUT_TOKEN = p.output;
+      const sel = document.getElementById('advisorModelSelect');
+      if (sel) sel.value = model;
+      this.updateHeaderUsageChip();
+      if (this.currentUsage) this.displayUsage();
+    } catch {}
+  }
+  getModelPricing(model) {
+    const table = {
+      'gpt-4o-mini': { input: 0.00000015, output: 0.0000006 },
+      'gpt-4o': { input: 0.0000025, output: 0.00001 },
+      'gpt-4.1-mini': { input: 0.00000015, output: 0.0000006 },
+      'gpt-4.1': { input: 0.000003, output: 0.000015 },
+      'o3-mini': { input: 0.0000006, output: 0.0000024 },
+      'o3': { input: 0.000003, output: 0.000015 },
+    };
+    return table[model] || table['gpt-4o-mini'];
+  }
+
 
     resultDiv.insertBefore(button, resultDiv.firstChild);
     console.log('[AdvisorManager] Advisor button inserted into DOM');
