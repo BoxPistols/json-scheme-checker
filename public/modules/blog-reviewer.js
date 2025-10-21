@@ -508,6 +508,16 @@ class BlogReviewerManager {
       : '不明';
     const description = article.description || article.abstract || '説明なし';
 
+    // 記事本文を取得（最大1000文字で省略）
+    const MAX_BODY_LENGTH = 1000;
+    let articleBody = article.articleBody || '本文なし';
+    let isTruncated = false;
+
+    if (articleBody !== '本文なし' && articleBody.length > MAX_BODY_LENGTH) {
+      articleBody = articleBody.substring(0, MAX_BODY_LENGTH);
+      isTruncated = true;
+    }
+
     return `
       <div class="job-field">
         <label>タイトル</label>
@@ -528,6 +538,12 @@ class BlogReviewerManager {
       <div class="job-field">
         <label>説明</label>
         <div class="job-value job-description">${this.escapeHtml(description)}</div>
+      </div>
+      <div class="job-field">
+        <label>本文</label>
+        <div class="job-value job-description">
+          ${this.escapeHtml(articleBody)}${isTruncated ? '<span style="color: var(--secondary-text-color);">...（省略）</span>' : ''}
+        </div>
       </div>
     `;
   }
