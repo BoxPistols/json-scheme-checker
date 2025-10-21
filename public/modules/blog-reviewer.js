@@ -39,7 +39,7 @@ class BlogReviewerManager {
    * @param {Function} closeFunc - 閉じる関数
    */
   addEscapeKeyListener(overlay, closeFunc) {
-    const handleEscape = (e) => {
+    const handleEscape = e => {
       if (e.key === 'Escape') {
         closeFunc.call(this);
         document.removeEventListener('keydown', handleEscape);
@@ -52,7 +52,7 @@ class BlogReviewerManager {
    * イベントリスナーを初期化
    */
   initEventListeners() {
-    document.addEventListener('click', (event) => {
+    document.addEventListener('click', event => {
       const target = event.target.closest('button');
       if (!target) return;
 
@@ -236,7 +236,7 @@ class BlogReviewerManager {
   }
 
   /**
-   * 開発者モード（APIキー入力）ダイアログを表示
+   * Developer/無制限モード（APIキー入力）ダイアログを表示
    */
   showDeveloperPrompt() {
     const currentKey = this.getUserApiKey() || '';
@@ -245,7 +245,7 @@ class BlogReviewerManager {
     overlay.innerHTML = `
       <div class="advisor-modal advisor-developer-modal">
         <div class="advisor-modal-header">
-          <h2>開発者モード</h2>
+          <h2>Developer/無制限モード</h2>
           <button class="advisor-modal-close" data-action="close-developer-prompt">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -273,7 +273,7 @@ class BlogReviewerManager {
           </p>
 
           <p class="advisor-notice advisor-notice-warning" style="margin-top: 12px;">
-            <strong>重要:</strong> 開発者モードでは、あなた自身のAPIキーを使用します。
+            <strong>重要:</strong> Developer/無制限モードでは、あなた自身のAPIキーを使用します。
             サービス提供者のAPIキーは使用されません。
             OpenAIの利用規約を遵守してください。
           </p>
@@ -291,7 +291,7 @@ class BlogReviewerManager {
   }
 
   /**
-   * 開発者モードダイアログを閉じる
+   * Developer/無制限モードダイアログを閉じる
    */
   closeDeveloperPrompt() {
     const overlay = document.getElementById('developerPromptBlog');
@@ -302,7 +302,7 @@ class BlogReviewerManager {
   }
 
   /**
-   * 開発者APIキーを保存
+   * Developer/無制限APIキーを保存
    */
   saveDeveloperKey() {
     const input = document.getElementById('developerApiKeyInputBlog');
@@ -324,7 +324,8 @@ class BlogReviewerManager {
     if (!chip) {
       chip = document.createElement('span');
       chip.id = 'blogReviewerTriggerUsage';
-      chip.style.cssText = 'margin-left:8px; padding:4px 8px; font-size:12px; color:var(--secondary-text-color); border:1px solid var(--border-color); border-radius:999px;';
+      chip.style.cssText =
+        'margin-left:8px; padding:4px 8px; font-size:12px; color:var(--secondary-text-color); border:1px solid var(--border-color); border-radius:999px;';
       btn.insertAdjacentElement('afterend', chip);
     }
     const acc = this.getAccumulatedUsage();
@@ -332,7 +333,7 @@ class BlogReviewerManager {
   }
 
   /**
-   * 開発者APIキーの表示/非表示を切り替え
+   * Developer/無制限APIキーの表示/非表示を切り替え
    */
   toggleDeveloperKeyVisibility() {
     const input = document.getElementById('developerApiKeyInputBlog');
@@ -342,13 +343,13 @@ class BlogReviewerManager {
   }
 
   /**
-   * 通常モードに戻す（関係者モード・開発者モードを解除）
+   * 通常モードに戻す（関係者モード・Developer/無制限モードを解除）
    */
   resetToNormalMode() {
     // 関係者モードを解除
     localStorage.removeItem(this.STAKEHOLDER_MODE_KEY);
 
-    // 開発者モード（APIキー）を解除
+    // Developer/無制限モード（APIキー）を解除
     localStorage.removeItem(this.USER_API_KEY);
 
     // 確認ダイアログを閉じて再表示
@@ -396,7 +397,10 @@ class BlogReviewerManager {
       // HTMLから不足情報を補完
       this.currentArticle = this.enrichArticleData(article);
       this.showReviewButton();
-      console.log('[BlogReviewerManager] Review button shown with enriched data:', this.currentArticle);
+      console.log(
+        '[BlogReviewerManager] Review button shown with enriched data:',
+        this.currentArticle
+      );
     } else {
       console.log('[BlogReviewerManager] No Article/BlogPosting found in schemas');
     }
@@ -469,7 +473,7 @@ class BlogReviewerManager {
           // 汎用パターン（最も緩い）
           '[class*="content"]',
           '[class*="article"]',
-          '[class*="post"]'
+          '[class*="post"]',
         ];
 
         let candidates = [];
@@ -477,7 +481,8 @@ class BlogReviewerManager {
           const elements = root.querySelectorAll(selector);
           elements.forEach(element => {
             const text = this.extractTextContent(element);
-            if (text.length > 100) { // 最低100文字以上
+            if (text.length > 100) {
+              // 最低100文字以上
               candidates.push({ selector, element, text, length: text.length });
               console.log(`[BlogReviewer] Candidate "${selector}": ${text.length} chars`);
             }
@@ -488,7 +493,9 @@ class BlogReviewerManager {
         if (candidates.length > 0) {
           candidates.sort((a, b) => b.length - a.length);
           bodyText = candidates[0].text;
-          console.log(`[BlogReviewer] Selected best candidate "${candidates[0].selector}" with ${bodyText.length} chars`);
+          console.log(
+            `[BlogReviewer] Selected best candidate "${candidates[0].selector}" with ${bodyText.length} chars`
+          );
         }
       }
 
@@ -536,7 +543,7 @@ class BlogReviewerManager {
       '[class*="auth-"]',
       '.advisor-overlay',
       '.advisor-modal',
-      'details'
+      'details',
     ];
     excludeSelectors.forEach(selector => {
       clone.querySelectorAll(selector).forEach(el => el.remove());
@@ -556,7 +563,7 @@ class BlogReviewerManager {
       'すべてクリア',
       'Basic認証',
       'ユーザー名',
-      'パスワード'
+      'パスワード',
     ];
 
     unwantedPhrases.forEach(phrase => {
@@ -637,8 +644,8 @@ class BlogReviewerManager {
     let modeLabel = '';
     if (rateLimit.mode === 'developer') {
       rateLimitHtml =
-        '<div class="advisor-rate-info advisor-rate-unlimited">開発者モード（無制限）</div>';
-      modeLabel = '開発者モード';
+        '<div class="advisor-rate-info advisor-rate-unlimited">Developer/無制限モード（無制限）</div>';
+      modeLabel = 'Developer/無制限モード';
     } else if (rateLimit.mode === 'stakeholder') {
       if (!rateLimit.allowed) {
         const resetTimeStr = rateLimit.resetTime
@@ -669,16 +676,20 @@ class BlogReviewerManager {
         <div class="advisor-modal-header" style="display: flex; flex-direction: column; align-items: stretch;">
           <div style="display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-bottom: 12px;">
             <div class="advisor-mode-buttons-small">
-              ${rateLimit.mode !== 'normal' ? `
+              ${
+                rateLimit.mode !== 'normal'
+                  ? `
                 <button class="advisor-mode-btn-small" data-action="reset-to-normal-mode" title="通常モード（10回/24時間）に戻す" style="background: var(--secondary-bg-color); border-color: var(--border-color);">
                   通常モード
                 </button>
-              ` : ''}
+              `
+                  : ''
+              }
               <button class="advisor-mode-btn-small" data-action="show-stakeholder-prompt" title="関係者は30回/24時間まで利用可能">
                 関係者
               </button>
               <button class="advisor-mode-btn-small" data-action="show-developer-prompt" title="自分のAPIキーで無制限利用">
-                開発者
+                Developer/無制限
               </button>
             </div>
             <button class="advisor-modal-close" data-action="close-confirm-dialog">
@@ -735,15 +746,15 @@ class BlogReviewerManager {
 
       let message = `利用制限に達しました。\n\nリセット時刻: ${resetTimeStr}\n\n`;
       if (rateLimit.mode === 'stakeholder') {
-        message += '開発者モードで自分のAPIキーを使用すると制限なしで利用できます。';
+        message += 'Developer/無制限モードで自分のAPIキーを使用すると制限なしで利用できます。';
       } else {
-        message += '関係者モードで30回/24時間、または開発者モードで無制限利用が可能です。';
+        message +=
+          '関係者モードで30回/24時間、またはDeveloper/無制限モードで無制限利用が可能です。';
       }
 
       alert(message);
       return;
     }
-
 
     this.closeConfirmDialog();
     this.showReviewView();
@@ -772,20 +783,6 @@ class BlogReviewerManager {
           ブログ記事レビュー
         </h2>
         <div class="advisor-view-actions" style="display:flex; align-items:center; gap:8px;">
-          <label for="blogReviewerModelSelect" class="text-muted" style="font-size:12px;">モデル</label>
-          <select id="blogReviewerModelSelect" class="advisor-select" style="font-size:12px; padding:4px 8px; background: var(--secondary-bg-color); color: var(--text-color); border: 1px solid var(--border-color);">
-            <option value="gpt-4o-mini" selected>gpt-4o-mini</option>
-            <option value="gpt-4o">gpt-4o</option>
-            <option value="gpt-4.1-nano">gpt-4.1-nano</option>
-            <option value="gpt-4.1-mini">gpt-4.1-mini</option>
-            <option value="gpt-4.1">gpt-4.1</option>
-            <option value="o3-mini">o3-mini</option>
-            <option value="o3">o3</option>
-          </select>
-          <div id="blogReviewerHeaderUsage" class="advisor-usage-chip" style="display:none; align-items:center; gap:8px; padding:6px 10px; border:1px solid var(--border-color); border-radius:999px; font-size:12px; color:var(--secondary-text-color);">
-            <span>本回: <span id="blogReviewerHeaderUsageTokens">-</span></span>
-            <span style="opacity:.6;">/ 累計: <span id="blogReviewerHeaderUsageTotal">-</span></span>
-          </div>
           <button class="advisor-btn-secondary" data-action="close-review-view">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -877,14 +874,18 @@ class BlogReviewerManager {
         <label>説明</label>
         <div class="job-value job-description">${this.escapeHtml(description)}</div>
       </div>
-      ${articleBody && articleBody !== '本文なし' ? `
+      ${
+        articleBody && articleBody !== '本文なし'
+          ? `
       <div class="job-field">
         <label>本文</label>
         <div class="job-value job-description">
           ${this.escapeHtml(articleBody)}${isTruncated ? '<span style="color: var(--secondary-text-color);">...（省略）</span>' : ''}
         </div>
       </div>
-      ` : ''}
+      `
+          : ''
+      }
     `;
   }
 
@@ -922,12 +923,12 @@ class BlogReviewerManager {
             const resetTime = new Date(errorData.resetTime).toLocaleTimeString('ja-JP');
             throw new Error(
               `レート制限に達しました。${resetTime}にリセットされます。` +
-              '\n\n開発者モードで自分のOpenAI APIキーを使用すると、無制限で利用できます。'
+                '\n\nDeveloper/無制限モードで自分のOpenAI APIキーを使用すると、無制限で利用できます。'
             );
           } catch (e) {
             throw new Error(
               'レート制限に達しました。24時間後に再度試してください。' +
-              '\n\n開発者モードで自分のOpenAI APIキーを使用すると、無制限で利用できます。'
+                '\n\nDeveloper/無制限モードで自分のOpenAI APIキーを使用すると、無制限で利用できます。'
             );
           }
         }
@@ -966,10 +967,6 @@ class BlogReviewerManager {
                 if (parsed.content) {
                   fullText += parsed.content;
                   markdownDiv.innerHTML = this.renderMarkdown(fullText);
-                } else if (parsed.model) {
-                  // サーバーから推定モデル名が送られてきたらUIに反映
-                  console.log('[BlogReviewer] Model detected:', parsed.model);
-                  this.setSelectedModel(parsed.model);
                 } else if (parsed.usage) {
                   // usage情報を保存して表示
                   console.log('[BlogReviewer] Received usage:', parsed.usage);
@@ -1033,7 +1030,10 @@ class BlogReviewerManager {
     html = html.replace(/\n/g, '<br>');
 
     // 連続する<li>タグを<ul>で囲む（改行変換後に実行）
-    html = html.replace(/((?:<li>.*?<\/li>(?:<br>)*)+)/g, (match) => `<ul>${match.replace(/<br>/g, '')}</ul>`);
+    html = html.replace(
+      /((?:<li>.*?<\/li>(?:<br>)*)+)/g,
+      match => `<ul>${match.replace(/<br>/g, '')}</ul>`
+    );
 
     return html;
   }
@@ -1072,56 +1072,23 @@ class BlogReviewerManager {
 
     // 累計
     const acc = this.getAccumulatedUsage();
-    const totalTokens = (acc?.total_tokens || 0);
+    const totalTokens = acc?.total_tokens || 0;
     total.textContent = `${totalTokens.toLocaleString()} tok`;
   }
 
   /**
    * 累積使用量の取得/保存
    */
-  /**
-   * モデル選択の保存/取得
-   */
-  getSelectedModel() {
-    try {
-      return localStorage.getItem('jsonld_model_blog_reviewer') || 'gpt-4o-mini';
-    } catch { return 'gpt-4o-mini'; }
-  }
-  setSelectedModel(model) {
-    try {
-      localStorage.setItem('jsonld_model_blog_reviewer', model);
-      // モデルごとの料金に応じて単価を切り替え
-      const pricing = this.getModelPricing(model);
-      this.PRICE_PER_INPUT_TOKEN = pricing.input;
-      this.PRICE_PER_OUTPUT_TOKEN = pricing.output;
-      // セレクトに反映
-      const sel = document.getElementById('blogReviewerModelSelect');
-      if (sel) sel.value = model;
-      // ヘッダ/最下部の表示更新
-      this.updateHeaderUsageChip();
-      if (this.currentUsage) this.displayUsage();
-    } catch {}
-  }
-  getModelPricing(model) {
-    // USD per token（参考・簡易値。最新料金と異なる場合があります）
-    const table = {
-      'gpt-4o-mini': { input: 0.00000015, output: 0.0000006 },
-      'gpt-4o': { input: 0.0000025, output: 0.00001 },
-      'gpt-4.1-mini': { input: 0.00000015, output: 0.0000006 },
-      'gpt-4.1': { input: 0.000003, output: 0.000015 },
-      'o3-mini': { input: 0.0000006, output: 0.0000024 },
-      'o3': { input: 0.000003, output: 0.000015 },
-    };
-    return table[model] || table['gpt-4o-mini'];
-  }
-
   getAccumulatedUsage() {
     try {
       const mode = localStorage.getItem(this.USAGE_MODE_KEY) || 'session';
-      const dataStr = mode === 'session'
-        ? sessionStorage.getItem(this.USAGE_TOTAL_KEY)
-        : localStorage.getItem(this.USAGE_TOTAL_KEY);
-      return dataStr ? JSON.parse(dataStr) : { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 };
+      const dataStr =
+        mode === 'session'
+          ? sessionStorage.getItem(this.USAGE_TOTAL_KEY)
+          : localStorage.getItem(this.USAGE_TOTAL_KEY);
+      return dataStr
+        ? JSON.parse(dataStr)
+        : { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 };
     } catch {
       return { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 };
     }
