@@ -42,7 +42,7 @@ json-ld-viewer/
 │   └── health.js        # ヘルスチェック
 ├── public/
 │   └── index.html       # Webアプリケーション（SPA）
-└── .ai-docs/            # AI開発者向けドキュメント
+└── .ai-docs/            # AIDeveloper/無制限向けドキュメント
     ├── shared/          # 共通ドキュメント（SSOT）
     ├── cursor/          # Cursor専用設定
     ├── copilot/         # GitHub Copilot専用設定

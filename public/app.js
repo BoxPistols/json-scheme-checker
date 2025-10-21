@@ -693,7 +693,7 @@ function setupDragAndDrop() {
 // 返り値: { success: boolean, data: string }
 //
 // セキュリティ上の注意:
-// この実装は開発者ツールでの閲覧を防ぐための簡易的な難読化であり、
+// この実装はDeveloper/無制限ツールでの閲覧を防ぐための簡易的な難読化であり、
 // 完全なセキュリティを保証するものではありません。
 // - 固定の暗号化キーとソルトを使用しているため、すべてのユーザーで同じ鍵が生成されます
 // - ソースコードに暗号化キーが含まれているため、攻撃者が容易に復号化できます
@@ -1261,7 +1261,6 @@ function displaySchemas(schemas, url) {
     blogReviewerManager.detectBlogPost(schemas);
   }
 }
-
 
 function countProperties(obj) {
   if (typeof obj !== 'object' || obj === null) return 0;

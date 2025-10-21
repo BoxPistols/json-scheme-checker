@@ -90,7 +90,7 @@ json-ld-viewer/
 ├── .eslintrc.json           # ESLint設定
 ├── .prettierrc.json         # Prettier設定
 ├── .cursorrules             # Cursor AI設定
-└── .ai-docs/                # AI開発者向けドキュメント
+└── .ai-docs/                # AIDeveloper/無制限向けドキュメント
 ```
 
 ## アーキテクチャの重要ポイント
@@ -216,7 +216,7 @@ vercel dev       # ローカルテスト推奨
 4.  **ブラウザでの動作確認**:
     - `http://localhost:3333` にアクセスします。
     - 様々なURL（Basic認証が必要なサイトも含む）を入力し、JSON-LDが正しく抽出・表示されることを確認します。
-    - ブラウザの開発者ツールでコンソールエラーが発生していないか確認します。
+    - ブラウザのDeveloper/無制限ツールでコンソールエラーが発生していないか確認します。
 
 #### 将来的な展望
 

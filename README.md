@@ -4,7 +4,7 @@ WebサイトのJSON-LD構造化データを可視化するツール
 
 ## ドキュメント
 
-- [CORS設定ガイド（開発者向け）](./CORS_SETUP.md) - localhost URLアクセスに必要なCORS設定
+- [CORS設定ガイド（Developer/無制限向け）](./CORS_SETUP.md) - localhost URLアクセスに必要なCORS設定
 - [Claude開発ガイド](./CLAUDE.md) - Claude Codeでの開発時の参考資料
 
 ## 概要
@@ -204,7 +204,7 @@ http://localhost:3333
 #### AI Advisor機能の使い方（JobPosting限定）
 
 1. 求人票のURLを入力して取得
-2. JobPostingスキーマが検出されると「AIアドバイスを受ける」ボタンが表示
+2. JobPostingスキーマが検出されると「求人/求職アドバイスを受ける」ボタンが表示
 3. ボタンをクリックしてモード選択
    - **採用側向け**: 求人票の改善提案を取得
    - **応募者向け**: 面接対策と要件分析を取得
@@ -467,11 +467,11 @@ pnpm start
 # http://localhost:3333 でアクセス
 ```
 
-## 開発者向け：Vercel環境からlocalhost URLにアクセスする方法
+## Developer/無制限向け：Vercel環境からlocalhost URLにアクセスする方法
 
-**対象：** 同じマシンまたはLAN内で開発サーバーを起動している開発者
+**対象：** 同じマシンまたはLAN内で開発サーバーを起動しているDeveloper/無制限
 
-Vercel環境（https://json-ld-view.vercel.app/）を開いているブラウザから、同じマシンまたは同じLAN内の開発サーバー（localhost）にアクセスできます。
+Vercel環境（<https://json-ld-view.vercel.app/）を開いているブラウザから、同じマシンまたは同じLAN内の開発サーバー（localhost）にアクセスできます。>
 
 ### 前提条件
 

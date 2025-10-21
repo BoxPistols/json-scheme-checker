@@ -4,7 +4,7 @@
 
 このドキュメントは、Claude Code（ターミナル内で実行する Claude.ai の統合CLI）に関連するすべての概念を説明し、各機能の用途・効果・比較を提供します。
 
-**対象者**: Claude Code を使用しており、各機能の違いや効果的な活用方法を知りたい開発者
+**対象者**: Claude Code を使用しており、各機能の違いや効果的な活用方法を知りたいDeveloper/無制限
 
 **最終更新**: 2025-10-21
 
@@ -198,13 +198,13 @@ development_port: 3333
 
 ```bash
 # 従来的な流れ
-開発者: "axios で〇〇を実装したい"
+Developer/無制限: "axios で〇〇を実装したい"
 → npm 公式サイトでドキュメント検索（3-5分）
 → 使用例をコピペ
 → APIが廃止されていた？
 
 # Context7 使用後
-開発者: "axios で〇〇を実装したい"
+Developer/無制限: "axios で〇〇を実装したい"
 → Context7 自動取得："axios@latest の API"
 → AI 提案："正確な最新コード"
 → 即座に実装
@@ -630,7 +630,7 @@ dependencies:
 
 ## 用途別の推奨構成
 
-### パターン A：個人開発者向け（シンプル構成）
+### パターン A：個人Developer/無制限向け（シンプル構成）
 
 ```
 推奨機能：Serena + Context7 + Slash Commands
@@ -767,7 +767,7 @@ Phase 3（オプション）：
 
 **A**：いいえ。プロジェクト規模・チーム規模に応じて選択してください。
 
-個人開発者: Serena + Context7 + Slash Commands（推奨）
+個人Developer/無制限: Serena + Context7 + Slash Commands（推奨）
 チーム開発: 上記 + MCP + Hooks
 エンタープライズ: すべて
 
