@@ -3,6 +3,8 @@
 class BlogReviewerManager {
   constructor() {
     this.currentArticle = null;
+    this.currentUrl = null;
+    this.articleContent = null;
     this.isStreaming = false;
     this.RATE_LIMIT_KEY = 'jsonld_blog_reviewer_usage';
     this.USER_API_KEY = 'jsonld_user_openai_key';
@@ -253,8 +255,9 @@ class BlogReviewerManager {
   /**
    * Article/BlogPostingスキーマを検出してレビューボタンを表示
    * @param {Array} jsonLdData - 抽出されたJSON-LDデータ
+   * @param {string} url - 記事のURL
    */
-  detectBlogPost(jsonLdData) {
+  detectBlogPost(jsonLdData, url) {
     console.log('[BlogReviewerManager] detectBlogPost called with:', jsonLdData);
 
     // 既存のボタンを削除
@@ -273,6 +276,7 @@ class BlogReviewerManager {
 
     if (article) {
       this.currentArticle = article;
+      this.currentUrl = url;
       this.showReviewButton();
       console.log('[BlogReviewerManager] Review button shown');
     } else {
@@ -409,6 +413,81 @@ class BlogReviewerManager {
   }
 
   /**
+   * HTMLから記事コンテンツを抽出
+   * @param {string} html - HTMLコンテンツ
+   * @returns {Object} { excerpt: string, headings: Array }
+   */
+  extractArticleContent(html) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+
+    // 見出しを抽出
+    const headings = [];
+    const headingElements = doc.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    headingElements.forEach(heading => {
+      headings.push({
+        level: heading.tagName.toLowerCase(),
+        text: heading.textContent.trim(),
+      });
+    });
+
+    // 本文を抽出（articleタグ、mainタグ、または本文っぽい要素から）
+    let bodyText = '';
+    const articleElement =
+      doc.querySelector('article') || doc.querySelector('main') || doc.querySelector('[role="main"]');
+
+    if (articleElement) {
+      // scriptタグとstyleタグを除外してテキストを取得
+      const clone = articleElement.cloneNode(true);
+      clone.querySelectorAll('script, style, nav, header, footer, aside').forEach(el => el.remove());
+      bodyText = clone.textContent || '';
+    } else {
+      // articleタグが見つからない場合は、bodyから取得
+      const bodyElement = doc.querySelector('body');
+      if (bodyElement) {
+        const clone = bodyElement.cloneNode(true);
+        clone
+          .querySelectorAll('script, style, nav, header, footer, aside, iframe')
+          .forEach(el => el.remove());
+        bodyText = clone.textContent || '';
+      }
+    }
+
+    // テキストをクリーンアップ（余分な空白や改行を削除）
+    bodyText = bodyText
+      .replace(/\s+/g, ' ')
+      .trim()
+      .substring(0, 400);
+
+    return {
+      excerpt: bodyText || '本文の抽出ができませんでした',
+      headings: headings.slice(0, 10), // 最大10個の見出し
+    };
+  }
+
+  /**
+   * 記事のHTMLを取得
+   * @returns {Promise<string>} HTML文字列
+   */
+  async fetchArticleHtml() {
+    if (!this.currentUrl) {
+      throw new Error('URLが設定されていません');
+    }
+
+    const isVercel = window.location.hostname.includes('vercel.app');
+    const proxyUrl = isVercel
+      ? `/api/proxy?url=${encodeURIComponent(this.currentUrl)}`
+      : `http://127.0.0.1:3333/proxy?url=${encodeURIComponent(this.currentUrl)}`;
+
+    const response = await fetch(proxyUrl);
+    if (!response.ok) {
+      throw new Error(`HTML取得に失敗しました: ${response.status}`);
+    }
+
+    return await response.text();
+  }
+
+  /**
    * レビューを開始
    */
   async startReview() {
@@ -432,6 +511,19 @@ class BlogReviewerManager {
     }
 
     this.closeConfirmDialog();
+
+    // HTMLを取得して記事コンテンツを抽出
+    try {
+      const html = await this.fetchArticleHtml();
+      this.articleContent = this.extractArticleContent(html);
+    } catch (error) {
+      console.error('記事コンテンツの取得に失敗:', error);
+      this.articleContent = {
+        excerpt: '記事コンテンツの取得に失敗しました',
+        headings: [],
+      };
+    }
+
     this.showReviewView();
     await this.fetchReview();
   }
@@ -508,6 +600,44 @@ class BlogReviewerManager {
       : '不明';
     const description = article.description || article.abstract || '説明なし';
 
+    let contentHtml = '';
+
+    // 記事コンテンツがある場合は表示
+    if (this.articleContent) {
+      // 記事本文の冒頭
+      if (this.articleContent.excerpt) {
+        contentHtml += `
+          <div class="job-field">
+            <label>記事本文（冒頭400文字）</label>
+            <div class="job-value job-description" style="max-height: 150px; overflow-y: auto; font-size: 0.9em; line-height: 1.6;">
+              ${this.escapeHtml(this.articleContent.excerpt)}
+            </div>
+          </div>
+        `;
+      }
+
+      // 見出し一覧
+      if (this.articleContent.headings && this.articleContent.headings.length > 0) {
+        const headingsHtml = this.articleContent.headings
+          .map(h => {
+            const indent = (parseInt(h.level.substring(1)) - 1) * 16;
+            return `<div style="margin-left: ${indent}px; padding: 4px 0; font-size: 0.9em;">
+              <strong>${h.level.toUpperCase()}:</strong> ${this.escapeHtml(h.text)}
+            </div>`;
+          })
+          .join('');
+
+        contentHtml += `
+          <div class="job-field">
+            <label>見出し構造</label>
+            <div class="job-value" style="max-height: 200px; overflow-y: auto;">
+              ${headingsHtml}
+            </div>
+          </div>
+        `;
+      }
+    }
+
     return `
       <div class="job-field">
         <label>タイトル</label>
@@ -529,6 +659,7 @@ class BlogReviewerManager {
         <label>説明</label>
         <div class="job-value job-description">${this.escapeHtml(description)}</div>
       </div>
+      ${contentHtml}
     `;
   }
 

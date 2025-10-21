@@ -1259,7 +1259,7 @@ function displaySchemas(schemas, url) {
 
   // Blog Reviewer: Article/BlogPosting検出
   if (typeof blogReviewerManager !== 'undefined') {
-    blogReviewerManager.detectBlogPost(schemas);
+    blogReviewerManager.detectBlogPost(schemas, url);
   }
 }
 
