@@ -4,10 +4,11 @@ const OpenAI = require('openai');
 const rateLimitStore = new Map();
 const RATE_LIMIT_WINDOW = 24 * 60 * 60 * 1000; // 24時間
 const MAX_REQUESTS_PER_IP = 10; // IP単位での制限
-const RATE_LIMIT_CLEANUP_INTERVAL = 60 * 60 * 1000; // 1時間ごとにクリーンアップ
 
-// 定期的に古いエントリをクリーンアップ
-setInterval(() => {
+/**
+ * 古いレート制限エントリをクリーンアップ (リクエスト毎に実行)
+ */
+function cleanupRateLimitStore() {
   const now = Date.now();
   for (const [key, entries] of rateLimitStore.entries()) {
     const activeEntries = entries.filter(timestamp => now - timestamp < RATE_LIMIT_WINDOW);
@@ -17,13 +18,14 @@ setInterval(() => {
       rateLimitStore.set(key, activeEntries);
     }
   }
-}, RATE_LIMIT_CLEANUP_INTERVAL);
+}
 
 /**
- * クライアントのIPアドレスを取得
+ * クライアントのIPアドレスを取得 (Vercel環境を優先)
  */
 function getClientIp(req) {
   return (
+    req.headers['x-vercel-forwarded-for']?.split(',')[0].trim() || // Vercel専用
     req.headers['x-forwarded-for']?.split(',')[0].trim() ||
     req.headers['x-real-ip'] ||
     req.connection?.remoteAddress ||
@@ -35,11 +37,11 @@ function getClientIp(req) {
  * レート制限をチェック
  */
 function checkRateLimit(ip) {
-  const now = Date.now();
-  let entries = rateLimitStore.get(ip) || [];
+  // リクエスト毎に古いエントリをクリーンアップ
+  cleanupRateLimitStore();
 
-  // 有効なエントリ（24時間以内）をフィルタリング
-  entries = entries.filter(timestamp => now - timestamp < RATE_LIMIT_WINDOW);
+  const now = Date.now();
+  const entries = rateLimitStore.get(ip) || [];
 
   // 上限チェック
   if (entries.length >= MAX_REQUESTS_PER_IP) {
@@ -179,7 +181,11 @@ const BLOG_REVIEW_PROMPT = `あなたはSEO・コンテンツマーケティン�
 
 module.exports = async (req, res) => {
   // CORSヘッダー
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['*'];
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin || '*');
+  }
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
@@ -218,11 +224,21 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'article は有効なオブジェクトである必要があります' });
     }
 
+    // 入力検証: articleオブジェクトのサイズ制限 (100KB)
+    if (JSON.stringify(article).length > 100000) {
+      return res.status(400).json({ error: '記事データが大きすぎます' });
+    }
+
     // 入力検証: 最低限の必須フィールド
     if (!article.headline && !article.name && !article.title) {
       return res
         .status(400)
         .json({ error: 'article には headline, name, または title が必要です' });
+    }
+
+    // XSS対策: headlineの長さ制限
+    if (typeof article.headline === 'string') {
+      article.headline = article.headline.substring(0, 500);
     }
 
     // APIキーの取得: ユーザー提供 > 環境変数
