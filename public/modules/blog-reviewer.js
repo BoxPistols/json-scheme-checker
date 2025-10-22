@@ -265,8 +265,8 @@ class BlogReviewerManager {
       <div class="advisor-modal advisor-developer-modal">
         <div class="advisor-modal-header">
           <h2>MyAPIモード</h2>
-          <button class="advisor-modal-close" data-action="close-developer-prompt">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <button class="advisor-modal-close" data-action="close-developer-prompt" aria-label="閉じる">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             </svg>
           </button>
@@ -1154,9 +1154,13 @@ class BlogReviewerManager {
     console.log('[BlogReviewer] Displaying usage:', this.currentUsage);
     const { prompt_tokens, completion_tokens, total_tokens } = this.currentUsage;
 
+    // モデルに応じた料金を取得
+    const model = this.currentArticle.model || 'gpt-4o-mini';
+    const prices = this.getModelPricing(model);
+
     // 料金計算
-    const inputCost = prompt_tokens * this.PRICE_PER_INPUT_TOKEN;
-    const outputCost = completion_tokens * this.PRICE_PER_OUTPUT_TOKEN;
+    const inputCost = prompt_tokens * prices.input;
+    const outputCost = completion_tokens * prices.output;
     const totalCost = inputCost + outputCost;
 
     // 日本円換算（1 USD = 150 JPY）
@@ -1165,7 +1169,7 @@ class BlogReviewerManager {
     // usage表示用のHTML
     const usageHtml = `
       <div class="advisor-usage-panel" style="margin-top: 20px; padding: 16px; background: var(--secondary-bg-color); border: 1px solid var(--border-color); border-radius: 8px;">
-        <h4 style="margin: 0 0 12px 0; font-size: 0.9rem; color: var(--secondary-text-color);">API使用量</h4>
+        <h4 style="margin: 0 0 12px 0; font-size: 0.9rem; color: var(--secondary-text-color);">API使用量 (モデル: ${model})</h4>
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; font-size: 0.85rem;">
           <div>
             <div style="color: var(--secondary-text-color); margin-bottom: 4px;">入力トークン</div>
@@ -1181,7 +1185,7 @@ class BlogReviewerManager {
           </div>
           <div>
             <div style="color: var(--secondary-text-color); margin-bottom: 4px;">推定料金</div>
-            <div style="font-weight: 600;">$${totalCost.toFixed(6)} (約 ¥${totalCostJPY.toFixed(4)})</div>
+            <div style="font-weight: 600;">$${totalCost.toFixed(6)} (約 ¥${totalCostJPY.toFixed(2)})</div>
           </div>
         </div>
       </div>
@@ -1194,6 +1198,9 @@ class BlogReviewerManager {
       const markdownDiv = reviewContent.querySelector('.advisor-markdown');
       console.log('[BlogReviewer] markdownDiv element:', markdownDiv);
       if (markdownDiv) {
+        // 既存のusageパネルがあれば削除
+        const existingPanel = reviewContent.querySelector('.advisor-usage-panel');
+        if (existingPanel) existingPanel.remove();
         markdownDiv.insertAdjacentHTML('afterend', usageHtml);
         console.log('[BlogReviewer] Usage HTML inserted');
       }
