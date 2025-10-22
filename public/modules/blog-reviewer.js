@@ -379,17 +379,11 @@ class BlogReviewerManager extends BaseAdvisorManager {
     overlay.innerHTML = `
       <div class="advisor-modal">
         <div class="advisor-modal-header" style="display: flex; flex-direction: column; align-items: stretch;">
-          <div style="display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-bottom: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px;">
             <div class="advisor-mode-buttons-small">
-              ${
-                rateLimit.mode !== 'normal'
-                  ? `
-                <button class="advisor-mode-btn-small" data-action="reset-to-normal-mode" title="通常モード（10回/24時間）に戻す" style="background: var(--secondary-bg-color); border-color: var(--border-color);">
-                  通常モード
-                </button>
-              `
-                  : ''
-              }
+              <button class="advisor-mode-btn-small" data-action="reset-to-normal-mode" title="通常モード（10回/24時間）に戻す">
+                通常モード
+              </button>
               <button class="advisor-mode-btn-small" data-action="show-stakeholder-prompt" title="関係者は30回/24時間まで利用可能">
                 関係者
               </button>
