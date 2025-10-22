@@ -1,5 +1,71 @@
 const OpenAI = require('openai');
 
+// メモリベースのレート制限管理
+const rateLimitStore = new Map();
+const RATE_LIMIT_WINDOW = 24 * 60 * 60 * 1000; // 24時間
+const MAX_REQUESTS_PER_IP = 10; // IP単位での制限
+
+/**
+ * 古いレート制限エントリをクリーンアップ (リクエスト毎に実行)
+ */
+function cleanupRateLimitStore() {
+  const now = Date.now();
+  for (const [key, entries] of rateLimitStore.entries()) {
+    const activeEntries = entries.filter(timestamp => now - timestamp < RATE_LIMIT_WINDOW);
+    if (activeEntries.length === 0) {
+      rateLimitStore.delete(key);
+    } else if (activeEntries.length !== entries.length) {
+      rateLimitStore.set(key, activeEntries);
+    }
+  }
+}
+
+/**
+ * クライアントのIPアドレスを取得 (Vercel環境を優先)
+ */
+function getClientIp(req) {
+  return (
+    req.headers['x-vercel-forwarded-for']?.split(',')[0].trim() || // Vercel専用
+    req.headers['x-forwarded-for']?.split(',')[0].trim() ||
+    req.headers['x-real-ip'] ||
+    req.connection?.remoteAddress ||
+    '0.0.0.0'
+  );
+}
+
+/**
+ * レート制限をチェック
+ */
+function checkRateLimit(ip) {
+  // リクエスト毎に古いエントリをクリーンアップ
+  cleanupRateLimitStore();
+
+  const now = Date.now();
+  const entries = rateLimitStore.get(ip) || [];
+
+  // 上限チェック
+  if (entries.length >= MAX_REQUESTS_PER_IP) {
+    const oldestTimestamp = entries[0];
+    const resetTime = new Date(oldestTimestamp + RATE_LIMIT_WINDOW);
+    return {
+      allowed: false,
+      remaining: 0,
+      resetTime: resetTime.toISOString(),
+      retryAfter: Math.ceil((oldestTimestamp + RATE_LIMIT_WINDOW - now) / 1000),
+    };
+  }
+
+  // 新しいリクエストを記録
+  entries.push(now);
+  rateLimitStore.set(ip, entries);
+
+  return {
+    allowed: true,
+    remaining: MAX_REQUESTS_PER_IP - entries.length,
+    resetTime: new Date(now + RATE_LIMIT_WINDOW).toISOString(),
+  };
+}
+
 const EMPLOYER_PROMPT = `あなたは求人票作成の専門家です。以下のJobPosting JSON-LDデータを分析し、採用側向けの改善提案を提供してください。
 
 【重要な制約】
@@ -132,7 +198,11 @@ const APPLICANT_PROMPT = `あなたはキャリアアドバイザーです。以
 
 module.exports = async (req, res) => {
   // CORSヘッダー
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['*'];
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin || '*');
+  }
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
@@ -145,16 +215,45 @@ module.exports = async (req, res) => {
   }
 
   try {
+    // レート制限チェック（ユーザーのAPIキー使用時はスキップ）
     const { jobPosting, mode, userApiKey } = req.body;
+    if (!userApiKey) {
+      const clientIp = getClientIp(req);
+      const rateLimitResult = checkRateLimit(clientIp);
+
+      if (!rateLimitResult.allowed) {
+        res.setHeader('Retry-After', rateLimitResult.retryAfter);
+        return res.status(429).json({
+          error: 'レート制限に達しました',
+          remaining: rateLimitResult.remaining,
+          resetTime: rateLimitResult.resetTime,
+          retryAfter: rateLimitResult.retryAfter,
+        });
+      }
+
+      // レート制限情報をレスポンスヘッダーに含める
+      res.setHeader('X-RateLimit-Remaining', rateLimitResult.remaining);
+      res.setHeader('X-RateLimit-Reset', rateLimitResult.resetTime);
+    }
 
     // 入力検証: jobPostingの存在と型チェック
     if (!jobPosting || typeof jobPosting !== 'object') {
       return res.status(400).json({ error: 'jobPosting は有効なオブジェクトである必要があります' });
     }
 
+    // 入力検証: jobPostingオブジェクトのサイズ制限 (100KB)
+    if (JSON.stringify(jobPosting).length > 100000) {
+      return res.status(400).json({ error: '求人データが大きすぎます' });
+    }
+
     // 入力検証: 最低限の必須フィールド
     if (!jobPosting.title && !jobPosting.description) {
       return res.status(400).json({ error: 'jobPosting には title または description が必要です' });
+    }
+
+    // XSS対策: titleの長さ制限
+    if (typeof jobPosting.title === 'string') {
+      jobPosting.title = jobPosting.title.substring(0, 500);
     }
 
     // 入力検証: mode
