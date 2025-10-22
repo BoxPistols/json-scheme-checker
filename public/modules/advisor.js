@@ -220,7 +220,9 @@ class AdvisorManager extends BaseAdvisorManager {
   displayUsage() {
     if (!this.currentUsage) return;
     const container = document.createElement('div');
-    container.innerHTML = `<div style="padding:12px;background:var(--secondary-bg-color);border-radius:4px;margin-top:16px;">API使用量: ${this.currentUsage.total_tokens} tokens</div>`;
+    // BaseAdvisorManagerの共通メソッドを使用して詳細な使用量表示を生成
+    // モデル名はgpt-4o-miniを使用（AdvisorはAPIでモデルを返さないため固定）
+    container.innerHTML = this.renderApiUsagePanel(this.currentUsage, 'gpt-4o-mini');
     document.getElementById('advisorAdviceContent').appendChild(container);
   }
 }

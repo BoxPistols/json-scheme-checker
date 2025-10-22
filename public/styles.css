@@ -2649,6 +2649,7 @@ html[data-theme='dark'] .score-breakdown > div {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
 }
 
 .advisor-view-header h2 {

@@ -47,22 +47,9 @@ class BlogReviewerManager extends BaseAdvisorManager {
     this.remoteDoc = null;
   }
 
-  /**
-   * モデルごとの料金を取得
-   * @param {string} model - モデル名
-   * @returns {{input: number, output: number}}
-   */
-  getModelPricing(model) {
-    const pricing = {
-      'gpt-4o-mini': { input: 0.00000015, output: 0.00000060 },
-      'gpt-4o': { input: 0.00000250, output: 0.00001000 },
-      'gpt-4.1-mini': { input: 0.00000015, output: 0.00000060 },
-      'gpt-4.1': { input: 0.00000300, output: 0.00001500 },
-      'o3-mini': { input: 0.00000060, output: 0.00000240 },
-      'o3': { input: 0.00000300, output: 0.00001500 },
-    };
-    return pricing[model] || pricing['gpt-4o-mini']; // デフォルトは gpt-4o-mini
-  }
+  // getModelPricingメソッドは削除（BaseAdvisorManagerの共通メソッドを使用）
+  // BaseAdvisorManagerのgetModelPricingは1000トークンあたりの価格なので、
+  // 計算時に調整が必要
 
   /**
    * レビュー対象のリモートHTMLを設定
@@ -830,44 +817,12 @@ class BlogReviewerManager extends BaseAdvisorManager {
     }
 
     console.log('[BlogReviewer] Displaying usage:', this.currentUsage);
-    const { prompt_tokens, completion_tokens, total_tokens } = this.currentUsage;
 
-    // モデルに応じた料金を取得
+    // モデル名を取得
     const model = this.currentArticle.model || 'gpt-4o-mini';
-    const prices = this.getModelPricing(model);
 
-    // 料金計算
-    const inputCost = prompt_tokens * prices.input;
-    const outputCost = completion_tokens * prices.output;
-    const totalCost = inputCost + outputCost;
-
-    // 日本円換算（1 USD = 150 JPY）
-    const totalCostJPY = totalCost * 150;
-
-    // usage表示用のHTML
-    const usageHtml = `
-      <div class="advisor-usage-panel" style="margin-top: 20px; padding: 16px; background: var(--secondary-bg-color); border: 1px solid var(--border-color); border-radius: 8px;">
-        <h4 style="margin: 0 0 12px 0; font-size: 0.9rem; color: var(--secondary-text-color);">API使用量 (モデル: ${model})</h4>
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; font-size: 0.85rem;">
-          <div>
-            <div style="color: var(--secondary-text-color); margin-bottom: 4px;">入力トークン</div>
-            <div style="font-weight: 600;">${prompt_tokens.toLocaleString()} tokens</div>
-          </div>
-          <div>
-            <div style="color: var(--secondary-text-color); margin-bottom: 4px;">出力トークン</div>
-            <div style="font-weight: 600;">${completion_tokens.toLocaleString()} tokens</div>
-          </div>
-          <div>
-            <div style="color: var(--secondary-text-color); margin-bottom: 4px;">合計トークン</div>
-            <div style="font-weight: 600;">${total_tokens.toLocaleString()} tokens</div>
-          </div>
-          <div>
-            <div style="color: var(--secondary-text-color); margin-bottom: 4px;">推定料金</div>
-            <div style="font-weight: 600;">$${totalCost.toFixed(6)} (約 ¥${totalCostJPY.toFixed(2)})</div>
-          </div>
-        </div>
-      </div>
-    `;
+    // BaseAdvisorManagerの共通メソッドを使用してHTML生成
+    const usageHtml = this.renderApiUsagePanel(this.currentUsage, model);
 
     // レビューコンテンツの末尾に追加
     const reviewContent = document.getElementById('blogReviewerReviewContent');

@@ -1149,6 +1149,11 @@ Express: server.js に app.use(cors()) を追加
       displaySEOAnalysis(html, schemas);
     }
 
+    // BlogReviewerManagerにリモートHTMLを渡す
+    if (typeof blogReviewerManager !== 'undefined' && blogReviewerManager.setRemoteHtml) {
+      blogReviewerManager.setRemoteHtml(html);
+    }
+
     if (schemas.length === 0) {
       showNoData();
     } else {
