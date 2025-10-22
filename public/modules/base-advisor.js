@@ -252,7 +252,7 @@ class BaseAdvisorManager {
    * @param {string} [iconSvg=''] - 見出し左のアイコンSVG
    * @returns {string}
    */
-  renderViewHeader(title, closeAction, iconSvg = '') {
+  renderViewHeader(title, closeAction) {
     // 旧来の最小デザインに統一（ページごとの差異をなくす）
     return `
       <div class="advisor-view-header"><h2>${this.escapeHtml(title)}</h2><button data-action="${closeAction}">戻る</button></div>
