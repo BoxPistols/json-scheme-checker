@@ -11,6 +11,7 @@
 | **[Blog Reviewer機能](./04_FEATURES.md#blog)** | 開発者 | Article/BlogPosting分析機能 |
 | **[セキュリティ](./05_SECURITY.md)** | 全員 | レート制限・CORS・XSS対策 |
 | **[PR #30 レビュー](./06_CODE_REVIEW_PR30.md)** | 開発者 | コード品質・改善点 |
+| **[テスト報告書](./07_TESTING_REPORT.md)** | QA | API・セキュリティ・品質テスト結果 |
 
 ## よく使うコマンド
 
