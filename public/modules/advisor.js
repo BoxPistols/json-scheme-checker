@@ -41,6 +41,7 @@ class AdvisorManager extends BaseAdvisorManager {
     this.currentMode = null;
     this.isStreaming = false;
     this.currentUsage = null;
+    this.currentModel = 'gpt-4o-mini'; // デフォルトモデル
   }
 
   detectJobPosting(jsonLdData) {
@@ -194,7 +195,10 @@ class AdvisorManager extends BaseAdvisorManager {
           }
           try {
             const parsed = JSON.parse(data);
-            if (parsed.content) {
+            if (parsed.model) {
+              this.currentModel = parsed.model;
+              console.log('[Advisor] Received model:', parsed.model);
+            } else if (parsed.content) {
               fullText += parsed.content;
               markdownDiv.innerHTML = this.renderMarkdown(fullText);
             } else if (parsed.usage) {
@@ -221,8 +225,8 @@ class AdvisorManager extends BaseAdvisorManager {
     if (!this.currentUsage) return;
     const container = document.createElement('div');
     // BaseAdvisorManagerの共通メソッドを使用して詳細な使用量表示を生成
-    // モデル名はgpt-4o-miniを使用（AdvisorはAPIでモデルを返さないため固定）
-    container.innerHTML = this.renderApiUsagePanel(this.currentUsage, 'gpt-4o-mini');
+    // サーバーから受信したモデル名を使用、なければデフォルト
+    container.innerHTML = this.renderApiUsagePanel(this.currentUsage, this.currentModel);
     document.getElementById('advisorAdviceContent').appendChild(container);
   }
 }
