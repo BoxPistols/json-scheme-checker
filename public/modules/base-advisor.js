@@ -291,11 +291,15 @@ class BaseAdvisorManager {
     const { prompt_tokens = 0, completion_tokens = 0, total_tokens = 0 } = usage;
     const prices = this.getModelPricing(model);
 
+    // 料金計算定数
+    const TOKENS_PER_UNIT = 1000;
+    const USD_TO_JPY_RATE = 150;
+
     // 料金計算（トークンを1000で割ってから価格を掛ける）
-    const inputCost = (prompt_tokens / 1000) * prices.input;
-    const outputCost = (completion_tokens / 1000) * prices.output;
+    const inputCost = (prompt_tokens / TOKENS_PER_UNIT) * prices.input;
+    const outputCost = (completion_tokens / TOKENS_PER_UNIT) * prices.output;
     const totalCost = inputCost + outputCost;
-    const totalCostJPY = totalCost * 150; // 1ドル150円で計算
+    const totalCostJPY = totalCost * USD_TO_JPY_RATE;
 
     return `
       <div class="advisor-usage-panel" style="margin-top: 20px; padding: 16px; background: var(--secondary-bg-color); border: 1px solid var(--border-color); border-radius: 8px;">
@@ -321,7 +325,7 @@ class BaseAdvisorManager {
           </div>
         </div>
         <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-color); font-size: 0.75rem; color: var(--secondary-text-color);">
-          <sup>*</sup> ${model}の価格で計算（入力: $${prices.input}/1K tokens, 出力: $${prices.output}/1K tokens, 1USD=150JPY換算）
+          <sup>*</sup> ${model}の価格で計算（入力: $${prices.input}/1K tokens, 出力: $${prices.output}/1K tokens, 1USD=${USD_TO_JPY_RATE}JPY換算）
         </div>
       </div>
     `;

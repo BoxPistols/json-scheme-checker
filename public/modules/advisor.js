@@ -205,7 +205,9 @@ class AdvisorManager extends BaseAdvisorManager {
               this.currentUsage = parsed.usage;
               this.displayUsage();
             }
-          } catch (e) {}
+          } catch (e) {
+            console.warn('[Advisor] Failed to parse streaming data:', e);
+          }
         }
       }
     } catch (error) {

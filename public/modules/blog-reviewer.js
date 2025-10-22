@@ -657,7 +657,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
                   throw new Error(parsed.error);
                 }
               } catch (e) {
-                console.error('Parse error:', e);
+                console.warn('[BlogReviewer] Failed to parse streaming data:', e);
               }
             }
           }
@@ -717,24 +717,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
 
     return html;
   }
-
   /**
-  // トップのトリガー横の累積チップも金額併記
-  updateTriggerUsageChip() {
-    const btn = document.getElementById('blogReviewerTriggerBtn');
-    if (!btn) return;
-    let chip = document.getElementById('blogReviewerTriggerUsage');
-    if (!chip) {
-      chip = document.createElement('span');
-      chip.id = 'blogReviewerTriggerUsage';
-      chip.style.cssText = 'margin-left:8px; padding:4px 8px; font-size:12px; color:var(--secondary-text-color); border:1px solid var(--border-color); border-radius:999px;';
-      btn.insertAdjacentElement('afterend', chip);
-    }
-    const acc = this.getAccumulatedUsage();
-    const usd = (acc.prompt_tokens || 0) * this.PRICE_PER_INPUT_TOKEN + (acc.completion_tokens || 0) * this.PRICE_PER_OUTPUT_TOKEN;
-    chip.textContent = `累計: ${(acc.total_tokens||0).toLocaleString()} tok / $${usd.toFixed(4)} (¥${(usd*150).toFixed(0)})`;
-  }
-
    * ヘッダの使用量チップを更新
    */
   updateHeaderUsageChip() {
@@ -855,9 +838,6 @@ class BlogReviewerManager extends BaseAdvisorManager {
     if (container) {
       container.style.display = '';
     }
-
-    // トリガー側の累積チップを更新
-    this.updateTriggerUsageChip();
   }
 
   /**
