@@ -381,13 +381,13 @@ class BlogReviewerManager extends BaseAdvisorManager {
         <div class="advisor-modal-header" style="display: flex; flex-direction: column; align-items: stretch;">
           <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px;">
             <div class="advisor-mode-buttons-small">
-              <button class="advisor-mode-btn-small" data-action="reset-to-normal-mode" title="通常モード（10回/24時間）に戻す">
+              <button class="advisor-mode-btn-small" data-action="blog-reset-to-normal-mode" title="通常モード（10回/24時間）に戻す">
                 通常モード
               </button>
-              <button class="advisor-mode-btn-small" data-action="show-stakeholder-prompt" title="関係者は30回/24時間まで利用可能">
+              <button class="advisor-mode-btn-small" data-action="blog-show-stakeholder-prompt" title="関係者は30回/24時間まで利用可能">
                 関係者
               </button>
-              <button class="advisor-mode-btn-small" data-action="show-developer-prompt" title="自分のAPIキーで無制限利用">
+              <button class="advisor-mode-btn-small" data-action="blog-show-developer-prompt" title="自分のAPIキーで無制限利用">
                 MyAPI
               </button>
             </div>
@@ -407,15 +407,15 @@ class BlogReviewerManager extends BaseAdvisorManager {
           </p>
 
           <div class="advisor-confirm-buttons">
-            <button class="advisor-btn-secondary" data-action="close-confirm-dialog">キャンセル</button>
-            <button class="advisor-btn-primary" data-action="start-review">レビュー開始</button>
+            <button class="advisor-btn-secondary" data-action="blog-close-confirm-dialog">キャンセル</button>
+            <button class="advisor-btn-primary" data-action="blog-start-review">レビュー開始</button>
           </div>
         </div>
       </div>
     `;
 
     document.body.appendChild(overlay);
-    this.addEscapeKeyListener(overlay, this.closeConfirmDialog);
+    this.addEscapeKeyListener(overlay, () => this.closeConfirmDialog());
 
     setTimeout(() => overlay.classList.add('active'), 10);
   }

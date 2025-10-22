@@ -23,6 +23,7 @@ class AdvisorManager extends BaseAdvisorManager {
         'advisor-reset-to-normal-mode': () => this.resetToNormalMode(),
         'advisor-start-employer': () => this.startAnalysis('employer'),
         'advisor-start-applicant': () => this.startAnalysis('applicant'),
+        'advisor-close-mode-overlay': () => this.closeModal('ModeOverlay'),
         'advisor-close-view': () => this.closeAdvisorView(),
         'advisor-fetch-advice': () => this.fetchAdvice(this.currentMode),
       },
@@ -89,7 +90,7 @@ class AdvisorManager extends BaseAdvisorManager {
               <button class="advisor-mode-btn-small" data-action="advisor-show-stakeholder-prompt">関係者</button>
               <button class="advisor-mode-btn-small" data-action="advisor-show-developer-prompt">MyAPI</button>
             </div>
-            <button class="advisor-modal-close" data-action="advisor-close-view"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor"/></svg></button>
+            <button class="advisor-modal-close" data-action="advisor-close-mode-overlay"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor"/></svg></button>
           </div>
           <h2>どちらの視点でアドバイスしますか？</h2>
         </div>
