@@ -314,11 +314,14 @@ class BaseAdvisorManager {
             <div style="font-weight: 600;">${total_tokens.toLocaleString()} tokens</div>
           </div>
           <div>
-            <div style="color: var(--secondary-text-color); margin-bottom: 4px;">推定料金</div>
+            <div style="color: var(--secondary-text-color); margin-bottom: 4px;">推定料金<sup style="font-size: 0.7rem;">*</sup></div>
             <div style="font-weight: 600;">
               $${totalCost.toFixed(6)} (約 ¥${totalCostJPY.toFixed(2)})
             </div>
           </div>
+        </div>
+        <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-color); font-size: 0.75rem; color: var(--secondary-text-color);">
+          <sup>*</sup> ${model}の価格で計算（入力: $${prices.input}/1K tokens, 出力: $${prices.output}/1K tokens, 1USD=150JPY換算）
         </div>
       </div>
     `;
