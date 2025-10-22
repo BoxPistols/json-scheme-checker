@@ -1,4 +1,4 @@
-# CORS設定ガイド - 開発サーバー設定（Developer/無制限向け）
+# CORS設定ガイド - 開発サーバー設定（MyAPI向け）
 
 ## TL;DR
 

@@ -13,10 +13,24 @@ class BlogReviewerManager {
     this.USAGE_MODE_KEY = 'jsonld_usage_mode'; // 'session' | 'permanent'
     this.MAX_REQUESTS_PER_DAY = 10;
     this.MAX_REQUESTS_STAKEHOLDER = 30;
-    // GPT-4o-miniの料金（1トークンあたりのUSD）
-    this.PRICE_PER_INPUT_TOKEN = 0.00000015; // $0.15 / 1M tokens
-    this.PRICE_PER_OUTPUT_TOKEN = 0.0000006; // $0.6 / 1M tokens
     this.initEventListeners();
+  }
+
+  /**
+   * モデルごとの料金を取得
+   * @param {string} model - モデル名
+   * @returns {{input: number, output: number}}
+   */
+  getModelPricing(model) {
+    const pricing = {
+      'gpt-4o-mini': { input: 0.00000015, output: 0.00000060 },
+      'gpt-4o': { input: 0.00000250, output: 0.00001000 },
+      'gpt-4.1-mini': { input: 0.00000015, output: 0.00000060 },
+      'gpt-4.1': { input: 0.00000300, output: 0.00001500 },
+      'o3-mini': { input: 0.00000060, output: 0.00000240 },
+      'o3': { input: 0.00000300, output: 0.00001500 },
+    };
+    return pricing[model] || pricing['gpt-4o-mini']; // デフォルトは gpt-4o-mini
   }
 
   /**
@@ -42,9 +56,10 @@ class BlogReviewerManager {
     const handleEscape = e => {
       if (e.key === 'Escape') {
         closeFunc.call(this);
-        document.removeEventListener('keydown', handleEscape);
       }
     };
+    // ハンドラを要素自体に保存して、後で削除できるようにする
+    overlay.handleEscape = handleEscape;
     document.addEventListener('keydown', handleEscape);
   }
 
@@ -220,6 +235,10 @@ class BlogReviewerManager {
   closeStakeholderPrompt() {
     const overlay = document.getElementById('stakeholderPromptBlog');
     if (overlay) {
+      // Escapeキーリスナーをクリーンアップ
+      if (overlay.handleEscape) {
+        document.removeEventListener('keydown', overlay.handleEscape);
+      }
       overlay.classList.remove('active');
       setTimeout(() => overlay.remove(), 300);
     }
@@ -236,7 +255,7 @@ class BlogReviewerManager {
   }
 
   /**
-   * Developer/無制限モード（APIキー入力）ダイアログを表示
+   * MyAPIモード（APIキー入力）ダイアログを表示
    */
   showDeveloperPrompt() {
     const currentKey = this.getUserApiKey() || '';
@@ -245,7 +264,7 @@ class BlogReviewerManager {
     overlay.innerHTML = `
       <div class="advisor-modal advisor-developer-modal">
         <div class="advisor-modal-header">
-          <h2>Developer/無制限モード</h2>
+          <h2>MyAPIモード</h2>
           <button class="advisor-modal-close" data-action="close-developer-prompt">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -273,7 +292,7 @@ class BlogReviewerManager {
           </p>
 
           <p class="advisor-notice advisor-notice-warning" style="margin-top: 12px;">
-            <strong>重要:</strong> Developer/無制限モードでは、あなた自身のAPIキーを使用します。
+            <strong>重要:</strong> MyAPIモードでは、あなた自身のAPIキーを使用します。
             サービス提供者のAPIキーは使用されません。
             OpenAIの利用規約を遵守してください。
           </p>
@@ -291,18 +310,22 @@ class BlogReviewerManager {
   }
 
   /**
-   * Developer/無制限モードダイアログを閉じる
+   * MyAPIモードダイアログを閉じる
    */
   closeDeveloperPrompt() {
     const overlay = document.getElementById('developerPromptBlog');
     if (overlay) {
+      // Escapeキーリスナーをクリーンアップ
+      if (overlay.handleEscape) {
+        document.removeEventListener('keydown', overlay.handleEscape);
+      }
       overlay.classList.remove('active');
       setTimeout(() => overlay.remove(), 300);
     }
   }
 
   /**
-   * Developer/無制限APIキーを保存
+   * MyAPIAPIキーを保存
    */
   saveDeveloperKey() {
     const input = document.getElementById('developerApiKeyInputBlog');
@@ -333,7 +356,7 @@ class BlogReviewerManager {
   }
 
   /**
-   * Developer/無制限APIキーの表示/非表示を切り替え
+   * MyAPIAPIキーの表示/非表示を切り替え
    */
   toggleDeveloperKeyVisibility() {
     const input = document.getElementById('developerApiKeyInputBlog');
@@ -343,13 +366,13 @@ class BlogReviewerManager {
   }
 
   /**
-   * 通常モードに戻す（関係者モード・Developer/無制限モードを解除）
+   * 通常モードに戻す（関係者モード・MyAPIモードを解除）
    */
   resetToNormalMode() {
     // 関係者モードを解除
     localStorage.removeItem(this.STAKEHOLDER_MODE_KEY);
 
-    // Developer/無制限モード（APIキー）を解除
+    // MyAPIモード（APIキー）を解除
     localStorage.removeItem(this.USER_API_KEY);
 
     // 確認ダイアログを閉じて再表示
@@ -451,51 +474,37 @@ class BlogReviewerManager {
         }
       }
 
-      // 方法3: 汎用的なセレクタで本文候補を探し、最も長いテキストを採用
+      // 方法3: 汎用的なセレクタで本文候補を探す
       if (!bodyText) {
         console.log('[BlogReviewer] Trying generic content selectors...');
 
         // セマンティックHTMLと一般的なCMSクラスを優先順に試す
         const contentSelectors = [
-          // セマンティックHTML（最優先）
           'article',
           'main',
           '[role="main"]',
-          // 一般的なCMS・ブログプラットフォーム共通クラス
           '.entry-content',
           '.post-content',
           '.article-content',
           '.content',
-          // WordPress系共通パターン
           '[class*="entry"][class*="content"]',
           '[class*="post"][class*="content"]',
           '[class*="article"][class*="content"]',
-          // 汎用パターン（最も緩い）
           '[class*="content"]',
           '[class*="article"]',
           '[class*="post"]',
         ];
 
-        let candidates = [];
         for (const selector of contentSelectors) {
-          const elements = root.querySelectorAll(selector);
-          elements.forEach(element => {
+          const element = root.querySelector(selector);
+          if (element) {
             const text = this.extractTextContent(element);
             if (text.length > 100) {
-              // 最低100文字以上
-              candidates.push({ selector, element, text, length: text.length });
-              console.log(`[BlogReviewer] Candidate "${selector}": ${text.length} chars`);
+              bodyText = text;
+              console.log(`[BlogReviewer] Found content with "${selector}": ${text.length} chars`);
+              break; // 最初に見つかったら終了
             }
-          });
-        }
-
-        // 最も長いテキストを持つ候補を選択
-        if (candidates.length > 0) {
-          candidates.sort((a, b) => b.length - a.length);
-          bodyText = candidates[0].text;
-          console.log(
-            `[BlogReviewer] Selected best candidate "${candidates[0].selector}" with ${bodyText.length} chars`
-          );
+          }
         }
       }
 
@@ -644,8 +653,8 @@ class BlogReviewerManager {
     let modeLabel = '';
     if (rateLimit.mode === 'developer') {
       rateLimitHtml =
-        '<div class="advisor-rate-info advisor-rate-unlimited">Developer/無制限モード（無制限）</div>';
-      modeLabel = 'Developer/無制限モード';
+        '<div class="advisor-rate-info advisor-rate-unlimited">MyAPIモード（無制限）</div>';
+      modeLabel = 'MyAPIモード';
     } else if (rateLimit.mode === 'stakeholder') {
       if (!rateLimit.allowed) {
         const resetTimeStr = rateLimit.resetTime
@@ -689,7 +698,7 @@ class BlogReviewerManager {
                 関係者
               </button>
               <button class="advisor-mode-btn-small" data-action="show-developer-prompt" title="自分のAPIキーで無制限利用">
-                Developer/無制限
+                MyAPI
               </button>
             </div>
             <button class="advisor-modal-close" data-action="close-confirm-dialog">
@@ -727,6 +736,10 @@ class BlogReviewerManager {
   closeConfirmDialog() {
     const overlay = document.getElementById('blogReviewerConfirmOverlay');
     if (overlay) {
+      // Escapeキーリスナーをクリーンアップ
+      if (overlay.handleEscape) {
+        document.removeEventListener('keydown', overlay.handleEscape);
+      }
       overlay.classList.remove('active');
       setTimeout(() => overlay.remove(), 300);
     }
@@ -746,10 +759,9 @@ class BlogReviewerManager {
 
       let message = `利用制限に達しました。\n\nリセット時刻: ${resetTimeStr}\n\n`;
       if (rateLimit.mode === 'stakeholder') {
-        message += 'Developer/無制限モードで自分のAPIキーを使用すると制限なしで利用できます。';
+        message += 'MyAPIモードで自分のAPIキーを使用すると制限なしで利用できます。';
       } else {
-        message +=
-          '関係者モードで30回/24時間、またはDeveloper/無制限モードで無制限利用が可能です。';
+        message += '関係者モードで30回/24時間、またはMyAPIモードで無制限利用が可能です。';
       }
 
       alert(message);
@@ -923,12 +935,12 @@ class BlogReviewerManager {
             const resetTime = new Date(errorData.resetTime).toLocaleTimeString('ja-JP');
             throw new Error(
               `レート制限に達しました。${resetTime}にリセットされます。` +
-                '\n\nDeveloper/無制限モードで自分のOpenAI APIキーを使用すると、無制限で利用できます。'
+                '\n\nMyAPIモードで自分のOpenAI APIキーを使用すると、無制限で利用できます。'
             );
           } catch (e) {
             throw new Error(
               'レート制限に達しました。24時間後に再度試してください。' +
-                '\n\nDeveloper/無制限モードで自分のOpenAI APIキーを使用すると、無制限で利用できます。'
+                '\n\nMyAPIモードで自分のOpenAI APIキーを使用すると、無制限で利用できます。'
             );
           }
         }
@@ -964,7 +976,10 @@ class BlogReviewerManager {
 
               try {
                 const parsed = JSON.parse(data);
-                if (parsed.content) {
+                if (parsed.model) {
+                  this.currentArticle.model = parsed.model;
+                  console.log('[BlogReviewer] Received model:', parsed.model);
+                } else if (parsed.content) {
                   fullText += parsed.content;
                   markdownDiv.innerHTML = this.renderMarkdown(fullText);
                 } else if (parsed.usage) {

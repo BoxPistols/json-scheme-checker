@@ -4,7 +4,7 @@ WebサイトのJSON-LD構造化データを可視化するツール
 
 ## ドキュメント
 
-- [CORS設定ガイド（Developer/無制限向け）](./CORS_SETUP.md) - localhost URLアクセスに必要なCORS設定
+- [CORS設定ガイド（MyAPI向け）](./CORS_SETUP.md) - localhost URLアクセスに必要なCORS設定
 - [Claude開発ガイド](./CLAUDE.md) - Claude Codeでの開発時の参考資料
 
 ## 概要
@@ -54,9 +54,11 @@ WebサイトのJSON-LD構造化データを可視化するツール
 本番環境での使用には以下のいずれかの対策を推奨します：
 
 1. **Vercel KVの導入**（推奨）
+
    ```bash
    vercel storage create kv
    ```
+
    - Redisベースの永続ストレージ
    - インスタンス間で共有可能
    - 無料枠あり（100MB、10,000リクエスト/日）
@@ -514,9 +516,9 @@ pnpm start
 # http://localhost:3333 でアクセス
 ```
 
-## Developer/無制限向け：Vercel環境からlocalhost URLにアクセスする方法
+## MyAPI向け：Vercel環境からlocalhost URLにアクセスする方法
 
-**対象：** 同じマシンまたはLAN内で開発サーバーを起動しているDeveloper/無制限
+**対象：** 同じマシンまたはLAN内で開発サーバーを起動しているMyAPI
 
 Vercel環境（<https://json-ld-view.vercel.app/）を開いているブラウザから、同じマシンまたは同じLAN内の開発サーバー（localhost）にアクセスできます。>
 

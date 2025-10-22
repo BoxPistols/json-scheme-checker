@@ -181,7 +181,7 @@ class AdvisorManager {
   }
 
   /**
-   * Developer/無制限モード（APIキー入力）ダイアログを表示
+   * MyAPIモード（APIキー入力）ダイアログを表示
    */
   showDeveloperPrompt() {
     const currentKey = this.getUserApiKey() || '';
@@ -190,7 +190,7 @@ class AdvisorManager {
     overlay.innerHTML = `
       <div class="advisor-modal advisor-developer-modal">
         <div class="advisor-modal-header">
-          <h2>Developer/無制限モード</h2>
+          <h2>MyAPIモード</h2>
           <button class="advisor-modal-close" onclick="advisorManager.closeDeveloperPrompt()">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -218,7 +218,7 @@ class AdvisorManager {
           </p>
 
           <p class="advisor-notice advisor-notice-warning" style="margin-top: 12px;">
-            <strong>重要:</strong> Developer/無制限モードでは、あなた自身のAPIキーを使用します。
+            <strong>重要:</strong> MyAPIモードでは、あなた自身のAPIキーを使用します。
             サービス提供者のAPIキーは使用されません。
             OpenAIの利用規約を遵守してください。
           </p>
@@ -236,7 +236,7 @@ class AdvisorManager {
   }
 
   /**
-   * Developer/無制限モードダイアログを閉じる
+   * MyAPIモードダイアログを閉じる
    */
   closeDeveloperPrompt() {
     const overlay = document.getElementById('developerPrompt');
@@ -247,7 +247,7 @@ class AdvisorManager {
   }
 
   /**
-   * Developer/無制限APIキーを保存
+   * MyAPIAPIキーを保存
    */
   saveDeveloperKey() {
     const input = document.getElementById('developerApiKeyInput');
@@ -260,7 +260,7 @@ class AdvisorManager {
   }
 
   /**
-   * Developer/無制限APIキーの表示/非表示を切り替え
+   * MyAPIAPIキーの表示/非表示を切り替え
    */
   toggleDeveloperKeyVisibility() {
     const input = document.getElementById('developerApiKeyInput');
@@ -347,8 +347,8 @@ class AdvisorManager {
     let modeLabel = '';
     if (rateLimit.mode === 'developer') {
       rateLimitHtml =
-        '<div class="advisor-rate-info advisor-rate-unlimited">Developer/無制限モード（無制限）</div>';
-      modeLabel = 'Developer/無制限モード';
+        '<div class="advisor-rate-info advisor-rate-unlimited">MyAPIモード（無制限）</div>';
+      modeLabel = 'MyAPIモード';
     } else if (rateLimit.mode === 'stakeholder') {
       if (!rateLimit.allowed) {
         const resetTimeStr = rateLimit.resetTime
@@ -392,7 +392,7 @@ class AdvisorManager {
                 関係者
               </button>
               <button class="advisor-mode-btn-small" onclick="advisorManager.showDeveloperPrompt()" title="自分のAPIキーで無制限利用">
-                Developer/無制限
+                MyAPI
               </button>
             </div>
             <button class="advisor-modal-close" onclick="advisorManager.closeModeSelector()">
@@ -462,10 +462,9 @@ class AdvisorManager {
 
       let message = `利用制限に達しました。\n\nリセット時刻: ${resetTimeStr}\n\n`;
       if (rateLimit.mode === 'stakeholder') {
-        message += 'Developer/無制限モードで自分のAPIキーを使用すると制限なしで利用できます。';
+        message += 'MyAPIモードで自分のAPIキーを使用すると制限なしで利用できます。';
       } else {
-        message +=
-          '関係者モードで30回/24時間、またはDeveloper/無制限モードで無制限利用が可能です。';
+        message += '関係者モードで30回/24時間、またはMyAPIモードで無制限利用が可能です。';
       }
 
       alert(message);

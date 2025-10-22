@@ -136,7 +136,7 @@ console.log('Proxy URL:', PROXY_SERVER);
 
 ### ネットワークタブ
 
-1. ブラウザのDeveloper/無制限ツールを開く（F12）
+1. ブラウザのMyAPIツールを開く（F12）
 2. Networkタブを選択
 3. `/api/proxy` または `/proxy` のリクエストを確認
 4. Response タブでHTMLを確認
