@@ -60,7 +60,7 @@ class AdvisorManager extends BaseAdvisorManager {
     const button = document.createElement('button');
     button.id = 'advisorTriggerBtn';
     button.className = 'advisor-trigger-btn';
-    button.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" stroke-width="2"/></svg> 求人/求職アドバイスを受ける`;
+    button.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="white"/></svg> 求人/求職アドバイスを受ける`;
     button.onclick = () => this.showModeSelector();
     resultDiv.insertBefore(button, resultDiv.firstChild);
   }
