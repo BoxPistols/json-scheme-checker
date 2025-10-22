@@ -40,9 +40,7 @@ function createRateLimitInfo(rateLimit) {
   }
 
   if (!rateLimit.allowed) {
-    const resetTimeStr = rateLimit.resetTime
-      ? rateLimit.resetTime.toLocaleString('ja-JP')
-      : '不明';
+    const resetTimeStr = rateLimit.resetTime ? rateLimit.resetTime.toLocaleString('ja-JP') : '不明';
     return `<div class="advisor-rate-info advisor-rate-exceeded">利用制限に達しました（リセット: ${resetTimeStr}）</div>`;
   }
 

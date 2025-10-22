@@ -54,12 +54,12 @@ class BlogReviewerManager extends BaseAdvisorManager {
    */
   getModelPricing(model) {
     const pricing = {
-      'gpt-4o-mini': { input: 0.00000015, output: 0.00000060 },
-      'gpt-4o': { input: 0.00000250, output: 0.00001000 },
-      'gpt-4.1-mini': { input: 0.00000015, output: 0.00000060 },
-      'gpt-4.1': { input: 0.00000300, output: 0.00001500 },
-      'o3-mini': { input: 0.00000060, output: 0.00000240 },
-      'o3': { input: 0.00000300, output: 0.00001500 },
+      'gpt-4o-mini': { input: 0.00000015, output: 0.0000006 },
+      'gpt-4o': { input: 0.0000025, output: 0.00001 },
+      'gpt-4.1-mini': { input: 0.00000015, output: 0.0000006 },
+      'gpt-4.1': { input: 0.000003, output: 0.000015 },
+      'o3-mini': { input: 0.0000006, output: 0.0000024 },
+      o3: { input: 0.000003, output: 0.000015 },
     };
     return pricing[model] || pricing['gpt-4o-mini']; // デフォルトは gpt-4o-mini
   }
@@ -77,8 +77,6 @@ class BlogReviewerManager extends BaseAdvisorManager {
       this.remoteDoc = null;
     }
   }
-
-
 
   /**
    * Article/BlogPostingスキーマを検出してレビューボタンを表示
