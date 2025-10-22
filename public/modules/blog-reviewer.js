@@ -344,61 +344,24 @@ class BlogReviewerManager extends BaseAdvisorManager {
    */
   showConfirmDialog() {
     const rateLimit = this.checkRateLimit();
-
-    let rateLimitHtml = '';
-    let modeLabel = '';
-    if (rateLimit.mode === 'developer') {
-      rateLimitHtml =
-        '<div class="advisor-rate-info advisor-rate-unlimited">MyAPIモード（無制限）</div>';
-      modeLabel = 'MyAPIモード';
-    } else if (rateLimit.mode === 'stakeholder') {
-      if (!rateLimit.allowed) {
-        const resetTimeStr = rateLimit.resetTime
-          ? rateLimit.resetTime.toLocaleString('ja-JP')
-          : '不明';
-        rateLimitHtml = `<div class="advisor-rate-info advisor-rate-exceeded">利用制限に達しました（リセット: ${resetTimeStr}）</div>`;
-      } else {
-        rateLimitHtml = `<div class="advisor-rate-info advisor-rate-stakeholder">関係者モード - 残り ${rateLimit.remaining} 回 / ${rateLimit.maxRequests} 回（24時間）</div>`;
-      }
-      modeLabel = '関係者モード';
-    } else {
-      if (!rateLimit.allowed) {
-        const resetTimeStr = rateLimit.resetTime
-          ? rateLimit.resetTime.toLocaleString('ja-JP')
-          : '不明';
-        rateLimitHtml = `<div class="advisor-rate-info advisor-rate-exceeded">利用制限に達しました（リセット: ${resetTimeStr}）</div>`;
-      } else {
-        rateLimitHtml = `<div class="advisor-rate-info">残り ${rateLimit.remaining} 回 / ${rateLimit.maxRequests} 回（24時間）</div>`;
-      }
-      modeLabel = '通常モード';
-    }
+    const rateLimitHtml = createRateLimitInfo(rateLimit);
+    const headerHtml = createModalHeader({
+      prefix: 'blog',
+      title: 'ブログ記事レビュー',
+      closeAction: 'blog-close-confirm-dialog',
+    });
+    const buttonsHtml = createConfirmButtons({
+      cancelAction: 'blog-close-confirm-dialog',
+      confirmAction: 'blog-start-review',
+      confirmText: 'レビュー開始',
+    });
 
     const overlay = document.createElement('div');
     overlay.id = 'blogReviewerConfirmOverlay';
     overlay.className = 'advisor-overlay';
     overlay.innerHTML = `
       <div class="advisor-modal">
-        <div class="advisor-modal-header" style="display: flex; flex-direction: column; align-items: stretch;">
-          <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px;">
-            <div class="advisor-mode-buttons-small">
-              <button class="advisor-mode-btn-small" data-action="blog-reset-to-normal-mode" title="通常モード（10回/24時間）に戻す">
-                通常モード
-              </button>
-              <button class="advisor-mode-btn-small" data-action="blog-show-stakeholder-prompt" title="関係者は30回/24時間まで利用可能">
-                関係者
-              </button>
-              <button class="advisor-mode-btn-small" data-action="blog-show-developer-prompt" title="自分のAPIキーで無制限利用">
-                MyAPI
-              </button>
-            </div>
-            <button class="advisor-modal-close" data-action="blog-close-confirm-dialog">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-            </button>
-          </div>
-          <h2 style="margin: 0; width: 100%;">ブログ記事レビュー</h2>
-        </div>
+        ${headerHtml}
         <div class="advisor-modal-body">
           ${rateLimitHtml}
 
@@ -406,10 +369,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
             SEO観点、EEAT観点、アクセシビリティ観点でブログ記事をレビューします。
           </p>
 
-          <div class="advisor-confirm-buttons">
-            <button class="advisor-btn-secondary" data-action="blog-close-confirm-dialog">キャンセル</button>
-            <button class="advisor-btn-primary" data-action="blog-start-review">レビュー開始</button>
-          </div>
+          ${buttonsHtml}
         </div>
       </div>
     `;

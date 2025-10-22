@@ -73,27 +73,16 @@ class AdvisorManager extends BaseAdvisorManager {
 
   showModeSelector() {
     const rateLimit = this.checkRateLimit();
-    let rateLimitHtml = '';
-    if (rateLimit.mode === 'developer') {
-      rateLimitHtml = '<div class="advisor-rate-info advisor-rate-unlimited">MyAPIモード（無制限）</div>';
-    } else {
-      const limitMsg = rateLimit.allowed ? `残り ${rateLimit.remaining} 回` : '利用制限に達しました';
-      rateLimitHtml = `<div class="advisor-rate-info">${limitMsg} / ${rateLimit.maxRequests} 回（24時間）</div>`;
-    }
+    const rateLimitHtml = createRateLimitInfo(rateLimit);
+    const headerHtml = createModalHeader({
+      prefix: 'advisor',
+      title: 'どちらの視点でアドバイスしますか？',
+      closeAction: 'advisor-close-mode-overlay',
+    });
 
     const overlay = this.createModal('ModeOverlay', `
       <div class="advisor-modal">
-        <div class="advisor-modal-header" style="flex-direction: column; align-items: stretch;">
-           <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px;">
-            <div class="advisor-mode-buttons-small">
-              <button class="advisor-mode-btn-small" data-action="advisor-reset-to-normal-mode">通常モード</button>
-              <button class="advisor-mode-btn-small" data-action="advisor-show-stakeholder-prompt">関係者</button>
-              <button class="advisor-mode-btn-small" data-action="advisor-show-developer-prompt">MyAPI</button>
-            </div>
-            <button class="advisor-modal-close" data-action="advisor-close-mode-overlay"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor"/></svg></button>
-          </div>
-          <h2>どちらの視点でアドバイスしますか？</h2>
-        </div>
+        ${headerHtml}
         <div class="advisor-modal-body">
           ${rateLimitHtml}
           <div class="advisor-mode-buttons-grid">
