@@ -1,0 +1,14 @@
+# .github/workflows/pricing-reminder.yml
+name: Pricing Update Reminder
+on:
+  schedule:
+    - cron: '0 0 1 * *' # 毎月1日
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Issue
+        run: |
+          gh issue create --title "モデル料金の更新確認" --body "docs/MODEL_PRICING.mdの料金情報を確認してください"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

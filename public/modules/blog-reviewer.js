@@ -1,19 +1,50 @@
 // Blog Reviewer Module
 
-class BlogReviewerManager {
+class BlogReviewerManager extends BaseAdvisorManager {
   constructor() {
+    const config = {
+      RATE_LIMIT_KEY: 'jsonld_blog_reviewer_usage',
+      USER_API_KEY: 'jsonld_blog_reviewer_openai_key',
+      STAKEHOLDER_MODE_KEY: 'jsonld_blog_reviewer_stakeholder',
+      USAGE_TOTAL_KEY: 'jsonld_usage_blog_reviewer_total',
+      USAGE_MODE_KEY: 'jsonld_usage_mode',
+      MAX_REQUESTS_PER_DAY: 10,
+      MAX_REQUESTS_STAKEHOLDER: 30,
+      elemIdPrefix: 'blogReviewer',
+      ui: {
+        showConfirmDialog: () => this.showConfirmDialog(),
+        closeStakeholderPrompt: () => this.closeModal('stakeholderPrompt'),
+        closeDeveloperPrompt: () => this.closeModal('developerPrompt'),
+      },
+      actionHandlers: {
+        'blog-close-stakeholder-prompt': () => this.closeModal('stakeholderPrompt'),
+        'blog-confirm-stakeholder': () => this.confirmStakeholder(),
+        'blog-close-developer-prompt': () => this.closeModal('developerPrompt'),
+        'blog-toggle-developer-key-visibility': () => this.toggleDeveloperKeyVisibility(),
+        'blog-save-developer-key': () => this.saveDeveloperKey(),
+        'blog-show-stakeholder-prompt': () => this.showStakeholderPrompt(),
+        'blog-show-developer-prompt': () => this.showDeveloperPrompt(),
+        'blog-reset-to-normal-mode': () => this.resetToNormalMode(),
+        'blog-close-confirm-dialog': () => this.closeConfirmDialog(),
+        'blog-start-review': () => this.startReview(),
+        'blog-close-review-view': () => this.closeReviewView(),
+        'blog-fetch-review': () => this.fetchReview(),
+        'show-blog-confirm-dialog': () => this.showConfirmDialog(),
+      },
+      actions: {
+        closeStakeholderPrompt: 'blog-close-stakeholder-prompt',
+        confirmStakeholder: 'blog-confirm-stakeholder',
+        closeDeveloperPrompt: 'blog-close-developer-prompt',
+        toggleDeveloperKeyVisibility: 'blog-toggle-developer-key-visibility',
+        saveDeveloperKey: 'blog-save-developer-key',
+      },
+    };
+    super(config);
+
     this.currentArticle = null;
     this.isStreaming = false;
-    this.currentUsage = null; // API usage情報
-    this.remoteDoc = null; // 解析対象のリモートHTMLドキュメント
-    this.RATE_LIMIT_KEY = 'jsonld_blog_reviewer_usage';
-    this.USER_API_KEY = 'jsonld_blog_reviewer_openai_key';
-    this.STAKEHOLDER_MODE_KEY = 'jsonld_blog_reviewer_stakeholder';
-    this.USAGE_TOTAL_KEY = 'jsonld_usage_blog_reviewer_total';
-    this.USAGE_MODE_KEY = 'jsonld_usage_mode'; // 'session' | 'permanent'
-    this.MAX_REQUESTS_PER_DAY = 10;
-    this.MAX_REQUESTS_STAKEHOLDER = 30;
-    this.initEventListeners();
+    this.currentUsage = null;
+    this.remoteDoc = null;
   }
 
   /**
@@ -47,342 +78,7 @@ class BlogReviewerManager {
     }
   }
 
-  /**
-   * モーダルにEscapeキーリスナーを追加
-   * @param {HTMLElement} overlay - オーバーレイ要素
-   * @param {Function} closeFunc - 閉じる関数
-   */
-  addEscapeKeyListener(overlay, closeFunc) {
-    const handleEscape = e => {
-      if (e.key === 'Escape') {
-        closeFunc.call(this);
-      }
-    };
-    // ハンドラを要素自体に保存して、後で削除できるようにする
-    overlay.handleEscape = handleEscape;
-    document.addEventListener('keydown', handleEscape);
-  }
 
-  /**
-   * イベントリスナーを初期化
-   */
-  initEventListeners() {
-    document.addEventListener('click', event => {
-      const target = event.target.closest('button');
-      if (!target) return;
-
-      const action = target.dataset.action;
-      if (!action) return;
-
-      // onclick属性を使用していた関数のマッピング
-      const handlers = {
-        'close-stakeholder-prompt': () => this.closeStakeholderPrompt(),
-        'confirm-stakeholder': () => this.confirmStakeholder(),
-        'close-developer-prompt': () => this.closeDeveloperPrompt(),
-        'toggle-developer-key-visibility': () => this.toggleDeveloperKeyVisibility(),
-        'save-developer-key': () => this.saveDeveloperKey(),
-        'show-stakeholder-prompt': () => this.showStakeholderPrompt(),
-        'show-developer-prompt': () => this.showDeveloperPrompt(),
-        'reset-to-normal-mode': () => this.resetToNormalMode(),
-        'close-confirm-dialog': () => this.closeConfirmDialog(),
-        'start-review': () => this.startReview(),
-        'close-review-view': () => this.closeReviewView(),
-        'fetch-review': () => this.fetchReview(),
-        'show-blog-confirm-dialog': () => this.showConfirmDialog(),
-      };
-
-      if (handlers[action]) {
-        event.preventDefault();
-        handlers[action]();
-      }
-    });
-  }
-
-  /**
-   * レート制限をチェック
-   * @returns {Object} { allowed: boolean, remaining: number, resetTime: Date }
-   */
-  checkRateLimit() {
-    // ユーザーAPIキーがある場合はレート制限をバイパス
-    const userApiKey = this.getUserApiKey();
-    if (userApiKey) {
-      return {
-        allowed: true,
-        remaining: Infinity,
-        resetTime: null,
-        usingUserKey: true,
-        mode: 'developer',
-      };
-    }
-
-    const now = Date.now();
-    const oneDayMs = 24 * 60 * 60 * 1000;
-
-    const usageData = JSON.parse(localStorage.getItem(this.RATE_LIMIT_KEY) || '[]');
-
-    // 24時間以内のリクエストをフィルタ
-    const recentRequests = usageData.filter(timestamp => now - timestamp < oneDayMs);
-
-    // 関係者モードのチェック
-    const isStakeholder = this.isStakeholderMode();
-    const maxRequests = isStakeholder ? this.MAX_REQUESTS_STAKEHOLDER : this.MAX_REQUESTS_PER_DAY;
-
-    const remaining = maxRequests - recentRequests.length;
-    const allowed = remaining > 0;
-
-    // 最も古いリクエストから24時間後がリセット時刻
-    const resetTime = recentRequests.length > 0 ? new Date(recentRequests[0] + oneDayMs) : null;
-
-    return {
-      allowed,
-      remaining,
-      resetTime,
-      usingUserKey: false,
-      mode: isStakeholder ? 'stakeholder' : 'normal',
-      maxRequests,
-    };
-  }
-
-  /**
-   * レート制限使用履歴を記録
-   */
-  recordUsage() {
-    const now = Date.now();
-    const oneDayMs = 24 * 60 * 60 * 1000;
-
-    const usageData = JSON.parse(localStorage.getItem(this.RATE_LIMIT_KEY) || '[]');
-
-    // 24時間以内のリクエストのみ保持
-    const recentRequests = usageData.filter(timestamp => now - timestamp < oneDayMs);
-    recentRequests.push(now);
-
-    localStorage.setItem(this.RATE_LIMIT_KEY, JSON.stringify(recentRequests));
-  }
-
-  /**
-   * ユーザーAPIキーを取得
-   * @returns {string|null}
-   */
-  getUserApiKey() {
-    return localStorage.getItem(this.USER_API_KEY);
-  }
-
-  /**
-   * ユーザーAPIキーを保存
-   * @param {string} apiKey
-   */
-  saveUserApiKey(apiKey) {
-    if (apiKey && apiKey.trim()) {
-      localStorage.setItem(this.USER_API_KEY, apiKey.trim());
-    } else {
-      localStorage.removeItem(this.USER_API_KEY);
-    }
-  }
-
-  /**
-   * 関係者モードかチェック
-   * @returns {boolean}
-   */
-  isStakeholderMode() {
-    return localStorage.getItem(this.STAKEHOLDER_MODE_KEY) === 'true';
-  }
-
-  /**
-   * 関係者モードを有効化
-   */
-  enableStakeholderMode() {
-    localStorage.setItem(this.STAKEHOLDER_MODE_KEY, 'true');
-  }
-
-  /**
-   * 関係者モードを無効化
-   */
-  disableStakeholderMode() {
-    localStorage.removeItem(this.STAKEHOLDER_MODE_KEY);
-  }
-
-  /**
-   * 関係者確認ダイアログを表示
-   */
-  showStakeholderPrompt() {
-    const overlay = document.createElement('div');
-    overlay.className = 'advisor-overlay active';
-    overlay.innerHTML = `
-      <div class="advisor-modal advisor-confirm-modal">
-        <div class="advisor-modal-header">
-          <h2>関係者確認</h2>
-        </div>
-        <div class="advisor-modal-body">
-          <p style="margin-bottom: 20px; text-align: center;">あなたは関係者ですか？</p>
-          <p style="font-size: 0.85rem; color: var(--secondary-text-color); margin-bottom: 20px; text-align: center;">
-            関係者の場合、利用回数が30回/24時間に増加します
-          </p>
-          <div class="advisor-confirm-buttons">
-            <button class="advisor-btn-secondary" data-action="close-stakeholder-prompt">いいえ</button>
-            <button class="advisor-btn-primary" data-action="confirm-stakeholder">はい</button>
-          </div>
-        </div>
-      </div>
-    `;
-    overlay.id = 'stakeholderPromptBlog';
-    document.body.appendChild(overlay);
-    this.addEscapeKeyListener(overlay, this.closeStakeholderPrompt);
-  }
-
-  /**
-   * 関係者確認ダイアログを閉じる
-   */
-  closeStakeholderPrompt() {
-    const overlay = document.getElementById('stakeholderPromptBlog');
-    if (overlay) {
-      // Escapeキーリスナーをクリーンアップ
-      if (overlay.handleEscape) {
-        document.removeEventListener('keydown', overlay.handleEscape);
-      }
-      overlay.classList.remove('active');
-      setTimeout(() => overlay.remove(), 300);
-    }
-  }
-
-  /**
-   * 関係者モード確定
-   */
-  confirmStakeholder() {
-    this.enableStakeholderMode();
-    this.closeStakeholderPrompt();
-    // 確認画面を再表示
-    this.showConfirmDialog();
-  }
-
-  /**
-   * MyAPIモード（APIキー入力）ダイアログを表示
-   */
-  showDeveloperPrompt() {
-    const currentKey = this.getUserApiKey() || '';
-    const overlay = document.createElement('div');
-    overlay.className = 'advisor-overlay active';
-    overlay.innerHTML = `
-      <div class="advisor-modal advisor-developer-modal">
-        <div class="advisor-modal-header">
-          <h2>MyAPIモード</h2>
-          <button class="advisor-modal-close" data-action="close-developer-prompt" aria-label="閉じる">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </button>
-        </div>
-        <div class="advisor-modal-body">
-          <p style="margin-bottom: 16px; color: var(--secondary-text-color); font-size: 0.9rem;">
-            自分のOpenAI APIキーを使用すると、無制限で利用できます。
-          </p>
-
-          <div class="advisor-api-key-wrapper">
-            <input type="password" id="developerApiKeyInputBlog" placeholder="sk-proj-..." value="${currentKey}" class="advisor-input">
-            <button type="button" data-action="toggle-developer-key-visibility" class="advisor-btn-icon" title="表示/非表示">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/>
-                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
-              </svg>
-            </button>
-          </div>
-
-          <p class="advisor-notice" style="margin-top: 12px;">
-            このAPIキーはあなたのブラウザにのみ保存され、サーバーには送信されません。
-            OpenAI APIキーは <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer">OpenAI Platform</a> で取得できます。
-          </p>
-
-          <p class="advisor-notice advisor-notice-warning" style="margin-top: 12px;">
-            <strong>重要:</strong> MyAPIモードでは、あなた自身のAPIキーを使用します。
-            サービス提供者のAPIキーは使用されません。
-            OpenAIの利用規約を遵守してください。
-          </p>
-
-          <div class="advisor-confirm-buttons" style="margin-top: 20px;">
-            <button class="advisor-btn-secondary" data-action="close-developer-prompt">キャンセル</button>
-            <button class="advisor-btn-primary" data-action="save-developer-key">保存</button>
-          </div>
-        </div>
-      </div>
-    `;
-    overlay.id = 'developerPromptBlog';
-    document.body.appendChild(overlay);
-    this.addEscapeKeyListener(overlay, this.closeDeveloperPrompt);
-  }
-
-  /**
-   * MyAPIモードダイアログを閉じる
-   */
-  closeDeveloperPrompt() {
-    const overlay = document.getElementById('developerPromptBlog');
-    if (overlay) {
-      // Escapeキーリスナーをクリーンアップ
-      if (overlay.handleEscape) {
-        document.removeEventListener('keydown', overlay.handleEscape);
-      }
-      overlay.classList.remove('active');
-      setTimeout(() => overlay.remove(), 300);
-    }
-  }
-
-  /**
-   * MyAPIAPIキーを保存
-   */
-  saveDeveloperKey() {
-    const input = document.getElementById('developerApiKeyInputBlog');
-    if (input) {
-      this.saveUserApiKey(input.value.trim());
-      this.closeDeveloperPrompt();
-      // 確認画面を再表示
-      this.showConfirmDialog();
-    }
-  }
-
-  /**
-   * トリガーボタン横の累積使用量チップ更新
-   */
-  updateTriggerUsageChip() {
-    const btn = document.getElementById('blogReviewerTriggerBtn');
-    if (!btn) return;
-    let chip = document.getElementById('blogReviewerTriggerUsage');
-    if (!chip) {
-      chip = document.createElement('span');
-      chip.id = 'blogReviewerTriggerUsage';
-      chip.style.cssText =
-        'margin-left:8px; padding:4px 8px; font-size:12px; color:var(--secondary-text-color); border:1px solid var(--border-color); border-radius:999px;';
-      btn.insertAdjacentElement('afterend', chip);
-    }
-    const acc = this.getAccumulatedUsage();
-    chip.textContent = `累計: ${(acc.total_tokens || 0).toLocaleString()} tok`;
-  }
-
-  /**
-   * MyAPIAPIキーの表示/非表示を切り替え
-   */
-  toggleDeveloperKeyVisibility() {
-    const input = document.getElementById('developerApiKeyInputBlog');
-    if (input) {
-      input.type = input.type === 'password' ? 'text' : 'password';
-    }
-  }
-
-  /**
-   * 通常モードに戻す（関係者モード・MyAPIモードを解除）
-   */
-  resetToNormalMode() {
-    // 関係者モードを解除
-    localStorage.removeItem(this.STAKEHOLDER_MODE_KEY);
-
-    // MyAPIモード（APIキー）を解除
-    localStorage.removeItem(this.USER_API_KEY);
-
-    // 確認ダイアログを閉じて再表示
-    this.closeConfirmDialog();
-
-    alert('通常モードに戻しました。');
-
-    // ダイアログを再表示
-    setTimeout(() => this.showConfirmDialog(), 100);
-  }
 
   /**
    * Article/BlogPostingスキーマを検出してレビューボタンを表示
