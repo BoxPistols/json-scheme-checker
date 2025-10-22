@@ -127,8 +127,9 @@ class AdvisorManager extends BaseAdvisorManager {
     const container = document.querySelector('.container');
     if (!container) return;
     const modeTitle = mode === 'employer' ? '採用側向けアドバイス' : '応募者向けアドバイス';
+    const headerHtml = this.renderViewHeader(modeTitle, 'advisor-close-view');
     const advisorView = this.createModal('View', `
-      <div class="advisor-view-header"><h2>${modeTitle}</h2><button data-action="advisor-close-view">戻る</button></div>
+      ${headerHtml}
       <div class="advisor-view-content">
         <div class="advisor-job-panel"><h3>求人票</h3><div class="advisor-job-content">${this.formatJobPosting(this.currentJobPosting)}</div></div>
         <div class="advisor-advice-panel"><h3>AI分析結果</h3><div class="advisor-advice-content" id="advisorAdviceContent"><div class="advisor-loading"></div></div></div>

@@ -473,26 +473,14 @@ class BlogReviewerManager extends BaseAdvisorManager {
     const reviewView = document.createElement('div');
     reviewView.id = 'blogReviewerView';
     reviewView.className = 'advisor-view';
+    const headerHtml = this.renderViewHeader('ブログ記事レビュー', 'blog-close-review-view', `
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    `);
     reviewView.innerHTML = `
-      <div class="advisor-view-header">
-        <h2>
-          <span style="display: inline-flex; align-items: center; margin-right: 8px;">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
-          ブログ記事レビュー
-        </h2>
-        <div class="advisor-view-actions" style="display:flex; align-items:center; gap:8px;">
-          <button class="advisor-btn-secondary" data-action="close-review-view">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            戻る
-          </button>
-        </div>
-      </div>
+      ${headerHtml}
       <div class="advisor-view-content">
         <div class="advisor-job-panel">
           <h3>記事情報</h3>

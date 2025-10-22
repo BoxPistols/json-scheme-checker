@@ -416,3 +416,33 @@ function escapeHtml(text) {
   };
   return String(text).replace(/[&<>"']/g, m => map[m]);
 }
+
+/**
+ * アドバイザービューの共通ヘッダーを生成
+ * @param {string} title - ヘッダータイトル
+ * @param {string} closeAction - 閉じるボタンのdata-action属性
+ * @param {string} [iconSvg=''] - タイトルの前に表示するSVGアイコン
+ * @returns {string} HTML文字列
+ */
+export function createAdvisorViewHeader(title, closeAction, iconSvg = '') {
+  const titleIcon = iconSvg
+    ? `<span style="display: inline-flex; align-items: center; margin-right: 8px;">${iconSvg}</span>`
+    : '';
+
+  return `
+    <div class="advisor-view-header">
+      <h2>
+        ${titleIcon}
+        ${escapeHtml(title)}
+      </h2>
+      <div class="advisor-view-actions" style="display:flex; align-items:center; gap:8px;">
+        <button class="advisor-btn-secondary" data-action="${escapeHtml(closeAction)}">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          戻る
+        </button>
+      </div>
+    </div>
+  `;
+}

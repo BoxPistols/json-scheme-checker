@@ -243,4 +243,19 @@ class BaseAdvisorManager {
     div.textContent = text;
     return div.innerHTML;
   }
+
+  /**
+   * 共通: アドバイザービューのヘッダーHTMLを生成
+   * ページ間でUIを統一するため、ここで一元管理する
+   * @param {string} title - 見出し
+   * @param {string} closeAction - 戻るボタンのdata-action
+   * @param {string} [iconSvg=''] - 見出し左のアイコンSVG
+   * @returns {string}
+   */
+  renderViewHeader(title, closeAction, iconSvg = '') {
+    // 旧来の最小デザインに統一（ページごとの差異をなくす）
+    return `
+      <div class="advisor-view-header"><h2>${this.escapeHtml(title)}</h2><button data-action="${closeAction}">戻る</button></div>
+    `;
+  }
 }
