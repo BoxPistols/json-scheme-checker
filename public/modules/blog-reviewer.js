@@ -1,254 +1,84 @@
 // Blog Reviewer Module
 
-class BlogReviewerManager {
+class BlogReviewerManager extends BaseAdvisorManager {
   constructor() {
+    const config = {
+      RATE_LIMIT_KEY: 'jsonld_blog_reviewer_usage',
+      USER_API_KEY: 'jsonld_blog_reviewer_openai_key',
+      STAKEHOLDER_MODE_KEY: 'jsonld_blog_reviewer_stakeholder',
+      USAGE_TOTAL_KEY: 'jsonld_usage_blog_reviewer_total',
+      USAGE_MODE_KEY: 'jsonld_usage_mode',
+      MAX_REQUESTS_PER_DAY: 10,
+      MAX_REQUESTS_STAKEHOLDER: 30,
+      elemIdPrefix: 'blogReviewer',
+      ui: {
+        showConfirmDialog: () => this.showConfirmDialog(),
+        closeStakeholderPrompt: () => this.closeModal('stakeholderPrompt'),
+        closeDeveloperPrompt: () => this.closeModal('developerPrompt'),
+      },
+      actionHandlers: {
+        'blog-close-stakeholder-prompt': () => this.closeModal('stakeholderPrompt'),
+        'blog-confirm-stakeholder': () => this.confirmStakeholder(),
+        'blog-close-developer-prompt': () => this.closeModal('developerPrompt'),
+        'blog-toggle-developer-key-visibility': () => this.toggleDeveloperKeyVisibility(),
+        'blog-save-developer-key': () => this.saveDeveloperKey(),
+        'blog-show-stakeholder-prompt': () => this.showStakeholderPrompt(),
+        'blog-show-developer-prompt': () => this.showDeveloperPrompt(),
+        'blog-reset-to-normal-mode': () => this.resetToNormalMode(),
+        'blog-close-confirm-dialog': () => this.closeConfirmDialog(),
+        'blog-start-review': () => this.startReview(),
+        'blog-close-review-view': () => this.closeReviewView(),
+        'blog-fetch-review': () => this.fetchReview(),
+        'show-blog-confirm-dialog': () => this.showConfirmDialog(),
+      },
+      actions: {
+        closeStakeholderPrompt: 'blog-close-stakeholder-prompt',
+        confirmStakeholder: 'blog-confirm-stakeholder',
+        closeDeveloperPrompt: 'blog-close-developer-prompt',
+        toggleDeveloperKeyVisibility: 'blog-toggle-developer-key-visibility',
+        saveDeveloperKey: 'blog-save-developer-key',
+      },
+    };
+    super(config);
+
     this.currentArticle = null;
     this.isStreaming = false;
-    this.RATE_LIMIT_KEY = 'jsonld_blog_reviewer_usage';
-    this.USER_API_KEY = 'jsonld_user_openai_key';
-    this.STAKEHOLDER_MODE_KEY = 'jsonld_blog_reviewer_stakeholder';
-    this.MAX_REQUESTS_PER_DAY = 10;
-    this.MAX_REQUESTS_STAKEHOLDER = 30;
+    this.currentUsage = null;
+    this.remoteDoc = null;
   }
 
   /**
-   * レート制限をチェック
-   * @returns {Object} { allowed: boolean, remaining: number, resetTime: Date }
+   * モデルごとの料金を取得
+   * @param {string} model - モデル名
+   * @returns {{input: number, output: number}}
    */
-  checkRateLimit() {
-    // ユーザーAPIキーがある場合はレート制限をバイパス
-    const userApiKey = this.getUserApiKey();
-    if (userApiKey) {
-      return {
-        allowed: true,
-        remaining: Infinity,
-        resetTime: null,
-        usingUserKey: true,
-        mode: 'developer',
-      };
-    }
-
-    const now = Date.now();
-    const oneDayMs = 24 * 60 * 60 * 1000;
-
-    const usageData = JSON.parse(localStorage.getItem(this.RATE_LIMIT_KEY) || '[]');
-
-    // 24時間以内のリクエストをフィルタ
-    const recentRequests = usageData.filter(timestamp => now - timestamp < oneDayMs);
-
-    // 関係者モードのチェック
-    const isStakeholder = this.isStakeholderMode();
-    const maxRequests = isStakeholder ? this.MAX_REQUESTS_STAKEHOLDER : this.MAX_REQUESTS_PER_DAY;
-
-    const remaining = maxRequests - recentRequests.length;
-    const allowed = remaining > 0;
-
-    // 最も古いリクエストから24時間後がリセット時刻
-    const resetTime = recentRequests.length > 0 ? new Date(recentRequests[0] + oneDayMs) : null;
-
-    return {
-      allowed,
-      remaining,
-      resetTime,
-      usingUserKey: false,
-      mode: isStakeholder ? 'stakeholder' : 'normal',
-      maxRequests,
+  getModelPricing(model) {
+    const pricing = {
+      'gpt-4o-mini': { input: 0.00000015, output: 0.00000060 },
+      'gpt-4o': { input: 0.00000250, output: 0.00001000 },
+      'gpt-4.1-mini': { input: 0.00000015, output: 0.00000060 },
+      'gpt-4.1': { input: 0.00000300, output: 0.00001500 },
+      'o3-mini': { input: 0.00000060, output: 0.00000240 },
+      'o3': { input: 0.00000300, output: 0.00001500 },
     };
+    return pricing[model] || pricing['gpt-4o-mini']; // デフォルトは gpt-4o-mini
   }
 
   /**
-   * レート制限使用履歴を記録
+   * レビュー対象のリモートHTMLを設定
+   * @param {string} html - 取得したリモートHTML
    */
-  recordUsage() {
-    const now = Date.now();
-    const oneDayMs = 24 * 60 * 60 * 1000;
-
-    const usageData = JSON.parse(localStorage.getItem(this.RATE_LIMIT_KEY) || '[]');
-
-    // 24時間以内のリクエストのみ保持
-    const recentRequests = usageData.filter(timestamp => now - timestamp < oneDayMs);
-    recentRequests.push(now);
-
-    localStorage.setItem(this.RATE_LIMIT_KEY, JSON.stringify(recentRequests));
-  }
-
-  /**
-   * ユーザーAPIキーを取得
-   * @returns {string|null}
-   */
-  getUserApiKey() {
-    return localStorage.getItem(this.USER_API_KEY);
-  }
-
-  /**
-   * ユーザーAPIキーを保存
-   * @param {string} apiKey
-   */
-  saveUserApiKey(apiKey) {
-    if (apiKey && apiKey.trim()) {
-      localStorage.setItem(this.USER_API_KEY, apiKey.trim());
-    } else {
-      localStorage.removeItem(this.USER_API_KEY);
+  setRemoteHtml(html) {
+    try {
+      const parser = new DOMParser();
+      this.remoteDoc = parser.parseFromString(html, 'text/html');
+    } catch (e) {
+      console.warn('[BlogReviewer] Remote HTMLのパースに失敗:', e);
+      this.remoteDoc = null;
     }
   }
 
-  /**
-   * 関係者モードかチェック
-   * @returns {boolean}
-   */
-  isStakeholderMode() {
-    return localStorage.getItem(this.STAKEHOLDER_MODE_KEY) === 'true';
-  }
 
-  /**
-   * 関係者モードを有効化
-   */
-  enableStakeholderMode() {
-    localStorage.setItem(this.STAKEHOLDER_MODE_KEY, 'true');
-  }
-
-  /**
-   * 関係者モードを無効化
-   */
-  disableStakeholderMode() {
-    localStorage.removeItem(this.STAKEHOLDER_MODE_KEY);
-  }
-
-  /**
-   * 関係者確認ダイアログを表示
-   */
-  showStakeholderPrompt() {
-    const overlay = document.createElement('div');
-    overlay.className = 'advisor-overlay active';
-    overlay.innerHTML = `
-      <div class="advisor-modal advisor-confirm-modal">
-        <div class="advisor-modal-header">
-          <h2>関係者確認</h2>
-        </div>
-        <div class="advisor-modal-body">
-          <p style="margin-bottom: 20px; text-align: center;">あなたは関係者ですか？</p>
-          <p style="font-size: 0.85rem; color: var(--secondary-text-color); margin-bottom: 20px; text-align: center;">
-            関係者の場合、利用回数が30回/24時間に増加します
-          </p>
-          <div class="advisor-confirm-buttons">
-            <button class="advisor-btn-secondary" onclick="blogReviewerManager.closeStakeholderPrompt()">いいえ</button>
-            <button class="advisor-btn-primary" onclick="blogReviewerManager.confirmStakeholder()">はい</button>
-          </div>
-        </div>
-      </div>
-    `;
-    overlay.id = 'stakeholderPromptBlog';
-    document.body.appendChild(overlay);
-  }
-
-  /**
-   * 関係者確認ダイアログを閉じる
-   */
-  closeStakeholderPrompt() {
-    const overlay = document.getElementById('stakeholderPromptBlog');
-    if (overlay) {
-      overlay.classList.remove('active');
-      setTimeout(() => overlay.remove(), 300);
-    }
-  }
-
-  /**
-   * 関係者モード確定
-   */
-  confirmStakeholder() {
-    this.enableStakeholderMode();
-    this.closeStakeholderPrompt();
-    // 確認画面を再表示
-    this.showConfirmDialog();
-  }
-
-  /**
-   * 開発者モード（APIキー入力）ダイアログを表示
-   */
-  showDeveloperPrompt() {
-    const currentKey = this.getUserApiKey() || '';
-    const overlay = document.createElement('div');
-    overlay.className = 'advisor-overlay active';
-    overlay.innerHTML = `
-      <div class="advisor-modal advisor-developer-modal">
-        <div class="advisor-modal-header">
-          <h2>開発者モード</h2>
-          <button class="advisor-modal-close" onclick="blogReviewerManager.closeDeveloperPrompt()">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </button>
-        </div>
-        <div class="advisor-modal-body">
-          <p style="margin-bottom: 16px; color: var(--secondary-text-color); font-size: 0.9rem;">
-            自分のOpenAI APIキーを使用すると、無制限で利用できます。
-          </p>
-
-          <div class="advisor-api-key-wrapper">
-            <input type="password" id="developerApiKeyInputBlog" placeholder="sk-proj-..." value="${currentKey}" class="advisor-input">
-            <button type="button" onclick="blogReviewerManager.toggleDeveloperKeyVisibility()" class="advisor-btn-icon" title="表示/非表示">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/>
-                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
-              </svg>
-            </button>
-          </div>
-
-          <p class="advisor-notice" style="margin-top: 12px;">
-            このAPIキーはあなたのブラウザにのみ保存され、サーバーには送信されません。
-            OpenAI APIキーは <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer">OpenAI Platform</a> で取得できます。
-          </p>
-
-          <p class="advisor-notice advisor-notice-warning" style="margin-top: 12px;">
-            <strong>重要:</strong> 開発者モードでは、あなた自身のAPIキーを使用します。
-            サービス提供者のAPIキーは使用されません。
-            OpenAIの利用規約を遵守してください。
-          </p>
-
-          <div class="advisor-confirm-buttons" style="margin-top: 20px;">
-            <button class="advisor-btn-secondary" onclick="blogReviewerManager.closeDeveloperPrompt()">キャンセル</button>
-            <button class="advisor-btn-primary" onclick="blogReviewerManager.saveDeveloperKey()">保存</button>
-          </div>
-        </div>
-      </div>
-    `;
-    overlay.id = 'developerPromptBlog';
-    document.body.appendChild(overlay);
-  }
-
-  /**
-   * 開発者モードダイアログを閉じる
-   */
-  closeDeveloperPrompt() {
-    const overlay = document.getElementById('developerPromptBlog');
-    if (overlay) {
-      overlay.classList.remove('active');
-      setTimeout(() => overlay.remove(), 300);
-    }
-  }
-
-  /**
-   * 開発者APIキーを保存
-   */
-  saveDeveloperKey() {
-    const input = document.getElementById('developerApiKeyInputBlog');
-    if (input) {
-      this.saveUserApiKey(input.value.trim());
-      this.closeDeveloperPrompt();
-      // 確認画面を再表示
-      this.showConfirmDialog();
-    }
-  }
-
-  /**
-   * 開発者APIキーの表示/非表示を切り替え
-   */
-  toggleDeveloperKeyVisibility() {
-    const input = document.getElementById('developerApiKeyInputBlog');
-    if (input) {
-      input.type = input.type === 'password' ? 'text' : 'password';
-    }
-  }
 
   /**
    * Article/BlogPostingスキーマを検出してレビューボタンを表示
@@ -256,9 +86,20 @@ class BlogReviewerManager {
    */
   detectBlogPost(jsonLdData) {
     console.log('[BlogReviewerManager] detectBlogPost called with:', jsonLdData);
+    console.log('[BlogReviewerManager] Number of schemas:', jsonLdData?.length);
 
     // 既存のボタンを削除
     this.hideReviewButton();
+
+    if (!jsonLdData || !Array.isArray(jsonLdData) || jsonLdData.length === 0) {
+      console.warn('[BlogReviewerManager] jsonLdData is empty or not an array');
+      return;
+    }
+
+    // デバッグ: 各アイテムの@typeをログ出力
+    jsonLdData.forEach((item, index) => {
+      console.log(`[BlogReviewerManager] Schema ${index + 1} @type:`, item['@type']);
+    });
 
     // Article または BlogPosting を検索
     const article = jsonLdData.find(
@@ -272,12 +113,169 @@ class BlogReviewerManager {
     console.log('[BlogReviewerManager] Article/BlogPosting detected:', article);
 
     if (article) {
-      this.currentArticle = article;
+      // HTMLから不足情報を補完
+      this.currentArticle = this.enrichArticleData(article);
       this.showReviewButton();
-      console.log('[BlogReviewerManager] Review button shown');
+      console.log(
+        '[BlogReviewerManager] Review button shown with enriched data:',
+        this.currentArticle
+      );
     } else {
       console.log('[BlogReviewerManager] No Article/BlogPosting found in schemas');
     }
+  }
+
+  /**
+   * Article/BlogPostingデータをHTMLから補完
+   * @param {Object} article - 元のArticle/BlogPostingオブジェクト
+   * @returns {Object} 補完されたArticleオブジェクト
+   */
+  enrichArticleData(article) {
+    const enriched = { ...article };
+
+    // description が欠けている場合、メタタグから取得
+    if (!enriched.description && !enriched.abstract) {
+      const root = this.remoteDoc || document;
+      const metaDescription =
+        root.querySelector('meta[name="description"]')?.content ||
+        root.querySelector('meta[property="og:description"]')?.content;
+
+      if (metaDescription) {
+        enriched.description = metaDescription;
+        console.log('[BlogReviewerManager] Added description from meta tag:', metaDescription);
+      }
+    }
+
+    // articleBody が欠けている場合、HTMLから抽出
+    if (!enriched.articleBody) {
+      const root = this.remoteDoc || document; // 取得済みのリモートHTMLを優先
+      let bodyText = '';
+      console.log('[BlogReviewer] articleBody not found in JSON-LD, extracting from HTML...');
+
+      // 方法1: <article>タグから抽出
+      const articleElement = root.querySelector('article');
+      console.log('[BlogReviewer] article element:', articleElement);
+      if (articleElement) {
+        bodyText = this.extractTextContent(articleElement);
+        console.log('[BlogReviewer] Extracted from <article>:', bodyText.substring(0, 200));
+      }
+
+      // 方法2: main要素から抽出（articleがない場合）
+      if (!bodyText) {
+        const mainElement = root.querySelector('main');
+        console.log('[BlogReviewer] main element:', mainElement);
+        if (mainElement) {
+          bodyText = this.extractTextContent(mainElement);
+          console.log('[BlogReviewer] Extracted from <main>:', bodyText.substring(0, 200));
+        }
+      }
+
+      // 方法3: 汎用的なセレクタで本文候補を探す
+      if (!bodyText) {
+        console.log('[BlogReviewer] Trying generic content selectors...');
+
+        // セマンティックHTMLと一般的なCMSクラスを優先順に試す
+        const contentSelectors = [
+          'article',
+          'main',
+          '[role="main"]',
+          '.entry-content',
+          '.post-content',
+          '.article-content',
+          '.content',
+          '[class*="entry"][class*="content"]',
+          '[class*="post"][class*="content"]',
+          '[class*="article"][class*="content"]',
+          '[class*="content"]',
+          '[class*="article"]',
+          '[class*="post"]',
+        ];
+
+        for (const selector of contentSelectors) {
+          const element = root.querySelector(selector);
+          if (element) {
+            const text = this.extractTextContent(element);
+            if (text.length > 100) {
+              bodyText = text;
+              console.log(`[BlogReviewer] Found content with "${selector}": ${text.length} chars`);
+              break; // 最初に見つかったら終了
+            }
+          }
+        }
+      }
+
+      if (bodyText) {
+        enriched.articleBody = bodyText;
+        console.log('[BlogReviewerManager] Final articleBody:', bodyText.substring(0, 200) + '...');
+      } else {
+        console.warn('[BlogReviewer] Could not extract articleBody from HTML');
+      }
+    }
+
+    return enriched;
+  }
+
+  /**
+   * HTML要素からテキストコンテンツを抽出
+   * @param {HTMLElement} element - 抽出元の要素
+   * @returns {string} 抽出されたテキスト
+   */
+  extractTextContent(element) {
+    if (!element) return '';
+
+    // スクリプトやスタイルタグを除外
+    const clone = element.cloneNode(true);
+    const excludeSelectors = [
+      'script',
+      'style',
+      'nav',
+      'header',
+      'footer',
+      'aside',
+      '.sidebar',
+      'form',
+      'button',
+      'input',
+      'select',
+      'textarea',
+      '[role="dialog"]',
+      '[role="alert"]',
+      '.modal',
+      '.dialog',
+      '.overlay',
+      '#basicAuthDialog',
+      '#authSection',
+      '[class*="auth-"]',
+      '.advisor-overlay',
+      '.advisor-modal',
+      'details',
+    ];
+    excludeSelectors.forEach(selector => {
+      clone.querySelectorAll(selector).forEach(el => el.remove());
+    });
+
+    let text = clone.textContent
+      .replace(/\s+/g, ' ') // 連続する空白を1つに
+      .trim();
+
+    // 不要なフレーズを削除（Basic認証ダイアログの残骸など）
+    const unwantedPhrases = [
+      '認証情報の保存方法',
+      '保存しない（最もセキュア）',
+      'タブを閉じるまで保存（推奨）',
+      '24時間保存（利便性重視）',
+      '永続保存（期限なし）',
+      'すべてクリア',
+      'Basic認証',
+      'ユーザー名',
+      'パスワード',
+    ];
+
+    unwantedPhrases.forEach(phrase => {
+      text = text.replace(new RegExp(phrase, 'g'), '');
+    });
+
+    return text.replace(/\s+/g, ' ').trim();
   }
 
   /**
@@ -285,10 +283,20 @@ class BlogReviewerManager {
    */
   showReviewButton() {
     const resultDiv = document.getElementById('results');
-    console.log('[BlogReviewerManager] showReviewButton - results div:', resultDiv);
+    console.log('[BlogReviewerManager] showReviewButton called');
+    console.log('[BlogReviewerManager] results div:', resultDiv);
+    console.log('[BlogReviewerManager] results div found:', !!resultDiv);
 
     if (!resultDiv) {
       console.error('[BlogReviewerManager] ERROR: results div not found');
+      // フォールバック: schemasContainerを探す
+      const schemasContainer = document.getElementById('schemasContainer');
+      if (schemasContainer) {
+        console.log('[BlogReviewerManager] Using schemasContainer as fallback');
+        const button = this.createReviewButton();
+        schemasContainer.parentElement.insertBefore(button, schemasContainer);
+        return;
+      }
       return;
     }
 
@@ -298,9 +306,20 @@ class BlogReviewerManager {
       return;
     }
 
+    const button = this.createReviewButton();
+    resultDiv.insertBefore(button, resultDiv.firstChild);
+    console.log('[BlogReviewerManager] Review button inserted into DOM');
+  }
+
+  /**
+   * レビューボタンを作成
+   * @returns {HTMLButtonElement}
+   */
+  createReviewButton() {
     const button = document.createElement('button');
     button.id = 'blogReviewerTriggerBtn';
     button.className = 'advisor-trigger-btn';
+    button.dataset.action = 'show-blog-confirm-dialog';
     button.innerHTML = `
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -308,10 +327,8 @@ class BlogReviewerManager {
       </svg>
       ブログ記事レビューを受ける
     `;
-    button.onclick = () => this.showConfirmDialog();
-
-    resultDiv.insertBefore(button, resultDiv.firstChild);
-    console.log('[BlogReviewerManager] Review button inserted into DOM');
+    console.log('[BlogReviewerManager] Review button created');
+    return button;
   }
 
   /**
@@ -332,8 +349,8 @@ class BlogReviewerManager {
     let modeLabel = '';
     if (rateLimit.mode === 'developer') {
       rateLimitHtml =
-        '<div class="advisor-rate-info advisor-rate-unlimited">開発者モード（無制限）</div>';
-      modeLabel = '開発者モード';
+        '<div class="advisor-rate-info advisor-rate-unlimited">MyAPIモード（無制限）</div>';
+      modeLabel = 'MyAPIモード';
     } else if (rateLimit.mode === 'stakeholder') {
       if (!rateLimit.allowed) {
         const resetTimeStr = rateLimit.resetTime
@@ -361,21 +378,26 @@ class BlogReviewerManager {
     overlay.className = 'advisor-overlay';
     overlay.innerHTML = `
       <div class="advisor-modal">
-        <div class="advisor-modal-header">
-          <h2>ブログ記事レビュー</h2>
-          <div class="advisor-mode-buttons-small">
-            <button class="advisor-mode-btn-small" onclick="blogReviewerManager.showStakeholderPrompt()" title="関係者は30回/24時間まで利用可能">
-              関係者
-            </button>
-            <button class="advisor-mode-btn-small" onclick="blogReviewerManager.showDeveloperPrompt()" title="自分のAPIキーで無制限利用">
-              開発者
+        <div class="advisor-modal-header" style="display: flex; flex-direction: column; align-items: stretch;">
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px;">
+            <div class="advisor-mode-buttons-small">
+              <button class="advisor-mode-btn-small" data-action="blog-reset-to-normal-mode" title="通常モード（10回/24時間）に戻す">
+                通常モード
+              </button>
+              <button class="advisor-mode-btn-small" data-action="blog-show-stakeholder-prompt" title="関係者は30回/24時間まで利用可能">
+                関係者
+              </button>
+              <button class="advisor-mode-btn-small" data-action="blog-show-developer-prompt" title="自分のAPIキーで無制限利用">
+                MyAPI
+              </button>
+            </div>
+            <button class="advisor-modal-close" data-action="blog-close-confirm-dialog">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
             </button>
           </div>
-          <button class="advisor-modal-close" onclick="blogReviewerManager.closeConfirmDialog()">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </button>
+          <h2 style="margin: 0; width: 100%;">ブログ記事レビュー</h2>
         </div>
         <div class="advisor-modal-body">
           ${rateLimitHtml}
@@ -385,14 +407,15 @@ class BlogReviewerManager {
           </p>
 
           <div class="advisor-confirm-buttons">
-            <button class="advisor-btn-secondary" onclick="blogReviewerManager.closeConfirmDialog()">キャンセル</button>
-            <button class="advisor-btn-primary" onclick="blogReviewerManager.startReview()">レビュー開始</button>
+            <button class="advisor-btn-secondary" data-action="blog-close-confirm-dialog">キャンセル</button>
+            <button class="advisor-btn-primary" data-action="blog-start-review">レビュー開始</button>
           </div>
         </div>
       </div>
     `;
 
     document.body.appendChild(overlay);
+    this.addEscapeKeyListener(overlay, () => this.closeConfirmDialog());
 
     setTimeout(() => overlay.classList.add('active'), 10);
   }
@@ -403,6 +426,10 @@ class BlogReviewerManager {
   closeConfirmDialog() {
     const overlay = document.getElementById('blogReviewerConfirmOverlay');
     if (overlay) {
+      // Escapeキーリスナーをクリーンアップ
+      if (overlay.handleEscape) {
+        document.removeEventListener('keydown', overlay.handleEscape);
+      }
       overlay.classList.remove('active');
       setTimeout(() => overlay.remove(), 300);
     }
@@ -422,9 +449,9 @@ class BlogReviewerManager {
 
       let message = `利用制限に達しました。\n\nリセット時刻: ${resetTimeStr}\n\n`;
       if (rateLimit.mode === 'stakeholder') {
-        message += '開発者モードで自分のAPIキーを使用すると制限なしで利用できます。';
+        message += 'MyAPIモードで自分のAPIキーを使用すると制限なしで利用できます。';
       } else {
-        message += '関係者モードで30回/24時間、または開発者モードで無制限利用が可能です。';
+        message += '関係者モードで30回/24時間、またはMyAPIモードで無制限利用が可能です。';
       }
 
       alert(message);
@@ -457,8 +484,8 @@ class BlogReviewerManager {
           </span>
           ブログ記事レビュー
         </h2>
-        <div class="advisor-view-actions">
-          <button class="advisor-btn-secondary" onclick="blogReviewerManager.closeReviewView()">
+        <div class="advisor-view-actions" style="display:flex; align-items:center; gap:8px;">
+          <button class="advisor-btn-secondary" data-action="close-review-view">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -488,7 +515,17 @@ class BlogReviewerManager {
     container.style.display = 'none';
     document.body.appendChild(reviewView);
 
-    setTimeout(() => reviewView.classList.add('active'), 10);
+    setTimeout(() => {
+      reviewView.classList.add('active');
+      // モデルセレクト初期化
+      const sel = document.getElementById('blogReviewerModelSelect');
+      if (sel) {
+        sel.value = this.getSelectedModel();
+        sel.addEventListener('change', () => this.setSelectedModel(sel.value));
+      }
+      // 初期表示時点で累積表示を更新
+      this.updateHeaderUsageChip();
+    }, 10);
   }
 
   /**
@@ -507,6 +544,16 @@ class BlogReviewerManager {
       ? new Date(article.dateModified).toLocaleDateString('ja-JP')
       : '不明';
     const description = article.description || article.abstract || '説明なし';
+
+    // 記事本文を取得（最大1000文字で省略）
+    const MAX_BODY_LENGTH = 1000;
+    let articleBody = article.articleBody || '本文なし';
+    let isTruncated = false;
+
+    if (articleBody !== '本文なし' && articleBody.length > MAX_BODY_LENGTH) {
+      articleBody = articleBody.substring(0, MAX_BODY_LENGTH);
+      isTruncated = true;
+    }
 
     return `
       <div class="job-field">
@@ -529,6 +576,18 @@ class BlogReviewerManager {
         <label>説明</label>
         <div class="job-value job-description">${this.escapeHtml(description)}</div>
       </div>
+      ${
+        articleBody && articleBody !== '本文なし'
+          ? `
+      <div class="job-field">
+        <label>本文</label>
+        <div class="job-value job-description">
+          ${this.escapeHtml(articleBody)}${isTruncated ? '<span style="color: var(--secondary-text-color);">...（省略）</span>' : ''}
+        </div>
+      </div>
+      `
+          : ''
+      }
     `;
   }
 
@@ -559,6 +618,22 @@ class BlogReviewerManager {
       });
 
       if (!response.ok) {
+        // 429 Too Many Requests: レート制限エラー
+        if (response.status === 429) {
+          try {
+            const errorData = await response.json();
+            const resetTime = new Date(errorData.resetTime).toLocaleTimeString('ja-JP');
+            throw new Error(
+              `レート制限に達しました。${resetTime}にリセットされます。` +
+                '\n\nMyAPIモードで自分のOpenAI APIキーを使用すると、無制限で利用できます。'
+            );
+          } catch (e) {
+            throw new Error(
+              'レート制限に達しました。24時間後に再度試してください。' +
+                '\n\nMyAPIモードで自分のOpenAI APIキーを使用すると、無制限で利用できます。'
+            );
+          }
+        }
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
@@ -591,9 +666,18 @@ class BlogReviewerManager {
 
               try {
                 const parsed = JSON.parse(data);
-                if (parsed.content) {
+                if (parsed.model) {
+                  this.currentArticle.model = parsed.model;
+                  console.log('[BlogReviewer] Received model:', parsed.model);
+                } else if (parsed.content) {
                   fullText += parsed.content;
                   markdownDiv.innerHTML = this.renderMarkdown(fullText);
+                } else if (parsed.usage) {
+                  // usage情報を保存して表示
+                  console.log('[BlogReviewer] Received usage:', parsed.usage);
+                  this.currentUsage = parsed.usage;
+                  this.displayUsage();
+                  this.addToAccumulatedUsage(parsed.usage);
                 } else if (parsed.error) {
                   throw new Error(parsed.error);
                 }
@@ -617,7 +701,7 @@ class BlogReviewerManager {
           </svg>
           <p>AI分析に失敗しました</p>
           <p class="advisor-error-detail">${this.escapeHtml(error.message)}</p>
-          <button class="advisor-btn-primary" onclick="blogReviewerManager.fetchReview()">
+          <button class="advisor-btn-primary" data-action="fetch-review">
             再試行
           </button>
         </div>
@@ -651,9 +735,166 @@ class BlogReviewerManager {
     html = html.replace(/\n/g, '<br>');
 
     // 連続する<li>タグを<ul>で囲む（改行変換後に実行）
-    html = html.replace(/((?:<li>.*?<\/li>(?:<br>)*)+)/g, '<ul>$1</ul>');
+    html = html.replace(
+      /((?:<li>.*?<\/li>(?:<br>)*)+)/g,
+      match => `<ul>${match.replace(/<br>/g, '')}</ul>`
+    );
 
     return html;
+  }
+
+  /**
+  // トップのトリガー横の累積チップも金額併記
+  updateTriggerUsageChip() {
+    const btn = document.getElementById('blogReviewerTriggerBtn');
+    if (!btn) return;
+    let chip = document.getElementById('blogReviewerTriggerUsage');
+    if (!chip) {
+      chip = document.createElement('span');
+      chip.id = 'blogReviewerTriggerUsage';
+      chip.style.cssText = 'margin-left:8px; padding:4px 8px; font-size:12px; color:var(--secondary-text-color); border:1px solid var(--border-color); border-radius:999px;';
+      btn.insertAdjacentElement('afterend', chip);
+    }
+    const acc = this.getAccumulatedUsage();
+    const usd = (acc.prompt_tokens || 0) * this.PRICE_PER_INPUT_TOKEN + (acc.completion_tokens || 0) * this.PRICE_PER_OUTPUT_TOKEN;
+    chip.textContent = `累計: ${(acc.total_tokens||0).toLocaleString()} tok / $${usd.toFixed(4)} (¥${(usd*150).toFixed(0)})`;
+  }
+
+   * ヘッダの使用量チップを更新
+   */
+  updateHeaderUsageChip() {
+    const chip = document.getElementById('blogReviewerHeaderUsage');
+    const cur = document.getElementById('blogReviewerHeaderUsageTokens');
+    const total = document.getElementById('blogReviewerHeaderUsageTotal');
+    if (!chip || !cur || !total) return;
+
+    // 現回
+    if (this.currentUsage) {
+      const { prompt_tokens = 0, completion_tokens = 0, total_tokens = 0 } = this.currentUsage;
+      cur.textContent = `${total_tokens.toLocaleString()} tok`;
+      chip.style.display = 'inline-flex';
+    }
+
+    // 累計
+    const acc = this.getAccumulatedUsage();
+    const totalTokens = acc?.total_tokens || 0;
+    total.textContent = `${totalTokens.toLocaleString()} tok`;
+  }
+
+  /**
+   * 累積使用量の取得/保存
+   */
+  getAccumulatedUsage() {
+    try {
+      const mode = localStorage.getItem(this.USAGE_MODE_KEY) || 'session';
+      const dataStr =
+        mode === 'session'
+          ? sessionStorage.getItem(this.USAGE_TOTAL_KEY)
+          : localStorage.getItem(this.USAGE_TOTAL_KEY);
+      return dataStr
+        ? JSON.parse(dataStr)
+        : { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 };
+    } catch {
+      return { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 };
+    }
+  }
+
+  saveAccumulatedUsage(usage) {
+    try {
+      const mode = localStorage.getItem(this.USAGE_MODE_KEY) || 'session';
+      const dataStr = JSON.stringify(usage);
+      if (mode === 'session') {
+        sessionStorage.setItem(this.USAGE_TOTAL_KEY, dataStr);
+      } else {
+        localStorage.setItem(this.USAGE_TOTAL_KEY, dataStr);
+      }
+    } catch {}
+  }
+
+  addToAccumulatedUsage(usage) {
+    const acc = this.getAccumulatedUsage();
+    const merged = {
+      prompt_tokens: (acc.prompt_tokens || 0) + (usage.prompt_tokens || 0),
+      completion_tokens: (acc.completion_tokens || 0) + (usage.completion_tokens || 0),
+      total_tokens: (acc.total_tokens || 0) + (usage.total_tokens || 0),
+    };
+    this.saveAccumulatedUsage(merged);
+    this.updateHeaderUsageChip();
+  }
+
+  /**
+   * 累積モード切替（セッション or 永続）
+   */
+  setUsageMode(mode) {
+    // mode: 'session' | 'permanent'
+    if (mode !== 'session' && mode !== 'permanent') return;
+    localStorage.setItem(this.USAGE_MODE_KEY, mode);
+    this.updateHeaderUsageChip();
+  }
+
+  /**
+   * API usage情報を表示
+   */
+  displayUsage() {
+    if (!this.currentUsage) {
+      console.log('[BlogReviewer] No usage data to display');
+      return;
+    }
+
+    console.log('[BlogReviewer] Displaying usage:', this.currentUsage);
+    const { prompt_tokens, completion_tokens, total_tokens } = this.currentUsage;
+
+    // モデルに応じた料金を取得
+    const model = this.currentArticle.model || 'gpt-4o-mini';
+    const prices = this.getModelPricing(model);
+
+    // 料金計算
+    const inputCost = prompt_tokens * prices.input;
+    const outputCost = completion_tokens * prices.output;
+    const totalCost = inputCost + outputCost;
+
+    // 日本円換算（1 USD = 150 JPY）
+    const totalCostJPY = totalCost * 150;
+
+    // usage表示用のHTML
+    const usageHtml = `
+      <div class="advisor-usage-panel" style="margin-top: 20px; padding: 16px; background: var(--secondary-bg-color); border: 1px solid var(--border-color); border-radius: 8px;">
+        <h4 style="margin: 0 0 12px 0; font-size: 0.9rem; color: var(--secondary-text-color);">API使用量 (モデル: ${model})</h4>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; font-size: 0.85rem;">
+          <div>
+            <div style="color: var(--secondary-text-color); margin-bottom: 4px;">入力トークン</div>
+            <div style="font-weight: 600;">${prompt_tokens.toLocaleString()} tokens</div>
+          </div>
+          <div>
+            <div style="color: var(--secondary-text-color); margin-bottom: 4px;">出力トークン</div>
+            <div style="font-weight: 600;">${completion_tokens.toLocaleString()} tokens</div>
+          </div>
+          <div>
+            <div style="color: var(--secondary-text-color); margin-bottom: 4px;">合計トークン</div>
+            <div style="font-weight: 600;">${total_tokens.toLocaleString()} tokens</div>
+          </div>
+          <div>
+            <div style="color: var(--secondary-text-color); margin-bottom: 4px;">推定料金</div>
+            <div style="font-weight: 600;">$${totalCost.toFixed(6)} (約 ¥${totalCostJPY.toFixed(2)})</div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // レビューコンテンツの末尾に追加
+    const reviewContent = document.getElementById('blogReviewerReviewContent');
+    console.log('[BlogReviewer] reviewContent element:', reviewContent);
+    if (reviewContent) {
+      const markdownDiv = reviewContent.querySelector('.advisor-markdown');
+      console.log('[BlogReviewer] markdownDiv element:', markdownDiv);
+      if (markdownDiv) {
+        // 既存のusageパネルがあれば削除
+        const existingPanel = reviewContent.querySelector('.advisor-usage-panel');
+        if (existingPanel) existingPanel.remove();
+        markdownDiv.insertAdjacentHTML('afterend', usageHtml);
+        console.log('[BlogReviewer] Usage HTML inserted');
+      }
+    }
   }
 
   /**
@@ -671,6 +912,9 @@ class BlogReviewerManager {
     if (container) {
       container.style.display = '';
     }
+
+    // トリガー側の累積チップを更新
+    this.updateTriggerUsageChip();
   }
 
   /**

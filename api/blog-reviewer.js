@@ -1,5 +1,71 @@
 const OpenAI = require('openai');
 
+// メモリベースのレート制限管理
+const rateLimitStore = new Map();
+const RATE_LIMIT_WINDOW = 24 * 60 * 60 * 1000; // 24時間
+const MAX_REQUESTS_PER_IP = 10; // IP単位での制限
+
+/**
+ * 古いレート制限エントリをクリーンアップ (リクエスト毎に実行)
+ */
+function cleanupRateLimitStore() {
+  const now = Date.now();
+  for (const [key, entries] of rateLimitStore.entries()) {
+    const activeEntries = entries.filter(timestamp => now - timestamp < RATE_LIMIT_WINDOW);
+    if (activeEntries.length === 0) {
+      rateLimitStore.delete(key);
+    } else if (activeEntries.length !== entries.length) {
+      rateLimitStore.set(key, activeEntries);
+    }
+  }
+}
+
+/**
+ * クライアントのIPアドレスを取得 (Vercel環境を優先)
+ */
+function getClientIp(req) {
+  return (
+    req.headers['x-vercel-forwarded-for']?.split(',')[0].trim() || // Vercel専用
+    req.headers['x-forwarded-for']?.split(',')[0].trim() ||
+    req.headers['x-real-ip'] ||
+    req.connection?.remoteAddress ||
+    '0.0.0.0'
+  );
+}
+
+/**
+ * レート制限をチェック
+ */
+function checkRateLimit(ip) {
+  // リクエスト毎に古いエントリをクリーンアップ
+  cleanupRateLimitStore();
+
+  const now = Date.now();
+  const entries = rateLimitStore.get(ip) || [];
+
+  // 上限チェック
+  if (entries.length >= MAX_REQUESTS_PER_IP) {
+    const oldestTimestamp = entries[0];
+    const resetTime = new Date(oldestTimestamp + RATE_LIMIT_WINDOW);
+    return {
+      allowed: false,
+      remaining: 0,
+      resetTime: resetTime.toISOString(),
+      retryAfter: Math.ceil((oldestTimestamp + RATE_LIMIT_WINDOW - now) / 1000),
+    };
+  }
+
+  // 新しいリクエストを記録
+  entries.push(now);
+  rateLimitStore.set(ip, entries);
+
+  return {
+    allowed: true,
+    remaining: MAX_REQUESTS_PER_IP - entries.length,
+    resetTime: new Date(now + RATE_LIMIT_WINDOW).toISOString(),
+  };
+}
+
 const BLOG_REVIEW_PROMPT = `あなたはSEO・コンテンツマーケティングの専門家です。以下のArticle/BlogPosting JSON-LDデータとHTMLコンテンツを分析し、SEO観点、EEAT観点、アクセシビリティ観点でレビューを提供してください。
 
 【重要な制約】
@@ -115,7 +181,11 @@ const BLOG_REVIEW_PROMPT = `あなたはSEO・コンテンツマーケティン�
 
 module.exports = async (req, res) => {
   // CORSヘッダー
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['*'];
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin || '*');
+  }
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
@@ -128,11 +198,35 @@ module.exports = async (req, res) => {
   }
 
   try {
+    // レート制限チェック（ユーザーのAPIキー使用時はスキップ）
     const { article, userApiKey } = req.body;
+    if (!userApiKey) {
+      const clientIp = getClientIp(req);
+      const rateLimitResult = checkRateLimit(clientIp);
+
+      if (!rateLimitResult.allowed) {
+        res.setHeader('Retry-After', rateLimitResult.retryAfter);
+        return res.status(429).json({
+          error: 'レート制限に達しました',
+          remaining: rateLimitResult.remaining,
+          resetTime: rateLimitResult.resetTime,
+          retryAfter: rateLimitResult.retryAfter,
+        });
+      }
+
+      // レート制限情報をレスポンスヘッダーに含める
+      res.setHeader('X-RateLimit-Remaining', rateLimitResult.remaining);
+      res.setHeader('X-RateLimit-Reset', rateLimitResult.resetTime);
+    }
 
     // 入力検証: articleの存在と型チェック
     if (!article || typeof article !== 'object') {
       return res.status(400).json({ error: 'article は有効なオブジェクトである必要があります' });
+    }
+
+    // 入力検証: articleオブジェクトのサイズ制限 (100KB)
+    if (JSON.stringify(article).length > 100000) {
+      return res.status(400).json({ error: '記事データが大きすぎます' });
     }
 
     // 入力検証: 最低限の必須フィールド
@@ -140,6 +234,11 @@ module.exports = async (req, res) => {
       return res
         .status(400)
         .json({ error: 'article には headline, name, または title が必要です' });
+    }
+
+    // XSS対策: headlineの長さ制限
+    if (typeof article.headline === 'string') {
+      article.headline = article.headline.substring(0, 500);
     }
 
     // APIキーの取得: ユーザー提供 > 環境変数
@@ -158,20 +257,31 @@ module.exports = async (req, res) => {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
+    const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+
     const stream = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+      model,
       messages: [
         { role: 'system', content: BLOG_REVIEW_PROMPT },
         { role: 'user', content: userContent },
       ],
       stream: true,
       temperature: 0.7,
+      stream_options: { include_usage: true },
     });
+
+    // モデル情報を最初に通知（フロントで料金計算モデル自動選択用）
+    res.write(`data: ${JSON.stringify({ model })}\n\n`);
 
     for await (const chunk of stream) {
       const content = chunk.choices[0]?.delta?.content;
       if (content) {
         res.write(`data: ${JSON.stringify({ content })}\n\n`);
+      }
+
+      // usage情報を送信
+      if (chunk.usage) {
+        res.write(`data: ${JSON.stringify({ usage: chunk.usage })}\n\n`);
       }
     }
 

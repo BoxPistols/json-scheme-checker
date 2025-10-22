@@ -11,7 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 WebサイトのJSON-LD構造化データを抽出・可視化するツール。CORS制限を回避し、localhost開発環境も含むあらゆるURLにアクセス可能。
 
-- **本番URL**: https://json-ld-view.vercel.app/
+- **本番URL**: <https://json-ld-view.vercel.app/>
 - **技術スタック**: Node.js + Express.js + Vanilla JavaScript
 - **デプロイメント**: Vercel（サーバーレス関数）+ ローカル開発（Express サーバー）
 
@@ -90,7 +90,7 @@ json-ld-viewer/
 ├── .eslintrc.json           # ESLint設定
 ├── .prettierrc.json         # Prettier設定
 ├── .cursorrules             # Cursor AI設定
-└── .ai-docs/                # AI開発者向けドキュメント
+└── .ai-docs/                # AIMyAPI向けドキュメント
 ```
 
 ## アーキテクチャの重要ポイント
@@ -194,29 +194,37 @@ vercel dev       # ローカルテスト推奨
 
 #### 手動テストの手順
 
-1.  **ローカルサーバーの起動**:
+1. **ローカルサーバーの起動**:
+
     ```bash
     pnpm dev
     ```
-2.  **ヘルスチェック**: サーバーが正常に起動していることを確認します。
+
+2. **ヘルスチェック**: サーバーが正常に起動していることを確認します。
+
     ```bash
     curl http://localhost:3333/health
     # {"status":"ok",...} が返ってくることを確認
     ```
-3.  **プロキシ機能のテスト**:
+
+3. **プロキシ機能のテスト**:
     - **外部サイト**:
+
       ```bash
       curl "http://localhost:3333/proxy?url=https://example.com"
       ```
+
     - **ローカルで起動している別のサイト**:
+
       ```bash
       # 例: ポート8000で別のサーバーが動いている場合
       curl "http://localhost:3333/proxy?url=http://localhost:8000"
       ```
-4.  **ブラウザでの動作確認**:
+
+4. **ブラウザでの動作確認**:
     - `http://localhost:3333` にアクセスします。
     - 様々なURL（Basic認証が必要なサイトも含む）を入力し、JSON-LDが正しく抽出・表示されることを確認します。
-    - ブラウザの開発者ツールでコンソールエラーが発生していないか確認します。
+    - ブラウザのMyAPIツールでコンソールエラーが発生していないか確認します。
 
 #### 将来的な展望
 
