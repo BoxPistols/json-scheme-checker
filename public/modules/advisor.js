@@ -73,27 +73,18 @@ class AdvisorManager extends BaseAdvisorManager {
 
   showModeSelector() {
     const rateLimit = this.checkRateLimit();
-    let rateLimitHtml = '';
-    if (rateLimit.mode === 'developer') {
-      rateLimitHtml = '<div class="advisor-rate-info advisor-rate-unlimited">MyAPIモード（無制限）</div>';
-    } else {
-      const limitMsg = rateLimit.allowed ? `残り ${rateLimit.remaining} 回` : '利用制限に達しました';
-      rateLimitHtml = `<div class="advisor-rate-info">${limitMsg} / ${rateLimit.maxRequests} 回（24時間）</div>`;
-    }
+    const rateLimitHtml = createRateLimitInfo(rateLimit);
+    const headerHtml = createModalHeader({
+      prefix: 'advisor',
+      title: 'どちらの視点でアドバイスしますか？',
+      closeAction: 'advisor-close-mode-overlay',
+    });
 
-    const overlay = this.createModal('ModeOverlay', `
+    const overlay = this.createModal(
+      'ModeOverlay',
+      `
       <div class="advisor-modal">
-        <div class="advisor-modal-header" style="flex-direction: column; align-items: stretch;">
-           <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px;">
-            <div class="advisor-mode-buttons-small">
-              <button class="advisor-mode-btn-small" data-action="advisor-reset-to-normal-mode">通常モード</button>
-              <button class="advisor-mode-btn-small" data-action="advisor-show-stakeholder-prompt">関係者</button>
-              <button class="advisor-mode-btn-small" data-action="advisor-show-developer-prompt">MyAPI</button>
-            </div>
-            <button class="advisor-modal-close" data-action="advisor-close-mode-overlay"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor"/></svg></button>
-          </div>
-          <h2>どちらの視点でアドバイスしますか？</h2>
-        </div>
+        ${headerHtml}
         <div class="advisor-modal-body">
           ${rateLimitHtml}
           <div class="advisor-mode-buttons-grid">
@@ -106,7 +97,8 @@ class AdvisorManager extends BaseAdvisorManager {
           </div>
         </div>
       </div>
-    `);
+    `
+    );
     this.addEscapeKeyListener(overlay, () => this.closeModal('ModeOverlay'));
   }
 
@@ -127,13 +119,16 @@ class AdvisorManager extends BaseAdvisorManager {
     const container = document.querySelector('.container');
     if (!container) return;
     const modeTitle = mode === 'employer' ? '採用側向けアドバイス' : '応募者向けアドバイス';
-    const advisorView = this.createModal('View', `
+    const advisorView = this.createModal(
+      'View',
+      `
       <div class="advisor-view-header"><h2>${modeTitle}</h2><button data-action="advisor-close-view">戻る</button></div>
       <div class="advisor-view-content">
         <div class="advisor-job-panel"><h3>求人票</h3><div class="advisor-job-content">${this.formatJobPosting(this.currentJobPosting)}</div></div>
         <div class="advisor-advice-panel"><h3>AI分析結果</h3><div class="advisor-advice-content" id="advisorAdviceContent"><div class="advisor-loading"></div></div></div>
       </div>
-    `);
+    `
+    );
     container.style.display = 'none';
     advisorView.classList.add('advisor-view');
   }
@@ -153,7 +148,10 @@ class AdvisorManager extends BaseAdvisorManager {
 
   formatDescription(text) {
     let html = this.escapeHtml(text).replace(/&lt;br\s*\/?&gt;/gi, '<br>');
-    return html.split(/\n\n+/).map(p => `<p>${p.split('\n').join('<br>')}</p>`).join('');
+    return html
+      .split(/\n\n+/)
+      .map(p => `<p>${p.split('\n').join('<br>')}</p>`)
+      .join('');
   }
 
   async fetchAdvice(mode) {
@@ -162,11 +160,17 @@ class AdvisorManager extends BaseAdvisorManager {
     this.isStreaming = true;
 
     try {
-      const apiUrl = window.location.hostname.includes('vercel.app') ? '/api/advisor' : 'http://127.0.0.1:3333/api/advisor';
+      const apiUrl = window.location.hostname.includes('vercel.app')
+        ? '/api/advisor'
+        : 'http://127.0.0.1:3333/api/advisor';
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ jobPosting: this.currentJobPosting, mode, userApiKey: this.getUserApiKey() || undefined }),
+        body: JSON.stringify({
+          jobPosting: this.currentJobPosting,
+          mode,
+          userApiKey: this.getUserApiKey() || undefined,
+        }),
       });
 
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -211,8 +215,13 @@ class AdvisorManager extends BaseAdvisorManager {
   renderMarkdown(markdown) {
     let html = this.escapeHtml(markdown);
     html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>').replace(/^## (.*$)/gim, '<h2>$1</h2>');
-    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/^\- (.*$)/gim, '<li>$1</li>');
-    html = html.replace(/((?:<li>.*?<\/li>(?:<br>)*)+)/g, match => `<ul>${match.replace(/<br>/g, '')}</ul>`);
+    html = html
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/^\- (.*$)/gim, '<li>$1</li>');
+    html = html.replace(
+      /((?:<li>.*?<\/li>(?:<br>)*)+)/g,
+      match => `<ul>${match.replace(/<br>/g, '')}</ul>`
+    );
     return html.replace(/\n/g, '<br>');
   }
 
