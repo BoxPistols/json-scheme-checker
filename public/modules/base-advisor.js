@@ -262,7 +262,7 @@ class BaseAdvisorManager {
   /**
    * モデルの価格情報を取得
    * @param {string} model - モデル名
-   * @returns {object} 価格情報
+   * @returns {object} 価格情報 {input: number, output: number}
    */
   getModelPricing(model) {
     const prices = {
@@ -276,17 +276,37 @@ class BaseAdvisorManager {
       'o3-mini': { input: 0.0006, output: 0.0024 },
       'o3': { input: 0.003, output: 0.015 },
     };
+
+    // モデル名のバリデーション
+    if (!model || typeof model !== 'string') {
+      console.warn('[BaseAdvisor] Invalid model name:', model, 'Using default: gpt-4o-mini');
+      return prices['gpt-4o-mini'];
+    }
+
+    if (!prices[model]) {
+      console.warn('[BaseAdvisor] Unknown model:', model, 'Using default: gpt-4o-mini');
+    }
+
     return prices[model] || prices['gpt-4o-mini'];
   }
 
   /**
    * API使用量の詳細表示HTMLを生成
-   * @param {object} usage - API使用量オブジェクト
+   * @param {Object} usage - API使用量オブジェクト
+   * @param {number} usage.prompt_tokens - 入力トークン数
+   * @param {number} usage.completion_tokens - 出力トークン数
+   * @param {number} usage.total_tokens - 合計トークン数
    * @param {string} [model='gpt-4o-mini'] - 使用したモデル名
    * @returns {string} HTML文字列
    */
   renderApiUsagePanel(usage, model = 'gpt-4o-mini') {
     if (!usage) return '';
+
+    // 入力パラメータのバリデーション
+    if (typeof usage !== 'object') {
+      console.warn('[BaseAdvisor] Invalid usage object:', usage);
+      return '';
+    }
 
     const { prompt_tokens = 0, completion_tokens = 0, total_tokens = 0 } = usage;
     const prices = this.getModelPricing(model);

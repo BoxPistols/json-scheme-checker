@@ -210,9 +210,9 @@ class BlogReviewerManager extends BaseAdvisorManager {
   extractTextContent(element) {
     if (!element) return '';
 
-    // スクリプトやスタイルタグを除外
+    // スクリプトやスタイルタグを除外（パフォーマンス最適化：単一クエリで実行）
     const clone = element.cloneNode(true);
-    const excludeSelectors = [
+    const excludeSelector = [
       'script',
       'style',
       'nav',
@@ -236,10 +236,10 @@ class BlogReviewerManager extends BaseAdvisorManager {
       '.advisor-overlay',
       '.advisor-modal',
       'details',
-    ];
-    excludeSelectors.forEach(selector => {
-      clone.querySelectorAll(selector).forEach(el => el.remove());
-    });
+    ].join(',');
+
+    // 単一のクエリで全要素を取得して削除
+    clone.querySelectorAll(excludeSelector).forEach(el => el.remove());
 
     let text = clone.textContent
       .replace(/\s+/g, ' ') // 連続する空白を1つに
@@ -744,29 +744,32 @@ class BlogReviewerManager extends BaseAdvisorManager {
    */
   getAccumulatedUsage() {
     try {
-      const mode = localStorage.getItem(this.USAGE_MODE_KEY) || 'session';
+      const mode = localStorage.getItem(this.config.USAGE_MODE_KEY) || 'session';
       const dataStr =
         mode === 'session'
-          ? sessionStorage.getItem(this.USAGE_TOTAL_KEY)
-          : localStorage.getItem(this.USAGE_TOTAL_KEY);
+          ? sessionStorage.getItem(this.config.USAGE_TOTAL_KEY)
+          : localStorage.getItem(this.config.USAGE_TOTAL_KEY);
       return dataStr
         ? JSON.parse(dataStr)
         : { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 };
-    } catch {
+    } catch (e) {
+      console.warn('[BlogReviewer] Failed to get accumulated usage:', e);
       return { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 };
     }
   }
 
   saveAccumulatedUsage(usage) {
     try {
-      const mode = localStorage.getItem(this.USAGE_MODE_KEY) || 'session';
+      const mode = localStorage.getItem(this.config.USAGE_MODE_KEY) || 'session';
       const dataStr = JSON.stringify(usage);
       if (mode === 'session') {
-        sessionStorage.setItem(this.USAGE_TOTAL_KEY, dataStr);
+        sessionStorage.setItem(this.config.USAGE_TOTAL_KEY, dataStr);
       } else {
-        localStorage.setItem(this.USAGE_TOTAL_KEY, dataStr);
+        localStorage.setItem(this.config.USAGE_TOTAL_KEY, dataStr);
       }
-    } catch {}
+    } catch (e) {
+      console.warn('[BlogReviewer] Failed to save accumulated usage:', e);
+    }
   }
 
   addToAccumulatedUsage(usage) {
@@ -786,7 +789,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
   setUsageMode(mode) {
     // mode: 'session' | 'permanent'
     if (mode !== 'session' && mode !== 'permanent') return;
-    localStorage.setItem(this.USAGE_MODE_KEY, mode);
+    localStorage.setItem(this.config.USAGE_MODE_KEY, mode);
     this.updateHeaderUsageChip();
   }
 
