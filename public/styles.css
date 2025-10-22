@@ -2363,16 +2363,15 @@ html[data-theme='dark'] .score-breakdown > div {
 .advisor-mode-btn-small {
   padding: 6px 12px;
   font-size: 0.8rem;
-  background: var(--secondary-bg-color);
+  background: none;
   border: 1px solid var(--border-color);
   border-radius: 6px;
   color: var(--secondary-text-color);
   cursor: pointer;
-  transition: opacity 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .advisor-mode-btn-small:hover {
-  opacity: 0.8;
   border-color: var(--accent-color);
   color: var(--text-color);
 }

@@ -88,7 +88,7 @@ class AdvisorManager extends BaseAdvisorManager {
               <button class="advisor-mode-btn-small" data-action="advisor-show-stakeholder-prompt">関係者</button>
               <button class="advisor-mode-btn-small" data-action="advisor-show-developer-prompt">MyAPI</button>
             </div>
-            <button class="advisor-modal-close" onclick="this.closest('.advisor-overlay').remove()"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor"/></svg></button>
+            <button class="advisor-modal-close" data-action="advisor-close-view"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor"/></svg></button>
           </div>
           <h2>どちらの視点でアドバイスしますか？</h2>
         </div>
