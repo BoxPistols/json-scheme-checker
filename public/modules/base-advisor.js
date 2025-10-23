@@ -243,4 +243,111 @@ class BaseAdvisorManager {
     div.textContent = text;
     return div.innerHTML;
   }
+
+  /**
+   * 共通: アドバイザービューのヘッダーHTMLを生成
+   * ページ間でUIを統一するため、ここで一元管理する
+   * @param {string} title - 見出し
+   * @param {string} closeAction - 戻るボタンのdata-action
+   * @param {string} [iconSvg=''] - 見出し左のアイコンSVG
+   * @returns {string}
+   */
+  renderViewHeader(title, closeAction) {
+    // 旧来の最小デザインに統一（ページごとの差異をなくす）
+    return `
+      <div class="advisor-view-header"><h2>${this.escapeHtml(title)}</h2><button data-action="${closeAction}">戻る</button></div>
+    `;
+  }
+
+  /**
+   * モデルの価格情報を取得
+   * @param {string} model - モデル名
+   * @returns {object} 価格情報 {input: number, output: number}
+   */
+  getModelPricing(model) {
+    const prices = {
+      'gpt-4o-mini': { input: 0.00015, output: 0.0006 },
+      'gpt-4o': { input: 0.005, output: 0.015 },
+      'gpt-4-turbo': { input: 0.01, output: 0.03 },
+      'gpt-3.5-turbo': { input: 0.0005, output: 0.0015 },
+      'gpt-4.1-mini': { input: 0.00015, output: 0.0006 },
+      'gpt-4.1': { input: 0.003, output: 0.015 },
+      'gpt-4.1-nano': { input: 0.00015, output: 0.0006 },
+      'o3-mini': { input: 0.0006, output: 0.0024 },
+      'o3': { input: 0.003, output: 0.015 },
+    };
+
+    // モデル名のバリデーション
+    if (!model || typeof model !== 'string') {
+      console.warn('[BaseAdvisor] Invalid model name:', model, 'Using default: gpt-4o-mini');
+      return prices['gpt-4o-mini'];
+    }
+
+    if (!prices[model]) {
+      console.warn('[BaseAdvisor] Unknown model:', model, 'Using default: gpt-4o-mini');
+    }
+
+    return prices[model] || prices['gpt-4o-mini'];
+  }
+
+  /**
+   * API使用量の詳細表示HTMLを生成
+   * @param {Object} usage - API使用量オブジェクト
+   * @param {number} usage.prompt_tokens - 入力トークン数
+   * @param {number} usage.completion_tokens - 出力トークン数
+   * @param {number} usage.total_tokens - 合計トークン数
+   * @param {string} [model='gpt-4o-mini'] - 使用したモデル名
+   * @returns {string} HTML文字列
+   */
+  renderApiUsagePanel(usage, model = 'gpt-4o-mini') {
+    if (!usage) return '';
+
+    // 入力パラメータのバリデーション
+    if (typeof usage !== 'object') {
+      console.warn('[BaseAdvisor] Invalid usage object:', usage);
+      return '';
+    }
+
+    const { prompt_tokens = 0, completion_tokens = 0, total_tokens = 0 } = usage;
+    const prices = this.getModelPricing(model);
+
+    // 料金計算定数
+    const TOKENS_PER_UNIT = 1000;
+    const USD_TO_JPY_RATE = 150;
+
+    // 料金計算（トークンを1000で割ってから価格を掛ける）
+    const inputCost = (prompt_tokens / TOKENS_PER_UNIT) * prices.input;
+    const outputCost = (completion_tokens / TOKENS_PER_UNIT) * prices.output;
+    const totalCost = inputCost + outputCost;
+    const totalCostJPY = totalCost * USD_TO_JPY_RATE;
+
+    return `
+      <div class="advisor-usage-panel" style="margin-top: 20px; padding: 16px; background: var(--secondary-bg-color); border: 1px solid var(--border-color); border-radius: 8px;">
+        <h4 style="margin: 0 0 12px 0; font-size: 0.9rem; color: var(--secondary-text-color);">API使用量 (モデル: ${model})</h4>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; font-size: 0.85rem;">
+          <div>
+            <div style="color: var(--secondary-text-color); margin-bottom: 4px;">入力トークン</div>
+            <div style="font-weight: 600;">${prompt_tokens.toLocaleString()} tokens</div>
+          </div>
+          <div>
+            <div style="color: var(--secondary-text-color); margin-bottom: 4px;">出力トークン</div>
+            <div style="font-weight: 600;">${completion_tokens.toLocaleString()} tokens</div>
+          </div>
+          <div>
+            <div style="color: var(--secondary-text-color); margin-bottom: 4px;">合計トークン</div>
+            <div style="font-weight: 600;">${total_tokens.toLocaleString()} tokens</div>
+          </div>
+          <div>
+            <div style="color: var(--secondary-text-color); margin-bottom: 4px;">推定料金<sup style="font-size: 0.7rem;">*</sup></div>
+            <div style="font-weight: 600;">
+              $${totalCost.toFixed(6)} (約 ¥${totalCostJPY.toFixed(2)})
+            </div>
+          </div>
+        </div>
+        <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-color); font-size: 0.75rem; color: var(--secondary-text-color);">
+          <sup>*</sup> ${model}の価格で計算（入力: $${prices.input}/1K tokens, 出力: $${prices.output}/1K tokens, 1USD=${USD_TO_JPY_RATE}JPY換算）
+        </div>
+      </div>
+    `;
+  }
 }

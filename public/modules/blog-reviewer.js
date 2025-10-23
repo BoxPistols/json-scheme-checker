@@ -47,22 +47,9 @@ class BlogReviewerManager extends BaseAdvisorManager {
     this.remoteDoc = null;
   }
 
-  /**
-   * モデルごとの料金を取得
-   * @param {string} model - モデル名
-   * @returns {{input: number, output: number}}
-   */
-  getModelPricing(model) {
-    const pricing = {
-      'gpt-4o-mini': { input: 0.00000015, output: 0.00000060 },
-      'gpt-4o': { input: 0.00000250, output: 0.00001000 },
-      'gpt-4.1-mini': { input: 0.00000015, output: 0.00000060 },
-      'gpt-4.1': { input: 0.00000300, output: 0.00001500 },
-      'o3-mini': { input: 0.00000060, output: 0.00000240 },
-      'o3': { input: 0.00000300, output: 0.00001500 },
-    };
-    return pricing[model] || pricing['gpt-4o-mini']; // デフォルトは gpt-4o-mini
-  }
+  // getModelPricingメソッドは削除（BaseAdvisorManagerの共通メソッドを使用）
+  // BaseAdvisorManagerのgetModelPricingは1000トークンあたりの価格なので、
+  // 計算時に調整が必要
 
   /**
    * レビュー対象のリモートHTMLを設定
@@ -223,9 +210,9 @@ class BlogReviewerManager extends BaseAdvisorManager {
   extractTextContent(element) {
     if (!element) return '';
 
-    // スクリプトやスタイルタグを除外
+    // スクリプトやスタイルタグを除外（パフォーマンス最適化：単一クエリで実行）
     const clone = element.cloneNode(true);
-    const excludeSelectors = [
+    const excludeSelector = [
       'script',
       'style',
       'nav',
@@ -249,10 +236,10 @@ class BlogReviewerManager extends BaseAdvisorManager {
       '.advisor-overlay',
       '.advisor-modal',
       'details',
-    ];
-    excludeSelectors.forEach(selector => {
-      clone.querySelectorAll(selector).forEach(el => el.remove());
-    });
+    ].join(',');
+
+    // 単一のクエリで全要素を取得して削除
+    clone.querySelectorAll(excludeSelector).forEach(el => el.remove());
 
     let text = clone.textContent
       .replace(/\s+/g, ' ') // 連続する空白を1つに
@@ -473,26 +460,14 @@ class BlogReviewerManager extends BaseAdvisorManager {
     const reviewView = document.createElement('div');
     reviewView.id = 'blogReviewerView';
     reviewView.className = 'advisor-view';
+    const headerHtml = this.renderViewHeader('ブログ記事レビュー', 'blog-close-review-view', `
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    `);
     reviewView.innerHTML = `
-      <div class="advisor-view-header">
-        <h2>
-          <span style="display: inline-flex; align-items: center; margin-right: 8px;">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
-          ブログ記事レビュー
-        </h2>
-        <div class="advisor-view-actions" style="display:flex; align-items:center; gap:8px;">
-          <button class="advisor-btn-secondary" data-action="close-review-view">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            戻る
-          </button>
-        </div>
-      </div>
+      ${headerHtml}
       <div class="advisor-view-content">
         <div class="advisor-job-panel">
           <h3>記事情報</h3>
@@ -682,7 +657,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
                   throw new Error(parsed.error);
                 }
               } catch (e) {
-                console.error('Parse error:', e);
+                console.warn('[BlogReviewer] Failed to parse streaming data:', e);
               }
             }
           }
@@ -742,24 +717,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
 
     return html;
   }
-
   /**
-  // トップのトリガー横の累積チップも金額併記
-  updateTriggerUsageChip() {
-    const btn = document.getElementById('blogReviewerTriggerBtn');
-    if (!btn) return;
-    let chip = document.getElementById('blogReviewerTriggerUsage');
-    if (!chip) {
-      chip = document.createElement('span');
-      chip.id = 'blogReviewerTriggerUsage';
-      chip.style.cssText = 'margin-left:8px; padding:4px 8px; font-size:12px; color:var(--secondary-text-color); border:1px solid var(--border-color); border-radius:999px;';
-      btn.insertAdjacentElement('afterend', chip);
-    }
-    const acc = this.getAccumulatedUsage();
-    const usd = (acc.prompt_tokens || 0) * this.PRICE_PER_INPUT_TOKEN + (acc.completion_tokens || 0) * this.PRICE_PER_OUTPUT_TOKEN;
-    chip.textContent = `累計: ${(acc.total_tokens||0).toLocaleString()} tok / $${usd.toFixed(4)} (¥${(usd*150).toFixed(0)})`;
-  }
-
    * ヘッダの使用量チップを更新
    */
   updateHeaderUsageChip() {
@@ -786,29 +744,32 @@ class BlogReviewerManager extends BaseAdvisorManager {
    */
   getAccumulatedUsage() {
     try {
-      const mode = localStorage.getItem(this.USAGE_MODE_KEY) || 'session';
+      const mode = localStorage.getItem(this.config.USAGE_MODE_KEY) || 'session';
       const dataStr =
         mode === 'session'
-          ? sessionStorage.getItem(this.USAGE_TOTAL_KEY)
-          : localStorage.getItem(this.USAGE_TOTAL_KEY);
+          ? sessionStorage.getItem(this.config.USAGE_TOTAL_KEY)
+          : localStorage.getItem(this.config.USAGE_TOTAL_KEY);
       return dataStr
         ? JSON.parse(dataStr)
         : { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 };
-    } catch {
+    } catch (e) {
+      console.warn('[BlogReviewer] Failed to get accumulated usage:', e);
       return { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 };
     }
   }
 
   saveAccumulatedUsage(usage) {
     try {
-      const mode = localStorage.getItem(this.USAGE_MODE_KEY) || 'session';
+      const mode = localStorage.getItem(this.config.USAGE_MODE_KEY) || 'session';
       const dataStr = JSON.stringify(usage);
       if (mode === 'session') {
-        sessionStorage.setItem(this.USAGE_TOTAL_KEY, dataStr);
+        sessionStorage.setItem(this.config.USAGE_TOTAL_KEY, dataStr);
       } else {
-        localStorage.setItem(this.USAGE_TOTAL_KEY, dataStr);
+        localStorage.setItem(this.config.USAGE_TOTAL_KEY, dataStr);
       }
-    } catch {}
+    } catch (e) {
+      console.warn('[BlogReviewer] Failed to save accumulated usage:', e);
+    }
   }
 
   addToAccumulatedUsage(usage) {
@@ -828,7 +789,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
   setUsageMode(mode) {
     // mode: 'session' | 'permanent'
     if (mode !== 'session' && mode !== 'permanent') return;
-    localStorage.setItem(this.USAGE_MODE_KEY, mode);
+    localStorage.setItem(this.config.USAGE_MODE_KEY, mode);
     this.updateHeaderUsageChip();
   }
 
@@ -842,44 +803,12 @@ class BlogReviewerManager extends BaseAdvisorManager {
     }
 
     console.log('[BlogReviewer] Displaying usage:', this.currentUsage);
-    const { prompt_tokens, completion_tokens, total_tokens } = this.currentUsage;
 
-    // モデルに応じた料金を取得
+    // モデル名を取得
     const model = this.currentArticle.model || 'gpt-4o-mini';
-    const prices = this.getModelPricing(model);
 
-    // 料金計算
-    const inputCost = prompt_tokens * prices.input;
-    const outputCost = completion_tokens * prices.output;
-    const totalCost = inputCost + outputCost;
-
-    // 日本円換算（1 USD = 150 JPY）
-    const totalCostJPY = totalCost * 150;
-
-    // usage表示用のHTML
-    const usageHtml = `
-      <div class="advisor-usage-panel" style="margin-top: 20px; padding: 16px; background: var(--secondary-bg-color); border: 1px solid var(--border-color); border-radius: 8px;">
-        <h4 style="margin: 0 0 12px 0; font-size: 0.9rem; color: var(--secondary-text-color);">API使用量 (モデル: ${model})</h4>
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; font-size: 0.85rem;">
-          <div>
-            <div style="color: var(--secondary-text-color); margin-bottom: 4px;">入力トークン</div>
-            <div style="font-weight: 600;">${prompt_tokens.toLocaleString()} tokens</div>
-          </div>
-          <div>
-            <div style="color: var(--secondary-text-color); margin-bottom: 4px;">出力トークン</div>
-            <div style="font-weight: 600;">${completion_tokens.toLocaleString()} tokens</div>
-          </div>
-          <div>
-            <div style="color: var(--secondary-text-color); margin-bottom: 4px;">合計トークン</div>
-            <div style="font-weight: 600;">${total_tokens.toLocaleString()} tokens</div>
-          </div>
-          <div>
-            <div style="color: var(--secondary-text-color); margin-bottom: 4px;">推定料金</div>
-            <div style="font-weight: 600;">$${totalCost.toFixed(6)} (約 ¥${totalCostJPY.toFixed(2)})</div>
-          </div>
-        </div>
-      </div>
-    `;
+    // BaseAdvisorManagerの共通メソッドを使用してHTML生成
+    const usageHtml = this.renderApiUsagePanel(this.currentUsage, model);
 
     // レビューコンテンツの末尾に追加
     const reviewContent = document.getElementById('blogReviewerReviewContent');
@@ -912,9 +841,6 @@ class BlogReviewerManager extends BaseAdvisorManager {
     if (container) {
       container.style.display = '';
     }
-
-    // トリガー側の累積チップを更新
-    this.updateTriggerUsageChip();
   }
 
   /**

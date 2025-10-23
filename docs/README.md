@@ -1,10 +1,14 @@
-# ドキュメントメニュー
+# ドキュメント
 
-- [MODEL_PRICING.md](./MODEL_PRICING.md) — モデル選定と料金ガイド（2025-10-21 時点）
-- [PROJECT_STATUS.md](../PROJECT_STATUS.md) — プロジェクト状況
-- [IMPLEMENTATION_SUMMARY.md](../IMPLEMENTATION_SUMMARY.md) — 実装サマリー
-- [VERCEL_DEPLOYMENT.md](../VERCEL_DEPLOYMENT.md) — Vercel デプロイ手順
-- [CORS_SETUP.md](../CORS_SETUP.md) — CORS 設定ガイド
-- [ADVISOR_TESTING.md](../ADVISOR_TESTING.md) — アドバイザー機能テストメモ
-- [CLAUDE.md](../CLAUDE.md) — Claude 設定
-- [README.md](../README.md) — ルート README
+## 主要ドキュメント
+
+- [README.md](../README.md) — プロジェクト概要とセットアップガイド
+- [CLAUDE.md](../CLAUDE.md) — Claude Code開発環境ガイド
+- [MODEL_PRICING.md](./MODEL_PRICING.md) — OpenAI モデルの料金情報
+
+## 参考リンク
+
+- [Schema.org](https://schema.org/) — 構造化データの仕様
+- [JSON-LD](https://json-ld.org/) — リンクトデータ仕様
+- [OpenAI API](https://platform.openai.com/) — APIドキュメント
+- [Vercel Docs](https://vercel.com/docs) — デプロイメント

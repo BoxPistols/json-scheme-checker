@@ -41,6 +41,7 @@ class AdvisorManager extends BaseAdvisorManager {
     this.currentMode = null;
     this.isStreaming = false;
     this.currentUsage = null;
+    this.currentModel = 'gpt-4o-mini'; // デフォルトモデル
   }
 
   detectJobPosting(jsonLdData) {
@@ -127,8 +128,9 @@ class AdvisorManager extends BaseAdvisorManager {
     const container = document.querySelector('.container');
     if (!container) return;
     const modeTitle = mode === 'employer' ? '採用側向けアドバイス' : '応募者向けアドバイス';
+    const headerHtml = this.renderViewHeader(modeTitle, 'advisor-close-view');
     const advisorView = this.createModal('View', `
-      <div class="advisor-view-header"><h2>${modeTitle}</h2><button data-action="advisor-close-view">戻る</button></div>
+      ${headerHtml}
       <div class="advisor-view-content">
         <div class="advisor-job-panel"><h3>求人票</h3><div class="advisor-job-content">${this.formatJobPosting(this.currentJobPosting)}</div></div>
         <div class="advisor-advice-panel"><h3>AI分析結果</h3><div class="advisor-advice-content" id="advisorAdviceContent"><div class="advisor-loading"></div></div></div>
@@ -193,14 +195,19 @@ class AdvisorManager extends BaseAdvisorManager {
           }
           try {
             const parsed = JSON.parse(data);
-            if (parsed.content) {
+            if (parsed.model) {
+              this.currentModel = parsed.model;
+              console.log('[Advisor] Received model:', parsed.model);
+            } else if (parsed.content) {
               fullText += parsed.content;
               markdownDiv.innerHTML = this.renderMarkdown(fullText);
             } else if (parsed.usage) {
               this.currentUsage = parsed.usage;
               this.displayUsage();
             }
-          } catch (e) {}
+          } catch (e) {
+            console.warn('[Advisor] Failed to parse streaming data:', e);
+          }
         }
       }
     } catch (error) {
@@ -219,7 +226,9 @@ class AdvisorManager extends BaseAdvisorManager {
   displayUsage() {
     if (!this.currentUsage) return;
     const container = document.createElement('div');
-    container.innerHTML = `<div style="padding:12px;background:var(--secondary-bg-color);border-radius:4px;margin-top:16px;">API使用量: ${this.currentUsage.total_tokens} tokens</div>`;
+    // BaseAdvisorManagerの共通メソッドを使用して詳細な使用量表示を生成
+    // サーバーから受信したモデル名を使用、なければデフォルト
+    container.innerHTML = this.renderApiUsagePanel(this.currentUsage, this.currentModel);
     document.getElementById('advisorAdviceContent').appendChild(container);
   }
 }
