@@ -1161,6 +1161,10 @@ Express: server.js に app.use(cors()) を追加
 
     if (schemas.length === 0) {
       showNoData();
+      // Web Advisor: スキーマ無しの場合も検出
+      if (typeof webAdvisorManager !== 'undefined') {
+        webAdvisorManager.detectSchemas([], url);
+      }
     } else {
       displaySchemas(schemas, url);
     }
