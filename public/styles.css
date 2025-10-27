@@ -3155,3 +3155,39 @@ html[data-theme='dark'] .score-breakdown > div {
     width: 100%;
   }
 }
+
+/* ==========================================
+   Web Advisor Button (Header)
+   ========================================== */
+
+.btn-web-advisor {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border: 1px solid #7c3aed;
+  background: transparent;
+  color: #7c3aed;
+  border-radius: 4em;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-web-advisor:hover {
+  background: rgba(124, 58, 237, 0.1);
+  border-color: #6d28d9;
+  color: #6d28d9;
+}
+
+html[data-theme='dark'] .btn-web-advisor {
+  border-color: #a78bfa;
+  color: #a78bfa;
+}
+
+html[data-theme='dark'] .btn-web-advisor:hover {
+  background: rgba(167, 139, 250, 0.15);
+  border-color: #c4b5fd;
+  color: #c4b5fd;
+}
