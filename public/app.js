@@ -1155,7 +1155,7 @@ Express: server.js に app.use(cors()) を追加
     }
 
     if (schemas.length === 0) {
-      showNoData();
+      showNoData(url);
     } else {
       displaySchemas(schemas, url);
     }
@@ -1264,6 +1264,10 @@ function displaySchemas(schemas, url) {
   // Blog Reviewer: Article/BlogPosting検出
   if (typeof blogReviewerManager !== 'undefined') {
     blogReviewerManager.detectBlogPost(schemas);
+  }
+  // Web Advisor: スキーマ無し/WebPageのみ検出
+  if (typeof webAdvisorManager !== 'undefined') {
+    webAdvisorManager.detectNoSchemaOrWebPageOnly(schemas, url);
   }
 }
 
@@ -1682,7 +1686,7 @@ async function copyToClipboard(elementId, button) {
   }
 }
 
-function showNoData() {
+function showNoData(url) {
   const container = document.getElementById('schemasContainer');
   container.innerHTML = `
                 <div class="no-data">
@@ -1692,6 +1696,11 @@ function showNoData() {
             `;
   showResults();
   showSnackbar('JSON-LDスキーマが見つかりませんでした', 'warning', 4000);
+  
+  // Web Advisor: スキーマ無し検出
+  if (typeof webAdvisorManager !== 'undefined' && url) {
+    webAdvisorManager.detectNoSchemaOrWebPageOnly([], url);
+  }
 }
 
 function showLoading(show) {
