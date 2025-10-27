@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Advisor Demo - AI Website Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .hint {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #e0e0e0;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .status.show {
+            display: block;
+        }
+
+        .status.info {
+            background: #e3f2fd;
+            color: #1976d2;
+            border-left: 4px solid #1976d2;
+        }
+
+        .status.error {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #c62828;
+        }
+
+        .status.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #2e7d32;
+        }
+
+        .result-section {
+            display: none;
+        }
+
+        .result-section.show {
+            display: block;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .result-header h2 {
+            font-size: 20px;
+            color: #333;
+        }
+
+        .btn-copy {
+            padding: 8px 16px;
+            font-size: 14px;
+            background: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-copy:hover {
+            background: #45a049;
+        }
+
+        .btn-copy.copied {
+            background: #2196f3;
+        }
+
+        .result-content {
+            background: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .result-content pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            margin: 0;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .rate-limit-info {
+            background: #fff3cd;
+            color: #856404;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ffc107;
+        }
+
+        /* Markdown styling */
+        .result-content h1 {
+            font-size: 24px;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .result-content h2 {
+            font-size: 20px;
+            margin-top: 20px;
+            margin-bottom: 12px;
+            color: #667eea;
+        }
+
+        .result-content h3 {
+            font-size: 16px;
+            margin-top: 15px;
+            margin-bottom: 10px;
+            color: #764ba2;
+        }
+
+        .result-content ul,
+        .result-content ol {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+
+        .result-content li {
+            margin-bottom: 8px;
+        }
+
+        .result-content code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+
+        .result-content strong {
+            color: #333;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Web Advisor</h1>
+            <p>WebサイトのSEO・EEAT・アクセシビリティをAI分析</p>
+        </div>
+
+        <div class="content">
+            <div class="input-section">
+                <div class="rate-limit-info">
+                    ⚠️ レート制限: 24時間あたり10回まで（自分のAPIキーを使用する場合は無制限）
+                </div>
+
+                <div class="input-group">
+                    <label for="url">分析対象のURL</label>
+                    <input type="text" id="url" placeholder="https://example.com" value="">
+                    <div class="hint">分析したいWebページのURLを入力してください</div>
+                </div>
+
+                <div class="input-group">
+                    <label for="apiKey">OpenAI APIキー（任意）</label>
+                    <input type="password" id="apiKey" placeholder="sk-...">
+                    <div class="hint">自分のAPIキーを使用する場合は入力してください（レート制限なし）</div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-primary" id="analyzeBtn">
+                        <span id="analyzeText">分析開始</span>
+                        <span id="analyzeSpinner" style="display:none;" class="spinner"></span>
+                    </button>
+                    <button class="btn-secondary" id="resetBtn">リセット</button>
+                </div>
+            </div>
+
+            <div id="status" class="status"></div>
+
+            <div id="resultSection" class="result-section">
+                <div class="result-header">
+                    <h2>分析結果</h2>
+                    <button class="btn-copy" id="copyBtn">コピー</button>
+                </div>
+                <div class="result-content" id="resultContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 環境検出
+        const isVercel = window.location.hostname.includes('vercel.app');
+        const isLocalhost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+        const API_BASE = isVercel ? '' : `http://${window.location.hostname}:3333`;
+
+        let isAnalyzing = false;
+        let fullResult = '';
+
+        // DOM要素
+        const urlInput = document.getElementById('url');
+        const apiKeyInput = document.getElementById('apiKey');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const analyzeText = document.getElementById('analyzeText');
+        const analyzeSpinner = document.getElementById('analyzeSpinner');
+        const statusDiv = document.getElementById('status');
+        const resultSection = document.getElementById('resultSection');
+        const resultContent = document.getElementById('resultContent');
+        const copyBtn = document.getElementById('copyBtn');
+
+        // ステータス表示
+        function showStatus(message, type = 'info') {
+            statusDiv.textContent = message;
+            statusDiv.className = `status show ${type}`;
+        }
+
+        function hideStatus() {
+            statusDiv.className = 'status';
+        }
+
+        // ボタン状態切り替え
+        function setAnalyzing(analyzing) {
+            isAnalyzing = analyzing;
+            analyzeBtn.disabled = analyzing;
+            if (analyzing) {
+                analyzeText.style.display = 'none';
+                analyzeSpinner.style.display = 'inline-block';
+            } else {
+                analyzeText.style.display = 'inline';
+                analyzeSpinner.style.display = 'none';
+            }
+        }
+
+        // 分析実行
+        async function startAnalysis() {
+            const url = urlInput.value.trim();
+            const apiKey = apiKeyInput.value.trim();
+
+            if (!url) {
+                showStatus('URLを入力してください', 'error');
+                return;
+            }
+
+            // URL検証
+            try {
+                new URL(url);
+            } catch (e) {
+                showStatus('有効なURLを入力してください', 'error');
+                return;
+            }
+
+            setAnalyzing(true);
+            fullResult = '';
+            resultContent.innerHTML = '<pre></pre>';
+            resultSection.classList.add('show');
+            hideStatus();
+
+            const params = new URLSearchParams({ url });
+            if (apiKey) {
+                params.append('userApiKey', apiKey);
+            }
+
+            const apiUrl = `${API_BASE}/api/web-advisor?${params.toString()}`;
+
+            try {
+                const eventSource = new EventSource(apiUrl);
+                let hasError = false;
+
+                eventSource.addEventListener('message', (e) => {
+                    if (e.data === ': keepalive') return;
+
+                    try {
+                        const data = JSON.parse(e.data);
+
+                        if (data.event === 'init') {
+                            showStatus(data.message, 'info');
+                        } else if (data.event === 'progress') {
+                            showStatus(`${data.message}`, 'info');
+                        } else if (data.event === 'meta') {
+                            showStatus('メタデータを取得しました', 'success');
+                        } else if (data.event === 'token') {
+                            fullResult += data.token;
+                            resultContent.querySelector('pre').textContent = fullResult;
+                            resultContent.scrollTop = resultContent.scrollHeight;
+                        } else if (data.event === 'done') {
+                            eventSource.close();
+                            setAnalyzing(false);
+                            showStatus('分析が完了しました', 'success');
+                        } else if (data.event === 'error') {
+                            hasError = true;
+                            eventSource.close();
+                            setAnalyzing(false);
+                            showStatus(`エラー: ${data.message}`, 'error');
+                        }
+                    } catch (err) {
+                        console.error('Parse error:', err);
+                    }
+                });
+
+                eventSource.addEventListener('error', (e) => {
+                    if (!hasError) {
+                        eventSource.close();
+                        setAnalyzing(false);
+                        showStatus('接続エラーが発生しました', 'error');
+                    }
+                });
+
+            } catch (error) {
+                setAnalyzing(false);
+                showStatus(`エラー: ${error.message}`, 'error');
+            }
+        }
+
+        // リセット
+        function reset() {
+            urlInput.value = '';
+            apiKeyInput.value = '';
+            fullResult = '';
+            resultContent.innerHTML = '';
+            resultSection.classList.remove('show');
+            hideStatus();
+        }
+
+        // コピー
+        async function copyResult() {
+            try {
+                await navigator.clipboard.writeText(fullResult);
+                copyBtn.textContent = 'コピー済み!';
+                copyBtn.classList.add('copied');
+                setTimeout(() => {
+                    copyBtn.textContent = 'コピー';
+                    copyBtn.classList.remove('copied');
+                }, 2000);
+            } catch (err) {
+                showStatus('コピーに失敗しました', 'error');
+            }
+        }
+
+        // イベントリスナー
+        analyzeBtn.addEventListener('click', startAnalysis);
+        resetBtn.addEventListener('click', reset);
+        copyBtn.addEventListener('click', copyResult);
+
+        // Enterキーで分析開始
+        urlInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !isAnalyzing) {
+                startAnalysis();
+            }
+        });
+    </script>
+</body>
+
+</html>

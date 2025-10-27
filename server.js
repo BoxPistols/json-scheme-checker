@@ -256,6 +256,17 @@ app.post('/api/blog-reviewer', async (req, res) => {
   }
 });
 
+// Web Advisor APIエンドポイント（ローカル開発用）
+app.get('/api/web-advisor', async (req, res) => {
+  try {
+    const webAdvisorHandler = require('./api/web-advisor');
+    await webAdvisorHandler(req, res);
+  } catch (error) {
+    console.error('Web Advisor API error:', error);
+    res.status(500).json({ error: 'Internal server error', details: error.message });
+  }
+});
+
 // ネットワークIPアドレスを取得
 const os = require('os');
 const networkInterfaces = os.networkInterfaces();
