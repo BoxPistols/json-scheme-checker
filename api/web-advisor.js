@@ -1,10 +1,13 @@
 const OpenAI = require('openai');
-const axios = require('axios');
+const cheerio = require('cheerio');
 
 // メモリベースのレート制限管理
 const rateLimitStore = new Map();
 const RATE_LIMIT_WINDOW = 24 * 60 * 60 * 1000; // 24時間
 const MAX_REQUESTS_PER_IP = 10;
+
+// レート制限クリーンアップのインターバル（30分ごと）
+let cleanupInterval = null;
 
 /**
  * 古いレート制限エントリをクリーンアップ
@@ -17,6 +20,51 @@ function cleanupRateLimitStore() {
       rateLimitStore.delete(key);
     } else if (activeEntries.length !== entries.length) {
       rateLimitStore.set(key, activeEntries);
+    }
+  }
+}
+
+/**
+ * 定期的なクリーンアップを開始
+ */
+function startPeriodicCleanup() {
+  if (!cleanupInterval) {
+    cleanupInterval = setInterval(
+      () => {
+        cleanupRateLimitStore();
+      },
+      30 * 60 * 1000
+    ); // 30分ごと
+  }
+}
+
+/**
+ * 指数バックオフによる再試行機能付きfetch
+ */
+async function fetchWithRetry(url, options = {}, maxRetries = 3) {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), options.timeout || 25000);
+
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      return response;
+    } catch (error) {
+      if (i === maxRetries - 1) throw error;
+
+      // 指数バックオフ（1秒、2秒、4秒）
+      const delay = Math.pow(2, i) * 1000;
+      await new Promise(resolve => setTimeout(resolve, delay));
     }
   }
 }
@@ -38,12 +86,17 @@ function getClientIp(req) {
  * レート制限をチェック
  */
 function checkRateLimit(ip) {
-  cleanupRateLimitStore();
+  // 定期クリーンアップを開始（初回呼び出し時）
+  startPeriodicCleanup();
+
   const now = Date.now();
   const entries = rateLimitStore.get(ip) || [];
 
-  if (entries.length >= MAX_REQUESTS_PER_IP) {
-    const oldestTimestamp = entries[0];
+  // 古いエントリをフィルタ（IPごとに個別にクリーンアップ）
+  const activeEntries = entries.filter(timestamp => now - timestamp < RATE_LIMIT_WINDOW);
+
+  if (activeEntries.length >= MAX_REQUESTS_PER_IP) {
+    const oldestTimestamp = activeEntries[0];
     const resetTime = new Date(oldestTimestamp + RATE_LIMIT_WINDOW);
     return {
       allowed: false,
@@ -53,20 +106,21 @@ function checkRateLimit(ip) {
     };
   }
 
-  entries.push(now);
-  rateLimitStore.set(ip, entries);
+  activeEntries.push(now);
+  rateLimitStore.set(ip, activeEntries);
 
   return {
     allowed: true,
-    remaining: MAX_REQUESTS_PER_IP - entries.length,
+    remaining: MAX_REQUESTS_PER_IP - activeEntries.length,
     resetTime: new Date(now + RATE_LIMIT_WINDOW).toISOString(),
   };
 }
 
 /**
- * HTMLからメタ情報を抽出
+ * HTMLからメタ情報を抽出（cheerio使用）
  */
 function extractMetadata(html) {
+  const $ = cheerio.load(html);
   const metadata = {
     title: '',
     description: '',
@@ -77,63 +131,57 @@ function extractMetadata(html) {
   };
 
   // title抽出
-  const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
-  if (titleMatch) {
-    metadata.title = titleMatch[1].trim();
-  }
+  metadata.title = $('title').text().trim();
 
   // meta description抽出
-  const descMatch = html.match(/<meta\s+name=["']description["']\s+content=["']([^"']+)["']/i);
-  if (descMatch) {
-    metadata.description = descMatch[1].trim();
-  }
+  metadata.description = $('meta[name="description"]').attr('content') || '';
 
   // OGタグ抽出
-  const ogRegex = /<meta\s+property=["']og:([^"']+)["']\s+content=["']([^"']+)["']/gi;
-  let ogMatch;
-  while ((ogMatch = ogRegex.exec(html)) !== null) {
-    metadata.og[ogMatch[1]] = ogMatch[2];
-  }
+  $('meta[property^="og:"]').each(function () {
+    const property = $(this).attr('property');
+    const content = $(this).attr('content');
+    if (property && content) {
+      const key = property.replace('og:', '');
+      metadata.og[key] = content;
+    }
+  });
 
   // Twitter Cardタグ抽出
-  const twitterRegex = /<meta\s+name=["']twitter:([^"']+)["']\s+content=["']([^"']+)["']/gi;
-  let twitterMatch;
-  while ((twitterMatch = twitterRegex.exec(html)) !== null) {
-    metadata.twitter[twitterMatch[1]] = twitterMatch[2];
-  }
+  $('meta[name^="twitter:"]').each(function () {
+    const name = $(this).attr('name');
+    const content = $(this).attr('content');
+    if (name && content) {
+      const key = name.replace('twitter:', '');
+      metadata.twitter[key] = content;
+    }
+  });
 
   // 見出し抽出（h1-h3）
-  const h1Regex = /<h1[^>]*>([^<]+)<\/h1>/gi;
-  let h1Match;
-  while ((h1Match = h1Regex.exec(html)) !== null) {
-    metadata.headings.h1.push(h1Match[1].trim());
-  }
+  $('h1').each(function () {
+    const text = $(this).text().trim();
+    if (text) metadata.headings.h1.push(text);
+  });
 
-  const h2Regex = /<h2[^>]*>([^<]+)<\/h2>/gi;
-  let h2Match;
-  while ((h2Match = h2Regex.exec(html)) !== null) {
-    metadata.headings.h2.push(h2Match[1].trim());
-  }
+  $('h2')
+    .slice(0, 10)
+    .each(function () {
+      const text = $(this).text().trim();
+      if (text) metadata.headings.h2.push(text);
+    });
 
-  const h3Regex = /<h3[^>]*>([^<]+)<\/h3>/gi;
-  let h3Match;
-  while ((h3Match = h3Regex.exec(html)) !== null) {
-    metadata.headings.h3.push(h3Match[1].trim());
-  }
+  $('h3')
+    .slice(0, 10)
+    .each(function () {
+      const text = $(this).text().trim();
+      if (text) metadata.headings.h3.push(text);
+    });
 
   // body内のテキストスニペット抽出（最初の3000文字）
-  // Note: regex-based HTML parsing is acceptable here as we're only extracting text
-  // for analysis, not performing security-sensitive operations.
-  const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-  if (bodyMatch) {
-    const bodyText = bodyMatch[1]
-      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
-      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-      .replace(/<[^>]+>/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
-    metadata.bodySnippet = bodyText.substring(0, 3000);
-  }
+  // scriptとstyleタグを除外してテキストを取得
+  $('script').remove();
+  $('style').remove();
+  const bodyText = $('body').text().replace(/\s+/g, ' ').trim();
+  metadata.bodySnippet = bodyText.substring(0, 3000);
 
   return metadata;
 }
@@ -288,14 +336,12 @@ function generateFallbackTemplate(metadata, _url) {
  * Webアドバイザーエンドポイント（SSE）
  */
 module.exports = async (req, res) => {
-  // CORSヘッダー
-  const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['*'];
+  // CORSヘッダー（すべてのオリジンを許可）
   const origin = req.headers.origin;
-  if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin || '*');
-  }
+  res.setHeader('Access-Control-Allow-Origin', origin || '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
@@ -370,17 +416,17 @@ module.exports = async (req, res) => {
       `data: ${JSON.stringify({ type: 'progress', stage: 'fetching', message: 'ページを取得中...' })}\n\n`
     );
 
-    const fetchResponse = await axios.get(url, {
+    const fetchResponse = await fetchWithRetry(url, {
       headers: {
         'User-Agent':
           'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
       },
       timeout: 25000,
-      maxRedirects: 5,
+      redirect: 'follow',
     });
 
-    const html = fetchResponse.data;
+    const html = await fetchResponse.text();
 
     // メタ情報解析
     res.write(
