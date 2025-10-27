@@ -165,14 +165,22 @@ class WebAdvisorManager {
     const metaArea = document.getElementById('webAdvisorMeta');
     if (!metaArea) return;
 
+    // XSS対策: HTMLエスケープ
+    const escapeHtml = (str) => {
+      if (!str) return '（未設定）';
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    };
+
     metaArea.innerHTML = `
       <div class="meta-info-box">
         <h4>ページ情報</h4>
         <div class="meta-item">
-          <strong>タイトル:</strong> ${metadata.title || '（未設定）'}
+          <strong>タイトル:</strong> ${escapeHtml(metadata.title)}
         </div>
         <div class="meta-item">
-          <strong>説明:</strong> ${metadata.description || '（未設定）'}
+          <strong>説明:</strong> ${escapeHtml(metadata.description)}
         </div>
         <div class="meta-item">
           <strong>見出し:</strong> H1=${metadata.headings.h1.length}, H2=${metadata.headings.h2.length}, H3=${metadata.headings.h3.length}
@@ -185,17 +193,50 @@ class WebAdvisorManager {
    * Markdownを簡易レンダリング
    */
   renderMarkdown(container, text) {
-    const html = text
+    // 各行を処理してリストをグループ化
+    const lines = text.split('\n');
+    let inList = false;
+    let processedLines = [];
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const isListItem = /^[\d]+\.\s/.test(line) || /^-\s/.test(line);
+      
+      if (isListItem && !inList) {
+        processedLines.push('<ul>');
+        inList = true;
+      } else if (!isListItem && inList) {
+        processedLines.push('</ul>');
+        inList = false;
+      }
+      
+      processedLines.push(line);
+    }
+    
+    if (inList) {
+      processedLines.push('</ul>');
+    }
+    
+    const processedText = processedLines.join('\n');
+    
+    const html = processedText
       .replace(/^### (.*$)/gim, '<h3>$1</h3>')
       .replace(/^## (.*$)/gim, '<h2>$1</h2>')
       .replace(/^# (.*$)/gim, '<h1>$1</h1>')
       .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
       .replace(/\*(.*?)\*/gim, '<em>$1</em>')
-      .replace(/^\d+\. (.*)$/gim, '<li>$1</li>')
-      .replace(/^- (.*)$/gim, '<li>$1</li>')
-      .replace(/\n\n/g, '</p><p>')
-      .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
-      .replace(/<\/ul>\s*<ul>/g, '');
+      .replace(/^\d+\.\s+(.*)$/gim, '<li>$1</li>')
+      .replace(/^-\s+(.*)$/gim, '<li>$1</li>')
+      .split('\n\n')
+      .map(para => para.trim())
+      .filter(para => para)
+      .map(para => {
+        if (para.startsWith('<h') || para.startsWith('<ul')) {
+          return para;
+        }
+        return `<p>${para}</p>`;
+      })
+      .join('');
     
     container.innerHTML = `<div class="markdown-content">${html}</div>`;
   }
