@@ -53,13 +53,21 @@ class WebAdvisorManager extends BaseAdvisorManager {
    * @param {string} url - 分析対象URL
    */
   detectNoSchemaOrWebPageOnly(schemas, url) {
+    console.log('[WebAdvisor] detectNoSchemaOrWebPageOnly called');
+    console.log('[WebAdvisor] Schemas count:', schemas.length);
+    console.log('[WebAdvisor] Schemas:', schemas);
+
     // 既存のボタンを削除
     this.hideAnalysisButton();
 
-    if (!url) return;
+    if (!url) {
+      console.log('[WebAdvisor] No URL provided');
+      return;
+    }
 
     // スキーマが無い場合
     const hasNoSchema = schemas.length === 0;
+    console.log('[WebAdvisor] Has no schema:', hasNoSchema);
 
     // WebPage以外の有用なスキーマがあるかチェック
     // JobPosting, BlogPosting, Article, Product, Event, Organization, Personなど
@@ -67,61 +75,82 @@ class WebAdvisorManager extends BaseAdvisorManager {
       'JobPosting', 'BlogPosting', 'Article', 'NewsArticle',
       'Product', 'Event', 'Organization', 'Person',
       'Recipe', 'HowTo', 'FAQPage', 'QAPage',
-      'Course', 'Review', 'Rating', 'Offer'
+      'Course', 'Review', 'Rating', 'Offer',
+      'LocalBusiness', 'Restaurant', 'Store'
     ];
 
     const hasUsefulSchema = schemas.some(schema => {
       const type = schema['@type'];
+      console.log('[WebAdvisor] Checking schema type:', type);
+
       if (!type) return false;
+
+      // WebPageとBreadcrumbListは除外（これらは汎用的すぎる）
+      const typesToIgnore = ['WebPage', 'WebSite', 'BreadcrumbList', 'SearchAction', 'ReadAction'];
 
       // @typeが配列の場合
       if (Array.isArray(type)) {
-        return type.some(t => usefulSchemaTypes.includes(t));
+        // WebPageなどの汎用タイプを除外してチェック
+        const relevantTypes = type.filter(t => !typesToIgnore.includes(t));
+        console.log('[WebAdvisor] Relevant types (array):', relevantTypes);
+        return relevantTypes.some(t => usefulSchemaTypes.includes(t));
       }
 
       // @typeが文字列の場合
-      return usefulSchemaTypes.includes(type);
+      // WebPageなどの汎用タイプは除外
+      if (typesToIgnore.includes(type)) {
+        console.log('[WebAdvisor] Ignoring generic type:', type);
+        return false;
+      }
+
+      const isUseful = usefulSchemaTypes.includes(type);
+      console.log('[WebAdvisor] Is useful schema:', isUseful);
+      return isUseful;
     });
+
+    console.log('[WebAdvisor] Has useful schema:', hasUsefulSchema);
 
     // スキーマが無い、またはWebPageのみ（有用なスキーマがない）の場合にCTA表示
     if (hasNoSchema || !hasUsefulSchema) {
+      console.log('[WebAdvisor] Showing analysis button');
       this.currentUrl = url;
       this.showAnalysisButton();
+    } else {
+      console.log('[WebAdvisor] Not showing button (有用なスキーマが存在)');
     }
   }
 
   /**
-   * 分析ボタンを表示（ヘッダーエリアに配置）
+   * 分析ボタンを表示（BlogReviewer/Advisorと同じUI）
    */
   showAnalysisButton() {
-    const headerActions = document.querySelector('.header-actions');
-    if (!headerActions) return;
+    const resultDiv = document.getElementById('results');
+    if (!resultDiv) {
+      console.warn('[WebAdvisor] results div not found');
+      return;
+    }
 
     // 既存のボタンがあれば削除
     const existingBtn = document.getElementById('webAdvisorButton');
-    if (existingBtn) existingBtn.remove();
+    if (existingBtn) {
+      console.log('[WebAdvisor] Button already exists');
+      return;
+    }
 
-    const buttonHtml = `
-      <button
-        id="webAdvisorButton"
-        class="btn-web-advisor"
-        data-action="show-web-confirm-dialog"
-        title="AI分析でコンテンツ品質をチェック"
-      >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 2l2 7h7l-5.5 4 2 7-5.5-4-5.5 4 2-7-5.5-4h7z"/>
-        </svg>
-        Webページ分析
-      </button>
+    const button = document.createElement('button');
+    button.id = 'webAdvisorButton';
+    button.className = 'advisor-trigger-btn';
+    button.dataset.action = 'show-web-confirm-dialog';
+    button.innerHTML = `
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2l2 7h7l-5.5 4 2 7-5.5-4-5.5 4 2-7-5.5-4h7z"/>
+      </svg>
+      Webページ分析を受ける
     `;
 
-    // テーマ切り替えボタンの前に挿入
-    const themeToggle = document.getElementById('btnThemeToggle');
-    if (themeToggle) {
-      themeToggle.insertAdjacentHTML('beforebegin', buttonHtml);
-    } else {
-      headerActions.insertAdjacentHTML('beforeend', buttonHtml);
-    }
+    // results divの最初に挿入（BlogReviewer/Advisorと同じ）
+    resultDiv.insertBefore(button, resultDiv.firstChild);
+    console.log('[WebAdvisor] Analysis button inserted');
   }
 
   /**
