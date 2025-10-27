@@ -1154,8 +1154,17 @@ Express: server.js に app.use(cors()) を追加
       blogReviewerManager.setRemoteHtml(html);
     }
 
+    // WebAdvisorManagerにリモートHTMLを渡す
+    if (typeof webAdvisorManager !== 'undefined' && webAdvisorManager.setRemoteHtml) {
+      webAdvisorManager.setRemoteHtml(html);
+    }
+
     if (schemas.length === 0) {
       showNoData();
+      // Web Advisor: スキーマ無しの場合も検出
+      if (typeof webAdvisorManager !== 'undefined') {
+        webAdvisorManager.detectSchemas([], url);
+      }
     } else {
       displaySchemas(schemas, url);
     }
@@ -1264,6 +1273,10 @@ function displaySchemas(schemas, url) {
   // Blog Reviewer: Article/BlogPosting検出
   if (typeof blogReviewerManager !== 'undefined') {
     blogReviewerManager.detectBlogPost(schemas);
+  }
+  // Web Advisor: スキーマ無し/WebPageのみ検出
+  if (typeof webAdvisorManager !== 'undefined') {
+    webAdvisorManager.detectSchemas(schemas, url);
   }
 }
 

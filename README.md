@@ -10,6 +10,8 @@ WebサイトのJSON-LD構造化データを可視化・検証するツール
 - ワンクリックでJSONをコピー
 - 画像URLはサムネイル付きで表示
 - **AI求人票アドバイザー機能**: JobPostingスキーマ検出→採用側/応募者向け分析
+- **AIブログレビュー機能**: Article/BlogPostingスキーマ検出→SEO/EEAT分析
+- **🆕 Webアドバイザー機能**: スキーマ無し/WebPageのみ→汎用的なSEO/EEAT/アクセシビリティ分析
 
 ## クイックスタート
 
@@ -58,12 +60,52 @@ Vercelダッシュボードで環境変数を設定してください。
 │   ├── styles.css      # スタイルシート
 │   ├── app.js          # メインロジック
 │   └── modules/        # 機能モジュール
+│       ├── base-advisor.js    # AI機能の共通ベース
+│       ├── advisor.js         # JobPosting分析
+│       ├── blog-reviewer.js   # ブログ記事分析
+│       └── web-advisor.js     # 汎用Web分析
 ├── api/
 │   ├── proxy.js        # Vercel サーバーレス関数
-│   └── advisor.js      # AI分析エンドポイント
+│   ├── advisor.js      # JobPosting AI分析
+│   ├── blog-reviewer.js # ブログ記事AI分析
+│   └── web-advisor.js  # 汎用Web AI分析
 ├── vercel.json         # Vercel設定
 └── .env.example        # 環境変数テンプレート
 ```
+
+## AI機能の使い方
+
+### 1. 求人票アドバイザー
+- JobPostingスキーマが検出されると自動的にボタンが表示
+- 採用側視点と応募者視点の2つのモードで分析
+- 求人票の改善提案を生成
+
+### 2. ブログレビュー機能
+- Article/BlogPostingスキーマが検出されると自動的にボタンが表示
+- SEO、EEAT、アクセシビリティの3つの観点で分析
+- 記事コンテンツの改善提案を生成
+
+### 3. 🆕 Webアドバイザー（汎用分析）
+- スキーマが無い、またはWebPageのみの場合に自動的にボタンが表示
+- URL入力だけでAI分析を実行
+- 以下の観点で包括的な分析を提供：
+  - **SEO**: タイトル、メタタグ、OG/Twitterカード、見出し構造、構造化データ提案
+  - **EEAT**: 専門性、経験、権威性、信頼性の評価
+  - **アクセシビリティ**: HTML構造、見出し階層、その他の改善点
+  - **優先課題**: 上位3つの重要な課題を抽出
+  - **総合評価**: スコアと要約、次のステップ
+
+**使い方:**
+1. URLを入力して「取得」ボタンをクリック
+2. スキーマが無い/WebPageのみの場合、「Webアドバイザーを実行（汎用分析）」ボタンが表示
+3. ボタンをクリックして分析を開始
+4. タブで各観点の結果を確認
+5. 「全文コピー」または「ファイル保存」で結果を保存
+
+**利用回数制限:**
+- 通常モード: 10回/24時間
+- 関係者モード: 30回/24時間
+- MyAPIモード（自分のOpenAI APIキー）: 無制限
 
 ## API エンドポイント
 
@@ -92,6 +134,24 @@ curl -X POST http://localhost:3333/api/advisor \
   -d '{"jobPosting": {...}, "mode": "employer"}'
 ```
 
+### POST /api/blog-reviewer
+ブログ記事分析（ストリーミング）
+
+```bash
+curl -X POST http://localhost:3333/api/blog-reviewer \
+  -H "Content-Type: application/json" \
+  -d '{"article": {...}, "html": "..."}'
+```
+
+### POST /api/web-advisor
+汎用Web分析（ストリーミング）
+
+```bash
+curl -X POST http://localhost:3333/api/web-advisor \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://example.com", "title": "...", "description": "...", "ogData": {...}, "twitterData": {...}, "headings": [...], "bodyText": "..."}'
+```
+
 ### GET /health
 ヘルスチェック
 
@@ -103,12 +163,15 @@ curl http://localhost:3333/health
 
 ### レート制限
 
-現在の制限：
-- **通常モード**: 10回/24時間（クライアント側、localStorage）
-- **関係者モード**: 30回/24時間
-- **開発者キー使用時**: 無制限
+AI機能の利用回数制限：
+- **通常モード**: 10回/24時間（各AI機能ごと）
+- **関係者モード**: 30回/24時間（各AI機能ごと）
+- **MyAPIモード**: 無制限（自分のOpenAI APIキーを使用）
 
-**注意**: Vercelサーバーレス環境ではサーバー側のレート制限が機能しません。本番利用時はVercel KVまたはUpstash Redisの導入を推奨します。
+**注意**: 
+- クライアント側（localStorage）とサーバー側（メモリベース）の両方で制限
+- 各AI機能（求人票アドバイザー、ブログレビュー、Webアドバイザー）は独立してカウント
+- Vercelサーバーレス環境では再起動時にメモリベースのカウントがリセットされます
 
 ### APIキー管理
 
