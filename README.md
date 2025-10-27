@@ -92,6 +92,27 @@ curl -X POST http://localhost:3333/api/advisor \
   -d '{"jobPosting": {...}, "mode": "employer"}'
 ```
 
+### GET /api/web-advisor
+Webサイト分析（SSE ストリーミング）
+
+```bash
+# 基本的な使い方
+curl "http://localhost:3333/api/web-advisor?url=https://example.com"
+
+# 自分のAPIキーを使用（レート制限なし）
+curl "http://localhost:3333/api/web-advisor?url=https://example.com&userApiKey=sk-..."
+```
+
+**イベントタイプ**:
+- `init`: 分析開始
+- `progress`: 進捗状況（fetching/parsing/analyzing）
+- `meta`: メタデータ送信
+- `token`: AIレスポンスのトークン（リアルタイム）
+- `done`: 分析完了
+- `error`: エラー発生
+
+**デモUI**: `/web-advisor-demo.html`
+
 ### GET /health
 ヘルスチェック
 
@@ -104,11 +125,13 @@ curl http://localhost:3333/health
 ### レート制限
 
 現在の制限：
+- **Web Advisor API**: 10回/24時間（IP単位、メモリベース）
+  - 自分のAPIキー使用時: 無制限
 - **通常モード**: 10回/24時間（クライアント側、localStorage）
 - **関係者モード**: 30回/24時間
 - **開発者キー使用時**: 無制限
 
-**注意**: Vercelサーバーレス環境ではサーバー側のレート制限が機能しません。本番利用時はVercel KVまたはUpstash Redisの導入を推奨します。
+**注意**: Vercelサーバーレス環境ではメモリベースのレート制限はリクエストごとにリセットされる可能性があります。本番利用時はVercel KVまたはUpstash Redisの導入を推奨します。
 
 ### APIキー管理
 
