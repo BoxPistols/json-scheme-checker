@@ -1,6 +1,16 @@
 const OpenAI = require('openai');
 const axios = require('axios');
 
+/**
+ * Web Advisor API - WebサイトのSEO/EEAT/アクセシビリティ分析
+ *
+ * 【重要】レート制限について:
+ * - メモリベースのレート制限（Map使用）
+ * - Vercel環境では各リクエストが異なるインスタンスで実行される可能性があるため、
+ *   レート制限が正しく機能しない場合があります
+ * - 本番環境では Vercel KV または Upstash Redis の使用を推奨
+ */
+
 // メモリベースのレート制限管理
 const rateLimitStore = new Map();
 const RATE_LIMIT_WINDOW = 24 * 60 * 60 * 1000; // 24時間
@@ -146,6 +156,8 @@ function extractMetadata(html) {
   }
 
   // 本文抽出（簡易実装: bodyタグ内のテキストから最初の1000文字程度）
+  // 注意: この抽出データはOpenAI APIへの入力としてのみ使用され、
+  // ブラウザに直接出力されることはないため、XSSリスクはありません。
   const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
   if (bodyMatch) {
     const bodyContent = bodyMatch[1]
@@ -365,6 +377,10 @@ module.exports = async (req, res) => {
   try {
     const { url, userApiKey } = req.query;
 
+    // セキュリティ注意: userApiKeyはGETパラメータで受け取るため、
+    // HTTPSを使用することを推奨。ローカル開発時のみHTTPを許可。
+    // 本番環境では、APIキーをヘッダーで送信する方が安全。
+
     // URL検証
     if (!url) {
       return res.status(400).json({ error: 'url パラメータは必須です' });
@@ -429,6 +445,8 @@ module.exports = async (req, res) => {
         },
         timeout: 25000,
         maxRedirects: 5,
+        maxContentLength: 10 * 1024 * 1024, // 10MB制限
+        maxBodyLength: 10 * 1024 * 1024, // 10MB制限
       });
     } catch (fetchError) {
       clearInterval(keepaliveInterval);
@@ -439,6 +457,15 @@ module.exports = async (req, res) => {
     }
 
     const html = htmlResponse.data;
+
+    // HTMLサイズチェック（安全のため）
+    if (typeof html !== 'string' || html.length > 5 * 1024 * 1024) {
+      clearInterval(keepaliveInterval);
+      res.write(
+        `data: ${JSON.stringify({ event: 'error', message: 'HTMLが大きすぎるか、不正な形式です' })}\n\n`
+      );
+      return res.end();
+    }
 
     // メタデータ抽出
     res.write(
@@ -456,8 +483,8 @@ module.exports = async (req, res) => {
 
     const apiKey = userApiKey || process.env.OPENAI_API_KEY;
 
-    // APIキーの有効性チェック
-    const hasValidApiKey = apiKey && apiKey.startsWith('sk-') && apiKey.length > 20;
+    // APIキーの有効性チェック（OpenAI形式: sk-から始まり40文字以上）
+    const hasValidApiKey = apiKey && apiKey.startsWith('sk-') && apiKey.length >= 40;
 
     if (!hasValidApiKey) {
       // APIキーが無い場合はテンプレート出力
