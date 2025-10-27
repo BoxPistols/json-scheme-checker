@@ -48,7 +48,8 @@ class WebAdvisorManager extends BaseAdvisorManager {
   }
 
   /**
-   * スキーマが無いか、WebPageのみの場合にCTAを表示
+   * 専用アドバイザーがない全てのページでCTAを表示
+   * JobPosting、BlogPosting等の専用アドバイザーがある場合のみ除外
    * @param {Array} schemas - 検出されたスキーマ
    * @param {string} url - 分析対象URL
    */
@@ -65,58 +66,44 @@ class WebAdvisorManager extends BaseAdvisorManager {
       return;
     }
 
-    // スキーマが無い場合
-    const hasNoSchema = schemas.length === 0;
-    console.log('[WebAdvisor] Has no schema:', hasNoSchema);
-
-    // WebPage以外の有用なスキーマがあるかチェック
-    // JobPosting, BlogPosting, Article, Product, Event, Organization, Personなど
-    const usefulSchemaTypes = [
-      'JobPosting', 'BlogPosting', 'Article', 'NewsArticle',
-      'Product', 'Event', 'Organization', 'Person',
-      'Recipe', 'HowTo', 'FAQPage', 'QAPage',
-      'Course', 'Review', 'Rating', 'Offer',
-      'LocalBusiness', 'Restaurant', 'Store'
+    // 専用アドバイザーがあるスキーマタイプ（これらがある場合のみ除外）
+    const exclusiveAdvisorTypes = [
+      'JobPosting',        // JobPosting専用アドバイザーあり
+      'BlogPosting',       // BlogReviewer専用あり
+      'Article',           // BlogReviewer専用あり
+      'NewsArticle'        // BlogReviewer専用あり
     ];
 
-    const hasUsefulSchema = schemas.some(schema => {
+    // 専用アドバイザーがあるスキーマが存在するかチェック
+    const hasExclusiveAdvisor = schemas.some(schema => {
       const type = schema['@type'];
       console.log('[WebAdvisor] Checking schema type:', type);
 
       if (!type) return false;
 
-      // WebPageとBreadcrumbListは除外（これらは汎用的すぎる）
-      const typesToIgnore = ['WebPage', 'WebSite', 'BreadcrumbList', 'SearchAction', 'ReadAction'];
-
       // @typeが配列の場合
       if (Array.isArray(type)) {
-        // WebPageなどの汎用タイプを除外してチェック
-        const relevantTypes = type.filter(t => !typesToIgnore.includes(t));
-        console.log('[WebAdvisor] Relevant types (array):', relevantTypes);
-        return relevantTypes.some(t => usefulSchemaTypes.includes(t));
+        const hasExclusive = type.some(t => exclusiveAdvisorTypes.includes(t));
+        console.log('[WebAdvisor] Type array has exclusive advisor:', hasExclusive);
+        return hasExclusive;
       }
 
       // @typeが文字列の場合
-      // WebPageなどの汎用タイプは除外
-      if (typesToIgnore.includes(type)) {
-        console.log('[WebAdvisor] Ignoring generic type:', type);
-        return false;
-      }
-
-      const isUseful = usefulSchemaTypes.includes(type);
-      console.log('[WebAdvisor] Is useful schema:', isUseful);
-      return isUseful;
+      const hasExclusive = exclusiveAdvisorTypes.includes(type);
+      console.log('[WebAdvisor] Type has exclusive advisor:', hasExclusive);
+      return hasExclusive;
     });
 
-    console.log('[WebAdvisor] Has useful schema:', hasUsefulSchema);
+    console.log('[WebAdvisor] Has exclusive advisor:', hasExclusiveAdvisor);
 
-    // スキーマが無い、またはWebPageのみ（有用なスキーマがない）の場合にCTA表示
-    if (hasNoSchema || !hasUsefulSchema) {
-      console.log('[WebAdvisor] Showing analysis button');
+    // 専用アドバイザーがない場合はWebアドバイザーのボタンを表示
+    // スキーマ無し、WebPageのみ、Product、Event、Person等すべて対象
+    if (!hasExclusiveAdvisor) {
+      console.log('[WebAdvisor] Showing analysis button (専用アドバイザーなし)');
       this.currentUrl = url;
       this.showAnalysisButton();
     } else {
-      console.log('[WebAdvisor] Not showing button (有用なスキーマが存在)');
+      console.log('[WebAdvisor] Not showing button (専用アドバイザーあり)');
     }
   }
 
