@@ -9,6 +9,9 @@
     },
     "api/blog-reviewer.js": {
       "maxDuration": 60
+    },
+    "api/web-advisor.js": {
+      "maxDuration": 60
     }
   }
 }
