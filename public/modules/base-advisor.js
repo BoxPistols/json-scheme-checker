@@ -324,6 +324,24 @@ class BaseAdvisorManager {
     }
   }
 
+  resetDeveloperSettings() {
+    const ok = window.confirm('Developer/無制限モードの設定を初期化します。よろしいですか？');
+    if (!ok) return;
+    try {
+      this.saveUserApiKey('');
+      this.saveUserApiProvider('');
+      this.saveUserApiBaseUrl('');
+      this.saveUserApiModel('');
+      alert('Developer設定を初期化しました（環境既定に戻ります）。');
+      // 再描画
+      this.closeDeveloperPrompt();
+      this.showDeveloperPrompt();
+    } catch (e) {
+      alert('初期化に失敗しました。再度お試しください。');
+      console.error(e);
+    }
+  }
+
   // Helper methods for modal creation and closing
   createModal(id, html) {
     const overlay = document.createElement('div');
