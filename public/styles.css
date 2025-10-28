@@ -125,6 +125,9 @@ header {
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+.header-row { display:flex; align-items:center; gap:16px; }
+.logo-xl { width:48px; height:48px; }
+.heading-reset { margin:0; }
 
 h1 {
   font-size: 1.5rem;
