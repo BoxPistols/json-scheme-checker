@@ -1694,6 +1694,18 @@ function showNoData(url) {
                     <p>このページには構造化データが含まれていないようです</p>
                 </div>
             `;
+
+  // 既存のアドバイザーボタンをクリーンアップ（重複防止）
+  if (typeof advisorManager !== 'undefined' && advisorManager?.hideAdvisorButton) {
+    advisorManager.hideAdvisorButton();
+  }
+  if (typeof blogReviewerManager !== 'undefined' && blogReviewerManager?.hideReviewButton) {
+    blogReviewerManager.hideReviewButton();
+  }
+  if (typeof webAdvisorManager !== 'undefined' && webAdvisorManager?.hideAnalysisButton) {
+    webAdvisorManager.hideAnalysisButton();
+  }
+
   showResults();
   showSnackbar('JSON-LDスキーマが見つかりませんでした', 'warning', 4000);
   
