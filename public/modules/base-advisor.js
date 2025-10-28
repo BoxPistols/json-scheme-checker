@@ -261,10 +261,40 @@ class BaseAdvisorManager {
     const providerInput = document.getElementById('developerApiProviderInput');
     const baseUrlInput = document.getElementById('developerApiBaseUrlInput');
     const modelInput = document.getElementById('developerApiModelInput');
-    if (keyInput) this.saveUserApiKey(keyInput.value.trim());
-    if (providerInput) this.saveUserApiProvider(providerInput.value.trim());
-    if (baseUrlInput) this.saveUserApiBaseUrl(baseUrlInput.value.trim());
-    if (modelInput) this.saveUserApiModel(modelInput.value.trim());
+
+    const rawKey = keyInput?.value ?? '';
+    const rawProvider = providerInput?.value ?? '';
+    const rawBaseUrl = baseUrlInput?.value ?? '';
+    const rawModel = modelInput?.value ?? '';
+
+    // 空白のみの保存を禁止
+    if ([rawKey, rawProvider, rawBaseUrl, rawModel].some(v => v && v.trim() === '')) {
+      alert('空白のみの入力は保存できません。値を入力するか、空欄にしてください。');
+      return;
+    }
+
+    const key = rawKey.trim();
+    const provider = rawProvider.trim();
+    const baseUrl = rawBaseUrl.trim();
+    const model = rawModel.trim();
+
+    // baseUrl形式チェック（入力がある場合のみ）
+    if (baseUrl) {
+      try {
+        const u = new URL(baseUrl);
+        if (!['http:', 'https:'].includes(u.protocol)) throw new Error('protocol');
+      } catch {
+        alert('ベースURLが不正です。http(s)から始まる有効なURLを入力してください。');
+        return;
+      }
+    }
+
+    // ここまで通れば保存（空は削除＝.envフォールバック）
+    if (keyInput) this.saveUserApiKey(key);
+    if (providerInput) this.saveUserApiProvider(provider);
+    if (baseUrlInput) this.saveUserApiBaseUrl(baseUrl);
+    if (modelInput) this.saveUserApiModel(model);
+
     this.closeDeveloperPrompt();
     this.config.ui.showConfirmDialog();
   }
