@@ -53,7 +53,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
    * @returns {string} モデル名
    */
   getSelectedModel() {
-    return localStorage.getItem('jsonld_blog_reviewer_model') || 'gpt-4o-mini';
+    return localStorage.getItem('jsonld_blog_reviewer_model') || window.ADVISOR_CONST.DEFAULT_MODEL;
   }
 
   /**

@@ -41,7 +41,7 @@ class AdvisorManager extends BaseAdvisorManager {
     this.currentMode = null;
     this.isStreaming = false;
     this.currentUsage = null;
-    this.currentModel = 'gpt-4o-mini'; // デフォルトモデル
+    this.currentModel = window.ADVISOR_CONST.DEFAULT_MODEL; // デフォルトモデル
   }
 
   detectJobPosting(jsonLdData) {

@@ -1,5 +1,15 @@
 // Base Advisor Module - Common functionality for AI-powered advisors
 
+// グローバル定数（マジックナンバー排除）
+window.ADVISOR_CONST = window.ADVISOR_CONST || {
+  DEFAULT_MODEL: 'gpt-4o-mini',
+  TOKENS_PER_UNIT: 1000,
+  USD_TO_JPY_RATE: 150,
+  RATE_LIMIT: { NORMAL: 10, STAKEHOLDER: 30 },
+  ARTICLE: { MAX_BODY_LENGTH: 1000, MIN_BODY_LEN: 100 },
+  USAGE_MODE: { SESSION: 'session', PERMANENT: 'permanent' }
+};
+
 class BaseAdvisorManager {
   constructor(config) {
     if (!config) {
@@ -389,7 +399,7 @@ class BaseAdvisorManager {
    * @param {string} [model='gpt-4o-mini'] - 使用したモデル名
    * @returns {string} HTML文字列
    */
-  renderApiUsagePanel(usage, model = 'gpt-4o-mini') {
+  renderApiUsagePanel(usage, model = window.ADVISOR_CONST.DEFAULT_MODEL) {
     if (!usage) return '';
 
     // 入力パラメータのバリデーション

@@ -71,7 +71,7 @@ window.BlogReviewerHelpers = {
             const text = this?.extractTextContent
               ? this.extractTextContent(el)
               : window.BlogReviewerHelpers.extractTextContent(el);
-            if (text.length > 100) { bodyText = text; break; }
+            if (text.length > window.ADVISOR_CONST.ARTICLE.MIN_BODY_LEN) { bodyText = text; break; }
           }
         }
       }
@@ -111,7 +111,7 @@ window.BlogReviewerHelpers = {
     const dateModified = article.dateModified ? new Date(article.dateModified).toLocaleDateString('ja-JP') : '不明';
     const description = article.description || article.abstract || '説明なし';
 
-    const MAX_BODY_LENGTH = 1000;
+    const MAX_BODY_LENGTH = window.ADVISOR_CONST.ARTICLE.MAX_BODY_LENGTH;
     let articleBody = article.articleBody || '本文なし';
     let isTruncated = false;
     if (articleBody !== '本文なし' && articleBody.length > MAX_BODY_LENGTH) {
