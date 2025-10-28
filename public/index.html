@@ -826,10 +826,13 @@ export default function Home() {
                 </div>
             </div>
 
-            <div class="sample-links">
+            <details id="section-sample-links" class="collapsible" open>
+              <summary>サンプル</summary>
+              <div class="sample-links">
                 <span>サンプル:</span>
                 <!-- 動的に生成される -->
-            </div>
+              </div>
+            </details>
 
             <div class="error-message" id="errorMessage">
                 <span id="errorMessageText"></span>
@@ -842,7 +845,10 @@ export default function Home() {
             </div>
 
             <div class="seo-summary-section section-hidden" id="seoSummarySection">
-                <div id="summaryCard"></div>
+                <details id="section-summary-card" class="collapsible" open>
+                  <summary>SEOサマリー</summary>
+                  <div id="summaryCard"></div>
+                </details>
             </div>
 
             <!-- AIアクション（タブ外配置） -->

@@ -398,6 +398,9 @@ function handleStorageMethodChange() {
 const AUTH_STORAGE_KEY = 'jsonld_basic_auth';
 const DOMAIN_AUTH_PREFIX = 'jsonld_auth_';
 const STORAGE_METHOD_KEY = 'jsonld_storage_method';
+// 折りたたみ状態の保存キー
+const COLLAPSE_SAMPLE_LINKS_KEY = 'jsonld_ui_sample_links_open';
+const COLLAPSE_SUMMARY_CARD_KEY = 'jsonld_ui_summary_card_open';
 
 // サンプルURLの管理
 const SAMPLE_URLS_KEY = 'jsonld_sample_urls';
