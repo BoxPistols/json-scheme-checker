@@ -244,7 +244,8 @@ class BaseAdvisorManager {
             </div>
             <div class="advisor-field">
               <label class="advisor-label" for="developerApiModelInput">モデル名</label>
-              <input type="text" id="developerApiModelInput" placeholder="gpt-4o-mini 等（空なら既定）" value="${currentModel}" class="advisor-input">
+              <input type="text" id="developerApiModelInput" value="${currentModel}" class="advisor-input">
+              <div class="advisor-help-text">例: gpt-4o-mini（空なら既定: ${window.ADVISOR_CONST.DEFAULT_MODEL}）</div>
             </div>
           </div>
           <div class="advisor-field">
