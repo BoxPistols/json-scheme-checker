@@ -2537,6 +2537,22 @@ html[data-theme='dark'] .score-breakdown > div {
   gap: 16px;
 }
 
+/* Utility classes for advisor modals */
+.advisor-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: end; }
+.advisor-modal-header--stack { display: flex; flex-direction: column; align-items: stretch; }
+.advisor-modal-header-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; }
+.advisor-center { text-align: center; }
+.advisor-modal-text { margin-bottom: 20px; }
+.advisor-muted { font-size: 0.95rem; color: var(--secondary-text-color); }
+
+/* Usage panel */
+.advisor-usage-panel { margin-top: 20px; padding: 16px; background: var(--secondary-bg-color); border: 1px solid var(--border-color); border-radius: 8px; }
+.advisor-usage-title { margin: 0 0 12px 0; font-size: 0.9rem; color: var(--secondary-text-color); }
+.advisor-usage-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; font-size: 0.85rem; }
+.advisor-usage-label { color: var(--secondary-text-color); margin-bottom: 4px; }
+.advisor-usage-footer { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-color); font-size: 0.75rem; color: var(--secondary-text-color); }
+.advisor-usage-sup { font-size: 0.7rem; }
+
 /* Confirm Modal (Stakeholder/Developer) */
 .advisor-confirm-modal {
   max-width: 450px;

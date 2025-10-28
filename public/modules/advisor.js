@@ -84,8 +84,8 @@ class AdvisorManager extends BaseAdvisorManager {
 
     const overlay = this.createModal('ModeOverlay', `
       <div class="advisor-modal">
-        <div class="advisor-modal-header" style="flex-direction: column; align-items: stretch;">
-           <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px;">
+        <div class="advisor-modal-header advisor-modal-header--stack">
+           <div class="advisor-modal-header-row">
             <div class="advisor-mode-buttons-small">
               <button class="advisor-mode-btn-small" data-action="advisor-reset-to-normal-mode">通常モード</button>
               <button class="advisor-mode-btn-small" data-action="advisor-show-stakeholder-prompt">関係者</button>

@@ -384,18 +384,12 @@ class BlogReviewerManager extends BaseAdvisorManager {
     overlay.className = 'advisor-overlay';
     overlay.innerHTML = `
       <div class="advisor-modal">
-        <div class="advisor-modal-header" style="display: flex; flex-direction: column; align-items: stretch;">
-          <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px;">
+        <div class="advisor-modal-header advisor-modal-header--stack">
+          <div class="advisor-modal-header-row">
             <div class="advisor-mode-buttons-small">
-              <button class="advisor-mode-btn-small" data-action="blog-reset-to-normal-mode" title="通常モード（10回/24時間）に戻す">
-                通常モード
-              </button>
-              <button class="advisor-mode-btn-small" data-action="blog-show-stakeholder-prompt" title="関係者は30回/24時間まで利用可能">
-                関係者
-              </button>
-              <button class="advisor-mode-btn-small" data-action="blog-show-developer-prompt" title="自分のAPIキーで無制限利用">
-                MyAPI
-              </button>
+              <button class="advisor-mode-btn-small" data-action="blog-reset-to-normal-mode" title="通常モード（10回/24時間）に戻す">通常モード</button>
+              <button class="advisor-mode-btn-small" data-action="blog-show-stakeholder-prompt" title="関係者は30回/24時間まで利用可能">関係者</button>
+              <button class="advisor-mode-btn-small" data-action="blog-show-developer-prompt" title="自分のAPIキーで無制限利用">MyAPI</button>
             </div>
             <button class="advisor-modal-close" data-action="blog-close-confirm-dialog">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -403,15 +397,11 @@ class BlogReviewerManager extends BaseAdvisorManager {
               </svg>
             </button>
           </div>
-          <h2 style="margin: 0; width: 100%;">ブログ記事レビュー</h2>
+          <h2>ブログ記事レビュー</h2>
         </div>
         <div class="advisor-modal-body">
           ${rateLimitHtml}
-
-          <p style="margin: 20px 0; text-align: center; font-size: 0.95rem;">
-            SEO観点、EEAT観点、アクセシビリティ観点でブログ記事をレビューします。
-          </p>
-
+          <p class="advisor-modal-text advisor-center advisor-muted">SEO観点、EEAT観点、アクセシビリティ観点でブログ記事をレビューします。</p>
           <div class="advisor-confirm-buttons">
             <button class="advisor-btn-secondary" data-action="blog-close-confirm-dialog">キャンセル</button>
             <button class="advisor-btn-primary" data-action="blog-start-review">レビュー開始</button>
@@ -576,7 +566,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
       <div class="job-field">
         <label>本文</label>
         <div class="job-value job-description">
-          ${this.escapeHtml(articleBody)}${isTruncated ? '<span style="color: var(--secondary-text-color);">...（省略）</span>' : ''}
+          ${this.escapeHtml(articleBody)}${isTruncated ? '<span class="text-muted">...（省略）</span>' : ''}
         </div>
       </div>
       `

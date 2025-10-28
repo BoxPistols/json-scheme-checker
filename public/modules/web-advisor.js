@@ -175,8 +175,8 @@ class WebAdvisorManager extends BaseAdvisorManager {
     overlay.className = 'advisor-overlay';
     overlay.innerHTML = `
       <div class="advisor-modal">
-        <div class="advisor-modal-header" style="display: flex; flex-direction: column; align-items: stretch;">
-          <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px;">
+        <div class="advisor-modal-header advisor-modal-header--stack">
+          <div class="advisor-modal-header-row">
             <div class="advisor-mode-buttons-small">
               <button class="advisor-mode-btn-small" data-action="web-reset-to-normal-mode" title="通常モード（10回/24時間）に戻す">通常モード</button>
               <button class="advisor-mode-btn-small" data-action="web-show-stakeholder-prompt" title="関係者は30回/24時間まで利用可能">関係者</button>
@@ -186,11 +186,11 @@ class WebAdvisorManager extends BaseAdvisorManager {
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
             </button>
           </div>
-          <h2 style="margin: 0; width: 100%;">Webページ分析</h2>
+          <h2>Webページ分析</h2>
         </div>
         <div class="advisor-modal-body">
           ${rateLimitHtml}
-          <p style="margin: 20px 0; text-align: center; font-size: 0.95rem;">SEO/EEAT/アクセシビリティ観点で対象ページを分析します。</p>
+          <p class="advisor-modal-text advisor-center advisor-muted">SEO/EEAT/アクセシビリティ観点で対象ページを分析します。</p>
           <div class="advisor-confirm-buttons">
             <button class="advisor-btn-secondary" data-action="web-close-confirm-dialog">キャンセル</button>
             <button class="advisor-btn-primary" data-action="web-start-analysis">レビュー開始</button>

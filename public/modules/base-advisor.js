@@ -172,8 +172,8 @@ class BaseAdvisorManager {
       <div class="advisor-modal advisor-confirm-modal">
         <div class="advisor-modal-header"><h2>関係者確認</h2></div>
         <div class="advisor-modal-body">
-          <p style="margin-bottom: 20px; text-align: center;">あなたは関係者ですか？</p>
-          <p style="font-size: 0.85rem; color: var(--secondary-text-color); margin-bottom: 20px; text-align: center;">
+          <p class="advisor-modal-text advisor-center">あなたは関係者ですか？</p>
+          <p class="advisor-notice advisor-center">
             関係者の場合、利用回数が${this.config.MAX_REQUESTS_STAKEHOLDER}回/24時間に増加します
           </p>
           <div class="advisor-confirm-buttons">
@@ -219,7 +219,7 @@ class BaseAdvisorManager {
           <div class="advisor-field">
             <label class="advisor-label" for="developerApiKeyInput">APIキー</label>
             <div class="advisor-api-key-wrapper">
-              <input type="password" id="developerApiKeyInput" placeholder="sk-... / az-..." value="${currentKey}" class="advisor-input" style="width:100%">
+              <input type="password" id="developerApiKeyInput" placeholder="sk-... / az-..." value="${currentKey}" class="advisor-input">
               <button type="button" data-action="${this.config.actions.toggleDeveloperKeyVisibility}" class="advisor-btn-icon" title="表示/非表示">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
@@ -227,19 +227,19 @@ class BaseAdvisorManager {
               </button>
             </div>
           </div>
-          <div class="advisor-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:end;">
+          <div class="advisor-grid-2">
             <div class="advisor-field">
               <label class="advisor-label" for="developerApiProviderInput">プロバイダ</label>
-              <input type="text" id="developerApiProviderInput" placeholder="openai / azure / groq / other" value="${currentProvider}" class="advisor-input" style="width:100%">
+              <input type="text" id="developerApiProviderInput" placeholder="openai / azure / groq / other" value="${currentProvider}" class="advisor-input">
             </div>
             <div class="advisor-field">
               <label class="advisor-label" for="developerApiModelInput">モデル名</label>
-              <input type="text" id="developerApiModelInput" placeholder="gpt-4o-mini 等（空なら既定）" value="${currentModel}" class="advisor-input" style="width:100%">
+              <input type="text" id="developerApiModelInput" placeholder="gpt-4o-mini 等（空なら既定）" value="${currentModel}" class="advisor-input">
             </div>
           </div>
           <div class="advisor-field">
             <label class="advisor-label" for="developerApiBaseUrlInput">ベースURL（任意・OpenAI互換エンドポイント）</label>
-            <input type="text" id="developerApiBaseUrlInput" placeholder="https://api.openai.com/v1 または互換エンドポイント" value="${currentBaseUrl}" class="advisor-input" style="width:100%">
+            <input type="text" id="developerApiBaseUrlInput" placeholder="https://api.openai.com/v1 または互換エンドポイント" value="${currentBaseUrl}" class="advisor-input">
           </div>
           <p class="advisor-notice">入力したプロバイダ/URL/モデルは.envより優先して使用します（空欄は.envを使用）。</p>
           <div class="advisor-confirm-buttons">
