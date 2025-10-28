@@ -217,9 +217,9 @@ class BaseAdvisorManager {
         <div class="advisor-modal-body">
           <p>自分のAPIを使用すると、無制限で利用できます。未入力は環境設定を使用します。</p>
           <div class="advisor-field">
-            <label class="advisor-label">APIキー</label>
+            <label class="advisor-label" for="developerApiKeyInput">APIキー</label>
             <div class="advisor-api-key-wrapper">
-              <input type="password" id="developerApiKeyInput" placeholder="sk-... / az-..." value="${currentKey}" class="advisor-input">
+              <input type="password" id="developerApiKeyInput" placeholder="sk-... / az-..." value="${currentKey}" class="advisor-input" style="width:100%">
               <button type="button" data-action="${this.config.actions.toggleDeveloperKeyVisibility}" class="advisor-btn-icon" title="表示/非表示">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
@@ -227,19 +227,19 @@ class BaseAdvisorManager {
               </button>
             </div>
           </div>
-          <div class="advisor-grid-2">
+          <div class="advisor-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:end;">
             <div class="advisor-field">
-              <label class="advisor-label">プロバイダ</label>
-              <input type="text" id="developerApiProviderInput" placeholder="openai / azure / groq / other" value="${currentProvider}" class="advisor-input">
+              <label class="advisor-label" for="developerApiProviderInput">プロバイダ</label>
+              <input type="text" id="developerApiProviderInput" placeholder="openai / azure / groq / other" value="${currentProvider}" class="advisor-input" style="width:100%">
             </div>
             <div class="advisor-field">
-              <label class="advisor-label">モデル名</label>
-              <input type="text" id="developerApiModelInput" placeholder="gpt-4o-mini 等（空なら既定）" value="${currentModel}" class="advisor-input">
+              <label class="advisor-label" for="developerApiModelInput">モデル名</label>
+              <input type="text" id="developerApiModelInput" placeholder="gpt-4o-mini 等（空なら既定）" value="${currentModel}" class="advisor-input" style="width:100%">
             </div>
           </div>
           <div class="advisor-field">
-            <label class="advisor-label">ベースURL（任意・OpenAI互換エンドポイント）</label>
-            <input type="text" id="developerApiBaseUrlInput" placeholder="https://api.openai.com/v1 または互換エンドポイント" value="${currentBaseUrl}" class="advisor-input">
+            <label class="advisor-label" for="developerApiBaseUrlInput">ベースURL（任意・OpenAI互換エンドポイント）</label>
+            <input type="text" id="developerApiBaseUrlInput" placeholder="https://api.openai.com/v1 または互換エンドポイント" value="${currentBaseUrl}" class="advisor-input" style="width:100%">
           </div>
           <p class="advisor-notice">入力したプロバイダ/URL/モデルは.envより優先して使用します（空欄は.envを使用）。</p>
           <div class="advisor-confirm-buttons">
