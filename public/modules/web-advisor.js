@@ -278,6 +278,12 @@ class WebAdvisorManager extends BaseAdvisorManager {
     const params = new URLSearchParams({ url: this.currentUrl });
     const userKey = this.getUserApiKey?.();
     if (userKey) params.set('userApiKey', userKey);
+    const provider = this.getUserApiProvider?.();
+    const baseUrl = this.getUserApiBaseUrl?.();
+    const model = this.getUserApiModel?.();
+    if (provider) params.set('provider', provider);
+    if (baseUrl) params.set('baseUrl', baseUrl);
+    if (model) params.set('model', model);
 
     const url = `${base}?${params.toString()}`;
 

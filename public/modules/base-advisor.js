@@ -98,11 +98,47 @@ class BaseAdvisorManager {
     return localStorage.getItem(this.config.USER_API_KEY);
   }
 
+  getUserApiProvider() {
+    return localStorage.getItem('jsonld_user_api_provider') || '';
+  }
+
+  getUserApiBaseUrl() {
+    return localStorage.getItem('jsonld_user_api_base_url') || '';
+  }
+
+  getUserApiModel() {
+    return localStorage.getItem('jsonld_user_api_model') || '';
+  }
+
   saveUserApiKey(apiKey) {
     if (apiKey && apiKey.trim()) {
       localStorage.setItem(this.config.USER_API_KEY, apiKey.trim());
     } else {
       localStorage.removeItem(this.config.USER_API_KEY);
+    }
+  }
+
+  saveUserApiProvider(provider) {
+    if (provider && provider.trim()) {
+      localStorage.setItem('jsonld_user_api_provider', provider.trim());
+    } else {
+      localStorage.removeItem('jsonld_user_api_provider');
+    }
+  }
+
+  saveUserApiBaseUrl(baseUrl) {
+    if (baseUrl && baseUrl.trim()) {
+      localStorage.setItem('jsonld_user_api_base_url', baseUrl.trim());
+    } else {
+      localStorage.removeItem('jsonld_user_api_base_url');
+    }
+  }
+
+  saveUserApiModel(model) {
+    if (model && model.trim()) {
+      localStorage.setItem('jsonld_user_api_model', model.trim());
+    } else {
+      localStorage.removeItem('jsonld_user_api_model');
     }
   }
 
@@ -165,6 +201,9 @@ class BaseAdvisorManager {
    */
   showDeveloperPrompt() {
     const currentKey = this.getUserApiKey() || '';
+    const currentProvider = this.getUserApiProvider();
+    const currentBaseUrl = this.getUserApiBaseUrl();
+    const currentModel = this.getUserApiModel();
     const overlay = this.createModal('developerPrompt', `
       <div class="advisor-modal advisor-developer-modal">
         <div class="advisor-modal-header">
@@ -176,16 +215,33 @@ class BaseAdvisorManager {
           </button>
         </div>
         <div class="advisor-modal-body">
-          <p>自分のOpenAI APIキーを使用すると、無制限で利用できます。</p>
-          <div class="advisor-api-key-wrapper">
-            <input type="password" id="developerApiKeyInput" placeholder="sk-proj-..." value="${currentKey}" class="advisor-input">
-            <button type="button" data-action="${this.config.actions.toggleDeveloperKeyVisibility}" class="advisor-btn-icon" title="表示/非表示">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
-              </svg>
-            </button>
+          <p>自分のAPIを使用すると、無制限で利用できます。未入力は環境設定を使用します。</p>
+          <div class="advisor-field">
+            <label class="advisor-label">APIキー</label>
+            <div class="advisor-api-key-wrapper">
+              <input type="password" id="developerApiKeyInput" placeholder="sk-... / az-..." value="${currentKey}" class="advisor-input">
+              <button type="button" data-action="${this.config.actions.toggleDeveloperKeyVisibility}" class="advisor-btn-icon" title="表示/非表示">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </button>
+            </div>
           </div>
-          <p class="advisor-notice">このAPIキーはブラウザにのみ保存され、サーバーには送信されません。</p>
+          <div class="advisor-grid-2">
+            <div class="advisor-field">
+              <label class="advisor-label">プロバイダ</label>
+              <input type="text" id="developerApiProviderInput" placeholder="openai / azure / groq / other" value="${currentProvider}" class="advisor-input">
+            </div>
+            <div class="advisor-field">
+              <label class="advisor-label">モデル名</label>
+              <input type="text" id="developerApiModelInput" placeholder="gpt-4o-mini 等（空なら既定）" value="${currentModel}" class="advisor-input">
+            </div>
+          </div>
+          <div class="advisor-field">
+            <label class="advisor-label">ベースURL（任意・OpenAI互換エンドポイント）</label>
+            <input type="text" id="developerApiBaseUrlInput" placeholder="https://api.openai.com/v1 または互換エンドポイント" value="${currentBaseUrl}" class="advisor-input">
+          </div>
+          <p class="advisor-notice">入力したプロバイダ/URL/モデルは.envより優先して使用します（空欄は.envを使用）。</p>
           <div class="advisor-confirm-buttons">
             <button class="advisor-btn-secondary" data-action="${this.config.actions.closeDeveloperPrompt}">キャンセル</button>
             <button class="advisor-btn-primary" data-action="${this.config.actions.saveDeveloperKey}">保存</button>
@@ -201,12 +257,16 @@ class BaseAdvisorManager {
   }
 
   saveDeveloperKey() {
-    const input = document.getElementById('developerApiKeyInput');
-    if (input) {
-      this.saveUserApiKey(input.value.trim());
-      this.closeDeveloperPrompt();
-      this.config.ui.showConfirmDialog();
-    }
+    const keyInput = document.getElementById('developerApiKeyInput');
+    const providerInput = document.getElementById('developerApiProviderInput');
+    const baseUrlInput = document.getElementById('developerApiBaseUrlInput');
+    const modelInput = document.getElementById('developerApiModelInput');
+    if (keyInput) this.saveUserApiKey(keyInput.value.trim());
+    if (providerInput) this.saveUserApiProvider(providerInput.value.trim());
+    if (baseUrlInput) this.saveUserApiBaseUrl(baseUrlInput.value.trim());
+    if (modelInput) this.saveUserApiModel(modelInput.value.trim());
+    this.closeDeveloperPrompt();
+    this.config.ui.showConfirmDialog();
   }
 
   toggleDeveloperKeyVisibility() {

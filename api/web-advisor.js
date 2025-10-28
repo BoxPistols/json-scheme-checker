@@ -397,7 +397,7 @@ module.exports = async (req, res) => {
 
   // Note: userApiKey is intentionally passed via query parameter for SSE compatibility.
   // Users provide their own key and are responsible for its security.
-  const { url, userApiKey } = req.query;
+  const { url, userApiKey, provider, baseUrl, model } = req.query;
 
   if (!url) {
     return res.status(400).json({ error: 'url parameter is required' });
@@ -490,12 +490,12 @@ module.exports = async (req, res) => {
     const apiKey = userApiKey || process.env.OPENAI_API_KEY;
 
     if (apiKey) {
-      // OpenAI APIによる分析
-      const openai = new OpenAI({ apiKey });
+      // OpenAI APIによる分析（baseUrlがあればOpenAI互換エンドポイントとして利用）
+      const openai = new OpenAI({ apiKey, baseURL: baseUrl || undefined });
       const prompt = buildPrompt(metadata, url);
 
       const stream = await openai.chat.completions.create({
-        model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+        model: model || process.env.OPENAI_MODEL || 'gpt-4o-mini',
         messages: [{ role: 'user', content: prompt }],
         stream: true,
         temperature: 0.7,
