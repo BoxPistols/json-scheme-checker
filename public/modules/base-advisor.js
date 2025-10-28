@@ -300,6 +300,13 @@ class BaseAdvisorManager {
       }
     }
 
+    // すべて空で保存する場合は最終確認（.env既定にフォールバック）
+    const allEmpty = !key && !provider && !baseUrl && !model;
+    if (allEmpty) {
+      const ok = window.confirm('すべて空の状態で保存します。環境既定（.env）を使用します。よろしいですか？');
+      if (!ok) return;
+    }
+
     // ここまで通れば保存（空は削除＝.envフォールバック）
     if (keyInput) this.saveUserApiKey(key);
     if (providerInput) this.saveUserApiProvider(provider);
