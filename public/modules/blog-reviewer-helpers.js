@@ -96,5 +96,112 @@ window.BlogReviewerHelpers = {
     html = html.replace(/\n/g, '<br>');
     html = html.replace(/((?:<li>.*?<\/li>(?:<br>)*)+)/g, m => `<ul>${m.replace(/<br>/g, '')}</ul>`);
     return html;
+  },
+
+  /** Articleのフォーマット（HTML） */
+  formatArticle(article) {
+    const escapeHtml = (t) => {
+      const div = document.createElement('div');
+      div.textContent = t ?? '';
+      return div.innerHTML;
+    };
+    const headline = article.headline || article.name || article.title || '不明';
+    const author = article.author?.name || (typeof article.author === 'string' ? article.author : '不明');
+    const datePublished = article.datePublished ? new Date(article.datePublished).toLocaleDateString('ja-JP') : '不明';
+    const dateModified = article.dateModified ? new Date(article.dateModified).toLocaleDateString('ja-JP') : '不明';
+    const description = article.description || article.abstract || '説明なし';
+
+    const MAX_BODY_LENGTH = 1000;
+    let articleBody = article.articleBody || '本文なし';
+    let isTruncated = false;
+    if (articleBody !== '本文なし' && articleBody.length > MAX_BODY_LENGTH) {
+      articleBody = articleBody.substring(0, MAX_BODY_LENGTH);
+      isTruncated = true;
+    }
+
+    return `
+      <div class="job-field">
+        <label>タイトル</label>
+        <div class="job-value">${escapeHtml(headline)}</div>
+      </div>
+      <div class="job-field">
+        <label>著者</label>
+        <div class="job-value">${escapeHtml(author)}</div>
+      </div>
+      <div class="job-field">
+        <label>公開日</label>
+        <div class="job-value">${escapeHtml(datePublished)}</div>
+      </div>
+      <div class="job-field">
+        <label>最終更新日</label>
+        <div class="job-value">${escapeHtml(dateModified)}</div>
+      </div>
+      <div class="job-field">
+        <label>説明</label>
+        <div class="job-value job-description">${escapeHtml(description)}</div>
+      </div>
+      ${
+        articleBody && articleBody !== '本文なし'
+          ? `
+      <div class="job-field">
+        <label>本文</label>
+        <div class="job-value job-description">
+          ${escapeHtml(articleBody)}${isTruncated ? '<span class="text-muted">...（省略）</span>' : ''}
+        </div>
+      </div>
+      `
+          : ''
+      }
+    `;
+  },
+
+  /** ヘッダーの使用量チップ更新 */
+  updateHeaderUsageChip(curUsage, config) {
+    const chip = document.getElementById('blogReviewerHeaderUsage');
+    const cur = document.getElementById('blogReviewerHeaderUsageTokens');
+    const total = document.getElementById('blogReviewerHeaderUsageTotal');
+    if (!chip || !cur || !total) return;
+
+    if (curUsage) {
+      const { total_tokens = 0 } = curUsage;
+      cur.textContent = `${total_tokens.toLocaleString()} tok`;
+      chip.style.display = 'inline-flex';
+    }
+
+    const acc = this.getAccumulatedUsage(config);
+    const totalTokens = acc?.total_tokens || 0;
+    total.textContent = `${totalTokens.toLocaleString()} tok`;
+  },
+
+  /** 累積使用量の取得/保存/加算とモード切替 */
+  getAccumulatedUsage(config) {
+    try {
+      const mode = localStorage.getItem(config.USAGE_MODE_KEY) || 'session';
+      const dataStr = mode === 'session' ? sessionStorage.getItem(config.USAGE_TOTAL_KEY) : localStorage.getItem(config.USAGE_TOTAL_KEY);
+      return dataStr ? JSON.parse(dataStr) : { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 };
+    } catch {
+      return { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 };
+    }
+  },
+  saveAccumulatedUsage(config, usage) {
+    try {
+      const mode = localStorage.getItem(config.USAGE_MODE_KEY) || 'session';
+      const dataStr = JSON.stringify(usage);
+      if (mode === 'session') sessionStorage.setItem(config.USAGE_TOTAL_KEY, dataStr); else localStorage.setItem(config.USAGE_TOTAL_KEY, dataStr);
+    } catch {}
+  },
+  addToAccumulatedUsage(config, usage) {
+    const acc = this.getAccumulatedUsage(config);
+    const merged = {
+      prompt_tokens: (acc.prompt_tokens || 0) + (usage.prompt_tokens || 0),
+      completion_tokens: (acc.completion_tokens || 0) + (usage.completion_tokens || 0),
+      total_tokens: (acc.total_tokens || 0) + (usage.total_tokens || 0),
+    };
+    this.saveAccumulatedUsage(config, merged);
+  },
+  setUsageMode(config, mode) {
+    if (mode !== 'session' && mode !== 'permanent') return;
+    localStorage.setItem(config.USAGE_MODE_KEY, mode);
   }
+}
 };
