@@ -111,9 +111,9 @@ class WebAdvisorManager extends BaseAdvisorManager {
    * 分析ボタンを表示（BlogReviewer/Advisorと同じUI）
    */
   showAnalysisButton() {
-    const resultDiv = document.getElementById('results');
-    if (!resultDiv) {
-      console.warn('[WebAdvisor] results div not found');
+    const actionsContainer = document.getElementById('aiActions') || document.getElementById('results');
+    if (!actionsContainer) {
+      console.warn('[WebAdvisor] actions container not found');
       return;
     }
 
@@ -129,14 +129,11 @@ class WebAdvisorManager extends BaseAdvisorManager {
     button.className = 'advisor-trigger-btn';
     button.dataset.action = 'show-web-confirm-dialog';
     button.innerHTML = `
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M12 2l2 7h7l-5.5 4 2 7-5.5-4-5.5 4 2-7-5.5-4h7z"/>
-      </svg>
-      Webページ分析を受ける
+      <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\">\n        <path d=\"M12 2l2 7h7l-5.5 4 2 7-5.5-4-5.5 4 2-7-5.5-4h7z\"/>\n      </svg>\n      Webページ分析を受ける
     `;
 
-    // results divの最初に挿入（BlogReviewer/Advisorと同じ）
-    resultDiv.insertBefore(button, resultDiv.firstChild);
+    // actions containerの最初に挿入
+    actionsContainer.insertBefore(button, actionsContainer.firstChild);
     console.log('[WebAdvisor] Analysis button inserted');
   }
 

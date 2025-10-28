@@ -45,6 +45,25 @@ class BlogReviewerManager extends BaseAdvisorManager {
     this.isStreaming = false;
     this.currentUsage = null;
     this.remoteDoc = null;
+    this.model = this.getSelectedModel();
+  }
+
+  /**
+   * 現在選択されているモデルを取得
+   * @returns {string} モデル名
+   */
+  getSelectedModel() {
+    return localStorage.getItem('jsonld_blog_reviewer_model') || 'gpt-4o-mini';
+  }
+
+  /**
+   * モデルを選択して保存
+   * @param {string} model - 選択されたモデル名
+   */
+  setSelectedModel(model) {
+    this.model = model;
+    localStorage.setItem('jsonld_blog_reviewer_model', model);
+    console.log(`[BlogReviewer] Model set to: ${model}`);
   }
 
   // getModelPricingメソッドは削除（BaseAdvisorManagerの共通メソッドを使用）
@@ -269,13 +288,13 @@ class BlogReviewerManager extends BaseAdvisorManager {
    * レビューボタンを表示
    */
   showReviewButton() {
-    const resultDiv = document.getElementById('results');
+    const actionsContainer = document.getElementById('aiActions') || document.getElementById('results');
     console.log('[BlogReviewerManager] showReviewButton called');
-    console.log('[BlogReviewerManager] results div:', resultDiv);
-    console.log('[BlogReviewerManager] results div found:', !!resultDiv);
+    console.log('[BlogReviewerManager] actions container:', actionsContainer);
+    console.log('[BlogReviewerManager] actions container found:', !!actionsContainer);
 
-    if (!resultDiv) {
-      console.error('[BlogReviewerManager] ERROR: results div not found');
+    if (!actionsContainer) {
+      console.error('[BlogReviewerManager] ERROR: actions container not found');
       // フォールバック: schemasContainerを探す
       const schemasContainer = document.getElementById('schemasContainer');
       if (schemasContainer) {
@@ -294,7 +313,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
     }
 
     const button = this.createReviewButton();
-    resultDiv.insertBefore(button, resultDiv.firstChild);
+    actionsContainer.insertBefore(button, actionsContainer.firstChild);
     console.log('[BlogReviewerManager] Review button inserted into DOM');
   }
 
@@ -589,6 +608,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
         body: JSON.stringify({
           article: this.currentArticle,
           userApiKey: userApiKey || undefined,
+          model: this.model,
         }),
       });
 
@@ -668,6 +688,11 @@ class BlogReviewerManager extends BaseAdvisorManager {
       }
     } catch (error) {
       console.error('BlogReviewer fetch error:', error);
+      const isVercel = window.location.hostname.includes('vercel.app');
+      const errorMessage = isVercel
+        ? '予期せぬエラーが発生しました。時間をおいて再度お試しください。'
+        : this.escapeHtml(error.message);
+
       reviewContent.innerHTML = `
         <div class="advisor-error">
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -675,7 +700,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
             <path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
           </svg>
           <p>AI分析に失敗しました</p>
-          <p class="advisor-error-detail">${this.escapeHtml(error.message)}</p>
+          <p class="advisor-error-detail">${errorMessage}</p>
           <button class="advisor-btn-primary" data-action="fetch-review">
             再試行
           </button>

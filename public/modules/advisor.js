@@ -56,15 +56,15 @@ class AdvisorManager extends BaseAdvisorManager {
   }
 
   showAdvisorButton() {
-    const resultDiv = document.getElementById('results');
-    if (!resultDiv || document.getElementById('advisorTriggerBtn')) return;
+    const actionsContainer = document.getElementById('aiActions') || document.getElementById('results');
+    if (!actionsContainer || document.getElementById('advisorTriggerBtn')) return;
 
     const button = document.createElement('button');
     button.id = 'advisorTriggerBtn';
     button.className = 'advisor-trigger-btn';
-    button.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="white"/></svg> 求人/求職アドバイスを受ける`;
+    button.innerHTML = `<svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"white\"><path d=\"M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z\" fill=\"white\"/></svg> 求人/求職アドバイスを受ける`;
     button.onclick = () => this.showModeSelector();
-    resultDiv.insertBefore(button, resultDiv.firstChild);
+    actionsContainer.insertBefore(button, actionsContainer.firstChild);
   }
 
   hideAdvisorButton() {
