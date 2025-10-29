@@ -31,6 +31,7 @@ describe('Rate limit logic', () => {
     rl = mgr.checkRateLimit();
     expect(rl.allowed).toBe(false);
     expect(rl.remaining).toBe(0);
+    expect(typeof rl.resetTime === 'string' || rl.resetTime === null).toBe(true);
   });
 
   it('uses stakeholder limit when stakeholder mode', () => {
@@ -47,5 +48,24 @@ describe('Rate limit logic', () => {
     mgr.recordUsage();
     const data = JSON.parse(localStorage.getItem('jsonld_rl_usage') || '[]');
     expect(data.length).toBe(0);
+  });
+
+  it('ignores stale usage entries older than 24h', () => {
+    const key = 'jsonld_rl_usage';
+    const now = Date.now();
+    const oldTs = now - (25 * 60 * 60 * 1000);
+    localStorage.setItem(key, JSON.stringify([oldTs]));
+    const mgr = new RLManager(false);
+    const rl = mgr.checkRateLimit();
+    expect(rl.allowed).toBe(true);
+    expect(rl.remaining).toBeGreaterThan(0);
+  });
+
+  it('returns usingUserKey true and developer mode when user key exists', () => {
+    localStorage.setItem('jsonld_user_openai_key', 'sk-dev');
+    const mgr = new RLManager(false);
+    const rl = mgr.checkRateLimit();
+    expect(rl.usingUserKey).toBe(true);
+    expect(rl.mode).toBe('developer');
   });
 });

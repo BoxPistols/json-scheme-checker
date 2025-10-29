@@ -50,5 +50,25 @@ describe('Developer connection flow', () => {
     const body = JSON.parse(opts.body);
     expect(body.userApiKey).toBe('sk-test');
     expect(body.model).toBe('gpt-4o-mini');
+    // 成功時のステータス表示
+    expect(document.querySelector('#developerApiStatus .advisor-status-chip:last-child').textContent).toContain('接続: 正常');
+    // 成功ログの保存
+    const last = JSON.parse(localStorage.getItem('jsonld_user_api_last_test') || '{}');
+    expect(last.ok).toBe(true);
+  });
+
+  it('handles failure and updates status chip', async () => {
+    document.getElementById('developerApiKeyInput').value = 'sk-test';
+    const json = vi.fn().mockResolvedValue({ ok: false, error: 'bad' });
+    global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 500, json });
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+
+    await mgr.testDeveloperConnection();
+
+    expect(alertSpy).toHaveBeenCalled();
+    expect(document.querySelector('#developerApiStatus .advisor-status-chip:last-child').textContent).toContain('接続: 失敗');
+    const last = JSON.parse(localStorage.getItem('jsonld_user_api_last_test') || '{}');
+    expect(last.ok).toBe(false);
+    alertSpy.mockRestore();
   });
 });
