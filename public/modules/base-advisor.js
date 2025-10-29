@@ -324,6 +324,26 @@ class BaseAdvisorManager {
     }
   }
 
+  async testDeveloperConnection() {
+    const key = (document.getElementById('developerApiKeyInput')?.value || '').trim();
+    const provider = (document.getElementById('developerApiProviderInput')?.value || '').trim();
+    const baseUrl = (document.getElementById('developerApiBaseUrlInput')?.value || '').trim();
+    const model = (document.getElementById('developerApiModelInput')?.value || '').trim();
+
+    if (!key) { alert('APIキーを入力してください'); return; }
+
+    const isVercel = window.location.hostname.includes('vercel.app');
+    const url = isVercel ? '/api/test-connection' : 'http://127.0.0.1:3333/api/test-connection';
+    try {
+      const resp = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userApiKey: key, provider, baseUrl, model }) });
+      const data = await resp.json();
+      if (!resp.ok || !data.ok) throw new Error(data.error || `HTTP ${resp.status}`);
+      alert(`接続に成功しました\nprovider: ${data.provider}\nmodel: ${data.model}`);
+    } catch (e) {
+      alert(`接続に失敗しました: ${e.message}`);
+    }
+  }
+
   resetDeveloperSettings() {
     const ok = window.confirm('Developer/無制限モードの設定を初期化します。よろしいですか？');
     if (!ok) return;

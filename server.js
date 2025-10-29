@@ -269,6 +269,17 @@ app.get('/api/web-advisor', async (req, res) => {
   }
 });
 
+// MyAPI 接続テスト（ローカル開発用）
+app.post('/api/test-connection', async (req, res) => {
+  try {
+    const handler = require('./api/test-connection');
+    await handler(req, res);
+  } catch (error) {
+    console.error('Test Connection API error:', error);
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
 // ネットワークIPアドレスを取得
 const os = require('os');
 const networkInterfaces = os.networkInterfaces();
