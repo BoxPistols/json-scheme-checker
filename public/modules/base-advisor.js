@@ -338,8 +338,14 @@ class BaseAdvisorManager {
       const resp = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userApiKey: key, provider, baseUrl, model }) });
       const data = await resp.json();
       if (!resp.ok || !data.ok) throw new Error(data.error || `HTTP ${resp.status}`);
+      localStorage.setItem('jsonld_user_api_last_test', JSON.stringify({ ok: true, at: Date.now(), provider: data.provider, model: data.model }));
+      const status = document.getElementById('developerApiStatus');
+      if (status) status.querySelector('.advisor-status-chip:last-child').textContent = '接続: 正常';
       alert(`接続に成功しました\nprovider: ${data.provider}\nmodel: ${data.model}`);
     } catch (e) {
+      localStorage.setItem('jsonld_user_api_last_test', JSON.stringify({ ok: false, at: Date.now(), error: e.message }));
+      const status = document.getElementById('developerApiStatus');
+      if (status) status.querySelector('.advisor-status-chip:last-child').textContent = '接続: 失敗';
       alert(`接続に失敗しました: ${e.message}`);
     }
   }
