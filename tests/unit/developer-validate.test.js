@@ -5,7 +5,7 @@ const BaseAdvisorManager = mod.BaseAdvisorManager || mod.default || mod;
 
 class DummyManager extends BaseAdvisorManager {
   constructor() {
-    super({ elemIdPrefix: 'dev', ui: { showConfirmDialog: () => {} } });
+    super({ elemIdPrefix: 'dev', USER_API_KEY: 'jsonld_user_openai_key', ui: { showConfirmDialog: () => {} } });
   }
 }
 
@@ -56,9 +56,9 @@ describe('Developer modal validations', () => {
     mgr.resetDeveloperSettings();
     // saveUserApiKey('') は removeItem を行う実装
     expect(localStorage.getItem('jsonld_user_openai_key')).toBeNull();
-    expect(localStorage.getItem('jsonld_user_api_provider')).toBe('');
-    expect(localStorage.getItem('jsonld_user_api_base_url')).toBe('');
-    expect(localStorage.getItem('jsonld_user_api_model')).toBe('');
+    expect(localStorage.getItem('jsonld_user_api_provider')).toBeNull();
+    expect(localStorage.getItem('jsonld_user_api_base_url')).toBeNull();
+    expect(localStorage.getItem('jsonld_user_api_model')).toBeNull();
     confirmSpy.mockRestore();
     alertSpy.mockRestore();
   });

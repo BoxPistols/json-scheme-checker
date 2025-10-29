@@ -31,8 +31,8 @@ describe('Rate limit logic', () => {
     rl = mgr.checkRateLimit();
     expect(rl.allowed).toBe(false);
     expect(rl.remaining).toBe(0);
-    // recentRequests.length>0 のときのみresetTimeが付与される実装のためnull許容
-    expect(rl.resetTime === null || typeof rl.resetTime === 'string').toBe(true);
+    // 実装ではDateオブジェクトを返すためDate/文字列/nullのいずれかを許容
+    expect(rl.resetTime === null || rl.resetTime instanceof Date || typeof rl.resetTime === 'string').toBe(true);
   });
 
   it('uses stakeholder limit when stakeholder mode', () => {
