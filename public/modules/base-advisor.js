@@ -519,3 +519,8 @@ class BaseAdvisorManager {
     `;
   }
 }
+
+// Node.js用のテストエクスポート（ブラウザ実行には影響なし）
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { BaseAdvisorManager };
+}

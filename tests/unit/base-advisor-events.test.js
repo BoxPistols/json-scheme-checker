@@ -1,6 +1,7 @@
 /* @vitest-environment jsdom */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { BaseAdvisorManager } from '../../public/modules/base-advisor.js';
+import mod from '../../public/modules/base-advisor.js';
+const BaseAdvisorManager = mod.BaseAdvisorManager || mod.default || mod;
 
 class TestManager extends BaseAdvisorManager {
   constructor() {
