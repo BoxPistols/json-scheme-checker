@@ -22,6 +22,8 @@ class BlogReviewerManager extends BaseAdvisorManager {
         'blog-close-developer-prompt': () => this.closeModal('developerPrompt'),
         'blog-toggle-developer-key-visibility': () => this.toggleDeveloperKeyVisibility(),
         'blog-save-developer-key': () => this.saveDeveloperKey(),
+        'blog-test-developer-connection': () => this.testDeveloperConnection(),
+        'blog-reset-developer-settings': () => this.resetDeveloperSettings(),
         'blog-show-stakeholder-prompt': () => this.showStakeholderPrompt(),
         'blog-show-developer-prompt': () => this.showDeveloperPrompt(),
         'blog-reset-to-normal-mode': () => this.resetToNormalMode(),
@@ -37,6 +39,8 @@ class BlogReviewerManager extends BaseAdvisorManager {
         closeDeveloperPrompt: 'blog-close-developer-prompt',
         toggleDeveloperKeyVisibility: 'blog-toggle-developer-key-visibility',
         saveDeveloperKey: 'blog-save-developer-key',
+        testDeveloperConnection: 'blog-test-developer-connection',
+        resetDeveloperSettings: 'blog-reset-developer-settings',
       },
     };
     super(config);

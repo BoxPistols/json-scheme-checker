@@ -22,6 +22,8 @@ class WebAdvisorManager extends BaseAdvisorManager {
         'web-close-developer-prompt': () => this.closeModal('developerPrompt'),
         'web-toggle-developer-key-visibility': () => this.toggleDeveloperKeyVisibility(),
         'web-save-developer-key': () => this.saveDeveloperKey(),
+        'web-test-developer-connection': () => this.testDeveloperConnection(),
+        'web-reset-developer-settings': () => this.resetDeveloperSettings(),
         'web-show-stakeholder-prompt': () => this.showStakeholderPrompt(),
         'web-show-developer-prompt': () => this.showDeveloperPrompt(),
         'web-reset-to-normal-mode': () => this.resetToNormalMode(),
@@ -37,6 +39,8 @@ class WebAdvisorManager extends BaseAdvisorManager {
         closeDeveloperPrompt: 'web-close-developer-prompt',
         toggleDeveloperKeyVisibility: 'web-toggle-developer-key-visibility',
         saveDeveloperKey: 'web-save-developer-key',
+        testDeveloperConnection: 'web-test-developer-connection',
+        resetDeveloperSettings: 'web-reset-developer-settings',
       },
     };
     super(config);

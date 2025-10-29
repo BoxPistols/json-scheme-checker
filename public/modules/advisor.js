@@ -18,6 +18,8 @@ class AdvisorManager extends BaseAdvisorManager {
         'advisor-close-developer-prompt': () => this.closeDeveloperPrompt(),
         'advisor-toggle-developer-key-visibility': () => this.toggleDeveloperKeyVisibility(),
         'advisor-save-developer-key': () => this.saveDeveloperKey(),
+        'advisor-test-developer-connection': () => this.testDeveloperConnection(),
+        'advisor-reset-developer-settings': () => this.resetDeveloperSettings(),
         'advisor-show-stakeholder-prompt': () => this.showStakeholderPrompt(),
         'advisor-show-developer-prompt': () => this.showDeveloperPrompt(),
         'advisor-reset-to-normal-mode': () => this.resetToNormalMode(),
@@ -33,6 +35,8 @@ class AdvisorManager extends BaseAdvisorManager {
         closeDeveloperPrompt: 'advisor-close-developer-prompt',
         toggleDeveloperKeyVisibility: 'advisor-toggle-developer-key-visibility',
         saveDeveloperKey: 'advisor-save-developer-key',
+        testDeveloperConnection: 'advisor-test-developer-connection',
+        resetDeveloperSettings: 'advisor-reset-developer-settings',
       },
     };
     super(config);
