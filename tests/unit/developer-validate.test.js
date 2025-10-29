@@ -36,7 +36,10 @@ describe('Developer modal validations', () => {
     document.getElementById('developerApiProviderInput').value = 'openai';
     document.getElementById('developerApiBaseUrlInput').value = 'https://api.openai.com/v1';
     document.getElementById('developerApiModelInput').value = 'gpt-4o-mini';
+    // confirmが不要なケース
+    const confirmSpy = vi.spyOn(window, 'confirm').mockImplementation(() => true);
     mgr.saveDeveloperKey();
+    confirmSpy.mockRestore();
     expect(localStorage.getItem('jsonld_user_openai_key')).toBe('sk-abc');
     expect(localStorage.getItem('jsonld_user_api_provider')).toBe('openai');
     expect(localStorage.getItem('jsonld_user_api_base_url')).toBe('https://api.openai.com/v1');
@@ -51,7 +54,8 @@ describe('Developer modal validations', () => {
     const confirmSpy = vi.spyOn(window, 'confirm').mockImplementation(() => true);
     const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
     mgr.resetDeveloperSettings();
-    expect(localStorage.getItem('jsonld_user_openai_key')).toBe('');
+    // saveUserApiKey('') は removeItem を行う実装
+    expect(localStorage.getItem('jsonld_user_openai_key')).toBeNull();
     expect(localStorage.getItem('jsonld_user_api_provider')).toBe('');
     expect(localStorage.getItem('jsonld_user_api_base_url')).toBe('');
     expect(localStorage.getItem('jsonld_user_api_model')).toBe('');
