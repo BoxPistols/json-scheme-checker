@@ -294,26 +294,30 @@ Object.values(networkInterfaces).forEach(interfaces => {
   });
 });
 
-// 0.0.0.0 で全てのネットワークインターフェースでリッスン
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`
-    ================================
-    JSON-LD Proxy Server is running!
-    ================================
+// エクスポートしてテスト可能にしつつ、本実行時のみリッスン
+if (require.main === module) {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`
+      ================================
+      JSON-LD Proxy Server is running!
+      ================================
 
-    [ローカルアクセス]
-    http://localhost:${PORT}
+      [ローカルアクセス]
+      http://localhost:${PORT}
 
-    [ローカルネットワークIP]
-    http://${localIP}:${PORT}
+      [ローカルネットワークIP]
+      http://${localIP}:${PORT}
 
-    Endpoints:
-    - GET  /proxy?url={URL}     - Fetch HTML from URL
-    - POST /extract-jsonld      - Extract JSON-LD from URL
-    - GET  /health              - Health check
+      Endpoints:
+      - GET  /proxy?url={URL}     - Fetch HTML from URL
+      - POST /extract-jsonld      - Extract JSON-LD from URL
+      - GET  /health              - Health check
 
-    NOTE: モバイルデバイスから外部アクセスする場合は ngrok の使用を推奨します:
-    1. ngrok http ${PORT}
-    2. 表示されたHTTPS URLを使用
-    `);
-});
+      NOTE: モバイルデバイスから外部アクセスする場合は ngrok の使用を推奨します:
+      1. ngrok http ${PORT}
+      2. 表示されたHTTPS URLを使用
+      `);
+  });
+}
+
+module.exports = app;
