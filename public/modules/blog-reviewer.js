@@ -329,6 +329,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
     const button = document.createElement('button');
     button.id = 'blogReviewerTriggerBtn';
     button.className = 'advisor-trigger-btn';
+    button.type = 'button';
     button.dataset.action = 'show-blog-confirm-dialog';
     button.innerHTML = `
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -391,11 +392,11 @@ class BlogReviewerManager extends BaseAdvisorManager {
         <div class="advisor-modal-header advisor-modal-header--stack">
           <div class="advisor-modal-header-row">
             <div class="advisor-mode-buttons-small">
-              <button class="advisor-mode-btn-small" data-action="blog-reset-to-normal-mode" title="通常モード（10回/24時間）に戻す">通常モード</button>
-              <button class="advisor-mode-btn-small" data-action="blog-show-stakeholder-prompt" title="関係者は30回/24時間まで利用可能">関係者</button>
-              <button class="advisor-mode-btn-small" data-action="blog-show-developer-prompt" title="自分のAPIキーで無制限利用">MyAPI</button>
+              <button type="button" class="advisor-mode-btn-small" data-action="blog-reset-to-normal-mode" title="通常モード（10回/24時間）に戻す">通常モード</button>
+              <button type="button" class="advisor-mode-btn-small" data-action="blog-show-stakeholder-prompt" title="関係者は30回/24時間まで利用可能">関係者</button>
+              <button type="button" class="advisor-mode-btn-small" data-action="blog-show-developer-prompt" title="自分のAPIキーで無制限利用">MyAPI</button>
             </div>
-            <button class="advisor-modal-close" data-action="blog-close-confirm-dialog">
+            <button type="button" class="advisor-modal-close" data-action="blog-close-confirm-dialog">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               </svg>
@@ -407,8 +408,8 @@ class BlogReviewerManager extends BaseAdvisorManager {
           ${rateLimitHtml}
           <p class="advisor-modal-text advisor-center advisor-muted">SEO観点、EEAT観点、アクセシビリティ観点でブログ記事をレビューします。</p>
           <div class="advisor-confirm-buttons">
-            <button class="advisor-btn-secondary" data-action="blog-close-confirm-dialog">キャンセル</button>
-            <button class="advisor-btn-primary" data-action="blog-start-review">レビュー開始</button>
+            <button type="button" class="advisor-btn-secondary" data-action="blog-close-confirm-dialog">キャンセル</button>
+            <button type="button" class="advisor-btn-primary" data-action="blog-start-review">レビュー開始</button>
           </div>
         </div>
       </div>

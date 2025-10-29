@@ -195,8 +195,8 @@ class BaseAdvisorManager {
             関係者の場合、利用回数が${this.config.MAX_REQUESTS_STAKEHOLDER}回/24時間に増加します
           </p>
           <div class="advisor-confirm-buttons">
-            <button class="advisor-btn-secondary" data-action="${this.config.actions.closeStakeholderPrompt}">いいえ</button>
-            <button class="advisor-btn-primary" data-action="${this.config.actions.confirmStakeholder}">はい</button>
+            <button type="button" class="advisor-btn-secondary" data-action="${this.config.actions.closeStakeholderPrompt}">いいえ</button>
+            <button type="button" class="advisor-btn-primary" data-action="${this.config.actions.confirmStakeholder}">はい</button>
           </div>
         </div>
       </div>
@@ -226,7 +226,7 @@ class BaseAdvisorManager {
       <div class="advisor-modal advisor-developer-modal">
         <div class="advisor-modal-header">
           <h2>Developer/無制限モード</h2>
-          <button class="advisor-modal-close" data-action="${this.config.actions.closeDeveloperPrompt}" aria-label="閉じる">
+          <button type="button" class="advisor-modal-close" data-action="${this.config.actions.closeDeveloperPrompt}" aria-label="閉じる">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             </svg>
@@ -265,10 +265,10 @@ class BaseAdvisorManager {
           </div>
           <p class="advisor-notice">入力したプロバイダ/URL/モデルは.envより優先して使用します（空欄は.envを使用）。</p>
           <div class="advisor-confirm-buttons">
-            <button class="advisor-btn-secondary" data-action="${this.config.actions.resetDeveloperSettings}">初期化</button>
-            <button class="advisor-btn-secondary" data-action="${this.config.actions.testDeveloperConnection}">接続テスト</button>
-            <button class="advisor-btn-secondary" data-action="${this.config.actions.closeDeveloperPrompt}">キャンセル</button>
-            <button class="advisor-btn-primary" data-action="${this.config.actions.saveDeveloperKey}">保存</button>
+            <button type="button" class="advisor-btn-secondary" data-action="${this.config.actions.resetDeveloperSettings}">初期化</button>
+            <button type="button" class="advisor-btn-secondary" data-action="${this.config.actions.testDeveloperConnection}">接続テスト</button>
+            <button type="button" class="advisor-btn-secondary" data-action="${this.config.actions.closeDeveloperPrompt}">キャンセル</button>
+            <button type="button" class="advisor-btn-primary" data-action="${this.config.actions.saveDeveloperKey}">保存</button>
           </div>
         </div>
       </div>
@@ -423,7 +423,7 @@ class BaseAdvisorManager {
   renderViewHeader(title, closeAction) {
     // 旧来の最小デザインに統一（ページごとの差異をなくす）
     return `
-      <div class="advisor-view-header"><h2>${this.escapeHtml(title)}</h2><button data-action="${closeAction}">戻る</button></div>
+      <div class="advisor-view-header"><h2>${this.escapeHtml(title)}</h2><button type="button" data-action="${closeAction}">戻る</button></div>
     `;
   }
 
