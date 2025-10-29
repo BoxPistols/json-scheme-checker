@@ -2564,8 +2564,15 @@ html[data-theme='dark'] .score-breakdown > div {
 }
 
 .advisor-developer-modal {
-  max-width: 500px;
+  max-width: 640px;
 }
+
+/* Developerモーダルの入力幅を統一 */
+.advisor-developer-modal .advisor-field { width: 100%; }
+.advisor-developer-modal .advisor-input { width: 100%; box-sizing: border-box; }
+.advisor-api-key-wrapper { display: flex; align-items: center; gap: 8px; }
+.advisor-api-key-wrapper .advisor-input { flex: 1; }
+.advisor-label { display: block; margin-bottom: 6px; }
 
 .advisor-confirm-buttons {
   display: flex;

@@ -257,6 +257,8 @@ class BaseAdvisorManager {
           </div>
           <p class="advisor-notice">入力したプロバイダ/URL/モデルは.envより優先して使用します（空欄は.envを使用）。</p>
           <div class="advisor-confirm-buttons">
+            <button class="advisor-btn-secondary" data-action="${this.config.actions.resetDeveloperSettings}">初期化</button>
+            <button class="advisor-btn-secondary" data-action="${this.config.actions.testDeveloperConnection}">接続テスト</button>
             <button class="advisor-btn-secondary" data-action="${this.config.actions.closeDeveloperPrompt}">キャンセル</button>
             <button class="advisor-btn-primary" data-action="${this.config.actions.saveDeveloperKey}">保存</button>
           </div>
