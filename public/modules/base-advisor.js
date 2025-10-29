@@ -28,9 +28,17 @@ class BaseAdvisorManager {
       if (!target) return;
 
       const action = target.dataset.action;
-      if (this.config.actionHandlers && this.config.actionHandlers[action]) {
-        event.preventDefault();
-        this.config.actionHandlers[action]();
+      if (!action) return;
+      try {
+        if (this.config.actionHandlers && this.config.actionHandlers[action]) {
+          event.preventDefault();
+          console.debug('[AdvisorEvents]', this.config.elemIdPrefix, 'dispatch', action);
+          this.config.actionHandlers[action]();
+        } else {
+          console.warn('[AdvisorEvents]', this.config.elemIdPrefix, 'no handler for', action);
+        }
+      } catch (e) {
+        console.error('[AdvisorEvents]', this.config.elemIdPrefix, 'handler error for', action, e);
       }
     });
   }
@@ -330,6 +338,7 @@ class BaseAdvisorManager {
   }
 
   async testDeveloperConnection() {
+    console.debug('[BaseAdvisor] testDeveloperConnection: start');
     const key = (document.getElementById('developerApiKeyInput')?.value || '').trim();
     const provider = (document.getElementById('developerApiProviderInput')?.value || '').trim();
     const baseUrl = (document.getElementById('developerApiBaseUrlInput')?.value || '').trim();
@@ -339,6 +348,7 @@ class BaseAdvisorManager {
 
     const isVercel = window.location.hostname.includes('vercel.app');
     const url = isVercel ? '/api/test-connection' : 'http://127.0.0.1:3333/api/test-connection';
+    console.debug('[BaseAdvisor] testDeveloperConnection: url', url, { provider, baseUrl, model });
     try {
       const resp = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userApiKey: key, provider, baseUrl, model }) });
       const data = await resp.json();
@@ -356,6 +366,7 @@ class BaseAdvisorManager {
   }
 
   resetDeveloperSettings() {
+    console.debug('[BaseAdvisor] resetDeveloperSettings: start');
     const ok = window.confirm('Developer/無制限モードの設定を初期化します。よろしいですか？');
     if (!ok) return;
     try {
