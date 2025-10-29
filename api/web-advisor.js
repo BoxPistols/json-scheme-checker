@@ -395,9 +395,35 @@ module.exports = async (req, res) => {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Note: userApiKey is intentionally passed via query parameter for SSE compatibility.
-  // Users provide their own key and are responsible for its security.
-  const { url, userApiKey, provider, baseUrl, model } = req.query;
+  // セキュア化: sessionToken を優先（POSTで発行）
+  const { url, sessionToken, userApiKey: userApiKeyQuery, provider: providerQ, baseUrl: baseUrlQ, model: modelQ } = req.query;
+
+  // セッション取得（存在すればこちらを優先）
+  let userApiKey = null;
+  let provider = null;
+  let baseUrl = null;
+  let model = null;
+  if (sessionToken) {
+    try {
+      const { getSession } = require('./web-advisor-session-store');
+      const s = getSession(sessionToken);
+      if (!s) {
+        return res.status(400).json({ error: 'Invalid or expired sessionToken' });
+      }
+      userApiKey = s.userApiKey || null;
+      provider = s.provider || null;
+      baseUrl = s.baseUrl || null;
+      model = s.model || null;
+    } catch (_) {
+      // 無視してフォールバック
+    }
+  }
+
+  // 後方互換（非推奨）: クエリでの指定を許容
+  if (!userApiKey && userApiKeyQuery) userApiKey = userApiKeyQuery;
+  if (!provider && providerQ) provider = providerQ;
+  if (!baseUrl && baseUrlQ) baseUrl = baseUrlQ;
+  if (!model && modelQ) model = modelQ;
 
   if (!url) {
     return res.status(400).json({ error: 'url parameter is required' });
@@ -410,6 +436,25 @@ module.exports = async (req, res) => {
     const parsedUrl = new URL(url);
     if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
       return res.status(400).json({ error: 'HTTP/HTTPS URLのみサポートされています' });
+    }
+    // SSRF対策: 既定でプライベート/メタデータ範囲を拒否（本番有効、開発はWEB_ADVISOR_SSRF_PROTECT=0で無効化可能）
+    const protect = process.env.WEB_ADVISOR_SSRF_PROTECT !== '0' || process.env.NODE_ENV === 'production';
+    if (protect) {
+      const host = parsedUrl.hostname;
+      const isIp = /^\d+\.\d+\.\d+\.\d+$/.test(host);
+      const blocked =
+        host === 'localhost' ||
+        host === '127.0.0.1' ||
+        host === '::1' ||
+        host === '169.254.169.254' ||
+        (isIp && (
+          host.startsWith('10.') ||
+          host.startsWith('192.168.') ||
+          (host.startsWith('172.') && (() => { const n = parseInt(host.split('.')[1], 10); return n >= 16 && n <= 31; })())
+        ));
+      if (blocked) {
+        return res.status(403).json({ error: 'Private/metadata network is not allowed' });
+      }
     }
   } catch (error) {
     return res.status(400).json({ error: '無効なURL形式です' });

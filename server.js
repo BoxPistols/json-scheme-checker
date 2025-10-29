@@ -269,6 +269,19 @@ app.get('/api/web-advisor', async (req, res) => {
   }
 });
 
+// Web Advisor セッション発行（APIキー等を安全に受け取る）
+app.post('/api/web-advisor/session', express.json(), async (req, res) => {
+  try {
+    const sessionHandler = require('./api/web-advisor-session');
+    await sessionHandler(req, res);
+  } catch (error) {
+    console.error('Web Advisor Session API error:', error);
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Internal server error', details: error.message });
+    }
+  }
+});
+
 // MyAPI 接続テスト（ローカル開発用）
 app.post('/api/test-connection', async (req, res) => {
   try {

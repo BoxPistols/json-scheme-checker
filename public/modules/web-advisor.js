@@ -278,18 +278,34 @@ class WebAdvisorManager extends BaseAdvisorManager {
     }
 
     const isVercel = window.location.hostname.includes('vercel.app');
-    const base = isVercel ? '/api/web-advisor' : 'http://127.0.0.1:3333/api/web-advisor';
-    const params = new URLSearchParams({ url: this.currentUrl });
-    const userKey = this.getUserApiKey?.();
-    if (userKey) params.set('userApiKey', userKey);
-    const provider = this.getUserApiProvider?.();
-    const baseUrl = this.getUserApiBaseUrl?.();
-    const model = this.getUserApiModel?.();
-    if (provider) params.set('provider', provider);
-    if (baseUrl) params.set('baseUrl', baseUrl);
-    if (model) params.set('model', model);
+    const base = isVercel ? '' : 'http://127.0.0.1:3333';
 
-    const url = `${base}?${params.toString()}`;
+    // まずセッション発行（キーやモデル等を安全に送る）
+    let sessionToken = '';
+    try {
+      const payload = {
+        userApiKey: this.getUserApiKey?.() || '',
+        provider: this.getUserApiProvider?.() || '',
+        baseUrl: this.getUserApiBaseUrl?.() || '',
+        model: this.getUserApiModel?.() || '',
+      };
+      const resp = await fetch(`${base}/api/web-advisor/session`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (resp.ok) {
+        const js = await resp.json();
+        sessionToken = js.sessionToken || '';
+      }
+    } catch (_) {
+      // セッションが作れない場合でもSSEは続行（envキーのみで解析可能）
+    }
+
+    const params = new URLSearchParams({ url: this.currentUrl });
+    if (sessionToken) params.set('sessionToken', sessionToken);
+
+    const url = `${base}/api/web-advisor?${params.toString()}`;
 
     try {
       this.isStreaming = true;
