@@ -249,8 +249,11 @@ class BaseAdvisorManager {
             </div>
           </div>
           <div class="advisor-field">
-            <label class="advisor-label" for="developerApiBaseUrlInput">ベースURL（任意・OpenAI互換エンドポイント）</label>
-            <input type="text" id="developerApiBaseUrlInput" placeholder="https://api.openai.com/v1 または互換エンドポイント" value="${currentBaseUrl}" class="advisor-input">
+            <label class="advisor-label" for="developerApiBaseUrlInput">ベースURL（OpenAI互換APIのエンドポイント）</label>
+            <input type="text" id="developerApiBaseUrlInput" placeholder="https://api.openai.com/v1 など" value="${currentBaseUrl}" class="advisor-input">
+            <div class="advisor-help-text">
+              未入力: OpenAI公式を使用（https://api.openai.com/v1）。例: Groq https://api.groq.com/openai/v1 / OpenRouter https://openrouter.ai/api/v1
+            </div>
           </div>
           <p class="advisor-notice">入力したプロバイダ/URL/モデルは.envより優先して使用します（空欄は.envを使用）。</p>
           <div class="advisor-confirm-buttons">
