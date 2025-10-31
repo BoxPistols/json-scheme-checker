@@ -187,7 +187,7 @@ export function renderMetaTab(meta, issues) {
         </tr>
         <tr>
           <td>Canonical</td>
-          <td class="meta-value">${meta.canonical ? `<a href="${escapeHtml(meta.canonical)}" target="_blank">${escapeHtml(meta.canonical)}</a>` : '未設定'}</td>
+          <td class="meta-value">${meta.canonical ? safeAnchor(meta.canonical) : '未設定'}</td>
           <td>${getMetaStatus('canonical', meta, issues)}</td>
         </tr>
         <tr>
@@ -415,4 +415,21 @@ function escapeHtml(text) {
     "'": '&#039;',
   };
   return String(text).replace(/[&<>"']/g, m => map[m]);
+}
+
+function isSafeHttpUrl(u) {
+  try {
+    const parsed = new URL(u);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+function safeAnchor(u, text) {
+  if (!isSafeHttpUrl(u)) return escapeHtml(u || '');
+  const t = text || u;
+  const h = escapeHtml(u);
+  const label = escapeHtml(t);
+  return `<a href="${h}" target="_blank" rel="noopener noreferrer">${label}</a>`;
 }

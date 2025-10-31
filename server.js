@@ -256,6 +256,43 @@ app.post('/api/blog-reviewer', async (req, res) => {
   }
 });
 
+// Web Advisor APIエンドポイント（ローカル開発用）
+app.get('/api/web-advisor', async (req, res) => {
+  try {
+    const webAdvisorHandler = require('./api/web-advisor');
+    await webAdvisorHandler(req, res);
+  } catch (error) {
+    console.error('Web Advisor API error:', error);
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Internal server error', details: error.message });
+    }
+  }
+});
+
+// Web Advisor セッション発行（APIキー等を安全に受け取る）
+app.post('/api/web-advisor/session', express.json(), async (req, res) => {
+  try {
+    const sessionHandler = require('./api/web-advisor-session');
+    await sessionHandler(req, res);
+  } catch (error) {
+    console.error('Web Advisor Session API error:', error);
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Internal server error', details: error.message });
+    }
+  }
+});
+
+// MyAPI 接続テスト（ローカル開発用）
+app.post('/api/test-connection', async (req, res) => {
+  try {
+    const handler = require('./api/test-connection');
+    await handler(req, res);
+  } catch (error) {
+    console.error('Test Connection API error:', error);
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
 // ネットワークIPアドレスを取得
 const os = require('os');
 const networkInterfaces = os.networkInterfaces();
@@ -270,26 +307,30 @@ Object.values(networkInterfaces).forEach(interfaces => {
   });
 });
 
-// 0.0.0.0 で全てのネットワークインターフェースでリッスン
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`
-    ================================
-    JSON-LD Proxy Server is running!
-    ================================
+// エクスポートしてテスト可能にしつつ、本実行時のみリッスン
+if (require.main === module) {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`
+      ================================
+      JSON-LD Proxy Server is running!
+      ================================
 
-    [ローカルアクセス]
-    http://localhost:${PORT}
+      [ローカルアクセス]
+      http://localhost:${PORT}
 
-    [ローカルネットワークIP]
-    http://${localIP}:${PORT}
+      [ローカルネットワークIP]
+      http://${localIP}:${PORT}
 
-    Endpoints:
-    - GET  /proxy?url={URL}     - Fetch HTML from URL
-    - POST /extract-jsonld      - Extract JSON-LD from URL
-    - GET  /health              - Health check
+      Endpoints:
+      - GET  /proxy?url={URL}     - Fetch HTML from URL
+      - POST /extract-jsonld      - Extract JSON-LD from URL
+      - GET  /health              - Health check
 
-    NOTE: モバイルデバイスから外部アクセスする場合は ngrok の使用を推奨します:
-    1. ngrok http ${PORT}
-    2. 表示されたHTTPS URLを使用
-    `);
-});
+      NOTE: モバイルデバイスから外部アクセスする場合は ngrok の使用を推奨します:
+      1. ngrok http ${PORT}
+      2. 表示されたHTTPS URLを使用
+      `);
+  });
+}
+
+module.exports = app;

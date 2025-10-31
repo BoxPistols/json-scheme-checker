@@ -199,7 +199,7 @@ module.exports = async (req, res) => {
 
   try {
     // レート制限チェック（ユーザーのAPIキー使用時はスキップ）
-    const { article, userApiKey } = req.body;
+    const { article, userApiKey, provider, baseUrl, model } = req.body;
     if (!userApiKey) {
       const clientIp = getClientIp(req);
       const rateLimitResult = checkRateLimit(clientIp);
@@ -248,7 +248,7 @@ module.exports = async (req, res) => {
       return res.status(503).json({ error: 'AI分析サービスは現在利用できません' });
     }
 
-    const openai = new OpenAI({ apiKey });
+    const openai = new OpenAI({ apiKey, baseURL: baseUrl || undefined });
 
     const userContent = JSON.stringify(article, null, 2);
 
@@ -257,10 +257,10 @@ module.exports = async (req, res) => {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
-    const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+    const selectedModel = model || process.env.OPENAI_MODEL || 'gpt-4o-mini';
 
     const stream = await openai.chat.completions.create({
-      model,
+      model: selectedModel,
       messages: [
         { role: 'system', content: BLOG_REVIEW_PROMPT },
         { role: 'user', content: userContent },
@@ -271,7 +271,7 @@ module.exports = async (req, res) => {
     });
 
     // モデル情報を最初に通知（フロントで料金計算モデル自動選択用）
-    res.write(`data: ${JSON.stringify({ model })}\n\n`);
+    res.write(`data: ${JSON.stringify({ model: selectedModel })}\n\n`);
 
     for await (const chunk of stream) {
       const content = chunk.choices[0]?.delta?.content;

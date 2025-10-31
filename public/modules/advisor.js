@@ -18,6 +18,8 @@ class AdvisorManager extends BaseAdvisorManager {
         'advisor-close-developer-prompt': () => this.closeDeveloperPrompt(),
         'advisor-toggle-developer-key-visibility': () => this.toggleDeveloperKeyVisibility(),
         'advisor-save-developer-key': () => this.saveDeveloperKey(),
+        'advisor-test-developer-connection': () => this.testDeveloperConnection(),
+        'advisor-reset-developer-settings': () => this.resetDeveloperSettings(),
         'advisor-show-stakeholder-prompt': () => this.showStakeholderPrompt(),
         'advisor-show-developer-prompt': () => this.showDeveloperPrompt(),
         'advisor-reset-to-normal-mode': () => this.resetToNormalMode(),
@@ -33,6 +35,8 @@ class AdvisorManager extends BaseAdvisorManager {
         closeDeveloperPrompt: 'advisor-close-developer-prompt',
         toggleDeveloperKeyVisibility: 'advisor-toggle-developer-key-visibility',
         saveDeveloperKey: 'advisor-save-developer-key',
+        testDeveloperConnection: 'advisor-test-developer-connection',
+        resetDeveloperSettings: 'advisor-reset-developer-settings',
       },
     };
     super(config);
@@ -41,7 +45,7 @@ class AdvisorManager extends BaseAdvisorManager {
     this.currentMode = null;
     this.isStreaming = false;
     this.currentUsage = null;
-    this.currentModel = 'gpt-4o-mini'; // デフォルトモデル
+    this.currentModel = window.ADVISOR_CONST.DEFAULT_MODEL; // デフォルトモデル
   }
 
   detectJobPosting(jsonLdData) {
@@ -56,15 +60,16 @@ class AdvisorManager extends BaseAdvisorManager {
   }
 
   showAdvisorButton() {
-    const resultDiv = document.getElementById('results');
-    if (!resultDiv || document.getElementById('advisorTriggerBtn')) return;
+    const actionsContainer = document.getElementById('aiActions') || document.getElementById('results');
+    if (!actionsContainer || document.getElementById('advisorTriggerBtn')) return;
 
     const button = document.createElement('button');
     button.id = 'advisorTriggerBtn';
     button.className = 'advisor-trigger-btn';
-    button.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="white"/></svg> 求人/求職アドバイスを受ける`;
+    button.type = 'button';
+    button.innerHTML = `<svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"white\"><path d=\"M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z\" fill=\"white\"/></svg> 求人/求職アドバイスを受ける`;
     button.onclick = () => this.showModeSelector();
-    resultDiv.insertBefore(button, resultDiv.firstChild);
+    actionsContainer.insertBefore(button, actionsContainer.firstChild);
   }
 
   hideAdvisorButton() {
@@ -84,24 +89,24 @@ class AdvisorManager extends BaseAdvisorManager {
 
     const overlay = this.createModal('ModeOverlay', `
       <div class="advisor-modal">
-        <div class="advisor-modal-header" style="flex-direction: column; align-items: stretch;">
-           <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px;">
+        <div class="advisor-modal-header advisor-modal-header--stack">
+           <div class="advisor-modal-header-row">
             <div class="advisor-mode-buttons-small">
-              <button class="advisor-mode-btn-small" data-action="advisor-reset-to-normal-mode">通常モード</button>
-              <button class="advisor-mode-btn-small" data-action="advisor-show-stakeholder-prompt">関係者</button>
-              <button class="advisor-mode-btn-small" data-action="advisor-show-developer-prompt">MyAPI</button>
+              <button type="button" class="advisor-mode-btn-small" data-action="advisor-reset-to-normal-mode">通常モード</button>
+              <button type="button" class="advisor-mode-btn-small" data-action="advisor-show-stakeholder-prompt">関係者</button>
+              <button type="button" class="advisor-mode-btn-small" data-action="advisor-show-developer-prompt">MyAPI</button>
             </div>
-            <button class="advisor-modal-close" data-action="advisor-close-mode-overlay"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor"/></svg></button>
+            <button type="button" class="advisor-modal-close" data-action="advisor-close-mode-overlay"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor"/></svg></button>
           </div>
           <h2>どちらの視点でアドバイスしますか？</h2>
         </div>
         <div class="advisor-modal-body">
           ${rateLimitHtml}
           <div class="advisor-mode-buttons-grid">
-            <button class="advisor-mode-btn" data-action="advisor-start-employer">
+            <button type="button" class="advisor-mode-btn" data-action="advisor-start-employer">
               <h3>採用側向け</h3><p>求人票をレビューし改善提案を提供</p>
             </button>
-            <button class="advisor-mode-btn" data-action="advisor-start-applicant">
+            <button type="button" class="advisor-mode-btn" data-action="advisor-start-applicant">
               <h3>応募者向け</h3><p>面接対策と要件傾向の分析を提供</p>
             </button>
           </div>
@@ -211,7 +216,7 @@ class AdvisorManager extends BaseAdvisorManager {
         }
       }
     } catch (error) {
-      adviceContent.innerHTML = `<div class="advisor-error"><p>AI分析に失敗しました</p><button data-action="advisor-fetch-advice">再試行</button></div>`;
+      adviceContent.innerHTML = `<div class="advisor-error"><p>AI分析に失敗しました</p><button type="button" data-action="advisor-fetch-advice">再試行</button></div>`;
     }
   }
 
