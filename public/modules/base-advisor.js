@@ -1,5 +1,15 @@
 // Base Advisor Module - Common functionality for AI-powered advisors
 
+// グローバル定数（マジックナンバー排除）
+window.ADVISOR_CONST = window.ADVISOR_CONST || {
+  DEFAULT_MODEL: 'gpt-4.1-nano',
+  TOKENS_PER_UNIT: 1000,
+  USD_TO_JPY_RATE: 150,
+  RATE_LIMIT: { NORMAL: 10, STAKEHOLDER: 30 },
+  ARTICLE: { MAX_BODY_LENGTH: 1000, MIN_BODY_LEN: 100 },
+  USAGE_MODE: { SESSION: 'session', PERMANENT: 'permanent' },
+};
+
 class BaseAdvisorManager {
   constructor(config) {
     if (!config) {
@@ -18,9 +28,17 @@ class BaseAdvisorManager {
       if (!target) return;
 
       const action = target.dataset.action;
-      if (this.config.actionHandlers && this.config.actionHandlers[action]) {
-        event.preventDefault();
-        this.config.actionHandlers[action]();
+      if (!action) return;
+      try {
+        if (this.config.actionHandlers && this.config.actionHandlers[action]) {
+          event.preventDefault();
+          console.debug('[AdvisorEvents]', this.config.elemIdPrefix, 'dispatch', action);
+          this.config.actionHandlers[action]();
+        } else {
+          console.warn('[AdvisorEvents]', this.config.elemIdPrefix, 'no handler for', action);
+        }
+      } catch (e) {
+        console.error('[AdvisorEvents]', this.config.elemIdPrefix, 'handler error for', action, e);
       }
     });
   }
@@ -98,11 +116,47 @@ class BaseAdvisorManager {
     return localStorage.getItem(this.config.USER_API_KEY);
   }
 
+  getUserApiProvider() {
+    return localStorage.getItem('jsonld_user_api_provider') || '';
+  }
+
+  getUserApiBaseUrl() {
+    return localStorage.getItem('jsonld_user_api_base_url') || '';
+  }
+
+  getUserApiModel() {
+    return localStorage.getItem('jsonld_user_api_model') || '';
+  }
+
   saveUserApiKey(apiKey) {
     if (apiKey && apiKey.trim()) {
       localStorage.setItem(this.config.USER_API_KEY, apiKey.trim());
     } else {
       localStorage.removeItem(this.config.USER_API_KEY);
+    }
+  }
+
+  saveUserApiProvider(provider) {
+    if (provider && provider.trim()) {
+      localStorage.setItem('jsonld_user_api_provider', provider.trim());
+    } else {
+      localStorage.removeItem('jsonld_user_api_provider');
+    }
+  }
+
+  saveUserApiBaseUrl(baseUrl) {
+    if (baseUrl && baseUrl.trim()) {
+      localStorage.setItem('jsonld_user_api_base_url', baseUrl.trim());
+    } else {
+      localStorage.removeItem('jsonld_user_api_base_url');
+    }
+  }
+
+  saveUserApiModel(model) {
+    if (model && model.trim()) {
+      localStorage.setItem('jsonld_user_api_model', model.trim());
+    } else {
+      localStorage.removeItem('jsonld_user_api_model');
     }
   }
 
@@ -132,21 +186,24 @@ class BaseAdvisorManager {
    * Shows a prompt for stakeholder confirmation.
    */
   showStakeholderPrompt() {
-    const overlay = this.createModal('stakeholderPrompt', `
+    const overlay = this.createModal(
+      'stakeholderPrompt',
+      `
       <div class="advisor-modal advisor-confirm-modal">
         <div class="advisor-modal-header"><h2>関係者確認</h2></div>
         <div class="advisor-modal-body">
-          <p style="margin-bottom: 20px; text-align: center;">あなたは関係者ですか？</p>
-          <p style="font-size: 0.85rem; color: var(--secondary-text-color); margin-bottom: 20px; text-align: center;">
+          <p class="advisor-modal-text advisor-center">あなたは関係者ですか？</p>
+          <p class="advisor-notice advisor-center">
             関係者の場合、利用回数が${this.config.MAX_REQUESTS_STAKEHOLDER}回/24時間に増加します
           </p>
           <div class="advisor-confirm-buttons">
-            <button class="advisor-btn-secondary" data-action="${this.config.actions.closeStakeholderPrompt}">いいえ</button>
-            <button class="advisor-btn-primary" data-action="${this.config.actions.confirmStakeholder}">はい</button>
+            <button type="button" class="advisor-btn-secondary" data-action="${this.config.actions.closeStakeholderPrompt}">いいえ</button>
+            <button type="button" class="advisor-btn-primary" data-action="${this.config.actions.confirmStakeholder}">はい</button>
           </div>
         </div>
       </div>
-    `);
+    `
+    );
     this.addEscapeKeyListener(overlay, this.config.ui.closeStakeholderPrompt);
   }
 
@@ -165,34 +222,63 @@ class BaseAdvisorManager {
    */
   showDeveloperPrompt() {
     const currentKey = this.getUserApiKey() || '';
-    const overlay = this.createModal('developerPrompt', `
+    const currentProvider = this.getUserApiProvider();
+    const currentBaseUrl = this.getUserApiBaseUrl();
+    const currentModel = this.getUserApiModel();
+    const overlay = this.createModal(
+      'developerPrompt',
+      `
       <div class="advisor-modal advisor-developer-modal">
         <div class="advisor-modal-header">
           <h2>Developer/無制限モード</h2>
-          <button class="advisor-modal-close" data-action="${this.config.actions.closeDeveloperPrompt}" aria-label="閉じる">
+          <button type="button" class="advisor-modal-close" data-action="${this.config.actions.closeDeveloperPrompt}" aria-label="閉じる">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             </svg>
           </button>
         </div>
         <div class="advisor-modal-body">
-          <p>自分のOpenAI APIキーを使用すると、無制限で利用できます。</p>
-          <div class="advisor-api-key-wrapper">
-            <input type="password" id="developerApiKeyInput" placeholder="sk-proj-..." value="${currentKey}" class="advisor-input">
-            <button type="button" data-action="${this.config.actions.toggleDeveloperKeyVisibility}" class="advisor-btn-icon" title="表示/非表示">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
-              </svg>
-            </button>
+          <p>自分のAPIを使用すると、無制限で利用できます。未入力は環境設定を使用します。</p>
+          <div class="advisor-field">
+            <label class="advisor-label" for="developerApiKeyInput">APIキー</label>
+            <div class="advisor-api-key-wrapper">
+              <input type="password" id="developerApiKeyInput" placeholder="sk-... / az-..." value="${currentKey}" class="advisor-input">
+              <button type="button" data-action="${this.config.actions.toggleDeveloperKeyVisibility}" class="advisor-btn-icon" title="表示/非表示">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </button>
+            </div>
           </div>
-          <p class="advisor-notice">このAPIキーはブラウザにのみ保存され、サーバーには送信されません。</p>
+          <div class="advisor-grid-2">
+            <div class="advisor-field">
+              <label class="advisor-label" for="developerApiProviderInput">プロバイダ</label>
+              <input type="text" id="developerApiProviderInput" placeholder="openai / azure / groq / other" value="${currentProvider}" class="advisor-input">
+            </div>
+            <div class="advisor-field">
+              <label class="advisor-label" for="developerApiModelInput">モデル名</label>
+              <input type="text" id="developerApiModelInput" value="${currentModel}" class="advisor-input">
+              <div class="advisor-help-text">例: gpt-4.1-nano（空なら既定: ${window.ADVISOR_CONST.DEFAULT_MODEL}）</div>
+            </div>
+          </div>
+          <div class="advisor-field">
+            <label class="advisor-label" for="developerApiBaseUrlInput">ベースURL（OpenAI互換APIのエンドポイント）</label>
+            <input type="text" id="developerApiBaseUrlInput" placeholder="https://api.openai.com/v1 など" value="${currentBaseUrl}" class="advisor-input">
+            <div class="advisor-help-text">
+              未入力: OpenAI公式を使用（https://api.openai.com/v1）。例: Groq https://api.groq.com/openai/v1 / OpenRouter https://openrouter.ai/api/v1
+            </div>
+          </div>
+          <p class="advisor-notice">入力したプロバイダ/URL/モデルは.envより優先して使用します（空欄は.envを使用）。</p>
           <div class="advisor-confirm-buttons">
-            <button class="advisor-btn-secondary" data-action="${this.config.actions.closeDeveloperPrompt}">キャンセル</button>
-            <button class="advisor-btn-primary" data-action="${this.config.actions.saveDeveloperKey}">保存</button>
+            <button type="button" class="advisor-btn-secondary" data-action="${this.config.actions.resetDeveloperSettings}">初期化</button>
+            <button type="button" class="advisor-btn-secondary" data-action="${this.config.actions.testDeveloperConnection}">接続テスト</button>
+            <button type="button" class="advisor-btn-secondary" data-action="${this.config.actions.closeDeveloperPrompt}">キャンセル</button>
+            <button type="button" class="advisor-btn-primary" data-action="${this.config.actions.saveDeveloperKey}">保存</button>
           </div>
         </div>
       </div>
-    `);
+    `
+    );
     this.addEscapeKeyListener(overlay, this.config.ui.closeDeveloperPrompt);
   }
 
@@ -201,18 +287,123 @@ class BaseAdvisorManager {
   }
 
   saveDeveloperKey() {
-    const input = document.getElementById('developerApiKeyInput');
-    if (input) {
-      this.saveUserApiKey(input.value.trim());
-      this.closeDeveloperPrompt();
-      this.config.ui.showConfirmDialog();
+    const keyInput = document.getElementById('developerApiKeyInput');
+    const providerInput = document.getElementById('developerApiProviderInput');
+    const baseUrlInput = document.getElementById('developerApiBaseUrlInput');
+    const modelInput = document.getElementById('developerApiModelInput');
+
+    const rawKey = keyInput?.value ?? '';
+    const rawProvider = providerInput?.value ?? '';
+    const rawBaseUrl = baseUrlInput?.value ?? '';
+    const rawModel = modelInput?.value ?? '';
+
+    // 空白のみの保存を禁止
+    if ([rawKey, rawProvider, rawBaseUrl, rawModel].some(v => v && v.trim() === '')) {
+      alert('空白のみの入力は保存できません。値を入力するか、空欄にしてください。');
+      return;
     }
+
+    const key = rawKey.trim();
+    const provider = rawProvider.trim();
+    const baseUrl = rawBaseUrl.trim();
+    const model = rawModel.trim();
+
+    // baseUrl形式チェック（入力がある場合のみ）
+    if (baseUrl) {
+      try {
+        const u = new URL(baseUrl);
+        if (!['http:', 'https:'].includes(u.protocol)) throw new Error('protocol');
+      } catch {
+        alert('ベースURLが不正です。http(s)から始まる有効なURLを入力してください。');
+        return;
+      }
+    }
+
+    // すべて空で保存する場合は最終確認（.env既定にフォールバック）
+    const allEmpty = !key && !provider && !baseUrl && !model;
+    if (allEmpty) {
+      const ok = window.confirm(
+        'すべて空の状態で保存します。環境既定（.env）を使用します。よろしいですか？'
+      );
+      if (!ok) return;
+    }
+
+    // ここまで通れば保存（空は削除＝.envフォールバック）
+    if (keyInput) this.saveUserApiKey(key);
+    if (providerInput) this.saveUserApiProvider(provider);
+    if (baseUrlInput) this.saveUserApiBaseUrl(baseUrl);
+    if (modelInput) this.saveUserApiModel(model);
+
+    this.closeDeveloperPrompt();
+    this.config.ui.showConfirmDialog();
   }
 
   toggleDeveloperKeyVisibility() {
     const input = document.getElementById('developerApiKeyInput');
     if (input) {
       input.type = input.type === 'password' ? 'text' : 'password';
+    }
+  }
+
+  async testDeveloperConnection() {
+    console.debug('[BaseAdvisor] testDeveloperConnection: start');
+    const key = (document.getElementById('developerApiKeyInput')?.value || '').trim();
+    const provider = (document.getElementById('developerApiProviderInput')?.value || '').trim();
+    const baseUrl = (document.getElementById('developerApiBaseUrlInput')?.value || '').trim();
+    const model = (document.getElementById('developerApiModelInput')?.value || '').trim();
+
+    if (!key) {
+      alert('APIキーを入力してください');
+      return;
+    }
+
+    const isVercel = window.location.hostname.includes('vercel.app');
+    const url = isVercel ? '/api/test-connection' : 'http://127.0.0.1:3333/api/test-connection';
+    console.debug('[BaseAdvisor] testDeveloperConnection: url', url, { provider, baseUrl, model });
+    try {
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userApiKey: key, provider, baseUrl, model }),
+      });
+      const data = await resp.json();
+      if (!resp.ok || !data.ok) throw new Error(data.error || `HTTP ${resp.status}`);
+      localStorage.setItem(
+        'jsonld_user_api_last_test',
+        JSON.stringify({ ok: true, at: Date.now(), provider: data.provider, model: data.model })
+      );
+      const status = document.getElementById('developerApiStatus');
+      if (status)
+        status.querySelector('.advisor-status-chip:last-child').textContent = '接続: 正常';
+      alert(`接続に成功しました\nprovider: ${data.provider}\nmodel: ${data.model}`);
+    } catch (e) {
+      localStorage.setItem(
+        'jsonld_user_api_last_test',
+        JSON.stringify({ ok: false, at: Date.now(), error: e.message })
+      );
+      const status = document.getElementById('developerApiStatus');
+      if (status)
+        status.querySelector('.advisor-status-chip:last-child').textContent = '接続: 失敗';
+      alert(`接続に失敗しました: ${e.message}`);
+    }
+  }
+
+  resetDeveloperSettings() {
+    console.debug('[BaseAdvisor] resetDeveloperSettings: start');
+    const ok = window.confirm('Developer/無制限モードの設定を初期化します。よろしいですか？');
+    if (!ok) return;
+    try {
+      this.saveUserApiKey('');
+      this.saveUserApiProvider('');
+      this.saveUserApiBaseUrl('');
+      this.saveUserApiModel('');
+      alert('Developer設定を初期化しました（環境既定に戻ります）。');
+      // 再描画
+      this.closeDeveloperPrompt();
+      this.showDeveloperPrompt();
+    } catch (e) {
+      alert('初期化に失敗しました。再度お試しください。');
+      console.error(e);
     }
   }
 
@@ -255,7 +446,7 @@ class BaseAdvisorManager {
   renderViewHeader(title, closeAction) {
     // 旧来の最小デザインに統一（ページごとの差異をなくす）
     return `
-      <div class="advisor-view-header"><h2>${this.escapeHtml(title)}</h2><button data-action="${closeAction}">戻る</button></div>
+      <div class="advisor-view-header"><h2>${this.escapeHtml(title)}</h2><button type="button" data-action="${closeAction}">戻る</button></div>
     `;
   }
 
@@ -265,29 +456,34 @@ class BaseAdvisorManager {
    * @returns {object} 価格情報 {input: number, output: number}
    */
   getModelPricing(model) {
+    // 料金は per 1K tokens（OpenAI公式料金 per 1M を 1000 で割った値、2025年版）
     const prices = {
-      'gpt-4o-mini': { input: 0.00015, output: 0.0006 },
-      'gpt-4o': { input: 0.005, output: 0.015 },
-      'gpt-4-turbo': { input: 0.01, output: 0.03 },
-      'gpt-3.5-turbo': { input: 0.0005, output: 0.0015 },
-      'gpt-4.1-mini': { input: 0.00015, output: 0.0006 },
-      'gpt-4.1': { input: 0.003, output: 0.015 },
-      'gpt-4.1-nano': { input: 0.00015, output: 0.0006 },
-      'o3-mini': { input: 0.0006, output: 0.0024 },
-      'o3': { input: 0.003, output: 0.015 },
+      // GPT-4.1 シリーズ
+      'gpt-4.1-nano': { input: 0.0001, output: 0.0004 },      // $0.10/1M, $0.40/1M
+      'gpt-4.1-mini': { input: 0.0004, output: 0.0016 },      // $0.40/1M, $1.60/1M
+      'gpt-4.1': { input: 0.002, output: 0.008 },             // $2.00/1M, $8.00/1M
+      // GPT-4o シリーズ
+      'gpt-4o-mini': { input: 0.00015, output: 0.0006 },      // $0.15/1M, $0.60/1M
+      'gpt-4o': { input: 0.0025, output: 0.01 },              // $2.50/1M, $10.00/1M
+      'gpt-4-turbo': { input: 0.01, output: 0.03 },           // $10.00/1M, $30.00/1M
+      // GPT-3.5
+      'gpt-3.5-turbo': { input: 0.0005, output: 0.0015 },     // $0.50/1M, $1.50/1M
+      // o3 シリーズ
+      'o3-mini': { input: 0.0011, output: 0.0044 },           // $1.10/1M, $4.40/1M
+      'o3': { input: 0.02, output: 0.08 },                    // $20.00/1M, $80.00/1M
     };
 
     // モデル名のバリデーション
     if (!model || typeof model !== 'string') {
-      console.warn('[BaseAdvisor] Invalid model name:', model, 'Using default: gpt-4o-mini');
-      return prices['gpt-4o-mini'];
+      console.warn('[BaseAdvisor] Invalid model name:', model, 'Using default: gpt-4.1-nano');
+      return prices['gpt-4.1-nano'];
     }
 
     if (!prices[model]) {
-      console.warn('[BaseAdvisor] Unknown model:', model, 'Using default: gpt-4o-mini');
+      console.warn('[BaseAdvisor] Unknown model:', model, 'Using default: gpt-4.1-nano');
     }
 
-    return prices[model] || prices['gpt-4o-mini'];
+    return prices[model] || prices['gpt-4.1-nano'];
   }
 
   /**
@@ -296,10 +492,10 @@ class BaseAdvisorManager {
    * @param {number} usage.prompt_tokens - 入力トークン数
    * @param {number} usage.completion_tokens - 出力トークン数
    * @param {number} usage.total_tokens - 合計トークン数
-   * @param {string} [model='gpt-4o-mini'] - 使用したモデル名
+   * @param {string} [model='gpt-4.1-nano'] - 使用したモデル名
    * @returns {string} HTML文字列
    */
-  renderApiUsagePanel(usage, model = 'gpt-4o-mini') {
+  renderApiUsagePanel(usage, model = window.ADVISOR_CONST.DEFAULT_MODEL) {
     if (!usage) return '';
 
     // 入力パラメータのバリデーション
@@ -350,4 +546,9 @@ class BaseAdvisorManager {
       </div>
     `;
   }
+}
+
+// Node.js用のテストエクスポート（ブラウザ実行には影響なし）
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { BaseAdvisorManager };
 }

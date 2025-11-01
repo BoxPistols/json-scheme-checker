@@ -125,7 +125,7 @@ POST /api/blog-reviewer
 ```bash
 # .env
 OPENAI_API_KEY=sk-...  # サーバー側で管理
-OPENAI_MODEL=gpt-4o-mini
+OPENAI_MODEL=gpt-4.1-nano
 ```
 
 **メリット**: サーバー側で統一管理

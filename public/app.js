@@ -398,6 +398,9 @@ function handleStorageMethodChange() {
 const AUTH_STORAGE_KEY = 'jsonld_basic_auth';
 const DOMAIN_AUTH_PREFIX = 'jsonld_auth_';
 const STORAGE_METHOD_KEY = 'jsonld_storage_method';
+// 折りたたみ状態の保存キー
+const COLLAPSE_SAMPLE_LINKS_KEY = 'jsonld_ui_sample_links_open';
+const COLLAPSE_SUMMARY_CARD_KEY = 'jsonld_ui_summary_card_open';
 
 // サンプルURLの管理
 const SAMPLE_URLS_KEY = 'jsonld_sample_urls';
@@ -1155,7 +1158,7 @@ Express: server.js に app.use(cors()) を追加
     }
 
     if (schemas.length === 0) {
-      showNoData();
+      showNoData(url);
     } else {
       displaySchemas(schemas, url);
     }
@@ -1264,6 +1267,10 @@ function displaySchemas(schemas, url) {
   // Blog Reviewer: Article/BlogPosting検出
   if (typeof blogReviewerManager !== 'undefined') {
     blogReviewerManager.detectBlogPost(schemas);
+  }
+  // Web Advisor: スキーマ無し/WebPageのみ検出
+  if (typeof webAdvisorManager !== 'undefined') {
+    webAdvisorManager.detectNoSchemaOrWebPageOnly(schemas, url);
   }
 }
 
@@ -1682,7 +1689,7 @@ async function copyToClipboard(elementId, button) {
   }
 }
 
-function showNoData() {
+function showNoData(url) {
   const container = document.getElementById('schemasContainer');
   container.innerHTML = `
                 <div class="no-data">
@@ -1690,8 +1697,25 @@ function showNoData() {
                     <p>このページには構造化データが含まれていないようです</p>
                 </div>
             `;
+
+  // 既存のアドバイザーボタンをクリーンアップ（重複防止）
+  if (typeof advisorManager !== 'undefined' && advisorManager?.hideAdvisorButton) {
+    advisorManager.hideAdvisorButton();
+  }
+  if (typeof blogReviewerManager !== 'undefined' && blogReviewerManager?.hideReviewButton) {
+    blogReviewerManager.hideReviewButton();
+  }
+  if (typeof webAdvisorManager !== 'undefined' && webAdvisorManager?.hideAnalysisButton) {
+    webAdvisorManager.hideAnalysisButton();
+  }
+
   showResults();
   showSnackbar('JSON-LDスキーマが見つかりませんでした', 'warning', 4000);
+  
+  // Web Advisor: スキーマ無し検出
+  if (typeof webAdvisorManager !== 'undefined' && url) {
+    webAdvisorManager.detectNoSchemaOrWebPageOnly([], url);
+  }
 }
 
 function showLoading(show) {

@@ -22,6 +22,8 @@ class BlogReviewerManager extends BaseAdvisorManager {
         'blog-close-developer-prompt': () => this.closeModal('developerPrompt'),
         'blog-toggle-developer-key-visibility': () => this.toggleDeveloperKeyVisibility(),
         'blog-save-developer-key': () => this.saveDeveloperKey(),
+        'blog-test-developer-connection': () => this.testDeveloperConnection(),
+        'blog-reset-developer-settings': () => this.resetDeveloperSettings(),
         'blog-show-stakeholder-prompt': () => this.showStakeholderPrompt(),
         'blog-show-developer-prompt': () => this.showDeveloperPrompt(),
         'blog-reset-to-normal-mode': () => this.resetToNormalMode(),
@@ -37,6 +39,8 @@ class BlogReviewerManager extends BaseAdvisorManager {
         closeDeveloperPrompt: 'blog-close-developer-prompt',
         toggleDeveloperKeyVisibility: 'blog-toggle-developer-key-visibility',
         saveDeveloperKey: 'blog-save-developer-key',
+        testDeveloperConnection: 'blog-test-developer-connection',
+        resetDeveloperSettings: 'blog-reset-developer-settings',
       },
     };
     super(config);
@@ -45,6 +49,25 @@ class BlogReviewerManager extends BaseAdvisorManager {
     this.isStreaming = false;
     this.currentUsage = null;
     this.remoteDoc = null;
+    this.model = this.getSelectedModel();
+  }
+
+  /**
+   * 現在選択されているモデルを取得
+   * @returns {string} モデル名
+   */
+  getSelectedModel() {
+    return localStorage.getItem('jsonld_blog_reviewer_model') || window.ADVISOR_CONST.DEFAULT_MODEL;
+  }
+
+  /**
+   * モデルを選択して保存
+   * @param {string} model - 選択されたモデル名
+   */
+  setSelectedModel(model) {
+    this.model = model;
+    localStorage.setItem('jsonld_blog_reviewer_model', model);
+    console.log(`[BlogReviewer] Model set to: ${model}`);
   }
 
   // getModelPricingメソッドは削除（BaseAdvisorManagerの共通メソッドを使用）
@@ -64,8 +87,6 @@ class BlogReviewerManager extends BaseAdvisorManager {
       this.remoteDoc = null;
     }
   }
-
-
 
   /**
    * Article/BlogPostingスキーマを検出してレビューボタンを表示
@@ -269,13 +290,14 @@ class BlogReviewerManager extends BaseAdvisorManager {
    * レビューボタンを表示
    */
   showReviewButton() {
-    const resultDiv = document.getElementById('results');
+    const actionsContainer =
+      document.getElementById('aiActions') || document.getElementById('results');
     console.log('[BlogReviewerManager] showReviewButton called');
-    console.log('[BlogReviewerManager] results div:', resultDiv);
-    console.log('[BlogReviewerManager] results div found:', !!resultDiv);
+    console.log('[BlogReviewerManager] actions container:', actionsContainer);
+    console.log('[BlogReviewerManager] actions container found:', !!actionsContainer);
 
-    if (!resultDiv) {
-      console.error('[BlogReviewerManager] ERROR: results div not found');
+    if (!actionsContainer) {
+      console.error('[BlogReviewerManager] ERROR: actions container not found');
       // フォールバック: schemasContainerを探す
       const schemasContainer = document.getElementById('schemasContainer');
       if (schemasContainer) {
@@ -294,7 +316,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
     }
 
     const button = this.createReviewButton();
-    resultDiv.insertBefore(button, resultDiv.firstChild);
+    actionsContainer.insertBefore(button, actionsContainer.firstChild);
     console.log('[BlogReviewerManager] Review button inserted into DOM');
   }
 
@@ -306,6 +328,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
     const button = document.createElement('button');
     button.id = 'blogReviewerTriggerBtn';
     button.className = 'advisor-trigger-btn';
+    button.type = 'button';
     button.dataset.action = 'show-blog-confirm-dialog';
     button.innerHTML = `
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -365,37 +388,27 @@ class BlogReviewerManager extends BaseAdvisorManager {
     overlay.className = 'advisor-overlay';
     overlay.innerHTML = `
       <div class="advisor-modal">
-        <div class="advisor-modal-header" style="display: flex; flex-direction: column; align-items: stretch;">
-          <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px;">
+        <div class="advisor-modal-header advisor-modal-header--stack">
+          <div class="advisor-modal-header-row">
             <div class="advisor-mode-buttons-small">
-              <button class="advisor-mode-btn-small" data-action="blog-reset-to-normal-mode" title="通常モード（10回/24時間）に戻す">
-                通常モード
-              </button>
-              <button class="advisor-mode-btn-small" data-action="blog-show-stakeholder-prompt" title="関係者は30回/24時間まで利用可能">
-                関係者
-              </button>
-              <button class="advisor-mode-btn-small" data-action="blog-show-developer-prompt" title="自分のAPIキーで無制限利用">
-                MyAPI
-              </button>
+              <button type="button" class="advisor-mode-btn-small" data-action="blog-reset-to-normal-mode" title="通常モード（10回/24時間）に戻す">通常モード</button>
+              <button type="button" class="advisor-mode-btn-small" data-action="blog-show-stakeholder-prompt" title="関係者は30回/24時間まで利用可能">関係者</button>
+              <button type="button" class="advisor-mode-btn-small" data-action="blog-show-developer-prompt" title="自分のAPIキーで無制限利用">MyAPI</button>
             </div>
-            <button class="advisor-modal-close" data-action="blog-close-confirm-dialog">
+            <button type="button" class="advisor-modal-close" data-action="blog-close-confirm-dialog">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               </svg>
             </button>
           </div>
-          <h2 style="margin: 0; width: 100%;">ブログ記事レビュー</h2>
+          <h2>ブログ記事レビュー</h2>
         </div>
         <div class="advisor-modal-body">
           ${rateLimitHtml}
-
-          <p style="margin: 20px 0; text-align: center; font-size: 0.95rem;">
-            SEO観点、EEAT観点、アクセシビリティ観点でブログ記事をレビューします。
-          </p>
-
+          <p class="advisor-modal-text advisor-center advisor-muted">SEO観点、EEAT観点、アクセシビリティ観点でブログ記事をレビューします。</p>
           <div class="advisor-confirm-buttons">
-            <button class="advisor-btn-secondary" data-action="blog-close-confirm-dialog">キャンセル</button>
-            <button class="advisor-btn-primary" data-action="blog-start-review">レビュー開始</button>
+            <button type="button" class="advisor-btn-secondary" data-action="blog-close-confirm-dialog">キャンセル</button>
+            <button type="button" class="advisor-btn-primary" data-action="blog-start-review">レビュー開始</button>
           </div>
         </div>
       </div>
@@ -460,12 +473,16 @@ class BlogReviewerManager extends BaseAdvisorManager {
     const reviewView = document.createElement('div');
     reviewView.id = 'blogReviewerView';
     reviewView.className = 'advisor-view';
-    const headerHtml = this.renderViewHeader('ブログ記事レビュー', 'blog-close-review-view', `
+    const headerHtml = this.renderViewHeader(
+      'ブログ記事レビュー',
+      'blog-close-review-view',
+      `
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-    `);
+    `
+    );
     reviewView.innerHTML = `
       ${headerHtml}
       <div class="advisor-view-content">
@@ -557,7 +574,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
       <div class="job-field">
         <label>本文</label>
         <div class="job-value job-description">
-          ${this.escapeHtml(articleBody)}${isTruncated ? '<span style="color: var(--secondary-text-color);">...（省略）</span>' : ''}
+          ${this.escapeHtml(articleBody)}${isTruncated ? '<span class="text-muted">...（省略）</span>' : ''}
         </div>
       </div>
       `
@@ -589,6 +606,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
         body: JSON.stringify({
           article: this.currentArticle,
           userApiKey: userApiKey || undefined,
+          model: this.model,
         }),
       });
 
@@ -668,6 +686,11 @@ class BlogReviewerManager extends BaseAdvisorManager {
       }
     } catch (error) {
       console.error('BlogReviewer fetch error:', error);
+      const isVercel = window.location.hostname.includes('vercel.app');
+      const errorMessage = isVercel
+        ? '予期せぬエラーが発生しました。時間をおいて再度お試しください。'
+        : this.escapeHtml(error.message);
+
       reviewContent.innerHTML = `
         <div class="advisor-error">
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -675,7 +698,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
             <path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
           </svg>
           <p>AI分析に失敗しました</p>
-          <p class="advisor-error-detail">${this.escapeHtml(error.message)}</p>
+          <p class="advisor-error-detail">${errorMessage}</p>
           <button class="advisor-btn-primary" data-action="fetch-review">
             再試行
           </button>
@@ -805,7 +828,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
     console.log('[BlogReviewer] Displaying usage:', this.currentUsage);
 
     // モデル名を取得
-    const model = this.currentArticle.model || 'gpt-4o-mini';
+    const model = this.currentArticle.model || 'gpt-4.1-nano';
 
     // BaseAdvisorManagerの共通メソッドを使用してHTML生成
     const usageHtml = this.renderApiUsagePanel(this.currentUsage, model);

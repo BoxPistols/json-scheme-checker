@@ -130,9 +130,10 @@ curl "http://localhost:3333/proxy?url=https://example.com"
 ## 環境変数
 
 **ローカル（.env）**:
+
 ```
 OPENAI_API_KEY=sk-...
-OPENAI_MODEL=gpt-4o-mini
+OPENAI_MODEL=gpt-4.1-nano
 ```
 
 **Vercel**: ダッシュボードで設定
