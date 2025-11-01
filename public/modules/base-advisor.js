@@ -2,12 +2,12 @@
 
 // グローバル定数（マジックナンバー排除）
 window.ADVISOR_CONST = window.ADVISOR_CONST || {
-  DEFAULT_MODEL: 'gpt-4o-mini',
+  DEFAULT_MODEL: 'gpt-4.1-nano',
   TOKENS_PER_UNIT: 1000,
   USD_TO_JPY_RATE: 150,
   RATE_LIMIT: { NORMAL: 10, STAKEHOLDER: 30 },
   ARTICLE: { MAX_BODY_LENGTH: 1000, MIN_BODY_LEN: 100 },
-  USAGE_MODE: { SESSION: 'session', PERMANENT: 'permanent' }
+  USAGE_MODE: { SESSION: 'session', PERMANENT: 'permanent' },
 };
 
 class BaseAdvisorManager {
@@ -186,7 +186,9 @@ class BaseAdvisorManager {
    * Shows a prompt for stakeholder confirmation.
    */
   showStakeholderPrompt() {
-    const overlay = this.createModal('stakeholderPrompt', `
+    const overlay = this.createModal(
+      'stakeholderPrompt',
+      `
       <div class="advisor-modal advisor-confirm-modal">
         <div class="advisor-modal-header"><h2>関係者確認</h2></div>
         <div class="advisor-modal-body">
@@ -200,7 +202,8 @@ class BaseAdvisorManager {
           </div>
         </div>
       </div>
-    `);
+    `
+    );
     this.addEscapeKeyListener(overlay, this.config.ui.closeStakeholderPrompt);
   }
 
@@ -222,7 +225,9 @@ class BaseAdvisorManager {
     const currentProvider = this.getUserApiProvider();
     const currentBaseUrl = this.getUserApiBaseUrl();
     const currentModel = this.getUserApiModel();
-    const overlay = this.createModal('developerPrompt', `
+    const overlay = this.createModal(
+      'developerPrompt',
+      `
       <div class="advisor-modal advisor-developer-modal">
         <div class="advisor-modal-header">
           <h2>Developer/無制限モード</h2>
@@ -253,7 +258,7 @@ class BaseAdvisorManager {
             <div class="advisor-field">
               <label class="advisor-label" for="developerApiModelInput">モデル名</label>
               <input type="text" id="developerApiModelInput" value="${currentModel}" class="advisor-input">
-              <div class="advisor-help-text">例: gpt-4o-mini（空なら既定: ${window.ADVISOR_CONST.DEFAULT_MODEL}）</div>
+              <div class="advisor-help-text">例: gpt-4.1-nano（空なら既定: ${window.ADVISOR_CONST.DEFAULT_MODEL}）</div>
             </div>
           </div>
           <div class="advisor-field">
@@ -272,7 +277,8 @@ class BaseAdvisorManager {
           </div>
         </div>
       </div>
-    `);
+    `
+    );
     this.addEscapeKeyListener(overlay, this.config.ui.closeDeveloperPrompt);
   }
 
@@ -316,7 +322,9 @@ class BaseAdvisorManager {
     // すべて空で保存する場合は最終確認（.env既定にフォールバック）
     const allEmpty = !key && !provider && !baseUrl && !model;
     if (allEmpty) {
-      const ok = window.confirm('すべて空の状態で保存します。環境既定（.env）を使用します。よろしいですか？');
+      const ok = window.confirm(
+        'すべて空の状態で保存します。環境既定（.env）を使用します。よろしいですか？'
+      );
       if (!ok) return;
     }
 
@@ -344,23 +352,38 @@ class BaseAdvisorManager {
     const baseUrl = (document.getElementById('developerApiBaseUrlInput')?.value || '').trim();
     const model = (document.getElementById('developerApiModelInput')?.value || '').trim();
 
-    if (!key) { alert('APIキーを入力してください'); return; }
+    if (!key) {
+      alert('APIキーを入力してください');
+      return;
+    }
 
     const isVercel = window.location.hostname.includes('vercel.app');
     const url = isVercel ? '/api/test-connection' : 'http://127.0.0.1:3333/api/test-connection';
     console.debug('[BaseAdvisor] testDeveloperConnection: url', url, { provider, baseUrl, model });
     try {
-      const resp = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userApiKey: key, provider, baseUrl, model }) });
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userApiKey: key, provider, baseUrl, model }),
+      });
       const data = await resp.json();
       if (!resp.ok || !data.ok) throw new Error(data.error || `HTTP ${resp.status}`);
-      localStorage.setItem('jsonld_user_api_last_test', JSON.stringify({ ok: true, at: Date.now(), provider: data.provider, model: data.model }));
+      localStorage.setItem(
+        'jsonld_user_api_last_test',
+        JSON.stringify({ ok: true, at: Date.now(), provider: data.provider, model: data.model })
+      );
       const status = document.getElementById('developerApiStatus');
-      if (status) status.querySelector('.advisor-status-chip:last-child').textContent = '接続: 正常';
+      if (status)
+        status.querySelector('.advisor-status-chip:last-child').textContent = '接続: 正常';
       alert(`接続に成功しました\nprovider: ${data.provider}\nmodel: ${data.model}`);
     } catch (e) {
-      localStorage.setItem('jsonld_user_api_last_test', JSON.stringify({ ok: false, at: Date.now(), error: e.message }));
+      localStorage.setItem(
+        'jsonld_user_api_last_test',
+        JSON.stringify({ ok: false, at: Date.now(), error: e.message })
+      );
       const status = document.getElementById('developerApiStatus');
-      if (status) status.querySelector('.advisor-status-chip:last-child').textContent = '接続: 失敗';
+      if (status)
+        status.querySelector('.advisor-status-chip:last-child').textContent = '接続: 失敗';
       alert(`接続に失敗しました: ${e.message}`);
     }
   }
@@ -433,29 +456,34 @@ class BaseAdvisorManager {
    * @returns {object} 価格情報 {input: number, output: number}
    */
   getModelPricing(model) {
+    // 料金は per 1K tokens（OpenAI公式料金 per 1M を 1000 で割った値、2025年版）
     const prices = {
-      'gpt-4o-mini': { input: 0.00015, output: 0.0006 },
-      'gpt-4o': { input: 0.005, output: 0.015 },
-      'gpt-4-turbo': { input: 0.01, output: 0.03 },
-      'gpt-3.5-turbo': { input: 0.0005, output: 0.0015 },
-      'gpt-4.1-mini': { input: 0.00015, output: 0.0006 },
-      'gpt-4.1': { input: 0.003, output: 0.015 },
-      'gpt-4.1-nano': { input: 0.00015, output: 0.0006 },
-      'o3-mini': { input: 0.0006, output: 0.0024 },
-      'o3': { input: 0.003, output: 0.015 },
+      // GPT-4.1 シリーズ
+      'gpt-4.1-nano': { input: 0.0001, output: 0.0004 },      // $0.10/1M, $0.40/1M
+      'gpt-4.1-mini': { input: 0.0004, output: 0.0016 },      // $0.40/1M, $1.60/1M
+      'gpt-4.1': { input: 0.002, output: 0.008 },             // $2.00/1M, $8.00/1M
+      // GPT-4o シリーズ
+      'gpt-4o-mini': { input: 0.00015, output: 0.0006 },      // $0.15/1M, $0.60/1M
+      'gpt-4o': { input: 0.0025, output: 0.01 },              // $2.50/1M, $10.00/1M
+      'gpt-4-turbo': { input: 0.01, output: 0.03 },           // $10.00/1M, $30.00/1M
+      // GPT-3.5
+      'gpt-3.5-turbo': { input: 0.0005, output: 0.0015 },     // $0.50/1M, $1.50/1M
+      // o3 シリーズ
+      'o3-mini': { input: 0.0011, output: 0.0044 },           // $1.10/1M, $4.40/1M
+      'o3': { input: 0.02, output: 0.08 },                    // $20.00/1M, $80.00/1M
     };
 
     // モデル名のバリデーション
     if (!model || typeof model !== 'string') {
-      console.warn('[BaseAdvisor] Invalid model name:', model, 'Using default: gpt-4o-mini');
-      return prices['gpt-4o-mini'];
+      console.warn('[BaseAdvisor] Invalid model name:', model, 'Using default: gpt-4.1-nano');
+      return prices['gpt-4.1-nano'];
     }
 
     if (!prices[model]) {
-      console.warn('[BaseAdvisor] Unknown model:', model, 'Using default: gpt-4o-mini');
+      console.warn('[BaseAdvisor] Unknown model:', model, 'Using default: gpt-4.1-nano');
     }
 
-    return prices[model] || prices['gpt-4o-mini'];
+    return prices[model] || prices['gpt-4.1-nano'];
   }
 
   /**
@@ -464,7 +492,7 @@ class BaseAdvisorManager {
    * @param {number} usage.prompt_tokens - 入力トークン数
    * @param {number} usage.completion_tokens - 出力トークン数
    * @param {number} usage.total_tokens - 合計トークン数
-   * @param {string} [model='gpt-4o-mini'] - 使用したモデル名
+   * @param {string} [model='gpt-4.1-nano'] - 使用したモデル名
    * @returns {string} HTML文字列
    */
   renderApiUsagePanel(usage, model = window.ADVISOR_CONST.DEFAULT_MODEL) {

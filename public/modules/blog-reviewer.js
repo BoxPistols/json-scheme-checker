@@ -88,8 +88,6 @@ class BlogReviewerManager extends BaseAdvisorManager {
     }
   }
 
-
-
   /**
    * Article/BlogPostingスキーマを検出してレビューボタンを表示
    * @param {Array} jsonLdData - 抽出されたJSON-LDデータ
@@ -292,7 +290,8 @@ class BlogReviewerManager extends BaseAdvisorManager {
    * レビューボタンを表示
    */
   showReviewButton() {
-    const actionsContainer = document.getElementById('aiActions') || document.getElementById('results');
+    const actionsContainer =
+      document.getElementById('aiActions') || document.getElementById('results');
     console.log('[BlogReviewerManager] showReviewButton called');
     console.log('[BlogReviewerManager] actions container:', actionsContainer);
     console.log('[BlogReviewerManager] actions container found:', !!actionsContainer);
@@ -474,12 +473,16 @@ class BlogReviewerManager extends BaseAdvisorManager {
     const reviewView = document.createElement('div');
     reviewView.id = 'blogReviewerView';
     reviewView.className = 'advisor-view';
-    const headerHtml = this.renderViewHeader('ブログ記事レビュー', 'blog-close-review-view', `
+    const headerHtml = this.renderViewHeader(
+      'ブログ記事レビュー',
+      'blog-close-review-view',
+      `
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-    `);
+    `
+    );
     reviewView.innerHTML = `
       ${headerHtml}
       <div class="advisor-view-content">
@@ -825,7 +828,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
     console.log('[BlogReviewer] Displaying usage:', this.currentUsage);
 
     // モデル名を取得
-    const model = this.currentArticle.model || 'gpt-4o-mini';
+    const model = this.currentArticle.model || 'gpt-4.1-nano';
 
     // BaseAdvisorManagerの共通メソッドを使用してHTML生成
     const usageHtml = this.renderApiUsagePanel(this.currentUsage, model);

@@ -33,7 +33,7 @@ pnpm dev
 cp .env.example .env
 # .envを編集してOpenAI APIキーを設定
 OPENAI_API_KEY=sk-your-key-here
-OPENAI_MODEL=gpt-4o-mini
+OPENAI_MODEL=gpt-4.1-nano
 ```
 
 ### Vercelへのデプロイ
@@ -48,7 +48,7 @@ Vercelダッシュボードで環境変数を設定してください。
 
 - **バックエンド**: Node.js + Express + Axios
 - **フロントエンド**: Vanilla JavaScript + CSS3 + HTML5
-- **AI機能**: OpenAI GPT-4o mini
+- **AI機能**: OpenAI GPT-4.1 nano
 
 ## プロジェクト構成
 
@@ -71,6 +71,7 @@ Vercelダッシュボードで環境変数を設定してください。
 ## API エンドポイント
 
 ### GET /proxy
+
 指定URLのHTMLを取得
 
 ```bash
@@ -78,6 +79,7 @@ curl "http://localhost:3333/proxy?url=https://example.com"
 ```
 
 ### POST /extract-jsonld
+
 URLからJSON-LDを直接抽出
 
 ```bash
@@ -87,6 +89,7 @@ curl -X POST http://localhost:3333/extract-jsonld \
 ```
 
 ### POST /api/advisor
+
 JobPosting分析（ストリーミング）
 
 ```bash
@@ -96,6 +99,7 @@ curl -X POST http://localhost:3333/api/advisor \
 ```
 
 ### GET /api/web-advisor
+
 Webアドバイザー（汎用）- スキーマ無し/WebPageのみのページ向けAI分析（SSE）
 
 ```bash
@@ -109,6 +113,7 @@ curl -N "http://localhost:3333/api/web-advisor?url=https://example.com&userApiKe
 **レスポンス形式**: Server-Sent Events (SSE)
 
 **SSEイベントタイプ**:
+
 - `init`: 初期化（分析開始）
 - `progress`: 進捗状況（stage: fetching/parsing/analyzing）
 - `meta`: 抽出されたメタ情報（title, description, OG, Twitter, headings, body）
@@ -119,6 +124,7 @@ curl -N "http://localhost:3333/api/web-advisor?url=https://example.com&userApiKe
 **レート制限**: 10回/24時間/IP（userApiKeyを指定した場合はスキップ）
 
 **分析内容**:
+
 - SEO（タイトル、メタディスクリプション、見出し構造、構造化データ）
 - EEAT（専門性、権威性、信頼性）
 - アクセシビリティ（見出し構造、画像alt、コントラスト）
@@ -126,6 +132,7 @@ curl -N "http://localhost:3333/api/web-advisor?url=https://example.com&userApiKe
 - 総括
 
 ### GET /health
+
 ヘルスチェック
 
 ```bash
@@ -157,6 +164,7 @@ open http://localhost:3333/web-advisor-demo.html
 ```
 
 デモページの機能：
+
 - URL入力フィールド
 - OpenAI APIキー入力（オプション）
 - リアルタイムストリーミング表示
@@ -201,12 +209,14 @@ eventSource.addEventListener('message', (event) => {
 #### 3. OpenAI APIキーを使用
 
 環境変数で設定（サーバー側）:
+
 ```bash
 OPENAI_API_KEY=sk-your-key-here
-OPENAI_MODEL=gpt-4o-mini
+OPENAI_MODEL=gpt-4.1-nano
 ```
 
 またはクエリパラメータで指定（ユーザー側）:
+
 ```bash
 curl -N "http://localhost:3333/api/web-advisor?url=https://example.com&userApiKey=sk-..."
 ```
@@ -220,6 +230,7 @@ curl -N "http://localhost:3333/api/web-advisor?url=https://example.com&userApiKe
 - **リセット**: 最初のリクエストから24時間後
 
 レート制限を超えた場合:
+
 ```json
 {
   "error": "レート制限に達しました",
@@ -241,12 +252,14 @@ curl -N "http://localhost:3333/api/web-advisor?url=https://example.com&userApiKe
 ### レート制限
 
 現在の制限：
+
 - **通常モード（クライアント側）**: 10回/24時間（localStorage）
 - **関係者モード**: 30回/24時間
 - **開発者キー使用時**: 無制限
 - **Webアドバイザー（サーバー側）**: 10回/24時間/IP（メモリベース、userApiKey使用時はスキップ）
 
-**注意**: 
+**注意**:
+
 - JobPostingアドバイザー: クライアント側レート制限のみ
 - Webアドバイザー: サーバー側レート制限（メモリベース）
 - Vercel環境でサーバー再起動時にメモリがリセットされます

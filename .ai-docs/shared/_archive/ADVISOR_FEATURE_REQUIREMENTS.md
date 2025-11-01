@@ -89,14 +89,14 @@ JSON-LD ViewerにAIアドバイザー機能を追加し、JobPosting（求人票
 
 **コスト:**
 
-- GPT-4o mini: $0.150/1M input tokens, $0.600/1M output tokens
+- GPT-4.1 nano: $0.150/1M input tokens, $0.600/1M output tokens
 - GPT-3.5 Turbo: $0.50/1M input tokens, $2.00/1M output tokens
 
 **推定コスト（1回あたり）:**
 
 - 求人票データ: 約1,000 tokens
 - 応答: 約500-1,000 tokens
-- 合計: 約$0.001-0.002/回（GPT-4o mini使用時）
+- 合計: 約$0.001-0.002/回（GPT-4.1 nano使用時）
 
 ### オプションB: Anthropic Claude API
 
@@ -141,7 +141,7 @@ JSON-LD ViewerにAIアドバイザー機能を追加し、JobPosting（求人票
 
 ## 推奨実装プラン
 
-### フェーズ1: OpenAI GPT-4o mini（最優先）
+### フェーズ1: OpenAI GPT-4.1 nano（最優先）
 
 **理由:**
 
@@ -290,7 +290,7 @@ module.exports = async (req, res) => {
 
   // OpenAI API呼び出し
   const stream = await openai.chat.completions.create({
-    model: 'gpt-4o-mini',
+    model: 'gpt-4.1-nano',
     messages: [
       { role: 'system', content: systemPrompt },
       { role: 'user', content: JSON.stringify(jobPosting) },
@@ -312,7 +312,7 @@ module.exports = async (req, res) => {
 ```bash
 # Vercel環境変数
 OPENAI_API_KEY=sk-...
-OPENAI_MODEL=gpt-4o-mini
+OPENAI_MODEL=gpt-4.1-nano
 ```
 
 ---
@@ -396,7 +396,7 @@ OPENAI_MODEL=gpt-4o-mini
 
 ### 運用コスト（月間1,000回利用）
 
-- OpenAI GPT-4o mini: 約$1-2/月
+- OpenAI GPT-4.1 nano: 約$1-2/月
 - Vercel Serverless: 無料枠内
 
 ---

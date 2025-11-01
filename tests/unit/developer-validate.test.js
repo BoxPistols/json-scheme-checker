@@ -5,7 +5,11 @@ const BaseAdvisorManager = mod.BaseAdvisorManager || mod.default || mod;
 
 class DummyManager extends BaseAdvisorManager {
   constructor() {
-    super({ elemIdPrefix: 'dev', USER_API_KEY: 'jsonld_user_openai_key', ui: { showConfirmDialog: () => {} } });
+    super({
+      elemIdPrefix: 'dev',
+      USER_API_KEY: 'jsonld_user_openai_key',
+      ui: { showConfirmDialog: () => {} },
+    });
   }
 }
 
@@ -35,7 +39,7 @@ describe('Developer modal validations', () => {
     document.getElementById('developerApiKeyInput').value = 'sk-abc';
     document.getElementById('developerApiProviderInput').value = 'openai';
     document.getElementById('developerApiBaseUrlInput').value = 'https://api.openai.com/v1';
-    document.getElementById('developerApiModelInput').value = 'gpt-4o-mini';
+    document.getElementById('developerApiModelInput').value = 'gpt-4.1-nano';
     // confirmが不要なケース
     const confirmSpy = vi.spyOn(window, 'confirm').mockImplementation(() => true);
     mgr.saveDeveloperKey();
@@ -43,14 +47,14 @@ describe('Developer modal validations', () => {
     expect(localStorage.getItem('jsonld_user_openai_key')).toBe('sk-abc');
     expect(localStorage.getItem('jsonld_user_api_provider')).toBe('openai');
     expect(localStorage.getItem('jsonld_user_api_base_url')).toBe('https://api.openai.com/v1');
-    expect(localStorage.getItem('jsonld_user_api_model')).toBe('gpt-4o-mini');
+    expect(localStorage.getItem('jsonld_user_api_model')).toBe('gpt-4.1-nano');
   });
 
   it('resetDeveloperSettings clears values when confirmed', () => {
     localStorage.setItem('jsonld_user_openai_key', 'sk-abc');
     localStorage.setItem('jsonld_user_api_provider', 'openai');
     localStorage.setItem('jsonld_user_api_base_url', 'https://api.openai.com/v1');
-    localStorage.setItem('jsonld_user_api_model', 'gpt-4o-mini');
+    localStorage.setItem('jsonld_user_api_model', 'gpt-4.1-nano');
     const confirmSpy = vi.spyOn(window, 'confirm').mockImplementation(() => true);
     const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
     mgr.resetDeveloperSettings();
