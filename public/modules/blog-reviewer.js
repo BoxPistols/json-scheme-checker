@@ -80,8 +80,15 @@ class BlogReviewerManager extends BaseAdvisorManager {
    */
   setRemoteHtml(html) {
     try {
+      console.log('[BlogReviewer] setRemoteHtml called, HTML length:', html?.length);
       const parser = new DOMParser();
       this.remoteDoc = parser.parseFromString(html, 'text/html');
+      console.log('[BlogReviewer] Remote HTML parsed successfully');
+
+      // デバッグ: 主要な要素の存在確認
+      console.log('[BlogReviewer] article element exists:', !!this.remoteDoc.querySelector('article'));
+      console.log('[BlogReviewer] main element exists:', !!this.remoteDoc.querySelector('main'));
+      console.log('[BlogReviewer] body text length:', this.remoteDoc.body?.textContent?.length || 0);
     } catch (e) {
       console.warn('[BlogReviewer] Remote HTMLのパースに失敗:', e);
       this.remoteDoc = null;
@@ -99,37 +106,68 @@ class BlogReviewerManager extends BaseAdvisorManager {
     // 既存のボタンを削除
     this.hideReviewButton();
 
-    if (!jsonLdData || !Array.isArray(jsonLdData) || jsonLdData.length === 0) {
-      console.warn('[BlogReviewerManager] jsonLdData is empty or not an array');
-      return;
+    let article = null;
+
+    // JSON-LDスキーマからArticle/BlogPostingを検索
+    if (jsonLdData && Array.isArray(jsonLdData) && jsonLdData.length > 0) {
+      // デバッグ: 各アイテムの@typeをログ出力
+      jsonLdData.forEach((item, index) => {
+        console.log(`[BlogReviewerManager] Schema ${index + 1} @type:`, item['@type']);
+      });
+
+      // Article または BlogPosting を検索
+      article = jsonLdData.find(
+        item =>
+          item['@type'] === 'Article' ||
+          item['@type'] === 'BlogPosting' ||
+          item['@type']?.includes('Article') ||
+          item['@type']?.includes('BlogPosting')
+      );
+
+      console.log('[BlogReviewerManager] Article/BlogPosting detected in JSON-LD:', article);
+    } else {
+      console.log('[BlogReviewerManager] No JSON-LD schemas found, trying HTML-based detection');
     }
 
-    // デバッグ: 各アイテムの@typeをログ出力
-    jsonLdData.forEach((item, index) => {
-      console.log(`[BlogReviewerManager] Schema ${index + 1} @type:`, item['@type']);
-    });
+    // JSON-LDにArticleがない場合、HTMLから直接検出を試みる
+    if (!article && this.remoteDoc) {
+      const hasArticleElement = !!this.remoteDoc.querySelector('article');
+      const bodyTextLength = this.remoteDoc.body?.textContent?.length || 0;
+      const MIN_BODY_LENGTH = 500; // 最小文字数（ブログ記事と判断する基準）
 
-    // Article または BlogPosting を検索
-    const article = jsonLdData.find(
-      item =>
-        item['@type'] === 'Article' ||
-        item['@type'] === 'BlogPosting' ||
-        item['@type']?.includes('Article') ||
-        item['@type']?.includes('BlogPosting')
-    );
+      console.log('[BlogReviewerManager] HTML-based detection:', {
+        hasArticleElement,
+        bodyTextLength,
+        threshold: MIN_BODY_LENGTH
+      });
 
-    console.log('[BlogReviewerManager] Article/BlogPosting detected:', article);
+      // article要素が存在し、十分なテキストがある場合はブログ記事と判断
+      if (hasArticleElement && bodyTextLength > MIN_BODY_LENGTH) {
+        console.log('[BlogReviewerManager] Detected as blog post from HTML structure');
+        // 空のArticleオブジェクトを作成（HTMLから情報を抽出）
+        article = {
+          '@type': 'Article',
+          // enrichArticleDataでHTMLから情報を補完
+        };
+      }
+    }
 
     if (article) {
       // HTMLから不足情報を補完
       this.currentArticle = this.enrichArticleData(article);
-      this.showReviewButton();
-      console.log(
-        '[BlogReviewerManager] Review button shown with enriched data:',
-        this.currentArticle
-      );
+
+      // タイトルが取得できているか確認
+      if (this.currentArticle.headline || this.currentArticle.name || this.currentArticle.title) {
+        this.showReviewButton();
+        console.log(
+          '[BlogReviewerManager] Review button shown with enriched data:',
+          this.currentArticle
+        );
+      } else {
+        console.warn('[BlogReviewerManager] Could not extract title, review button not shown');
+      }
     } else {
-      console.log('[BlogReviewerManager] No Article/BlogPosting found in schemas');
+      console.log('[BlogReviewerManager] No blog post detected');
     }
   }
 
@@ -139,11 +177,59 @@ class BlogReviewerManager extends BaseAdvisorManager {
    * @returns {Object} 補完されたArticleオブジェクト
    */
   enrichArticleData(article) {
+    console.log('[BlogReviewer] enrichArticleData called');
+    console.log('[BlogReviewer] Original article data:', article);
+    console.log('[BlogReviewer] remoteDoc available:', !!this.remoteDoc);
+
     const enriched = { ...article };
+    const root = this.remoteDoc || document;
+
+    // headlineが欠けている場合、HTMLから取得
+    if (!enriched.headline && !enriched.name && !enriched.title) {
+      console.log('[BlogReviewer] Trying to extract title from HTML');
+
+      // OGタイトル、metaタイトル、h1の順に試す
+      const title =
+        root.querySelector('meta[property="og:title"]')?.content ||
+        root.querySelector('meta[name="twitter:title"]')?.content ||
+        root.querySelector('title')?.textContent ||
+        root.querySelector('h1')?.textContent;
+
+      if (title) {
+        enriched.headline = title.trim();
+        console.log('[BlogReviewer] Added title from HTML:', enriched.headline);
+      }
+    }
+
+    // authorが欠けている場合、HTMLから取得
+    if (!enriched.author) {
+      const author =
+        root.querySelector('meta[name="author"]')?.content ||
+        root.querySelector('meta[property="article:author"]')?.content ||
+        root.querySelector('[rel="author"]')?.textContent;
+
+      if (author) {
+        enriched.author = { name: author.trim() };
+        console.log('[BlogReviewer] Added author from HTML:', author);
+      }
+    }
+
+    // datePublishedが欠けている場合、HTMLから取得
+    if (!enriched.datePublished) {
+      const publishDate =
+        root.querySelector('meta[property="article:published_time"]')?.content ||
+        root.querySelector('time[datetime]')?.getAttribute('datetime');
+
+      if (publishDate) {
+        enriched.datePublished = publishDate;
+        console.log('[BlogReviewer] Added datePublished from HTML:', publishDate);
+      }
+    }
 
     // description が欠けている場合、メタタグから取得
     if (!enriched.description && !enriched.abstract) {
-      const root = this.remoteDoc || document;
+      console.log('[BlogReviewer] Trying to extract description, using:', this.remoteDoc ? 'remoteDoc' : 'current document');
+
       const metaDescription =
         root.querySelector('meta[name="description"]')?.content ||
         root.querySelector('meta[property="og:description"]')?.content;
@@ -151,12 +237,21 @@ class BlogReviewerManager extends BaseAdvisorManager {
       if (metaDescription) {
         enriched.description = metaDescription;
         console.log('[BlogReviewerManager] Added description from meta tag:', metaDescription);
+      } else {
+        console.log('[BlogReviewer] No meta description found');
       }
     }
 
     // articleBody が欠けている場合、HTMLから抽出
     if (!enriched.articleBody) {
-      const root = this.remoteDoc || document; // 取得済みのリモートHTMLを優先
+      if (!this.remoteDoc) {
+        console.warn('[BlogReviewer] remoteDoc is not available, cannot extract articleBody from HTML');
+        console.warn('[BlogReviewer] This may occur with SPA sites where content is dynamically generated');
+        // JSON-LDに含まれている情報のみを使用
+        return enriched;
+      }
+
+      const root = this.remoteDoc;
       let bodyText = '';
       console.log('[BlogReviewer] articleBody not found in JSON-LD, extracting from HTML...');
 
@@ -526,6 +621,8 @@ class BlogReviewerManager extends BaseAdvisorManager {
    * @returns {string} HTML文字列
    */
   formatArticle(article) {
+    console.log('[BlogReviewer] formatArticle called with:', article);
+
     const headline = article.headline || article.name || article.title || '不明';
     const author =
       article.author?.name || (typeof article.author === 'string' ? article.author : '不明');
@@ -541,6 +638,15 @@ class BlogReviewerManager extends BaseAdvisorManager {
     const MAX_BODY_LENGTH = 1000;
     let articleBody = article.articleBody || '本文なし';
     let isTruncated = false;
+
+    console.log('[BlogReviewer] Formatted data:', {
+      headline,
+      author,
+      datePublished,
+      dateModified,
+      descriptionLength: description?.length || 0,
+      articleBodyLength: articleBody?.length || 0
+    });
 
     if (articleBody !== '本文なし' && articleBody.length > MAX_BODY_LENGTH) {
       articleBody = articleBody.substring(0, MAX_BODY_LENGTH);
@@ -593,6 +699,16 @@ class BlogReviewerManager extends BaseAdvisorManager {
     this.isStreaming = true;
 
     try {
+      console.log('[BlogReviewer] fetchReview starting with article:', this.currentArticle);
+
+      // データが不足している場合の警告
+      if (!this.currentArticle.headline && !this.currentArticle.name && !this.currentArticle.title) {
+        console.warn('[BlogReviewer] Article title is missing');
+      }
+      if (!this.currentArticle.articleBody) {
+        console.warn('[BlogReviewer] Article body is missing - AI analysis may be limited');
+      }
+
       const isVercel = window.location.hostname.includes('vercel.app');
       const apiUrl = isVercel ? '/api/blog-reviewer' : 'http://127.0.0.1:3333/api/blog-reviewer';
 

@@ -100,14 +100,26 @@ class WebAdvisorManager extends BaseAdvisorManager {
 
     console.log('[WebAdvisor] Has exclusive advisor:', hasExclusiveAdvisor);
 
-    // 専用アドバイザーがない場合はWebアドバイザーのボタンを表示
-    // スキーマ無し、WebPageのみ、Product、Event、Person等すべて対象
-    if (!hasExclusiveAdvisor) {
-      console.log('[WebAdvisor] Showing analysis button (専用アドバイザーなし)');
+    // JobPostingスキーマがある場合のみ、Web Advisorを非表示にする
+    // Blog Reviewer（Article/BlogPosting）は共存可能
+    const hasJobPosting = schemas.some(schema => {
+      const type = schema['@type'];
+      if (Array.isArray(type)) {
+        return type.includes('JobPosting');
+      }
+      return type === 'JobPosting';
+    });
+
+    console.log('[WebAdvisor] Has JobPosting:', hasJobPosting);
+
+    // JobPostingがない場合は、Web Advisorボタンを表示
+    // Blog Reviewerボタンと共存可能（ユーザーがどちらを使うか選べる）
+    if (!hasJobPosting) {
+      console.log('[WebAdvisor] Showing analysis button');
       this.currentUrl = url;
       this.showAnalysisButton();
     } else {
-      console.log('[WebAdvisor] Not showing button (専用アドバイザーあり)');
+      console.log('[WebAdvisor] Not showing button (JobPosting専用あり)');
     }
   }
 
@@ -118,6 +130,13 @@ class WebAdvisorManager extends BaseAdvisorManager {
     const actionsContainer = document.getElementById('aiActions') || document.getElementById('results');
     if (!actionsContainer) {
       console.warn('[WebAdvisor] actions container not found');
+      return;
+    }
+
+    // Blog Reviewerのボタンが既に表示されている場合は、Web Advisorボタンを表示しない
+    const blogReviewerBtn = document.getElementById('blogReviewerTriggerBtn');
+    if (blogReviewerBtn) {
+      console.log('[WebAdvisor] Blog Reviewer button exists, skipping Web Advisor button');
       return;
     }
 
@@ -221,6 +240,13 @@ class WebAdvisorManager extends BaseAdvisorManager {
 
   /** 分析開始（統一UIで実行） */
   async startAnalysis() {
+    console.log('[WebAdvisor] startAnalysis - currentUrl:', this.currentUrl);
+
+    if (!this.currentUrl) {
+      alert('URLが設定されていません。もう一度ページを読み込んでください。');
+      return;
+    }
+
     const rateLimit = this.checkRateLimit();
     if (!rateLimit.allowed) {
       this.closeConfirmDialog();
@@ -250,8 +276,14 @@ class WebAdvisorManager extends BaseAdvisorManager {
       ${headerHtml}
       <div class="advisor-view-content">
         <div class="advisor-job-panel">
-          <h3>対象URL</h3>
-          <div class="advisor-job-content"><a href="${this.escapeHtml(this.currentUrl)}" target="_blank">${this.escapeHtml(this.currentUrl)}</a></div>
+          <h3>ページ情報</h3>
+          <div class="advisor-job-content" id="webAdvisorPageInfo">
+            <div class="job-field">
+              <label>URL</label>
+              <div class="job-value"><a href="${this.escapeHtml(this.currentUrl)}" target="_blank">${this.escapeHtml(this.currentUrl)}</a></div>
+            </div>
+            <div class="advisor-loading"><div class="advisor-spinner"></div><p>ページ情報を取得中...</p></div>
+          </div>
         </div>
         <div class="advisor-advice-panel">
           <h3>AI分析結果</h3>
@@ -269,8 +301,13 @@ class WebAdvisorManager extends BaseAdvisorManager {
 
   /** SSEで分析を取得 */
   async fetchAnalysis() {
+    console.log('[WebAdvisor] fetchAnalysis - currentUrl:', this.currentUrl);
+
     const content = document.getElementById('webAdvisorContent');
-    if (!content) return;
+    if (!content) {
+      console.error('[WebAdvisor] webAdvisorContent element not found');
+      return;
+    }
 
     // 既存EventSourceをクリーン
     if (this.eventSource) {
@@ -290,16 +327,20 @@ class WebAdvisorManager extends BaseAdvisorManager {
         baseUrl: this.getUserApiBaseUrl?.() || '',
         model: this.getUserApiModel?.() || '',
       };
+      console.log('[WebAdvisor] Creating session with payload:', payload);
       const resp = await fetch(`${base}/api/web-advisor/session`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
+      console.log('[WebAdvisor] Session response status:', resp.status);
       if (resp.ok) {
         const js = await resp.json();
         sessionToken = js.sessionToken || '';
+        console.log('[WebAdvisor] Session token:', sessionToken ? 'received' : 'empty');
       }
-    } catch (_) {
+    } catch (err) {
+      console.warn('[WebAdvisor] Session creation failed:', err);
       // セッションが作れない場合でもSSEは続行（envキーのみで解析可能）
     }
 
@@ -307,6 +348,7 @@ class WebAdvisorManager extends BaseAdvisorManager {
     if (sessionToken) params.set('sessionToken', sessionToken);
 
     const url = `${base}/api/web-advisor?${params.toString()}`;
+    console.log('[WebAdvisor] EventSource URL:', url);
 
     try {
       this.isStreaming = true;
@@ -314,43 +356,59 @@ class WebAdvisorManager extends BaseAdvisorManager {
       const md = content.querySelector('.advisor-markdown');
       let full = '';
 
+      console.log('[WebAdvisor] Creating EventSource...');
       const es = new EventSource(url);
       this.eventSource = es;
 
       es.onmessage = (e) => {
+        console.log('[WebAdvisor] EventSource message:', e.data);
         if (!e.data) return;
         try {
           const data = JSON.parse(e.data);
+          console.log('[WebAdvisor] Parsed data:', data);
           switch (data.type) {
+            case 'meta':
+              // メタデータを受信したら左パネルに表示
+              this.displayPageInfo(data.data);
+              break;
             case 'token':
               full += data.content || '';
               md.innerHTML = this.renderMarkdown(full);
               break;
             case 'done':
+              console.log('[WebAdvisor] Stream completed');
               this.isStreaming = false;
               this.recordUsage();
               es.close();
               break;
             case 'error':
+              console.error('[WebAdvisor] Stream error:', data.message);
               this.isStreaming = false;
               md.innerHTML = `<div class="advisor-error"><p>${this.escapeHtml(data.message || '分析に失敗しました')}</p></div>`;
               es.close();
               break;
             default:
-              // init/progress/meta は必要に応じて拡張
+              console.log('[WebAdvisor] Other event type:', data.type);
+              // init/progress は無視
               break;
           }
-        } catch (_) {
-          // 無視
+        } catch (err) {
+          console.error('[WebAdvisor] Failed to parse message:', err);
         }
       };
 
-      es.onerror = () => {
+      es.onerror = (err) => {
+        console.error('[WebAdvisor] EventSource error:', err);
+        console.error('[WebAdvisor] EventSource readyState:', es.readyState);
         if (this.isStreaming) {
           this.isStreaming = false;
           md.innerHTML = '<div class="advisor-error"><p>接続に失敗しました</p></div>';
         }
         es.close();
+      };
+
+      es.onopen = () => {
+        console.log('[WebAdvisor] EventSource connection opened');
       };
     } catch (err) {
       content.innerHTML = `<div class="advisor-error"><p>${this.escapeHtml(err.message || '分析開始に失敗しました')}</p></div>`;
@@ -371,6 +429,106 @@ class WebAdvisorManager extends BaseAdvisorManager {
     }
     const container = document.querySelector('.container');
     if (container) container.style.display = '';
+  }
+
+  /**
+   * ページ情報を左パネルに表示
+   * @param {Object} metadata - APIから受信したメタデータ
+   */
+  displayPageInfo(metadata) {
+    const pageInfo = document.getElementById('webAdvisorPageInfo');
+    if (!pageInfo) return;
+
+    const title = metadata.title || '（タイトルなし）';
+    const description = metadata.description || '（説明なし）';
+    const h1List = metadata.headings?.h1 || [];
+    const h2List = metadata.headings?.h2 || [];
+    const bodySnippet = metadata.bodySnippet || '';
+
+    let html = `
+      <div class="job-field">
+        <label>URL</label>
+        <div class="job-value"><a href="${this.escapeHtml(this.currentUrl)}" target="_blank">${this.escapeHtml(this.currentUrl)}</a></div>
+      </div>
+      <div class="job-field">
+        <label>タイトル</label>
+        <div class="job-value">${this.escapeHtml(title)}</div>
+      </div>
+    `;
+
+    if (description && description !== '（説明なし）') {
+      html += `
+        <div class="job-field">
+          <label>説明</label>
+          <div class="job-value job-description">${this.escapeHtml(description)}</div>
+        </div>
+      `;
+    }
+
+    if (h1List.length > 0) {
+      html += `
+        <div class="job-field">
+          <label>H1見出し</label>
+          <div class="job-value">${h1List.map(h => this.escapeHtml(h)).join('<br>')}</div>
+        </div>
+      `;
+    }
+
+    if (h2List.length > 0) {
+      const displayH2 = h2List.slice(0, 5);
+      html += `
+        <div class="job-field">
+          <label>H2見出し（最大5件）</label>
+          <div class="job-value">${displayH2.map(h => this.escapeHtml(h)).join('<br>')}</div>
+        </div>
+      `;
+    }
+
+    if (bodySnippet) {
+      const snippet = bodySnippet.length > 500 ? bodySnippet.substring(0, 500) + '...' : bodySnippet;
+      html += `
+        <div class="job-field">
+          <label>本文概要</label>
+          <div class="job-value job-description">${this.escapeHtml(snippet)}</div>
+        </div>
+      `;
+    }
+
+    pageInfo.innerHTML = html;
+  }
+
+  /**
+   * Markdownを簡易的にHTMLに変換
+   * @param {string} markdown - Markdown文字列
+   * @returns {string} HTML文字列
+   */
+  renderMarkdown(markdown) {
+    let html = this.escapeHtml(markdown);
+
+    // 見出し
+    html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+    html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+    html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+
+    // 太字
+    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+    // リスト（ハイフン）
+    html = html.replace(/^\- (.*$)/gim, '<li>$1</li>');
+
+    // 番号付きリスト
+    html = html.replace(/^\d+\. (.*$)/gim, '<li>$1</li>');
+
+    // 改行
+    html = html.replace(/\n/g, '<br>');
+
+    // 連続する<li>タグを<ul>で囲む（改行変換後に実行）
+    html = html.replace(
+      /((?:<li>.*?<\/li>(?:<br>)*)+)/g,
+      match => `<ul>${match.replace(/<br>/g, '')}</ul>`
+    );
+
+    return html;
   }
 
   closeModal(modalType) {

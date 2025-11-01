@@ -1711,7 +1711,12 @@ function showNoData(url) {
 
   showResults();
   showSnackbar('JSON-LDスキーマが見つかりませんでした', 'warning', 4000);
-  
+
+  // Blog Reviewer: HTMLベースの検出（スキーマが無くても動作）
+  if (typeof blogReviewerManager !== 'undefined') {
+    blogReviewerManager.detectBlogPost([]);
+  }
+
   // Web Advisor: スキーマ無し検出
   if (typeof webAdvisorManager !== 'undefined' && url) {
     webAdvisorManager.detectNoSchemaOrWebPageOnly([], url);
