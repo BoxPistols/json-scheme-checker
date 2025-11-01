@@ -396,7 +396,14 @@ module.exports = async (req, res) => {
   }
 
   // セキュア化: sessionToken を優先（POSTで発行）
-  const { url, sessionToken, userApiKey: userApiKeyQuery, provider: providerQ, baseUrl: baseUrlQ, model: modelQ } = req.query;
+  const {
+    url,
+    sessionToken,
+    userApiKey: userApiKeyQuery,
+    provider: providerQ,
+    baseUrl: baseUrlQ,
+    model: modelQ,
+  } = req.query;
 
   // セッション取得（存在すればこちらを優先）
   let userApiKey = null;
@@ -438,7 +445,8 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'HTTP/HTTPS URLのみサポートされています' });
     }
     // SSRF対策: 既定でプライベート/メタデータ範囲を拒否（本番有効、開発はWEB_ADVISOR_SSRF_PROTECT=0で無効化可能）
-    const protect = process.env.WEB_ADVISOR_SSRF_PROTECT !== '0' || process.env.NODE_ENV === 'production';
+    const protect =
+      process.env.WEB_ADVISOR_SSRF_PROTECT !== '0' || process.env.NODE_ENV === 'production';
     if (protect) {
       const host = parsedUrl.hostname;
       const isIp = /^\d+\.\d+\.\d+\.\d+$/.test(host);
@@ -447,11 +455,14 @@ module.exports = async (req, res) => {
         host === '127.0.0.1' ||
         host === '::1' ||
         host === '169.254.169.254' ||
-        (isIp && (
-          host.startsWith('10.') ||
-          host.startsWith('192.168.') ||
-          (host.startsWith('172.') && (() => { const n = parseInt(host.split('.')[1], 10); return n >= 16 && n <= 31; })())
-        ));
+        (isIp &&
+          (host.startsWith('10.') ||
+            host.startsWith('192.168.') ||
+            (host.startsWith('172.') &&
+              (() => {
+                const n = parseInt(host.split('.')[1], 10);
+                return n >= 16 && n <= 31;
+              })())));
       if (blocked) {
         return res.status(403).json({ error: 'Private/metadata network is not allowed' });
       }
@@ -539,12 +550,21 @@ module.exports = async (req, res) => {
       const openai = new OpenAI({ apiKey, baseURL: baseUrl || undefined });
       const prompt = buildPrompt(metadata, url);
 
-      const stream = await openai.chat.completions.create({
-        model: model || process.env.OPENAI_MODEL || 'gpt-4o-mini',
+      const selectedModel = model || process.env.OPENAI_MODEL || 'gpt-4.1-nano';
+      const isGPT5 = selectedModel.startsWith('gpt-5');
+
+      const requestParams = {
+        model: selectedModel,
         messages: [{ role: 'user', content: prompt }],
         stream: true,
-        temperature: 0.7,
-      });
+      };
+
+      // GPT-5では temperature は非対応
+      if (!isGPT5) {
+        requestParams.temperature = 0.7;
+      }
+
+      const stream = await openai.chat.completions.create(requestParams);
 
       for await (const chunk of stream) {
         const content = chunk.choices[0]?.delta?.content;

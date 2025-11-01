@@ -17,7 +17,7 @@ describe('Developer connection flow', () => {
       <input id="developerApiKeyInput" value="">
       <input id="developerApiProviderInput" value="openai">
       <input id="developerApiBaseUrlInput" value="">
-      <input id="developerApiModelInput" value="gpt-4o-mini">
+      <input id="developerApiModelInput" value="gpt-4.1-nano">
       <div id="developerApiStatus"><span class="advisor-status-chip"></span><span class="advisor-status-chip"></span></div>
     `;
     mgr = new DevManager();
@@ -39,7 +39,7 @@ describe('Developer connection flow', () => {
   it('calls local test-connection endpoint with provided fields', async () => {
     // set key
     document.getElementById('developerApiKeyInput').value = 'sk-test';
-    const json = vi.fn().mockResolvedValue({ ok: true, provider: 'openai', model: 'gpt-4o-mini' });
+    const json = vi.fn().mockResolvedValue({ ok: true, provider: 'openai', model: 'gpt-4.1-nano' });
     global.fetch = vi.fn().mockResolvedValue({ ok: true, status: 200, json });
 
     await mgr.testDeveloperConnection();
@@ -49,9 +49,11 @@ describe('Developer connection flow', () => {
     expect(url).toContain('http://127.0.0.1:3333/api/test-connection');
     const body = JSON.parse(opts.body);
     expect(body.userApiKey).toBe('sk-test');
-    expect(body.model).toBe('gpt-4o-mini');
+    expect(body.model).toBe('gpt-4.1-nano');
     // 成功時のステータス表示
-    expect(document.querySelector('#developerApiStatus .advisor-status-chip:last-child').textContent).toContain('接続: 正常');
+    expect(
+      document.querySelector('#developerApiStatus .advisor-status-chip:last-child').textContent
+    ).toContain('接続: 正常');
     // 成功ログの保存
     const last = JSON.parse(localStorage.getItem('jsonld_user_api_last_test') || '{}');
     expect(last.ok).toBe(true);
@@ -66,7 +68,9 @@ describe('Developer connection flow', () => {
     await mgr.testDeveloperConnection();
 
     expect(alertSpy).toHaveBeenCalled();
-    expect(document.querySelector('#developerApiStatus .advisor-status-chip:last-child').textContent).toContain('接続: 失敗');
+    expect(
+      document.querySelector('#developerApiStatus .advisor-status-chip:last-child').textContent
+    ).toContain('接続: 失敗');
     const last = JSON.parse(localStorage.getItem('jsonld_user_api_last_test') || '{}');
     expect(last.ok).toBe(false);
     alertSpy.mockRestore();

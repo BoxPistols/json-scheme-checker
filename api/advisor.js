@@ -280,16 +280,25 @@ module.exports = async (req, res) => {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
-    const stream = await openai.chat.completions.create({
-      model: model || process.env.OPENAI_MODEL || 'gpt-4o-mini',
+    const selectedModel = model || process.env.OPENAI_MODEL || 'gpt-4.1-nano';
+    const isGPT5 = selectedModel.startsWith('gpt-5');
+
+    const requestParams = {
+      model: selectedModel,
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userContent },
       ],
       stream: true,
-      temperature: 0.7,
       stream_options: { include_usage: true },
-    });
+    };
+
+    // GPT-5では temperature は非対応
+    if (!isGPT5) {
+      requestParams.temperature = 0.7;
+    }
+
+    const stream = await openai.chat.completions.create(requestParams);
 
     for await (const chunk of stream) {
       const content = chunk.choices[0]?.delta?.content;
