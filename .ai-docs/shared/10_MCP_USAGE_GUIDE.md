@@ -205,6 +205,10 @@ Context7で/expressjs/expressのセキュリティベストプラクティスを
 
 - [Model Context Protocol仕様](https://modelcontextprotocol.io/)
 
+### Chrome DevTools (MCP)
+
+- [AI エージェント用の Chrome DevTools（MCP） | Blog | Chrome for Developers](https://developer.chrome.com/blog/chrome-devtools-mcp?hl=ja)
+
 ## 次のステップ
 
 ### フェーズ3: 開発ワークフロー改善

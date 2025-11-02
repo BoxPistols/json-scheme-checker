@@ -359,6 +359,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   });
+
+  // ヘッダーのAPI状態表示を初期化
+  updateHeaderApiStatus();
 });
 
 // 認証情報の保存方法を復元
@@ -1779,6 +1782,7 @@ document.addEventListener('keydown', function (e) {
       { id: 'robotsGuideModal', close: closeRobotsModal },
       { id: 'twitterCardGuideModal', close: closeTwitterCardModal },
       { id: 'openGraphGuideModal', close: closeOpenGraphModal },
+      { id: 'developerSettingsModal', close: closeDeveloperSettingsModal },
     ];
 
     modals.forEach(modal => {
@@ -1809,7 +1813,7 @@ function openDeveloperSettingsModal() {
   // ローカルストレージから設定を読み込む
   loadDeveloperSettings();
 
-  modal.style.display = 'flex';
+  modal.classList.add('modal-overlay--visible');
   document.body.style.overflow = 'hidden';
 }
 
@@ -1818,7 +1822,7 @@ function closeDeveloperSettingsModal() {
   const modal = document.getElementById('developerSettingsModal');
   if (!modal) return;
 
-  modal.style.display = 'none';
+  modal.classList.remove('modal-overlay--visible');
   document.body.style.overflow = '';
 }
 
@@ -1870,6 +1874,9 @@ document.getElementById('btnSaveDeveloperSettings')?.addEventListener('click', (
     localStorage.setItem('jsonld_usage_mode', 'permanent'); // 開発者モードを有効化
 
     showDeveloperStatus('設定を保存しました', 'success');
+
+    // ヘッダー表示を更新
+    updateHeaderApiStatus();
 
     // 2秒後にモーダルを閉じる
     setTimeout(() => {
@@ -1933,6 +1940,9 @@ document.getElementById('btnClearDeveloperSettings')?.addEventListener('click', 
   document.getElementById('developerBaseUrl').value = '';
 
   showDeveloperStatus('設定をクリアしました', 'success');
+
+  // ヘッダー表示を更新
+  updateHeaderApiStatus();
 });
 
 // ステータス表示
@@ -1953,4 +1963,67 @@ function showDeveloperStatus(message, type = 'info') {
   statusDiv.style.color = color.text;
   statusDiv.style.border = `1px solid ${color.border}`;
   statusDiv.querySelector('p').textContent = message;
+}
+
+// ヘッダーのAPI状態表示を更新
+function updateHeaderApiStatus() {
+  const modelNameEl = document.getElementById('apiModelName');
+  const usageCountEl = document.getElementById('apiUsageCount');
+
+  if (!modelNameEl || !usageCountEl) return;
+
+  // モデル名を取得
+  try {
+    const settings = JSON.parse(localStorage.getItem(STORAGE_KEY_DEVELOPER) || '{}');
+    const modelName = settings.model || 'gpt-4.1-nano';
+
+    // モデル名を短縮表示（gpt-5-nano-2025-08-07 -> gpt-5-nano）
+    const shortModelName = modelName.replace(/-\d{4}-\d{2}-\d{2}$/, '');
+    modelNameEl.textContent = shortModelName;
+  } catch (error) {
+    modelNameEl.textContent = 'gpt-4.1-nano';
+  }
+
+  // 利用回数を取得
+  const userApiKey = localStorage.getItem('jsonld_user_openai_key');
+
+  if (userApiKey) {
+    // 開発者モード: 無制限
+    usageCountEl.textContent = '無制限';
+    return;
+  }
+
+  // 通常モード: 各アドバイザーのレート制限を確認
+  const now = Date.now();
+  const oneDayMs = 24 * 60 * 60 * 1000;
+
+  // 各アドバイザーのレート制限キー
+  const rateLimitKeys = [
+    'jsonld_advisor_usage',
+    'jsonld_blog_reviewer_usage',
+    'jsonld_web_advisor_usage'
+  ];
+
+  // すべてのアドバイザーの合計利用回数を計算
+  let totalUsed = 0;
+  rateLimitKeys.forEach(key => {
+    try {
+      const usageData = JSON.parse(localStorage.getItem(key) || '[]');
+      const recentRequests = usageData.filter(timestamp => now - timestamp < oneDayMs);
+      totalUsed += recentRequests.length;
+    } catch (error) {
+      // エラーは無視
+    }
+  });
+
+  // 関係者モードかどうかを確認
+  const isStakeholder = localStorage.getItem('jsonld_advisor_stakeholder') === 'true' ||
+                        localStorage.getItem('jsonld_blog_reviewer_stakeholder') === 'true' ||
+                        localStorage.getItem('jsonld_web_advisor_stakeholder') === 'true';
+
+  const maxRequests = isStakeholder ? 30 : 10;
+  const remaining = Math.max(0, maxRequests - totalUsed);
+
+  // 表示（例: "5/10" または "15/30"）
+  usageCountEl.textContent = `${remaining}/${maxRequests}`;
 }

@@ -460,6 +460,25 @@ button:disabled {
   color: var(--text-color);
 }
 
+.api-status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background: var(--card-bg-color);
+  color: var(--text-color);
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.api-status-label {
+  color: var(--secondary-text-color);
+  font-weight: 400;
+}
+
 .view-toggle {
   display: flex;
   gap: 4px;
@@ -1323,7 +1342,10 @@ html[data-theme='dark'] .score-breakdown > div {
 }
 
 .modal-header {
-  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -1339,6 +1361,25 @@ html[data-theme='dark'] .score-breakdown > div {
 .modal-header h2 {
   margin: 0;
   font-size: 20px;
+  color: var(--text-color);
+  flex: 1;
+}
+
+.modal-close-btn {
+  background: transparent;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--secondary-text-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.modal-close-btn:hover {
+  background: var(--secondary-bg-color);
   color: var(--text-color);
 }
 
@@ -1512,8 +1553,7 @@ html[data-theme='dark'] .score-breakdown > div {
   line-height: 1.5;
 }
 
-.btn-guide,
-.btn-my-api {
+.btn-guide {
   padding: 3px 12px;
   border: 1px solid var(--accent-color);
   background: transparent;
@@ -1525,10 +1565,27 @@ html[data-theme='dark'] .score-breakdown > div {
   transition: background 0.2s ease;
 }
 
-.btn-guide:hover,
-.btn-my-api:hover {
+.btn-guide:hover {
   background: var(--accent-hover-bg-color);
   color: var(--accent-color);
+}
+
+.btn-my-api {
+  padding: 3px 12px;
+  border: 1px solid #ff6b35;
+  background: transparent;
+  color: #ff6b35;
+  border-radius: 4em;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-my-api:hover {
+  background: #ff6b35;
+  color: white;
+  border-color: #ff6b35;
 }
 
 .btn-modal-close {
@@ -1543,6 +1600,38 @@ html[data-theme='dark'] .score-breakdown > div {
 }
 
 .btn-modal-close:hover {
+  background: var(--accent-hover-color);
+}
+
+.btn-modal-secondary {
+  padding: 8px 16px;
+  border: 1px solid var(--border-color);
+  background: var(--secondary-bg-color);
+  color: var(--text-color);
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-modal-secondary:hover {
+  background: var(--border-color);
+  border-color: var(--text-color);
+}
+
+.btn-modal-primary {
+  padding: 8px 16px;
+  background: var(--accent-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btn-modal-primary:hover {
   background: var(--accent-hover-color);
 }
 
