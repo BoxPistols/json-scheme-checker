@@ -176,12 +176,22 @@ function extractMetadata(html) {
       if (text) metadata.headings.h3.push(text);
     });
 
-  // body内のテキストスニペット抽出（最初の3000文字）
+  // body内のテキストスニペット抽出
   // scriptとstyleタグを除外してテキストを取得
   $('script').remove();
   $('style').remove();
-  const bodyText = $('body').text().replace(/\s+/g, ' ').trim();
-  metadata.bodySnippet = bodyText.substring(0, 3000);
+  $('nav').remove();
+  $('footer').remove();
+  let bodyText = $('body').text().replace(/\s+/g, ' ').trim();
+
+  // トークン制限対策：テキスト長を制限（約8000文字 = 約2000トークン）
+  // これでも OpenAI のプロンプト内のトークンと合わせると一定のバッファが残る
+  const MAX_BODY_LENGTH = 8000;
+  if (bodyText.length > MAX_BODY_LENGTH) {
+    bodyText = bodyText.substring(0, MAX_BODY_LENGTH) + '...\n（以降省略）';
+  }
+
+  metadata.bodySnippet = bodyText;
 
   return metadata;
 }
@@ -214,8 +224,8 @@ H1: ${metadata.headings.h1.join(', ') || '（なし）'}
 H2: ${metadata.headings.h2.slice(0, 8).join(', ') || '（なし）'}
 H3: ${metadata.headings.h3.slice(0, 5).join(', ') || '（なし）'}
 
-本文抜粋（最初の1000文字）:
-${metadata.bodySnippet.substring(0, 1000)}...
+本文抜粋:
+${metadata.bodySnippet}
 
 【重要な制約】
 - 絵文字は使用しないでください
@@ -701,13 +711,32 @@ module.exports = async (req, res) => {
         requestParams.temperature = 0.7;
       }
 
-      const stream = await openai.chat.completions.create(requestParams);
+      try {
+        const stream = await openai.chat.completions.create(requestParams);
 
-      for await (const chunk of stream) {
-        const content = chunk.choices[0]?.delta?.content;
-        if (content) {
-          res.write(`data: ${JSON.stringify({ type: 'token', content })}\n\n`);
+        for await (const chunk of stream) {
+          const content = chunk.choices[0]?.delta?.content;
+          if (content) {
+            res.write(`data: ${JSON.stringify({ type: 'token', content })}\n\n`);
+          }
         }
+      } catch (apiError) {
+        console.error('[Web-Advisor] OpenAI API Error:', {
+          message: apiError.message,
+          status: apiError.status,
+          code: apiError.code,
+          error: apiError.error?.message || apiError.error,
+        });
+        // API エラーが発生した場合は error イベント送信
+        res.write(
+          `data: ${JSON.stringify({
+            type: 'error',
+            message: `API分析に失敗しました: ${apiError.message}`,
+          })}\n\n`
+        );
+        cleanup();
+        res.end();
+        return;
       }
     } else {
       // フォールバックテンプレート
