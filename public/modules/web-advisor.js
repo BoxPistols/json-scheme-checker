@@ -283,6 +283,12 @@ class WebAdvisorManager extends BaseAdvisorManager {
 
   /** SSEで分析を取得 */
   async fetchAnalysis() {
+    // グローバルな分析実行状態をチェック（複数の分析の同時実行を防ぐ）
+    if (!canStartAnalysis('web-advisor')) {
+      alert('別の分析が実行中です。しばらくお待ちください。');
+      return;
+    }
+
     const content = document.getElementById('webAdvisorContent');
     if (!content) return;
 
@@ -293,6 +299,9 @@ class WebAdvisorManager extends BaseAdvisorManager {
       } catch (_) {}
       this.eventSource = null;
     }
+
+    this.isStreaming = true;
+    setAnalysisActive('web-advisor'); // グローバルにアクティブ化
 
     const isVercel = window.location.hostname.includes('vercel.app');
     const base = isVercel ? '' : 'http://127.0.0.1:3333';
@@ -325,7 +334,6 @@ class WebAdvisorManager extends BaseAdvisorManager {
     const url = `${base}/api/web-advisor?${params.toString()}`;
 
     try {
-      this.isStreaming = true;
       content.innerHTML = '<div class="advisor-markdown"></div>';
       const md = content.querySelector('.advisor-markdown');
       let full = '';
@@ -345,10 +353,12 @@ class WebAdvisorManager extends BaseAdvisorManager {
             case 'done':
               this.isStreaming = false;
               this.recordUsage();
+              setAnalysisInactive('web-advisor'); // グローバル状態をクリア
               es.close();
               break;
             case 'error':
               this.isStreaming = false;
+              setAnalysisInactive('web-advisor'); // グローバル状態をクリア
               md.innerHTML = `<div class="advisor-error"><p>${this.escapeHtml(data.message || '分析に失敗しました')}</p></div>`;
               es.close();
               break;
@@ -364,11 +374,14 @@ class WebAdvisorManager extends BaseAdvisorManager {
       es.onerror = () => {
         if (this.isStreaming) {
           this.isStreaming = false;
+          setAnalysisInactive('web-advisor'); // グローバル状態をクリア
           md.innerHTML = '<div class="advisor-error"><p>接続に失敗しました</p></div>';
         }
         es.close();
       };
     } catch (err) {
+      this.isStreaming = false;
+      setAnalysisInactive('web-advisor'); // グローバル状態をクリア
       content.innerHTML = `<div class="advisor-error"><p>${this.escapeHtml(err.message || '分析開始に失敗しました')}</p></div>`;
     }
   }
@@ -382,6 +395,9 @@ class WebAdvisorManager extends BaseAdvisorManager {
       } catch (_) {}
       this.eventSource = null;
     }
+
+    // グローバルな分析状態をクリア
+    setAnalysisInactive('web-advisor');
     const view = document.getElementById('webAdvisorView');
     if (view) {
       view.classList.remove('active');
