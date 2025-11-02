@@ -217,11 +217,13 @@ class AdvisorManager extends BaseAdvisorManager {
     const adviceContent = document.getElementById('advisorAdviceContent');
     if (!adviceContent) return;
     this.isStreaming = true;
+    console.log('[Advisor] fetchAdvice started for mode:', mode);
 
     try {
       const apiUrl = window.location.hostname.includes('vercel.app')
         ? '/api/advisor'
         : 'http://127.0.0.1:3333/api/advisor';
+      console.log('[Advisor] Calling API:', apiUrl);
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -232,6 +234,7 @@ class AdvisorManager extends BaseAdvisorManager {
         }),
       });
 
+      console.log('[Advisor] API response status:', response.status);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
       adviceContent.innerHTML = '<div class="advisor-markdown"></div>';
@@ -240,9 +243,13 @@ class AdvisorManager extends BaseAdvisorManager {
       const decoder = new TextDecoder();
       let fullText = '';
 
+      console.log('[Advisor] Starting streaming loop...');
       while (this.isStreaming) {
         const { done, value } = await reader.read();
-        if (done) break;
+        if (done) {
+          console.log('[Advisor] Stream done');
+          break;
+        }
         const chunk = decoder.decode(value, { stream: true });
         const lines = chunk.split('\n');
 
@@ -250,6 +257,7 @@ class AdvisorManager extends BaseAdvisorManager {
           if (!line.startsWith('data: ')) continue;
           const data = line.slice(6);
           if (data === '[DONE]') {
+            console.log('[Advisor] Received [DONE] signal');
             this.isStreaming = false;
             this.recordUsage();
             // キャッシュに保存
@@ -279,7 +287,9 @@ class AdvisorManager extends BaseAdvisorManager {
           }
         }
       }
+      console.log('[Advisor] fetchAdvice completed');
     } catch (error) {
+      console.error('[Advisor] fetchAdvice error:', error);
       adviceContent.innerHTML = `<div class="advisor-error"><p>AI分析に失敗しました</p><button type="button" data-action="advisor-fetch-advice">再試行</button></div>`;
     }
   }
