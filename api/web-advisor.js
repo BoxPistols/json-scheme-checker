@@ -550,7 +550,26 @@ module.exports = async (req, res) => {
       const openai = new OpenAI({ apiKey, baseURL: baseUrl || undefined });
       const prompt = buildPrompt(metadata, url);
 
-      const selectedModel = model || process.env.OPENAI_MODEL || 'gpt-4.1-nano';
+      const usingServerKey = !userApiKey && !!process.env.OPENAI_API_KEY;
+      const PUBLIC_ALLOWED_MODELS = (process.env.PUBLIC_ALLOWED_MODELS || 'gpt-4.1-nano,gpt-5-nano')
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean);
+
+      let selectedModel = model || process.env.OPENAI_MODEL || 'gpt-4.1-nano';
+
+      // サーバー既定キー使用時はモデルとbaseUrlを強制（エンドユーザーの上書きを無効化）
+      if (usingServerKey) {
+        if (!PUBLIC_ALLOWED_MODELS.includes(selectedModel)) {
+          if (process.env.OPENAI_MODEL && PUBLIC_ALLOWED_MODELS.includes(process.env.OPENAI_MODEL)) {
+            selectedModel = process.env.OPENAI_MODEL;
+          } else {
+            selectedModel = PUBLIC_ALLOWED_MODELS[0];
+          }
+        }
+        baseUrl = undefined; // 既定キー利用時は独自ベースURLを禁止
+      }
+
       const isGPT5 = selectedModel.startsWith('gpt-5');
 
       const requestParams = {
