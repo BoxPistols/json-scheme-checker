@@ -397,6 +397,22 @@ class WebAdvisorManager extends BaseAdvisorManager {
       if (overlay) overlay.remove();
     }
   }
+
+  /**
+   * マークダウンをHTMLに変換（advisor.jsと同じ実装）
+   */
+  renderMarkdown(markdown) {
+    let html = this.escapeHtml(markdown);
+    html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>').replace(/^## (.*$)/gim, '<h2>$1</h2>');
+    html = html
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/^\- (.*$)/gim, '<li>$1</li>');
+    html = html.replace(
+      /((?:<li>.*?<\/li>(?:<br>)*)+)/g,
+      match => `<ul>${match.replace(/<br>/g, '')}</ul>`
+    );
+    return html.replace(/\n/g, '<br>');
+  }
 }
 
 // グローバルインスタンスを作成
