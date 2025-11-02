@@ -25,9 +25,13 @@ class AdvisorManager extends BaseAdvisorManager {
         'advisor-reset-to-normal-mode': () => this.resetToNormalMode(),
         'advisor-start-employer': () => this.startAnalysis('employer'),
         'advisor-start-applicant': () => this.startAnalysis('applicant'),
+        'advisor-start-agent': () => this.startAnalysis('agent'),
         'advisor-close-mode-overlay': () => this.closeModal('ModeOverlay'),
         'advisor-close-view': () => this.closeAdvisorView(),
         'advisor-fetch-advice': () => this.fetchAdvice(this.currentMode),
+        'advisor-switch-perspective-employer': () => this.switchPerspective('employer'),
+        'advisor-switch-perspective-applicant': () => this.switchPerspective('applicant'),
+        'advisor-switch-perspective-agent': () => this.switchPerspective('agent'),
       },
       actions: {
         closeStakeholderPrompt: 'advisor-close-stakeholder-prompt',
@@ -98,7 +102,7 @@ class AdvisorManager extends BaseAdvisorManager {
             </div>
             <button type="button" class="advisor-modal-close" data-action="advisor-close-mode-overlay"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor"/></svg></button>
           </div>
-          <h2>どちらの視点でアドバイスしますか？</h2>
+          <h2>どの視点でアドバイスしますか？</h2>
         </div>
         <div class="advisor-modal-body">
           ${rateLimitHtml}
@@ -108,6 +112,9 @@ class AdvisorManager extends BaseAdvisorManager {
             </button>
             <button type="button" class="advisor-mode-btn" data-action="advisor-start-applicant">
               <h3>応募者向け</h3><p>面接対策と要件傾向の分析を提供</p>
+            </button>
+            <button type="button" class="advisor-mode-btn" data-action="advisor-start-agent">
+              <h3>エージェント向け</h3><p>営業戦略・市場分析・双方へのアドバイスを提供</p>
             </button>
           </div>
         </div>
@@ -132,13 +139,30 @@ class AdvisorManager extends BaseAdvisorManager {
   showAdvisorView(mode) {
     const container = document.querySelector('.container');
     if (!container) return;
-    const modeTitle = mode === 'employer' ? '採用側向けアドバイス' : '応募者向けアドバイス';
+
+    let modeTitle;
+    if (mode === 'employer') {
+      modeTitle = '採用側向けアドバイス';
+    } else if (mode === 'applicant') {
+      modeTitle = '応募者向けアドバイス';
+    } else {
+      modeTitle = 'エージェント向けアドバイス';
+    }
+
     const headerHtml = this.renderViewHeader(modeTitle, 'advisor-close-view');
     const advisorView = this.createModal('View', `
       ${headerHtml}
       <div class="advisor-view-content">
         <div class="advisor-job-panel"><h3>求人票</h3><div class="advisor-job-content">${this.formatJobPosting(this.currentJobPosting)}</div></div>
-        <div class="advisor-advice-panel"><h3>AI分析結果</h3><div class="advisor-advice-content" id="advisorAdviceContent"><div class="advisor-loading"></div></div></div>
+        <div class="advisor-advice-panel">
+          <h3>AI分析結果</h3>
+          <div class="advisor-advice-content" id="advisorAdviceContent"><div class="advisor-loading"></div></div>
+          <div class="advisor-perspective-switcher">
+            <button type="button" class="advisor-perspective-btn ${mode === 'employer' ? 'active' : ''}" data-action="advisor-switch-perspective-employer">採用側視点</button>
+            <button type="button" class="advisor-perspective-btn ${mode === 'applicant' ? 'active' : ''}" data-action="advisor-switch-perspective-applicant">応募者視点</button>
+            <button type="button" class="advisor-perspective-btn ${mode === 'agent' ? 'active' : ''}" data-action="advisor-switch-perspective-agent">エージェント視点</button>
+          </div>
+        </div>
       </div>
     `);
     container.style.display = 'none';
@@ -235,6 +259,55 @@ class AdvisorManager extends BaseAdvisorManager {
     // サーバーから受信したモデル名を使用、なければデフォルト
     container.innerHTML = this.renderApiUsagePanel(this.currentUsage, this.currentModel);
     document.getElementById('advisorAdviceContent').appendChild(container);
+  }
+
+  /**
+   * 視点を切り替えて再分析を実行
+   */
+  async switchPerspective(newMode) {
+    // 現在のモードと同じ場合は何もしない
+    if (this.currentMode === newMode) return;
+
+    // ストリーミング中の場合は停止
+    if (this.isStreaming) {
+      this.isStreaming = false;
+    }
+
+    // モードを更新
+    this.currentMode = newMode;
+
+    // タイトルを更新
+    let modeTitle;
+    if (newMode === 'employer') {
+      modeTitle = '採用側向けアドバイス';
+    } else if (newMode === 'applicant') {
+      modeTitle = '応募者向けアドバイス';
+    } else {
+      modeTitle = 'エージェント向けアドバイス';
+    }
+
+    const viewHeader = document.querySelector('.advisor-view-header h2');
+    if (viewHeader) {
+      viewHeader.textContent = modeTitle;
+    }
+
+    // アクティブボタンを更新
+    const perspectiveBtns = document.querySelectorAll('.advisor-perspective-btn');
+    perspectiveBtns.forEach(btn => {
+      btn.classList.remove('active');
+      if (btn.dataset.action === `advisor-switch-perspective-${newMode}`) {
+        btn.classList.add('active');
+      }
+    });
+
+    // 分析コンテンツをローディング状態にリセット
+    const adviceContent = document.getElementById('advisorAdviceContent');
+    if (adviceContent) {
+      adviceContent.innerHTML = '<div class="advisor-loading"><div class="advisor-spinner"></div><p>AI分析中...</p></div>';
+    }
+
+    // 新しい視点で分析を実行
+    await this.fetchAdvice(newMode);
   }
 }
 
