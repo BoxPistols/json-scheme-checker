@@ -32,9 +32,6 @@ class BlogReviewerManager extends BaseAdvisorManager {
         'blog-close-review-view': () => this.closeReviewView(),
         'blog-fetch-review': () => this.fetchReview(),
         'show-blog-confirm-dialog': () => this.showConfirmDialog(),
-        // Web-prefixed actions for cross-module compatibility
-        'web-save-developer-key': () => this.saveDeveloperKey(),
-        'web-start-analysis': () => this.showConfirmDialog(),
       },
       actions: {
         closeStakeholderPrompt: 'blog-close-stakeholder-prompt',
@@ -358,6 +355,12 @@ class BlogReviewerManager extends BaseAdvisorManager {
    * レビュー実行確認ダイアログを表示
    */
   showConfirmDialog() {
+    // currentArticleがnullの場合は何もしない（誤動作防止）
+    if (!this.currentArticle) {
+      console.warn('[BlogReviewer] showConfirmDialog called but currentArticle is null');
+      return;
+    }
+
     const rateLimit = this.checkRateLimit();
 
     let rateLimitHtml = '';
@@ -444,6 +447,13 @@ class BlogReviewerManager extends BaseAdvisorManager {
    * レビューを開始
    */
   async startReview() {
+    // currentArticleがnullの場合は何もしない（誤動作防止）
+    if (!this.currentArticle) {
+      console.error('[BlogReviewer] startReview called but currentArticle is null');
+      alert('レビュー対象の記事が見つかりません。');
+      return;
+    }
+
     // レート制限チェック
     const rateLimit = this.checkRateLimit();
     if (!rateLimit.allowed) {
