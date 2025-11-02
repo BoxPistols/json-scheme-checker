@@ -32,6 +32,8 @@ class AdvisorManager extends BaseAdvisorManager {
         'advisor-switch-perspective-employer': () => this.switchPerspective('employer'),
         'advisor-switch-perspective-applicant': () => this.switchPerspective('applicant'),
         'advisor-switch-perspective-agent': () => this.switchPerspective('agent'),
+        'advisor-toggle-job-section': () => this.toggleAccordion('job'),
+        'advisor-toggle-advice-section': () => this.toggleAccordion('advice'),
       },
       actions: {
         closeStakeholderPrompt: 'advisor-close-stakeholder-prompt',
@@ -50,6 +52,7 @@ class AdvisorManager extends BaseAdvisorManager {
     this.isStreaming = false;
     this.currentUsage = null;
     this.currentModel = window.ADVISOR_CONST.DEFAULT_MODEL; // デフォルトモデル
+    this.perspectiveCache = {}; // 視点ごとのキャッシュ
   }
 
   detectJobPosting(jsonLdData) {
@@ -153,10 +156,17 @@ class AdvisorManager extends BaseAdvisorManager {
     const advisorView = this.createModal('View', `
       ${headerHtml}
       <div class="advisor-view-content">
-        <div class="advisor-job-panel"><h3>求人票</h3><div class="advisor-job-content">${this.formatJobPosting(this.currentJobPosting)}</div></div>
+        <div class="advisor-job-panel">
+          <h3 class="advisor-accordion-header" data-action="advisor-toggle-job-section">
+            <span class="advisor-accordion-icon">▼</span>求人票
+          </h3>
+          <div class="advisor-job-content advisor-accordion-content" id="advisorJobContent">${this.formatJobPosting(this.currentJobPosting)}</div>
+        </div>
         <div class="advisor-advice-panel">
-          <h3>AI分析結果</h3>
-          <div class="advisor-advice-content" id="advisorAdviceContent"><div class="advisor-loading"></div></div>
+          <h3 class="advisor-accordion-header" data-action="advisor-toggle-advice-section">
+            <span class="advisor-accordion-icon">▼</span>AI分析結果
+          </h3>
+          <div class="advisor-advice-content advisor-accordion-content" id="advisorAdviceContent"><div class="advisor-loading"></div></div>
           <div class="advisor-perspective-switcher">
             <button type="button" class="advisor-perspective-btn ${mode === 'employer' ? 'active' : ''}" data-action="advisor-switch-perspective-employer">採用側視点</button>
             <button type="button" class="advisor-perspective-btn ${mode === 'applicant' ? 'active' : ''}" data-action="advisor-switch-perspective-applicant">応募者視点</button>
@@ -171,6 +181,7 @@ class AdvisorManager extends BaseAdvisorManager {
 
   closeAdvisorView() {
     this.isStreaming = false;
+    this.perspectiveCache = {}; // キャッシュをクリア
     this.closeModal('View');
     const container = document.querySelector('.container');
     if (container) container.style.display = '';
@@ -220,6 +231,12 @@ class AdvisorManager extends BaseAdvisorManager {
           if (data === '[DONE]') {
             this.isStreaming = false;
             this.recordUsage();
+            // キャッシュに保存
+            this.perspectiveCache[mode] = {
+              content: fullText,
+              usage: this.currentUsage,
+              model: this.currentModel,
+            };
             break;
           }
           try {
@@ -262,7 +279,7 @@ class AdvisorManager extends BaseAdvisorManager {
   }
 
   /**
-   * 視点を切り替えて再分析を実行
+   * 視点を切り替えて再分析を実行（キャッシュ対応）
    */
   async switchPerspective(newMode) {
     // 現在のモードと同じ場合は何もしない
@@ -300,14 +317,48 @@ class AdvisorManager extends BaseAdvisorManager {
       }
     });
 
-    // 分析コンテンツをローディング状態にリセット
     const adviceContent = document.getElementById('advisorAdviceContent');
-    if (adviceContent) {
-      adviceContent.innerHTML = '<div class="advisor-loading"><div class="advisor-spinner"></div><p>AI分析中...</p></div>';
+    if (!adviceContent) return;
+
+    // キャッシュがある場合はキャッシュから表示
+    if (this.perspectiveCache[newMode]) {
+      console.log(`[Advisor] Using cached data for ${newMode}`);
+      const cached = this.perspectiveCache[newMode];
+      adviceContent.innerHTML = '<div class="advisor-markdown"></div>';
+      const markdownDiv = adviceContent.querySelector('.advisor-markdown');
+      markdownDiv.innerHTML = this.renderMarkdown(cached.content);
+
+      // キャッシュされた使用量を復元
+      this.currentUsage = cached.usage;
+      this.currentModel = cached.model;
+      this.displayUsage();
+      return;
     }
 
-    // 新しい視点で分析を実行
+    // キャッシュがない場合は新しく取得
+    console.log(`[Advisor] Fetching new data for ${newMode}`);
+    adviceContent.innerHTML = '<div class="advisor-loading"><div class="advisor-spinner"></div><p>AI分析中...</p></div>';
     await this.fetchAdvice(newMode);
+  }
+
+  /**
+   * アコーディオンの開閉を切り替え
+   */
+  toggleAccordion(section) {
+    const contentId = section === 'job' ? 'advisorJobContent' : 'advisorAdviceContent';
+    const content = document.getElementById(contentId);
+    const header = content?.previousElementSibling;
+    const icon = header?.querySelector('.advisor-accordion-icon');
+
+    if (!content || !header || !icon) return;
+
+    if (content.classList.contains('advisor-accordion-collapsed')) {
+      content.classList.remove('advisor-accordion-collapsed');
+      icon.textContent = '▼';
+    } else {
+      content.classList.add('advisor-accordion-collapsed');
+      icon.textContent = '▶';
+    }
   }
 }
 
