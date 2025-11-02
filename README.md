@@ -177,9 +177,9 @@ open http://localhost:3333/web-advisor-demo.html
 const url = encodeURIComponent('https://example.com');
 const eventSource = new EventSource(`/api/web-advisor?url=${url}`);
 
-eventSource.addEventListener('message', (event) => {
+eventSource.addEventListener('message', event => {
   const data = JSON.parse(event.data);
-  
+
   switch (data.type) {
     case 'init':
       console.log('開始:', data.message);
@@ -285,12 +285,12 @@ localhost URLをテストする場合はローカル環境で起動してくだ�
 
 ## トラブルシューティング
 
-| 問題 | 解決方法 |
-|------|--------|
-| CORSエラー | サーバーが起動していることを確認、`/health`でチェック |
-| localhostアクセス不可 | Vercelではなくローカル環境を使用、ポート番号を確認 |
-| タイムアウト | 対象サイトのレスポンスが遅い、ネットワークを確認 |
-| AI機能が動作しない | OpenAI APIキーを設定、環境変数を確認 |
+| 問題                  | 解決方法                                              |
+| --------------------- | ----------------------------------------------------- |
+| CORSエラー            | サーバーが起動していることを確認、`/health`でチェック |
+| localhostアクセス不可 | Vercelではなくローカル環境を使用、ポート番号を確認    |
+| タイムアウト          | 対象サイトのレスポンスが遅い、ネットワークを確認      |
+| AI機能が動作しない    | OpenAI APIキーを設定、環境変数を確認                  |
 
 ## Claude Code Skills
 
@@ -299,6 +299,7 @@ localhost URLをテストする場合はローカル環境で起動してくだ�
 ### 利用可能なスキル
 
 #### api-check
+
 API仕様の一貫性と品質をチェックします。
 
 ```
@@ -306,6 +307,7 @@ api-check
 ```
 
 **チェック項目**:
+
 - エンドポイント構造の確認
 - CORS設定の確認
 - エラーハンドリングの確認
@@ -314,6 +316,7 @@ api-check
 - レスポンス形式の確認
 
 #### deploy-check
+
 Vercelへのデプロイ前に必要な全ての確認を実行します。
 
 ```
@@ -321,6 +324,7 @@ deploy-check
 ```
 
 **チェック項目**:
+
 - 環境設定の確認
 - 依存関係の確認
 - ビルドとテストの確認
@@ -330,6 +334,7 @@ deploy-check
 - パフォーマンスチェック
 
 #### code-review
+
 最近の変更に対して包括的なコードレビューを実行します。
 
 ```
@@ -337,6 +342,7 @@ code-review
 ```
 
 **レビュー観点**:
+
 - コード品質
 - エラーハンドリング
 - セキュリティ

@@ -27,7 +27,7 @@
 // 代替案: 環境変数で強制
 if (process.env.VERCEL && !userApiKey) {
   return res.status(403).json({
-    error: 'ユーザー自身のAPIキーが必要です'
+    error: 'ユーザー自身のAPIキーが必要です',
   });
 }
 ```
@@ -59,8 +59,7 @@ if (process.env.VERCEL && !userApiKey) {
 
 ```javascript
 // 現在（分散）
-if (JSON.stringify(article).length > 100000)
-article.headline = article.headline.substring(0, 500)
+if (JSON.stringify(article).length > 100000) article.headline = article.headline.substring(0, 500);
 
 // 推奨（一元化）
 const MAX_ARTICLE_SIZE = 100000;
@@ -75,7 +74,9 @@ const MAX_HEADLINE_LENGTH = 500;
 
 ```javascript
 class RateLimiter {
-  checkRateLimit(ip) { /* ... */ }
+  checkRateLimit(ip) {
+    /* ... */
+  }
 }
 module.exports = new RateLimiter();
 ```
@@ -89,6 +90,7 @@ module.exports = new RateLimiter();
 `public/modules/blog-reviewer.js:26-34`の`try-catch`は不要（DOMParserは例外をスローしない）。
 
 **推奨**:
+
 ```javascript
 const parserError = this.remoteDoc.querySelector('parsererror');
 if (parserError) {
@@ -112,6 +114,7 @@ if (parserError) {
 複数セレクタで`querySelectorAll`を繰り返し実行。
 
 **推奨**:
+
 ```javascript
 const combinedSelector = contentSelectors.join(',');
 const elements = root.querySelectorAll(combinedSelector);
@@ -128,6 +131,7 @@ const elements = root.querySelectorAll(combinedSelector);
 **現状**: なし
 
 **推奨**:
+
 1. ユニットテスト：入力検証・文本抽出・レート制限
 2. 統合テスト：API エンドポイント・認証・レート制限
 3. E2Eテスト：検出フロー・モーダル操作

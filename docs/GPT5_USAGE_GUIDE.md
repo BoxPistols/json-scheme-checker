@@ -49,9 +49,11 @@ const response = await fetch('/api/advisor', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
-    jobPosting: { /* 求人データ */ },
+    jobPosting: {
+      /* 求人データ */
+    },
     mode: 'employer',
-    model: 'gpt-5-nano',  // モデルを指定
+    model: 'gpt-5-nano', // モデルを指定
   }),
 });
 ```
@@ -64,7 +66,7 @@ const response = await fetch('/api/web-advisor', {
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
     url: 'https://example.com',
-    model: 'gpt-5-nano',  // モデルを指定
+    model: 'gpt-5-nano', // モデルを指定
   }),
 });
 ```
@@ -80,7 +82,7 @@ const response = await fetch('/api/blog-reviewer', {
       title: '記事タイトル',
       body: '記事本文...',
     },
-    model: 'gpt-5-nano',  // モデルを指定
+    model: 'gpt-5-nano', // モデルを指定
   }),
 });
 ```
@@ -94,10 +96,12 @@ const response = await fetch('/api/advisor', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
-    jobPosting: { /* 求人データ */ },
+    jobPosting: {
+      /* 求人データ */
+    },
     mode: 'employer',
-    userApiKey: 'sk-user-api-key',  // ユーザーのAPIキー
-    model: 'gpt-5-nano',  // モデルを指定
+    userApiKey: 'sk-user-api-key', // ユーザーのAPIキー
+    model: 'gpt-5-nano', // モデルを指定
   }),
 });
 ```
@@ -145,11 +149,11 @@ GPT-5シリーズでは、以下のパラメータがサポートされていま
 
 以下は、10,000トークンの入力と5,000トークンの出力を行った場合のコスト比較です：
 
-| モデル | 入力コスト | 出力コスト | 合計（USD） | 合計（JPY） |
-|--------|-----------|-----------|------------|------------|
-| gpt-4.1-nano | $0.0015 | $0.003 | $0.0045 | ¥0.675 |
-| gpt-5-nano | $0.0125 | $0.05 | $0.0625 | ¥9.375 |
-| gpt-4o | $0.025 | $0.05 | $0.075 | ¥11.25 |
+| モデル       | 入力コスト | 出力コスト | 合計（USD） | 合計（JPY） |
+| ------------ | ---------- | ---------- | ----------- | ----------- |
+| gpt-4.1-nano | $0.0015    | $0.003     | $0.0045     | ¥0.675      |
+| gpt-5-nano   | $0.0125    | $0.05      | $0.0625     | ¥9.375      |
+| gpt-4o       | $0.025     | $0.05      | $0.075      | ¥11.25      |
 
 （1 USD = 150 JPY で換算）
 

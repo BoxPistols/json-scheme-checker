@@ -14,13 +14,7 @@
  * @param {Array} props.actions - アクションボタン配列
  * @returns {HTMLElement}
  */
-export function Snackbar({
-  message = '',
-  type = 'info',
-  duration = 4000,
-  onClose,
-  actions = [],
-}) {
+export function Snackbar({ message = '', type = 'info', duration = 4000, onClose, actions = [] }) {
   const snackbar = document.createElement('div');
   snackbar.className = `snackbar snackbar-${type}`;
   snackbar.setAttribute('role', 'alert');
@@ -37,7 +31,7 @@ export function Snackbar({
     const actionsContainer = document.createElement('div');
     actionsContainer.className = 'snackbar-actions';
 
-    actions.forEach((action) => {
+    actions.forEach(action => {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'snackbar-action';
@@ -130,7 +124,7 @@ export function closeSnackbar(snackbar) {
 export function clearAllSnackbars(container) {
   if (!container) return;
   const snackbars = container.querySelectorAll('.snackbar');
-  snackbars.forEach((snackbar) => {
+  snackbars.forEach(snackbar => {
     closeSnackbar(snackbar);
   });
 }

@@ -1711,7 +1711,7 @@ function showNoData(url) {
 
   showResults();
   showSnackbar('JSON-LDスキーマが見つかりませんでした', 'warning', 4000);
-  
+
   // Web Advisor: スキーマ無し検出
   if (typeof webAdvisorManager !== 'undefined' && url) {
     webAdvisorManager.detectNoSchemaOrWebPageOnly([], url);
@@ -1823,7 +1823,9 @@ function closeDeveloperSettingsModal() {
 }
 
 // 閉じるボタンのイベント
-document.getElementById('btnCloseDeveloperSettings')?.addEventListener('click', closeDeveloperSettingsModal);
+document
+  .getElementById('btnCloseDeveloperSettings')
+  ?.addEventListener('click', closeDeveloperSettingsModal);
 
 // オーバーレイクリックで閉じる
 document.getElementById('developerSettingsModal')?.addEventListener('click', e => {

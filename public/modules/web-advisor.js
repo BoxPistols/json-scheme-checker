@@ -72,10 +72,10 @@ class WebAdvisorManager extends BaseAdvisorManager {
 
     // 専用アドバイザーがあるスキーマタイプ（これらがある場合のみ除外）
     const exclusiveAdvisorTypes = [
-      'JobPosting',        // JobPosting専用アドバイザーあり
-      'BlogPosting',       // BlogReviewer専用あり
-      'Article',           // BlogReviewer専用あり
-      'NewsArticle'        // BlogReviewer専用あり
+      'JobPosting', // JobPosting専用アドバイザーあり
+      'BlogPosting', // BlogReviewer専用あり
+      'Article', // BlogReviewer専用あり
+      'NewsArticle', // BlogReviewer専用あり
     ];
 
     // 専用アドバイザーがあるスキーマが存在するかチェック
@@ -115,7 +115,8 @@ class WebAdvisorManager extends BaseAdvisorManager {
    * 分析ボタンを表示（BlogReviewer/Advisorと同じUI）
    */
   showAnalysisButton() {
-    const actionsContainer = document.getElementById('aiActions') || document.getElementById('results');
+    const actionsContainer =
+      document.getElementById('aiActions') || document.getElementById('results');
     if (!actionsContainer) {
       console.warn('[WebAdvisor] actions container not found');
       return;
@@ -158,17 +159,22 @@ class WebAdvisorManager extends BaseAdvisorManager {
 
     let rateLimitHtml = '';
     if (rateLimit.mode === 'developer') {
-      rateLimitHtml = '<div class="advisor-rate-info advisor-rate-unlimited">MyAPIモード（無制限）</div>';
+      rateLimitHtml =
+        '<div class="advisor-rate-info advisor-rate-unlimited">MyAPIモード（無制限）</div>';
     } else if (rateLimit.mode === 'stakeholder') {
       if (!rateLimit.allowed) {
-        const resetTimeStr = rateLimit.resetTime ? rateLimit.resetTime.toLocaleString('ja-JP') : '不明';
+        const resetTimeStr = rateLimit.resetTime
+          ? rateLimit.resetTime.toLocaleString('ja-JP')
+          : '不明';
         rateLimitHtml = `<div class="advisor-rate-info advisor-rate-exceeded">利用制限に達しました（リセット: ${resetTimeStr}）</div>`;
       } else {
         rateLimitHtml = `<div class="advisor-rate-info advisor-rate-stakeholder">関係者モード - 残り ${rateLimit.remaining} 回 / ${rateLimit.maxRequests} 回（24時間）</div>`;
       }
     } else {
       if (!rateLimit.allowed) {
-        const resetTimeStr = rateLimit.resetTime ? rateLimit.resetTime.toLocaleString('ja-JP') : '不明';
+        const resetTimeStr = rateLimit.resetTime
+          ? rateLimit.resetTime.toLocaleString('ja-JP')
+          : '不明';
         rateLimitHtml = `<div class="advisor-rate-info advisor-rate-exceeded">利用制限に達しました（リセット: ${resetTimeStr}）</div>`;
       } else {
         rateLimitHtml = `<div class="advisor-rate-info">残り ${rateLimit.remaining} 回 / ${rateLimit.maxRequests} 回（24時間）</div>`;
@@ -224,8 +230,12 @@ class WebAdvisorManager extends BaseAdvisorManager {
     const rateLimit = this.checkRateLimit();
     if (!rateLimit.allowed) {
       this.closeConfirmDialog();
-      const resetTimeStr = rateLimit.resetTime ? rateLimit.resetTime.toLocaleString('ja-JP') : '不明';
-      alert(`利用制限に達しました。\n\nリセット時刻: ${resetTimeStr}\n\n関係者モード（30回/24h）またはMyAPIモードをご利用ください。`);
+      const resetTimeStr = rateLimit.resetTime
+        ? rateLimit.resetTime.toLocaleString('ja-JP')
+        : '不明';
+      alert(
+        `利用制限に達しました。\n\nリセット時刻: ${resetTimeStr}\n\n関係者モード（30回/24h）またはMyAPIモードをご利用ください。`
+      );
       return;
     }
     this.closeConfirmDialog();
@@ -241,11 +251,15 @@ class WebAdvisorManager extends BaseAdvisorManager {
     const view = document.createElement('div');
     view.id = 'webAdvisorView';
     view.className = 'advisor-view';
-    const headerHtml = this.renderViewHeader('Webページ分析', 'web-close-result-view', `
+    const headerHtml = this.renderViewHeader(
+      'Webページ分析',
+      'web-close-result-view',
+      `
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M12 2l2 7h7l-5.5 4 2 7-5.5-4-5.5 4 2-7-5.5-4h7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-    `);
+    `
+    );
     view.innerHTML = `
       ${headerHtml}
       <div class="advisor-view-content">
@@ -274,7 +288,9 @@ class WebAdvisorManager extends BaseAdvisorManager {
 
     // 既存EventSourceをクリーン
     if (this.eventSource) {
-      try { this.eventSource.close(); } catch (_) {}
+      try {
+        this.eventSource.close();
+      } catch (_) {}
       this.eventSource = null;
     }
 
@@ -317,7 +333,7 @@ class WebAdvisorManager extends BaseAdvisorManager {
       const es = new EventSource(url);
       this.eventSource = es;
 
-      es.onmessage = (e) => {
+      es.onmessage = e => {
         if (!e.data) return;
         try {
           const data = JSON.parse(e.data);
@@ -361,7 +377,9 @@ class WebAdvisorManager extends BaseAdvisorManager {
   closeResultView() {
     this.isStreaming = false;
     if (this.eventSource) {
-      try { this.eventSource.close(); } catch (_) {}
+      try {
+        this.eventSource.close();
+      } catch (_) {}
       this.eventSource = null;
     }
     const view = document.getElementById('webAdvisorView');

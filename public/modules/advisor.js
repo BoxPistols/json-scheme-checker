@@ -67,7 +67,8 @@ class AdvisorManager extends BaseAdvisorManager {
   }
 
   showAdvisorButton() {
-    const actionsContainer = document.getElementById('aiActions') || document.getElementById('results');
+    const actionsContainer =
+      document.getElementById('aiActions') || document.getElementById('results');
     if (!actionsContainer || document.getElementById('advisorTriggerBtn')) return;
 
     const button = document.createElement('button');
@@ -88,13 +89,18 @@ class AdvisorManager extends BaseAdvisorManager {
     const rateLimit = this.checkRateLimit();
     let rateLimitHtml = '';
     if (rateLimit.mode === 'developer') {
-      rateLimitHtml = '<div class="advisor-rate-info advisor-rate-unlimited">MyAPIモード（無制限）</div>';
+      rateLimitHtml =
+        '<div class="advisor-rate-info advisor-rate-unlimited">MyAPIモード（無制限）</div>';
     } else {
-      const limitMsg = rateLimit.allowed ? `残り ${rateLimit.remaining} 回` : '利用制限に達しました';
+      const limitMsg = rateLimit.allowed
+        ? `残り ${rateLimit.remaining} 回`
+        : '利用制限に達しました';
       rateLimitHtml = `<div class="advisor-rate-info">${limitMsg} / ${rateLimit.maxRequests} 回（24時間）</div>`;
     }
 
-    const overlay = this.createModal('ModeOverlay', `
+    const overlay = this.createModal(
+      'ModeOverlay',
+      `
       <div class="advisor-modal">
         <div class="advisor-modal-header advisor-modal-header--stack">
            <div class="advisor-modal-header-row">
@@ -122,7 +128,8 @@ class AdvisorManager extends BaseAdvisorManager {
           </div>
         </div>
       </div>
-    `);
+    `
+    );
     this.addEscapeKeyListener(overlay, () => this.closeModal('ModeOverlay'));
   }
 
@@ -153,7 +160,9 @@ class AdvisorManager extends BaseAdvisorManager {
     }
 
     const headerHtml = this.renderViewHeader(modeTitle, 'advisor-close-view');
-    const advisorView = this.createModal('View', `
+    const advisorView = this.createModal(
+      'View',
+      `
       ${headerHtml}
       <div class="advisor-view-content">
         <div class="advisor-job-panel">
@@ -174,7 +183,8 @@ class AdvisorManager extends BaseAdvisorManager {
           </div>
         </div>
       </div>
-    `);
+    `
+    );
     container.style.display = 'none';
     advisorView.classList.add('advisor-view');
   }
@@ -195,7 +205,10 @@ class AdvisorManager extends BaseAdvisorManager {
 
   formatDescription(text) {
     let html = this.escapeHtml(text).replace(/&lt;br\s*\/?&gt;/gi, '<br>');
-    return html.split(/\n\n+/).map(p => `<p>${p.split('\n').join('<br>')}</p>`).join('');
+    return html
+      .split(/\n\n+/)
+      .map(p => `<p>${p.split('\n').join('<br>')}</p>`)
+      .join('');
   }
 
   async fetchAdvice(mode) {
@@ -204,11 +217,17 @@ class AdvisorManager extends BaseAdvisorManager {
     this.isStreaming = true;
 
     try {
-      const apiUrl = window.location.hostname.includes('vercel.app') ? '/api/advisor' : 'http://127.0.0.1:3333/api/advisor';
+      const apiUrl = window.location.hostname.includes('vercel.app')
+        ? '/api/advisor'
+        : 'http://127.0.0.1:3333/api/advisor';
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ jobPosting: this.currentJobPosting, mode, userApiKey: this.getUserApiKey() || undefined }),
+        body: JSON.stringify({
+          jobPosting: this.currentJobPosting,
+          mode,
+          userApiKey: this.getUserApiKey() || undefined,
+        }),
       });
 
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -264,8 +283,13 @@ class AdvisorManager extends BaseAdvisorManager {
   renderMarkdown(markdown) {
     let html = this.escapeHtml(markdown);
     html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>').replace(/^## (.*$)/gim, '<h2>$1</h2>');
-    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/^\- (.*$)/gim, '<li>$1</li>');
-    html = html.replace(/((?:<li>.*?<\/li>(?:<br>)*)+)/g, match => `<ul>${match.replace(/<br>/g, '')}</ul>`);
+    html = html
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/^\- (.*$)/gim, '<li>$1</li>');
+    html = html.replace(
+      /((?:<li>.*?<\/li>(?:<br>)*)+)/g,
+      match => `<ul>${match.replace(/<br>/g, '')}</ul>`
+    );
     return html.replace(/\n/g, '<br>');
   }
 
@@ -337,7 +361,8 @@ class AdvisorManager extends BaseAdvisorManager {
 
     // キャッシュがない場合は新しく取得
     console.log(`[Advisor] Fetching new data for ${newMode}`);
-    adviceContent.innerHTML = '<div class="advisor-loading"><div class="advisor-spinner"></div><p>AI分析中...</p></div>';
+    adviceContent.innerHTML =
+      '<div class="advisor-loading"><div class="advisor-spinner"></div><p>AI分析中...</p></div>';
     await this.fetchAdvice(newMode);
   }
 

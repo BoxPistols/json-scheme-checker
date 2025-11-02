@@ -10,12 +10,12 @@ Webサイトから JSON-LD構造化データを抽出・可視化するツール
 
 ## 技術スタック
 
-| 層 | 技術 |
-|----|-----|
-| フロントエンド | Vanilla JS + HTML5/CSS3 |
-| バックエンド | Node.js + Express.js |
-| ホスティング | Vercel（サーバーレス）+ ローカル開発 |
-| HTTP | Axios、DOMParser API |
+| 層             | 技術                                 |
+| -------------- | ------------------------------------ |
+| フロントエンド | Vanilla JS + HTML5/CSS3              |
+| バックエンド   | Node.js + Express.js                 |
+| ホスティング   | Vercel（サーバーレス）+ ローカル開発 |
+| HTTP           | Axios、DOMParser API                 |
 
 ---
 

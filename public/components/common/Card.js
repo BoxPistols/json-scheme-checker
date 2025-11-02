@@ -14,12 +14,7 @@
  * @param {string} props.elevation - エレベーション（なし|low|medium|high）
  * @returns {HTMLElement}
  */
-export function Card({
-  title = '',
-  content = '',
-  className = '',
-  elevation = 'low',
-}) {
+export function Card({ title = '', content = '', className = '', elevation = 'low' }) {
   const card = document.createElement('div');
   card.className = `card card-elevation-${elevation} ${className}`.trim();
 
@@ -52,15 +47,11 @@ export function Card({
  * @param {string} props.className - 追加CSSクラス
  * @returns {HTMLElement}
  */
-export function CardGrid({
-  cards = [],
-  columns = 3,
-  className = '',
-}) {
+export function CardGrid({ cards = [], columns = 3, className = '' }) {
   const grid = document.createElement('div');
   grid.className = `card-grid card-grid-cols-${columns} ${className}`.trim();
 
-  cards.forEach((cardProps) => {
+  cards.forEach(cardProps => {
     const card = Card(cardProps);
     grid.appendChild(card);
   });

@@ -459,23 +459,23 @@ class BaseAdvisorManager {
     // 料金は per 1K tokens（OpenAI公式料金 per 1M を 1000 で割った値、2025年版）
     const prices = {
       // GPT-5 シリーズ（2025年8月リリース）
-      'gpt-5-nano': { input: 0.00125, output: 0.01 },         // $1.25/1M, $10.00/1M
+      'gpt-5-nano': { input: 0.00125, output: 0.01 }, // $1.25/1M, $10.00/1M
       'gpt-5-nano-2025-08-07': { input: 0.00125, output: 0.01 }, // $1.25/1M, $10.00/1M
-      'gpt-5-mini': { input: 0.003, output: 0.015 },          // $3.00/1M, $15.00/1M (推定)
-      'gpt-5': { input: 0.01, output: 0.03 },                 // $10.00/1M, $30.00/1M (推定)
+      'gpt-5-mini': { input: 0.003, output: 0.015 }, // $3.00/1M, $15.00/1M (推定)
+      'gpt-5': { input: 0.01, output: 0.03 }, // $10.00/1M, $30.00/1M (推定)
       // GPT-4.1 シリーズ
-      'gpt-4.1-nano': { input: 0.0001, output: 0.0004 },      // $0.10/1M, $0.40/1M
-      'gpt-4.1-mini': { input: 0.0004, output: 0.0016 },      // $0.40/1M, $1.60/1M
-      'gpt-4.1': { input: 0.002, output: 0.008 },             // $2.00/1M, $8.00/1M
+      'gpt-4.1-nano': { input: 0.0001, output: 0.0004 }, // $0.10/1M, $0.40/1M
+      'gpt-4.1-mini': { input: 0.0004, output: 0.0016 }, // $0.40/1M, $1.60/1M
+      'gpt-4.1': { input: 0.002, output: 0.008 }, // $2.00/1M, $8.00/1M
       // GPT-4o シリーズ
-      'gpt-4o-mini': { input: 0.00015, output: 0.0006 },      // $0.15/1M, $0.60/1M
-      'gpt-4o': { input: 0.0025, output: 0.01 },              // $2.50/1M, $10.00/1M
-      'gpt-4-turbo': { input: 0.01, output: 0.03 },           // $10.00/1M, $30.00/1M
+      'gpt-4o-mini': { input: 0.00015, output: 0.0006 }, // $0.15/1M, $0.60/1M
+      'gpt-4o': { input: 0.0025, output: 0.01 }, // $2.50/1M, $10.00/1M
+      'gpt-4-turbo': { input: 0.01, output: 0.03 }, // $10.00/1M, $30.00/1M
       // GPT-3.5
-      'gpt-3.5-turbo': { input: 0.0005, output: 0.0015 },     // $0.50/1M, $1.50/1M
+      'gpt-3.5-turbo': { input: 0.0005, output: 0.0015 }, // $0.50/1M, $1.50/1M
       // o3 シリーズ
-      'o3-mini': { input: 0.0011, output: 0.0044 },           // $1.10/1M, $4.40/1M
-      'o3': { input: 0.02, output: 0.08 },                    // $20.00/1M, $80.00/1M
+      'o3-mini': { input: 0.0011, output: 0.0044 }, // $1.10/1M, $4.40/1M
+      o3: { input: 0.02, output: 0.08 }, // $20.00/1M, $80.00/1M
     };
 
     // モデル名のバリデーション

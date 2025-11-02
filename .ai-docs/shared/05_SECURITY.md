@@ -145,10 +145,13 @@ console.log(password ? '***' : '(none)');
 
 ```javascript
 // キー: jsonld_auth_{domain}
-localStorage.setItem('jsonld_auth_example.com', JSON.stringify({
-  username: 'user',
-  password: '...'
-}));
+localStorage.setItem(
+  'jsonld_auth_example.com',
+  JSON.stringify({
+    username: 'user',
+    password: '...',
+  })
+);
 ```
 
 **セキュリティ**: ローカルストレージのみ、サーバーに送信なし

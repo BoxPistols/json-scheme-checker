@@ -21,12 +21,12 @@ curl "http://localhost:3333/proxy?url=https://example.com"
 
 ## Git ワークフロー
 
-| ステップ | コマンド |
-|---------|---------|
-| 機能ブランチ作成 | `git checkout -b feature/xxx` |
-| コミット | `git commit -m "feat: 説明"` |
-| プッシュ | `git push origin feature/xxx` |
-| 本番マージ | `git push origin main` → 自動デプロイ |
+| ステップ         | コマンド                              |
+| ---------------- | ------------------------------------- |
+| 機能ブランチ作成 | `git checkout -b feature/xxx`         |
+| コミット         | `git commit -m "feat: 説明"`          |
+| プッシュ         | `git push origin feature/xxx`         |
+| 本番マージ       | `git push origin main` → 自動デプロイ |
 
 **コミット規約**: `feat:`, `fix:`, `docs:`, `refactor:` 等で始める
 
@@ -87,11 +87,11 @@ ifconfig | grep "inet " | grep -v 127.0.0.1
 
 ## コード修正時の注意
 
-| ファイル | 再起動 | 方法 |
-|---------|------|------|
-| `server.js` | 必須 | `pnpm dev` で自動or手動再起動 |
-| `public/index.html` | 不要 | ブラウザリロード |
-| `api/*.js` | テスト困難 | `vercel dev` または本番デプロイ |
+| ファイル            | 再起動     | 方法                            |
+| ------------------- | ---------- | ------------------------------- |
+| `server.js`         | 必須       | `pnpm dev` で自動or手動再起動   |
+| `public/index.html` | 不要       | ブラウザリロード                |
+| `api/*.js`          | テスト困難 | `vercel dev` または本番デプロイ |
 
 ---
 
@@ -118,12 +118,12 @@ curl "http://localhost:3333/proxy?url=https://example.com"
 
 ## トラブルシューティング
 
-| 問題 | 原因 | 解決 |
-|-----|-----|------|
-| ポート3333使用中 | 別プロセス起動 | `kill $(lsof -t -i:3333)` |
-| CORSエラー | プロキシなし | `pnpm dev` で起動 |
-| API呼び出し失敗 | OpenAI APIキーなし | `.env` で設定 |
-| localhost接続失敗 | IPv6問題 | 自動的に127.0.0.1に変換 |
+| 問題              | 原因               | 解決                      |
+| ----------------- | ------------------ | ------------------------- |
+| ポート3333使用中  | 別プロセス起動     | `kill $(lsof -t -i:3333)` |
+| CORSエラー        | プロキシなし       | `pnpm dev` で起動         |
+| API呼び出し失敗   | OpenAI APIキーなし | `.env` で設定             |
+| localhost接続失敗 | IPv6問題           | 自動的に127.0.0.1に変換   |
 
 ---
 

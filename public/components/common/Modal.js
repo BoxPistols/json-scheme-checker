@@ -60,7 +60,7 @@ export function Modal({
   }
 
   // Escキーでクローズ
-  const handleKeydown = (e) => {
+  const handleKeydown = e => {
     if (e.key === 'Escape' && onClose) {
       onClose();
     }
@@ -78,7 +78,7 @@ export function Modal({
   // フッター（アクションボタン）
   const footer = document.createElement('div');
   footer.className = 'modal-footer';
-  actions.forEach((action) => {
+  actions.forEach(action => {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = `btn btn-${action.variant || 'primary'}`;
