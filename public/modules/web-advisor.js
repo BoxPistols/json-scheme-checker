@@ -67,7 +67,7 @@ class WebAdvisorManager extends BaseAdvisorManager {
 
     if (!url) {
       console.log('[WebAdvisor] No URL provided');
-      return;
+      return false;
     }
 
     // 専用アドバイザーがあるスキーマタイプ（これらがある場合のみ除外）
@@ -106,8 +106,10 @@ class WebAdvisorManager extends BaseAdvisorManager {
       console.log('[WebAdvisor] Showing analysis button (専用アドバイザーなし)');
       this.currentUrl = url;
       this.showAnalysisButton();
+      return true;
     } else {
       console.log('[WebAdvisor] Not showing button (専用アドバイザーあり)');
+      return false;
     }
   }
 

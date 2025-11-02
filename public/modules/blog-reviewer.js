@@ -131,8 +131,10 @@ class BlogReviewerManager extends BaseAdvisorManager {
         '[BlogReviewerManager] Review button shown with enriched data:',
         this.currentArticle
       );
+      return true;
     } else {
       console.log('[BlogReviewerManager] No Article/BlogPosting found in schemas');
+      return false;
     }
   }
 

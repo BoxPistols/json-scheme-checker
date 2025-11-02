@@ -66,7 +66,9 @@ class AdvisorManager extends BaseAdvisorManager {
     if (jobPosting) {
       this.currentJobPosting = jobPosting;
       this.showAdvisorButton();
+      return true;
     }
+    return false;
   }
 
   showAdvisorButton() {

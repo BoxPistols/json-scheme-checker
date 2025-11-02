@@ -1263,17 +1263,29 @@ function displaySchemas(schemas, url) {
 
   showResults();
 
-  // AI Advisor: JobPosting検出
+  // AI分析: 優先順位に基づいて排他的に実行（複数の同時実行を防ぐ）
+  // 1. JobPosting検出（最優先）
   if (typeof advisorManager !== 'undefined') {
-    advisorManager.detectJobPosting(schemas);
+    if (advisorManager.detectJobPosting(schemas)) {
+      console.log('[App] JobPosting検出 → Advisor');
+      return;
+    }
   }
-  // Blog Reviewer: Article/BlogPosting検出
+
+  // 2. Article/BlogPosting検出
   if (typeof blogReviewerManager !== 'undefined') {
-    blogReviewerManager.detectBlogPost(schemas);
+    if (blogReviewerManager.detectBlogPost(schemas)) {
+      console.log('[App] BlogPost検出 → BlogReviewer');
+      return;
+    }
   }
-  // Web Advisor: スキーマ無し/WebPageのみ検出
+
+  // 3. Web分析（スキーマ無し/WebPageのみ）
   if (typeof webAdvisorManager !== 'undefined') {
-    webAdvisorManager.detectNoSchemaOrWebPageOnly(schemas, url);
+    if (webAdvisorManager.detectNoSchemaOrWebPageOnly(schemas, url)) {
+      console.log('[App] 一般的なWebページ → WebAdvisor');
+      return;
+    }
   }
 }
 
