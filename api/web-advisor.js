@@ -551,17 +551,20 @@ module.exports = async (req, res) => {
       const prompt = buildPrompt(metadata, url);
 
       const usingServerKey = !userApiKey && !!process.env.OPENAI_API_KEY;
-      const PUBLIC_ALLOWED_MODELS = (process.env.PUBLIC_ALLOWED_MODELS || 'gpt-4.1-nano,gpt-5-nano')
+      const PUBLIC_ALLOWED_MODELS = (process.env.PUBLIC_ALLOWED_MODELS || 'gpt-5-nano,gpt-4.1-nano')
         .split(',')
         .map(s => s.trim())
         .filter(Boolean);
 
-      let selectedModel = model || process.env.OPENAI_MODEL || 'gpt-4.1-nano';
+      let selectedModel = model || process.env.OPENAI_MODEL || 'gpt-5-nano';
 
       // サーバー既定キー使用時はモデルとbaseUrlを強制（エンドユーザーの上書きを無効化）
       if (usingServerKey) {
         if (!PUBLIC_ALLOWED_MODELS.includes(selectedModel)) {
-          if (process.env.OPENAI_MODEL && PUBLIC_ALLOWED_MODELS.includes(process.env.OPENAI_MODEL)) {
+          if (
+            process.env.OPENAI_MODEL &&
+            PUBLIC_ALLOWED_MODELS.includes(process.env.OPENAI_MODEL)
+          ) {
             selectedModel = process.env.OPENAI_MODEL;
           } else {
             selectedModel = PUBLIC_ALLOWED_MODELS[0];
