@@ -459,7 +459,7 @@ class AdvisorManager extends BaseAdvisorManager {
   }
 
   /**
-   * CSV形式でエクスポート
+   * CSV形式でエクスポート（整形済みで見やすい形式）
    */
   exportToCSV() {
     try {
@@ -469,23 +469,37 @@ class AdvisorManager extends BaseAdvisorManager {
       const jobContent = document.getElementById('advisorJobContent');
       const adviceContent = document.querySelector('.advisor-markdown');
 
-      const csvData = [];
-      csvData.push(['エクスポート日時', new Date().toLocaleString('ja-JP')]);
-      csvData.push(['視点', modeLabel]);
-      csvData.push(['モデル', this.currentModel]);
-      csvData.push(['トークン使用数', `入力: ${this.currentUsage.prompt_tokens}, 出力: ${this.currentUsage.completion_tokens}`]);
-      csvData.push(['']);
-      csvData.push(['求人情報']);
-      if (jobContent) {
-        csvData.push([jobContent.innerText.replace(/\n/g, ' ')]);
-      }
-      csvData.push(['']);
-      csvData.push(['AI分析結果']);
-      if (adviceContent) {
-        csvData.push([adviceContent.innerText.replace(/\n/g, ' ')]);
-      }
+      // メタデータ抽出（HTMLタグ除去）
+      const jobText = jobContent ? this.cleanHtmlText(jobContent.innerText) : '情報なし';
+      const adviceText = adviceContent ? adviceContent.innerText : '情報なし';
 
-      const csvContent = csvData.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+      // CSVヘッダー付きで整形
+      const csvLines = [];
+
+      // メタデータセクション
+      csvLines.push('【エクスポート情報】');
+      csvLines.push(`エクスポート日時,${new Date().toLocaleString('ja-JP')}`);
+      csvLines.push(`視点,${modeLabel}`);
+      csvLines.push(`使用モデル,${this.currentModel}`);
+      csvLines.push(`トークン使用数,"入力: ${this.currentUsage.prompt_tokens}, 出力: ${this.currentUsage.completion_tokens}"`);
+      csvLines.push('');
+
+      // 求人情報セクション
+      csvLines.push('【求人情報】');
+      const jobLines = jobText.split('\n').filter(line => line.trim().length > 0);
+      jobLines.forEach(line => {
+        csvLines.push(this.escapeCsvLine(line));
+      });
+      csvLines.push('');
+
+      // AI分析結果セクション
+      csvLines.push('【AI分析結果】');
+      const adviceLines = adviceText.split('\n').filter(line => line.trim().length > 0);
+      adviceLines.forEach(line => {
+        csvLines.push(this.escapeCsvLine(line));
+      });
+
+      const csvContent = csvLines.join('\n');
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const filename = `advice_${this.currentMode}_${timestamp}.csv`;
 
@@ -495,6 +509,28 @@ class AdvisorManager extends BaseAdvisorManager {
       console.error('[Advisor] CSV export failed:', error);
       alert('CSVエクスポートに失敗しました。');
     }
+  }
+
+  /**
+   * HTMLタグを除去してテキストをクリーンアップ
+   */
+  cleanHtmlText(text) {
+    return text
+      .replace(/<[^>]*>/g, '') // HTMLタグ除去
+      .replace(/&nbsp;/g, ' ')  // &nbsp;をスペースに
+      .replace(/\t+/g, ' ')     // タブをスペースに
+      .replace(/\s+/g, ' ')     // 連続する空白を単一スペースに
+      .trim();
+  }
+
+  /**
+   * CSV用に行をエスケープ（改行や特殊文字を処理）
+   */
+  escapeCsvLine(line) {
+    // ダブルクォートが含まれている場合は2倍にする
+    const escaped = line.replace(/"/g, '""');
+    // ダブルクォートで囲む
+    return `"${escaped}"`;
   }
 
   /**
