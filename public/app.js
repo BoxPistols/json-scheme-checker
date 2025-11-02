@@ -1975,13 +1975,13 @@ function updateHeaderApiStatus() {
   // モデル名を取得
   try {
     const settings = JSON.parse(localStorage.getItem(STORAGE_KEY_DEVELOPER) || '{}');
-    const modelName = settings.model || 'gpt-4.1-nano';
+    const modelName = settings.model || 'gpt-5-nano';
 
     // モデル名を短縮表示（gpt-5-nano-2025-08-07 -> gpt-5-nano）
     const shortModelName = modelName.replace(/-\d{4}-\d{2}-\d{2}$/, '');
     modelNameEl.textContent = shortModelName;
   } catch (error) {
-    modelNameEl.textContent = 'gpt-4.1-nano';
+    modelNameEl.textContent = 'gpt-5-nano';
   }
 
   // 利用回数を取得

@@ -75,7 +75,7 @@
                 </button>
                 <span class="api-status-chip" id="apiModelChip" title="現在のモデル">
                     <span class="api-status-label">Model:</span>
-                    <span id="apiModelName">gpt-4.1-nano</span>
+                    <span id="apiModelName">gpt-5-nano</span>
                 </span>
                 <span class="api-status-chip" id="apiUsageChip" title="本日の利用回数">
                     <span id="apiUsageCount">-</span>
@@ -1065,12 +1065,8 @@ export default function Home() {
                                 class="form-select"
                                 style="width: 100%; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 14px;"
                             >
-                                <option value="gpt-4.1-nano">gpt-4.1-nano（コスト重視: $0.10/1M入力）</option>
-                                <option value="gpt-5-nano">gpt-5-nano（レイテンシ重視: $1.25/1M入力）</option>
-                                <option value="gpt-4.1-mini">gpt-4.1-mini（$0.40/1M入力）</option>
-                                <option value="gpt-5-mini">gpt-5-mini（$3.00/1M入力・推定）</option>
-                                <option value="gpt-4o">gpt-4o（品質重視: $2.50/1M入力）</option>
-                                <option value="gpt-5">gpt-5（最高品質: $10.00/1M入力・推定）</option>
+                                <option value="gpt-4.1-nano">gpt-4.1-nano（無料版）</option>
+                                <option value="gpt-5-nano">gpt-5-nano（無料版）</option>
                             </select>
                             <p style="margin: 4px 0 0; font-size: 12px; color: var(--secondary-text-color);">
                                 GPT-5シリーズは超低レイテンシですが、temperatureパラメータは非対応です
