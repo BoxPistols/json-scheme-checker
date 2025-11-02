@@ -2943,6 +2943,43 @@ html[data-theme='dark'] .score-breakdown > div {
   border-color: var(--accent-hover-color);
 }
 
+/* Export Buttons */
+.advisor-export-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 12px 24px;
+  border-top: 1px solid var(--border-color);
+  background: var(--secondary-bg-color);
+}
+
+.advisor-export-btn {
+  padding: 10px 16px;
+  border: 1px solid var(--border-color);
+  background: var(--card-bg-color);
+  color: var(--text-color);
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.advisor-export-btn:hover {
+  background: var(--accent-hover-bg-color);
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+}
+
+.advisor-export-btn:active {
+  transform: scale(0.98);
+}
+
+.advisor-export-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* Job Posting Display */
 .job-field {
   margin-bottom: 20px;

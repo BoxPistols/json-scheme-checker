@@ -181,6 +181,7 @@ class AdvisorManager extends BaseAdvisorManager {
             <button type="button" class="advisor-perspective-btn ${mode === 'applicant' ? 'active' : ''}" data-action="advisor-switch-perspective-applicant">応募者視点</button>
             <button type="button" class="advisor-perspective-btn ${mode === 'agent' ? 'active' : ''}" data-action="advisor-switch-perspective-agent">エージェント視点</button>
           </div>
+          <div id="advisorExportButtons" class="advisor-export-buttons"></div>
         </div>
       </div>
     `
@@ -256,6 +257,8 @@ class AdvisorManager extends BaseAdvisorManager {
               usage: this.currentUsage,
               model: this.currentModel,
             };
+            // エクスポートボタンを表示
+            this.showExportButtons();
             break;
           }
           try {
@@ -429,6 +432,189 @@ class AdvisorManager extends BaseAdvisorManager {
       content.classList.add('advisor-accordion-collapsed');
       icon.textContent = '▶';
     }
+  }
+
+  /**
+   * エクスポートボタンを表示
+   */
+  showExportButtons() {
+    const exportContainer = document.getElementById('advisorExportButtons');
+    if (!exportContainer) return;
+
+    exportContainer.innerHTML = `
+      <button type="button" class="advisor-export-btn advisor-export-csv-btn" aria-label="AI分析結果をCSV形式でエクスポート">CSVでエクスポート</button>
+      <button type="button" class="advisor-export-btn advisor-export-pdf-btn" aria-label="AI分析結果をPDF形式でエクスポート">PDFでエクスポート</button>
+    `;
+
+    const csvBtn = exportContainer.querySelector('.advisor-export-csv-btn');
+    const pdfBtn = exportContainer.querySelector('.advisor-export-pdf-btn');
+
+    csvBtn.addEventListener('click', () => this.exportToCSV());
+    pdfBtn.addEventListener('click', () => this.exportToPDF());
+  }
+
+  /**
+   * CSV形式でエクスポート
+   */
+  exportToCSV() {
+    try {
+      const timestamp = new Date().toISOString().split('T')[0];
+      const modeLabel = this.getModeLabel(this.currentMode);
+
+      const jobContent = document.getElementById('advisorJobContent');
+      const adviceContent = document.querySelector('.advisor-markdown');
+
+      const csvData = [];
+      csvData.push(['エクスポート日時', new Date().toLocaleString('ja-JP')]);
+      csvData.push(['視点', modeLabel]);
+      csvData.push(['モデル', this.currentModel]);
+      csvData.push(['トークン使用数', `入力: ${this.currentUsage.prompt_tokens}, 出力: ${this.currentUsage.completion_tokens}`]);
+      csvData.push(['']);
+      csvData.push(['求人情報']);
+      if (jobContent) {
+        csvData.push([jobContent.innerText.replace(/\n/g, ' ')]);
+      }
+      csvData.push(['']);
+      csvData.push(['AI分析結果']);
+      if (adviceContent) {
+        csvData.push([adviceContent.innerText.replace(/\n/g, ' ')]);
+      }
+
+      const csvContent = csvData.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const filename = `advice_${this.currentMode}_${timestamp}.csv`;
+
+      this.downloadFile(blob, filename);
+      console.log('[Advisor] CSV export successful:', filename);
+    } catch (error) {
+      console.error('[Advisor] CSV export failed:', error);
+      alert('CSVエクスポートに失敗しました。');
+    }
+  }
+
+  /**
+   * PDF形式でエクスポート
+   */
+  exportToPDF() {
+    try {
+      const timestamp = new Date().toLocaleString('ja-JP');
+      const modeLabel = this.getModeLabel(this.currentMode);
+
+      const jobContent = document.getElementById('advisorJobContent');
+      const adviceContent = document.querySelector('.advisor-markdown');
+
+      const pageHeight = 297;
+      const pageWidth = 210;
+      const margin = 10;
+      const lineHeight = 5;
+      let yPosition = margin;
+
+      let pdfContent = '';
+
+      pdfContent += `%PDF-1.4\n`;
+      pdfContent += `1 0 obj\n`;
+      pdfContent += `<< /Type /Catalog /Pages 2 0 R >>\n`;
+      pdfContent += `endobj\n`;
+      pdfContent += `2 0 obj\n`;
+      pdfContent += `<< /Type /Pages /Kids [3 0 R] /Count 1 >>\n`;
+      pdfContent += `endobj\n`;
+      pdfContent += `3 0 obj\n`;
+      pdfContent += `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageWidth * 2.83} ${pageHeight * 2.83}] /Contents 4 0 R /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> >>\n`;
+      pdfContent += `endobj\n`;
+      pdfContent += `4 0 obj\n`;
+
+      let streamContent = '';
+      streamContent += `BT /F2 14 Tf ${margin * 2.83} ${(pageHeight - margin) * 2.83} Td (AI分析結果エクスポート) Tj\n`;
+      streamContent += `0 -${lineHeight * 2.83} Td /F1 10 Tf\n`;
+      streamContent += `/F1 10 Tf ${margin * 2.83} ${(pageHeight - margin - 10) * 2.83} Td (エクスポート日時: ${timestamp}) Tj\n`;
+      streamContent += `0 -${lineHeight * 2.83} Td (視点: ${modeLabel}) Tj\n`;
+      streamContent += `0 -${lineHeight * 2.83} Td (モデル: ${this.currentModel}) Tj\n`;
+      streamContent += `0 -${lineHeight * 2.83} Td (トークン使用数: 入力 ${this.currentUsage.prompt_tokens}, 出力 ${this.currentUsage.completion_tokens}) Tj\n`;
+      streamContent += `0 -${lineHeight * 3.5} Td /F2 12 Tf (求人情報) Tj\n`;
+      streamContent += `0 -${lineHeight * 2.83} Td /F1 10 Tf\n`;
+
+      if (jobContent) {
+        const jobText = jobContent.innerText;
+        streamContent += `(${this.escapePdfText(jobText.substring(0, 100))}) Tj\n`;
+      }
+
+      streamContent += `0 -${lineHeight * 3.5} Td /F2 12 Tf (AI分析結果) Tj\n`;
+      streamContent += `0 -${lineHeight * 2.83} Td /F1 10 Tf\n`;
+
+      if (adviceContent) {
+        const adviceText = adviceContent.innerText;
+        streamContent += `(${this.escapePdfText(adviceText.substring(0, 100))}) Tj\n`;
+      }
+
+      streamContent += `ET\n`;
+
+      pdfContent += `<< /Length ${streamContent.length} >>\nstream\n`;
+      pdfContent += streamContent;
+      pdfContent += `\nendstream\nendobj\n`;
+      pdfContent += `5 0 obj\n`;
+      pdfContent += `<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\n`;
+      pdfContent += `endobj\n`;
+      pdfContent += `6 0 obj\n`;
+      pdfContent += `<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>\n`;
+      pdfContent += `endobj\n`;
+      pdfContent += `xref\n`;
+      pdfContent += `0 7\n`;
+      pdfContent += `0000000000 65535 f \n`;
+      pdfContent += `0000000009 00000 n \n`;
+      pdfContent += `0000000058 00000 n \n`;
+      pdfContent += `0000000115 00000 n \n`;
+      pdfContent += `0000000300 00000 n \n`;
+      pdfContent += `0000001000 00000 n \n`;
+      pdfContent += `0000001100 00000 n \n`;
+      pdfContent += `trailer\n`;
+      pdfContent += `<< /Size 7 /Root 1 0 R >>\n`;
+      pdfContent += `startxref\n`;
+      pdfContent += `${pdfContent.length}\n`;
+      pdfContent += `%%EOF\n`;
+
+      const blob = new Blob([pdfContent], { type: 'application/pdf' });
+      const dateStr = new Date().toISOString().split('T')[0];
+      const filename = `advice_${this.currentMode}_${dateStr}.pdf`;
+
+      this.downloadFile(blob, filename);
+      console.log('[Advisor] PDF export successful:', filename);
+    } catch (error) {
+      console.error('[Advisor] PDF export failed:', error);
+      alert('PDFエクスポートに失敗しました。');
+    }
+  }
+
+  /**
+   * ファイルダウンロード
+   */
+  downloadFile(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  /**
+   * PDF用テキストをエスケープ
+   */
+  escapePdfText(text) {
+    return text.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)').substring(0, 200);
+  }
+
+  /**
+   * 視点のラベルを取得
+   */
+  getModeLabel(mode) {
+    const labels = {
+      employer: '採用側視点',
+      applicant: '応募者視点',
+      agent: 'エージェント視点',
+    };
+    return labels[mode] || mode;
   }
 }
 
