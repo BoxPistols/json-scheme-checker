@@ -38,7 +38,10 @@ function canStartAnalysis(analyzerType) {
  */
 function setAnalysisActive(analyzerType) {
   // 他の分析が実行中なら、そのリクエストをキャンセル
-  if (window.ANALYSIS_STATE.activeAnalysis && window.ANALYSIS_STATE.activeAnalysis !== analyzerType) {
+  if (
+    window.ANALYSIS_STATE.activeAnalysis &&
+    window.ANALYSIS_STATE.activeAnalysis !== analyzerType
+  ) {
     cancelAnalysis(window.ANALYSIS_STATE.activeAnalysis);
   }
   window.ANALYSIS_STATE.activeAnalysis = analyzerType;
@@ -249,7 +252,7 @@ class BaseAdvisorManager {
     this.disableStakeholderMode();
     this.saveUserApiKey('');
     alert('通常モードに戻しました。');
-    this.config.ui.showConfirmDialog(); // Re-render the confirmation dialog
+    // this.config.ui.showConfirmDialog(); // Re-render the confirmation dialog
   }
 
   /**
@@ -284,7 +287,8 @@ class BaseAdvisorManager {
   confirmStakeholder() {
     this.enableStakeholderMode();
     this.closeStakeholderPrompt();
-    this.config.ui.showConfirmDialog();
+    // this.config.ui.showConfirmDialog(); // Re-rendering the dialog causes issues
+    alert('関係者モードを有効にしました。再度分析ボタンを押してください。');
   }
 
   /**
@@ -489,7 +493,8 @@ class BaseAdvisorManager {
     this.saveUserApiModel(model);
 
     this.closeDeveloperPrompt();
-    this.config.ui.showConfirmDialog();
+    // this.config.ui.showConfirmDialog();
+    alert('設定を保存しました。再度分析ボタンを押してください。');
   }
 
   toggleDeveloperKeyVisibility() {

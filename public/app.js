@@ -2090,7 +2090,7 @@ function updateHeaderApiStatus() {
   const rateLimitKeys = [
     'jsonld_advisor_usage',
     'jsonld_blog_reviewer_usage',
-    'jsonld_web_advisor_usage'
+    'jsonld_web_advisor_usage',
   ];
 
   // すべてのアドバイザーの合計利用回数を計算
@@ -2106,9 +2106,10 @@ function updateHeaderApiStatus() {
   });
 
   // 関係者モードかどうかを確認
-  const isStakeholder = localStorage.getItem('jsonld_advisor_stakeholder') === 'true' ||
-                        localStorage.getItem('jsonld_blog_reviewer_stakeholder') === 'true' ||
-                        localStorage.getItem('jsonld_web_advisor_stakeholder') === 'true';
+  const isStakeholder =
+    localStorage.getItem('jsonld_advisor_stakeholder') === 'true' ||
+    localStorage.getItem('jsonld_blog_reviewer_stakeholder') === 'true' ||
+    localStorage.getItem('jsonld_web_advisor_stakeholder') === 'true';
 
   const maxRequests = isStakeholder ? 30 : 10;
   const remaining = Math.max(0, maxRequests - totalUsed);

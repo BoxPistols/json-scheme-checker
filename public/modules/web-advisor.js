@@ -155,34 +155,9 @@ class WebAdvisorManager extends BaseAdvisorManager {
 
   /**
    * 確認ダイアログを表示（Advisor/BlogReviewerと統一）
+   * Dialog内にはAPI関連情報は含めない（API設定はHeadeのMy APIで管理）
    */
   showConfirmDialog() {
-    const rateLimit = this.checkRateLimit();
-
-    let rateLimitHtml = '';
-    if (rateLimit.mode === 'developer') {
-      rateLimitHtml =
-        '<div class="advisor-rate-info advisor-rate-unlimited">MyAPIモード（無制限）</div>';
-    } else if (rateLimit.mode === 'stakeholder') {
-      if (!rateLimit.allowed) {
-        const resetTimeStr = rateLimit.resetTime
-          ? rateLimit.resetTime.toLocaleString('ja-JP')
-          : '不明';
-        rateLimitHtml = `<div class="advisor-rate-info advisor-rate-exceeded">利用制限に達しました（リセット: ${resetTimeStr}）</div>`;
-      } else {
-        rateLimitHtml = `<div class="advisor-rate-info advisor-rate-stakeholder">関係者モード - 残り ${rateLimit.remaining} 回 / ${rateLimit.maxRequests} 回（24時間）</div>`;
-      }
-    } else {
-      if (!rateLimit.allowed) {
-        const resetTimeStr = rateLimit.resetTime
-          ? rateLimit.resetTime.toLocaleString('ja-JP')
-          : '不明';
-        rateLimitHtml = `<div class="advisor-rate-info advisor-rate-exceeded">利用制限に達しました（リセット: ${resetTimeStr}）</div>`;
-      } else {
-        rateLimitHtml = `<div class="advisor-rate-info">残り ${rateLimit.remaining} 回 / ${rateLimit.maxRequests} 回（24時間）</div>`;
-      }
-    }
-
     const overlay = document.createElement('div');
     overlay.id = 'webAdvisorConfirmOverlay';
     overlay.className = 'advisor-overlay';
@@ -195,7 +170,6 @@ class WebAdvisorManager extends BaseAdvisorManager {
           </button>
         </div>
         <div class="advisor-modal-body">
-          ${rateLimitHtml}
           <p class="advisor-modal-text advisor-center advisor-muted">SEO/EEAT/アクセシビリティ観点で対象ページを分析します。</p>
           <div class="advisor-confirm-buttons">
             <button type="button" class="advisor-btn-secondary" data-action="web-close-confirm-dialog">キャンセル</button>

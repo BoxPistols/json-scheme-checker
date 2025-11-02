@@ -353,42 +353,13 @@ class BlogReviewerManager extends BaseAdvisorManager {
 
   /**
    * レビュー実行確認ダイアログを表示
+   * Dialog内にはAPI関連情報は含めない（API設定はHeaderのMy APIで管理）
    */
   showConfirmDialog() {
     // currentArticleがnullの場合は何もしない（誤動作防止）
     if (!this.currentArticle) {
       console.warn('[BlogReviewer] showConfirmDialog called but currentArticle is null');
       return;
-    }
-
-    const rateLimit = this.checkRateLimit();
-
-    let rateLimitHtml = '';
-    let modeLabel = '';
-    if (rateLimit.mode === 'developer') {
-      rateLimitHtml =
-        '<div class="advisor-rate-info advisor-rate-unlimited">MyAPIモード（無制限）</div>';
-      modeLabel = 'MyAPIモード';
-    } else if (rateLimit.mode === 'stakeholder') {
-      if (!rateLimit.allowed) {
-        const resetTimeStr = rateLimit.resetTime
-          ? rateLimit.resetTime.toLocaleString('ja-JP')
-          : '不明';
-        rateLimitHtml = `<div class="advisor-rate-info advisor-rate-exceeded">利用制限に達しました（リセット: ${resetTimeStr}）</div>`;
-      } else {
-        rateLimitHtml = `<div class="advisor-rate-info advisor-rate-stakeholder">関係者モード - 残り ${rateLimit.remaining} 回 / ${rateLimit.maxRequests} 回（24時間）</div>`;
-      }
-      modeLabel = '関係者モード';
-    } else {
-      if (!rateLimit.allowed) {
-        const resetTimeStr = rateLimit.resetTime
-          ? rateLimit.resetTime.toLocaleString('ja-JP')
-          : '不明';
-        rateLimitHtml = `<div class="advisor-rate-info advisor-rate-exceeded">利用制限に達しました（リセット: ${resetTimeStr}）</div>`;
-      } else {
-        rateLimitHtml = `<div class="advisor-rate-info">残り ${rateLimit.remaining} 回 / ${rateLimit.maxRequests} 回（24時間）</div>`;
-      }
-      modeLabel = '通常モード';
     }
 
     const overlay = document.createElement('div');
@@ -405,7 +376,6 @@ class BlogReviewerManager extends BaseAdvisorManager {
           </button>
         </div>
         <div class="advisor-modal-body">
-          ${rateLimitHtml}
           <p class="advisor-modal-text advisor-center advisor-muted">SEO観点、EEAT観点、アクセシビリティ観点でブログ記事をレビューします。</p>
           <div class="advisor-confirm-buttons">
             <button type="button" class="advisor-btn-secondary" data-action="blog-close-confirm-dialog">キャンセル</button>

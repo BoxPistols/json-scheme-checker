@@ -13,11 +13,13 @@
 WCAG 2.1の基準に従い、以下のコントラスト比を維持します：
 
 ### レベルAA（推奨）
+
 - **通常テキスト**: 4.5:1以上
 - **大きいテキスト**（18pt以上、または太字14pt以上）: 3:1以上
 - **UI コンポーネント**: 3:1以上
 
 ### レベルAAA（理想）
+
 - **通常テキスト**: 7:1以上
 - **大きいテキスト**: 4.5:1以上
 
@@ -28,27 +30,32 @@ WCAG 2.1の基準に従い、以下のコントラスト比を維持します：
 ### ボタンのコントラスト
 
 #### Helpボタン
+
 - **色**: `var(--accent-color)` (通常は青系)
 - **背景**: transparent
 - **ホバー**: `var(--accent-hover-bg-color)`
 
 #### My APIボタン
+
 - **色**: `#ff6b35` (オレンジ)
 - **背景**: transparent
 - **ホバー**: 背景 `#ff6b35`、文字色 white
 
 #### セカンダリボタン（接続テスト、クリア）
+
 - **色**: `var(--text-color)`
 - **背景**: `var(--secondary-bg-color)`
 - **境界**: `var(--border-color)`
 
 #### プライマリボタン（保存）
+
 - **色**: white
 - **背景**: `var(--accent-color)`
 
 ### モーダルのコントラスト
 
 #### モーダルヘッダー
+
 - **タイトル**: `var(--text-color)`
 - **サブタイトル**: `var(--secondary-text-color)`
 - **閉じるボタン**: `var(--secondary-text-color)`（ホバー時: `var(--text-color)`）
@@ -60,11 +67,13 @@ WCAG 2.1の基準に従い、以下のコントラスト比を維持します：
 ### 1. axe-core（自動テスト）
 
 **インストール**:
+
 ```bash
 pnpm add -D axe-core
 ```
 
 **テストコード例** (`tests/a11y/contrast.test.js`):
+
 ```javascript
 import { describe, it, expect } from 'vitest';
 import { JSDOM } from 'jsdom';
@@ -92,11 +101,13 @@ describe('Accessibility - Contrast', () => {
 ### 2. pa11y（CI統合）
 
 **インストール**:
+
 ```bash
 pnpm add -D pa11y pa11y-ci
 ```
 
 **設定ファイル** (`.pa11yrc.json`):
+
 ```json
 {
   "standard": "WCAG2AA",
@@ -106,6 +117,7 @@ pnpm add -D pa11y pa11y-ci
 ```
 
 **package.json**:
+
 ```json
 {
   "scripts": {
@@ -117,11 +129,13 @@ pnpm add -D pa11y pa11y-ci
 ### 3. lighthouse-ci（総合テスト）
 
 **インストール**:
+
 ```bash
 pnpm add -D @lhci/cli
 ```
 
 **設定ファイル** (`lighthouserc.json`):
+
 ```json
 {
   "ci": {
@@ -146,11 +160,13 @@ pnpm add -D @lhci/cli
 ### 1. ブラウザの開発者ツール
 
 #### Chrome DevTools
+
 1. 要素を右クリック → 「検証」
 2. Styles タブで色を確認
 3. コントラスト比が表示される
 
 #### Firefox Developer Tools
+
 1. アクセシビリティタブを開く
 2. コントラストチェッカーを使用
 

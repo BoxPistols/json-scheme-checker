@@ -36,6 +36,7 @@
 ### ✅ フロントエンド実装
 
 #### public/app.js
+
 - [x] ボタンクリア処理を実装
   - `advisorManager.hideAdvisorButton()` (line 1269)
   - `blogReviewerManager.hideReviewButton()` (line 1271)
@@ -51,18 +52,21 @@
   - 複数分析の実行を防止
 
 #### public/modules/advisor.js
+
 - [x] detectJobPosting() メソッド
   - `this.hideAdvisorButton()` で既存ボタン削除 (line 59)
   - JobPosting 検出ロジック (line 60-62)
   - 検出時に `showAdvisorButton()` で求人ボタン表示 (line 65)
 
 #### public/modules/blog-reviewer.js
+
 - [x] detectBlogPost() メソッド
   - `this.hideReviewButton()` で既存ボタン削除 (line 100)
   - Article/BlogPosting/NewsArticle 検出ロジック (line 113-119)
   - 検出時に `showReviewButton()` でブログボタン表示
 
 #### public/modules/web-advisor.js
+
 - [x] detectNoSchemaOrWebPageOnly() メソッド
   - `this.hideAnalysisButton()` で既存ボタン削除 (line 66)
   - exclusiveAdvisorTypes チェック (line 74-79)
@@ -74,6 +78,7 @@
 ### ✅ バックエンド実装
 
 #### api/web-advisor.js - buildPrompt() 汎用化
+
 - [x] 「ブログ記事として評価してください」を削除
   - 固定指示を排除
 
@@ -91,6 +96,7 @@
   - SEO基礎要素、ページ構造、ユーザビリティ
 
 #### api/web-advisor.js - generateFallbackTemplate() 汎用化
+
 - [x] ページの性質を自動判定
   - 判定基準: 本文1000文字以上 && H2見出し3個以上 && タイトルあり (line 316)
 
@@ -107,6 +113,7 @@
 ## コード品質検証
 
 ### 命名規則
+
 - [x] 変数名が説明的
   - `isBlogLike`, `bodyLength`, `h1Count` など
 
@@ -117,6 +124,7 @@
   - 実装意図が理解しやすい
 
 ### エラーハンドリング
+
 - [x] null/undefined チェック
   - `if (typeof advisorManager !== 'undefined')` (multiple locations)
   - `if (!jsonLdData || !Array.isArray(jsonLdData))` (line 102)
@@ -126,6 +134,7 @@
   - `if (existingBtn)` (line 128)
 
 ### セキュリティ
+
 - [x] ユーザー入力サニタイズ
   - `escapeHtml()` メソッド使用
 
@@ -139,11 +148,10 @@
 ### ✅ スキーマベースの抽象的な分類
 
 - [x] URLパターンによるハードコード判定がない
+
   ```javascript
   // 正しい実装（スキーマベース）
-  const jobPosting = jsonLdData.find(
-    item => item['@type'] === 'JobPosting'
-  );
+  const jobPosting = jsonLdData.find(item => item['@type'] === 'JobPosting');
   ```
 
 - [x] `@type` プロパティに基づいて判定
@@ -152,6 +160,7 @@
 ### ✅ 排他的な分析実行（1ページ = 1分析）
 
 - [x] if-else-if 構造で相互排他性を保証
+
   ```javascript
   if (detectJobPosting(...)) {
     return;  // ここで終了 → 他は実行されない
@@ -196,6 +205,7 @@
 ```
 
 ### 実装位置
+
 - `app.js` line 1267, 1282, 1290, 1298
 
 ---
@@ -203,12 +213,14 @@
 ## テスト設計
 
 ### テスト計画書
+
 - ✅ `.ai-docs/WEB_ANALYSIS_TEST_PLAN.md` 作成完了
   - 8つのテストシナリオ
   - 詳細な手順と期待される動作
   - チェックリスト形式
 
 ### テスト実行ガイド
+
 - ✅ `.ai-docs/TEST_EXECUTION_GUIDE.md` 作成完了
   - ステップバイステップの手順
   - トラブルシューティング
@@ -219,6 +231,7 @@
 ## 修正内容のサマリー
 
 ### 修正1: ボタン重複表示の修正
+
 **コミット**: a127f5e
 
 ```diff
@@ -235,6 +248,7 @@
 ```
 
 ### 修正2: Webページ分析の汎用化
+
 **コミット**: 7c9ff05
 
 ```diff

@@ -287,6 +287,7 @@ curl -N "http://localhost:3333/api/web-advisor?url=https://example.com&userApiKe
 - o3, o3-mini
 
 MyAPIモードの設定方法：
+
 1. ヘッダーの「My API」ボタンをクリック
 2. 独自のOpenAI APIキーを入力
 3. 使用したいモデルを選択

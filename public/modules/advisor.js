@@ -88,18 +88,7 @@ class AdvisorManager extends BaseAdvisorManager {
   }
 
   showModeSelector() {
-    const rateLimit = this.checkRateLimit();
-    let rateLimitHtml = '';
-    if (rateLimit.mode === 'developer') {
-      rateLimitHtml =
-        '<div class="advisor-rate-info advisor-rate-unlimited">MyAPIモード（無制限）</div>';
-    } else {
-      const limitMsg = rateLimit.allowed
-        ? `残り ${rateLimit.remaining} 回`
-        : '利用制限に達しました';
-      rateLimitHtml = `<div class="advisor-rate-info">${limitMsg} / ${rateLimit.maxRequests} 回（24時間）</div>`;
-    }
-
+    // Dialog内にはAPI関連情報は含めない（API設定はHeaderのMy APIで管理）
     const overlay = this.createModal(
       'ModeOverlay',
       `
@@ -109,7 +98,6 @@ class AdvisorManager extends BaseAdvisorManager {
           <button type="button" class="advisor-modal-close" data-action="advisor-close-mode-overlay"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor"/></svg></button>
         </div>
         <div class="advisor-modal-body">
-          ${rateLimitHtml}
           <div class="advisor-mode-buttons-grid">
             <button type="button" class="advisor-mode-btn" data-action="advisor-start-employer">
               <h3>採用側向け</h3><p>求人票をレビューし改善提案を提供</p>
