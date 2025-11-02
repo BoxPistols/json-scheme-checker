@@ -104,16 +104,9 @@ class AdvisorManager extends BaseAdvisorManager {
       'ModeOverlay',
       `
       <div class="advisor-modal">
-        <div class="advisor-modal-header advisor-modal-header--stack">
-           <div class="advisor-modal-header-row">
-            <div class="advisor-mode-buttons-small">
-              <button type="button" class="advisor-mode-btn-small" data-action="advisor-reset-to-normal-mode">通常モード</button>
-              <button type="button" class="advisor-mode-btn-small" data-action="advisor-show-stakeholder-prompt">関係者</button>
-              <button type="button" class="advisor-mode-btn-small" data-action="advisor-show-developer-prompt">MyAPI</button>
-            </div>
-            <button type="button" class="advisor-modal-close" data-action="advisor-close-mode-overlay"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor"/></svg></button>
-          </div>
+        <div class="advisor-modal-header">
           <h2>どの視点でアドバイスしますか？</h2>
+          <button type="button" class="advisor-modal-close" data-action="advisor-close-mode-overlay"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor"/></svg></button>
         </div>
         <div class="advisor-modal-body">
           ${rateLimitHtml}
@@ -309,7 +302,8 @@ class AdvisorManager extends BaseAdvisorManager {
       // AbortError（キャンセル）なら詳細を異なるように処理
       if (error.name === 'AbortError') {
         console.log('[Advisor] 分析がキャンセルされました');
-        adviceContent.innerHTML = '<div class="advisor-notice"><p>分析がキャンセルされました</p></div>';
+        adviceContent.innerHTML =
+          '<div class="advisor-notice"><p>分析がキャンセルされました</p></div>';
       } else {
         console.error('[Advisor] fetchAdvice error:', error);
         adviceContent.innerHTML = `<div class="advisor-error"><p>AI分析に失敗しました</p><button type="button" data-action="advisor-fetch-advice">再試行</button></div>`;
@@ -559,9 +553,9 @@ class AdvisorManager extends BaseAdvisorManager {
   cleanHtmlText(text) {
     return text
       .replace(/<[^>]*>/g, '') // HTMLタグ除去
-      .replace(/&nbsp;/g, ' ')  // &nbsp;をスペースに
-      .replace(/\t+/g, ' ')     // タブをスペースに
-      .replace(/\s+/g, ' ')     // 連続する空白を単一スペースに
+      .replace(/&nbsp;/g, ' ') // &nbsp;をスペースに
+      .replace(/\t+/g, ' ') // タブをスペースに
+      .replace(/\s+/g, ' ') // 連続する空白を単一スペースに
       .trim();
   }
 

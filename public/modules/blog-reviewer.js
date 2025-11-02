@@ -396,20 +396,13 @@ class BlogReviewerManager extends BaseAdvisorManager {
     overlay.className = 'advisor-overlay';
     overlay.innerHTML = `
       <div class="advisor-modal">
-        <div class="advisor-modal-header advisor-modal-header--stack">
-          <div class="advisor-modal-header-row">
-            <div class="advisor-mode-buttons-small">
-              <button type="button" class="advisor-mode-btn-small" data-action="blog-reset-to-normal-mode" title="通常モード（10回/24時間）に戻す">通常モード</button>
-              <button type="button" class="advisor-mode-btn-small" data-action="blog-show-stakeholder-prompt" title="関係者は30回/24時間まで利用可能">関係者</button>
-              <button type="button" class="advisor-mode-btn-small" data-action="blog-show-developer-prompt" title="自分のAPIキーで無制限利用">MyAPI</button>
-            </div>
-            <button type="button" class="advisor-modal-close" data-action="blog-close-confirm-dialog">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-            </button>
-          </div>
+        <div class="advisor-modal-header">
           <h2>ブログ記事レビュー</h2>
+          <button type="button" class="advisor-modal-close" data-action="blog-close-confirm-dialog">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
         </div>
         <div class="advisor-modal-body">
           ${rateLimitHtml}
@@ -720,7 +713,8 @@ class BlogReviewerManager extends BaseAdvisorManager {
       // AbortError（キャンセル）の場合
       if (error.name === 'AbortError') {
         console.log('[BlogReviewer] 分析がキャンセルされました');
-        reviewContent.innerHTML = '<div class="advisor-notice"><p>分析がキャンセルされました</p></div>';
+        reviewContent.innerHTML =
+          '<div class="advisor-notice"><p>分析がキャンセルされました</p></div>';
         return;
       }
 
