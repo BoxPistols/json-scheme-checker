@@ -1263,6 +1263,18 @@ function displaySchemas(schemas, url) {
 
   showResults();
 
+  // 前のページロードからのボタンをすべてクリア（重複表示防止）
+  console.log('[App] 以前のボタンをクリア');
+  if (typeof advisorManager !== 'undefined') {
+    advisorManager.hideAdvisorButton();
+  }
+  if (typeof blogReviewerManager !== 'undefined') {
+    blogReviewerManager.hideReviewButton();
+  }
+  if (typeof webAdvisorManager !== 'undefined') {
+    webAdvisorManager.hideAnalysisButton();
+  }
+
   // AI分析: 優先順位に基づいて排他的に実行（複数の同時実行を防ぐ）
   // 1. JobPosting検出（最優先）
   if (typeof advisorManager !== 'undefined') {
