@@ -14,7 +14,9 @@ class RLManager extends BaseAdvisorManager {
     });
     this._stakeholder = stakeholder;
   }
-  isStakeholderMode() { return this._stakeholder; }
+  isStakeholderMode() {
+    return this._stakeholder;
+  }
 }
 
 describe('Rate limit logic', () => {
@@ -32,7 +34,9 @@ describe('Rate limit logic', () => {
     expect(rl.allowed).toBe(false);
     expect(rl.remaining).toBe(0);
     // 実装ではDateオブジェクトを返すためDate/文字列/nullのいずれかを許容
-    expect(rl.resetTime === null || rl.resetTime instanceof Date || typeof rl.resetTime === 'string').toBe(true);
+    expect(
+      rl.resetTime === null || rl.resetTime instanceof Date || typeof rl.resetTime === 'string'
+    ).toBe(true);
   });
 
   it('uses stakeholder limit when stakeholder mode', () => {
@@ -54,7 +58,7 @@ describe('Rate limit logic', () => {
   it('ignores stale usage entries older than 24h', () => {
     const key = 'jsonld_rl_usage';
     const now = Date.now();
-    const oldTs = now - (25 * 60 * 60 * 1000);
+    const oldTs = now - 25 * 60 * 60 * 1000;
     localStorage.setItem(key, JSON.stringify([oldTs]));
     const mgr = new RLManager(false);
     const rl = mgr.checkRateLimit();

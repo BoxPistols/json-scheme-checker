@@ -57,11 +57,14 @@
             </div>
             <p class="subtitle">Webページ内のJSONスキーマ/SEO関連のチェックツール</p>
             <div class="header-actions">
-                <span class="server-status" id="serverStatus">サーバー確認中...</span>
+                <span class="server-status" id="serverStatus">Checking...</span>
                 <a class="doc-pill" target="_blank" rel="noopener noreferrer"
-                    href="https://developers.google.com/search/docs/appearance/structured-data/job-posting?hl=ja">Google公式リファレンス</a>
+                    href="https://developers.google.com/search/docs/appearance/structured-data/job-posting?hl=ja">Google JobPost</a>
                 <button type="button" class="btn-guide" id="btnGuide">
-                    使い方
+                    Help
+                </button>
+                <button type="button" class="btn-my-api" id="btnMyApi" title="開発者設定">
+                    My API
                 </button>
                 <button type="button" class="btn-theme-toggle" id="btnThemeToggle" title="テーマを切り替え">
                     <svg id="theme-icon-light" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
@@ -998,6 +1001,123 @@ export default function Home() {
         </div>
 
         <div id="snackbar" class="snackbar" role="status" aria-live="polite" aria-atomic="true"></div>
+
+        <!-- 開発者設定モーダル -->
+        <div id="developerSettingsModal" class="modal-overlay" style="display: none;">
+            <div class="modal-container" style="max-width: 600px;">
+                <div class="modal-header">
+                    <h2 style="margin: 0; font-size: 1.25rem;">開発者設定</h2>
+                    <button type="button" class="modal-close-btn" id="btnCloseDeveloperSettings" aria-label="閉じる">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <section class="modal-section">
+                        <p style="margin-bottom: 16px; font-size: 0.875rem; color: var(--secondary-text-color);">
+                            独自のOpenAI APIキーを使用して、レート制限なしでAI機能を利用できます。
+                        </p>
+
+                        <!-- APIキー入力 -->
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label for="developerApiKey" style="display: block; margin-bottom: 4px; font-weight: 500;">
+                                OpenAI APIキー
+                            </label>
+                            <input
+                                type="password"
+                                id="developerApiKey"
+                                class="form-input"
+                                placeholder="sk-..."
+                                style="width: 100%; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 14px;"
+                            />
+                            <p style="margin: 4px 0 0; font-size: 0.75rem; color: var(--secondary-text-color);">
+                                APIキーは安全にローカルストレージに保存されます
+                            </p>
+                        </div>
+
+                        <!-- モデル選択 -->
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label for="developerModel" style="display: block; margin-bottom: 4px; font-weight: 500;">
+                                モデル
+                            </label>
+                            <select
+                                id="developerModel"
+                                class="form-select"
+                                style="width: 100%; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 14px;"
+                            >
+                                <option value="gpt-4.1-nano">gpt-4.1-nano（コスト重視: $0.10/1M入力）</option>
+                                <option value="gpt-5-nano">gpt-5-nano（レイテンシ重視: $1.25/1M入力）</option>
+                                <option value="gpt-4.1-mini">gpt-4.1-mini（$0.40/1M入力）</option>
+                                <option value="gpt-5-mini">gpt-5-mini（$3.00/1M入力・推定）</option>
+                                <option value="gpt-4o">gpt-4o（品質重視: $2.50/1M入力）</option>
+                                <option value="gpt-5">gpt-5（最高品質: $10.00/1M入力・推定）</option>
+                            </select>
+                            <p style="margin: 4px 0 0; font-size: 0.75rem; color: var(--secondary-text-color);">
+                                GPT-5シリーズは超低レイテンシですが、temperatureパラメータは非対応です
+                            </p>
+                        </div>
+
+                        <!-- BaseURL（オプション） -->
+                        <details style="margin-bottom: 16px;">
+                            <summary style="cursor: pointer; font-weight: 500; margin-bottom: 8px;">
+                                詳細設定（オプション）
+                            </summary>
+                            <div style="padding-left: 16px;">
+                                <div class="form-group">
+                                    <label for="developerBaseUrl" style="display: block; margin-bottom: 4px; font-weight: 500;">
+                                        Base URL
+                                    </label>
+                                    <input
+                                        type="url"
+                                        id="developerBaseUrl"
+                                        class="form-input"
+                                        placeholder="https://api.openai.com/v1"
+                                        style="width: 100%; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 14px;"
+                                    />
+                                    <p style="margin: 4px 0 0; font-size: 0.75rem; color: var(--secondary-text-color);">
+                                        OpenAI互換APIを使用する場合のみ指定
+                                    </p>
+                                </div>
+                            </div>
+                        </details>
+
+                        <!-- ステータス表示 -->
+                        <div id="developerSettingsStatus" style="margin-bottom: 16px; padding: 12px; border-radius: 4px; display: none;">
+                            <p style="margin: 0; font-size: 0.875rem;"></p>
+                        </div>
+
+                        <!-- ボタン群 -->
+                        <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                            <button
+                                type="button"
+                                id="btnTestConnection"
+                                class="btn-secondary"
+                                style="padding: 8px 16px; border: 1px solid var(--border-color); background: transparent; border-radius: 4px; cursor: pointer; font-size: 14px;"
+                            >
+                                接続テスト
+                            </button>
+                            <button
+                                type="button"
+                                id="btnClearDeveloperSettings"
+                                class="btn-secondary"
+                                style="padding: 8px 16px; border: 1px solid var(--border-color); background: transparent; border-radius: 4px; cursor: pointer; font-size: 14px;"
+                            >
+                                クリア
+                            </button>
+                            <button
+                                type="button"
+                                id="btnSaveDeveloperSettings"
+                                class="btn-primary"
+                                style="padding: 8px 16px; background: var(--accent-color); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 500;"
+                            >
+                                保存
+                            </button>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
 
         <script src="/modules/base-advisor.js"></script>
         <script src="/modules/advisor.js"></script>

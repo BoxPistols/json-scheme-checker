@@ -458,6 +458,11 @@ class BaseAdvisorManager {
   getModelPricing(model) {
     // 料金は per 1K tokens（OpenAI公式料金 per 1M を 1000 で割った値、2025年版）
     const prices = {
+      // GPT-5 シリーズ（2025年8月リリース）
+      'gpt-5-nano': { input: 0.00125, output: 0.01 },         // $1.25/1M, $10.00/1M
+      'gpt-5-nano-2025-08-07': { input: 0.00125, output: 0.01 }, // $1.25/1M, $10.00/1M
+      'gpt-5-mini': { input: 0.003, output: 0.015 },          // $3.00/1M, $15.00/1M (推定)
+      'gpt-5': { input: 0.01, output: 0.03 },                 // $10.00/1M, $30.00/1M (推定)
       // GPT-4.1 シリーズ
       'gpt-4.1-nano': { input: 0.0001, output: 0.0004 },      // $0.10/1M, $0.40/1M
       'gpt-4.1-mini': { input: 0.0004, output: 0.0016 },      // $0.40/1M, $1.60/1M

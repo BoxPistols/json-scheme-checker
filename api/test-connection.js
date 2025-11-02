@@ -32,7 +32,7 @@ module.exports = async (req, res) => {
 
     // GPT-5の場合は max_completion_tokens を使用、それ以外は max_tokens
     if (isGPT5) {
-      requestParams.max_completion_tokens = 1;
+      requestParams.max_completion_tokens = 5;
       // GPT-5では temperature は非対応
     } else {
       requestParams.max_tokens = 1;

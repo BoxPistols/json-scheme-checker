@@ -4,7 +4,9 @@ import { describe, it, expect } from 'vitest';
 
 describe('CORS and OPTIONS handling', () => {
   it('OPTIONS /api/test-connection returns 200/204 with CORS headers', async () => {
-    const res = await request(app).options('/api/test-connection').set('Origin', 'http://example.com');
+    const res = await request(app)
+      .options('/api/test-connection')
+      .set('Origin', 'http://example.com');
     expect([200, 204]).toContain(res.status);
     expect(res.headers['access-control-allow-origin']).toBeDefined();
     // app.use(cors()) が応答するケースでは allow-methods が省略されることがある

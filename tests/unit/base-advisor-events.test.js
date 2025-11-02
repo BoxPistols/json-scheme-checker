@@ -8,7 +8,9 @@ class TestManager extends BaseAdvisorManager {
     super({ elemIdPrefix: 'test', actionHandlers: { 'test-action': () => this.onTest() } });
     this.called = false;
   }
-  onTest() { this.called = true; }
+  onTest() {
+    this.called = true;
+  }
 }
 
 describe('BaseAdvisorManager click dispatch', () => {

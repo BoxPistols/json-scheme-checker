@@ -1512,7 +1512,8 @@ html[data-theme='dark'] .score-breakdown > div {
   line-height: 1.5;
 }
 
-.btn-guide {
+.btn-guide,
+.btn-my-api {
   padding: 3px 12px;
   border: 1px solid var(--accent-color);
   background: transparent;
@@ -1524,7 +1525,8 @@ html[data-theme='dark'] .score-breakdown > div {
   transition: background 0.2s ease;
 }
 
-.btn-guide:hover {
+.btn-guide:hover,
+.btn-my-api:hover {
   background: var(--accent-hover-bg-color);
   color: var(--accent-color);
 }

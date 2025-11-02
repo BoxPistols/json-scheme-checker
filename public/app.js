@@ -949,12 +949,12 @@ async function checkServerStatus() {
     const response = await fetch(healthUrl);
 
     if (response.ok) {
-      statusElement.textContent = isVercel ? 'Vercel API稼働中' : 'サーバー稼働中';
+      statusElement.textContent = 'Server OK';
       statusElement.className = 'server-status';
       return true;
     }
   } catch (error) {
-    statusElement.textContent = isVercel ? 'API エラー' : 'サーバーオフライン';
+    statusElement.textContent = 'Offline';
     statusElement.className = 'server-status offline';
     return false;
   }
@@ -1789,3 +1789,166 @@ document.addEventListener('keydown', function (e) {
     });
   }
 });
+
+// ========================================
+// 開発者設定パネル
+// ========================================
+
+const STORAGE_KEY_DEVELOPER = 'jsonld_developer_settings';
+
+// My APIボタンのクリックイベント
+document.getElementById('btnMyApi')?.addEventListener('click', () => {
+  openDeveloperSettingsModal();
+});
+
+// モーダルを開く
+function openDeveloperSettingsModal() {
+  const modal = document.getElementById('developerSettingsModal');
+  if (!modal) return;
+
+  // ローカルストレージから設定を読み込む
+  loadDeveloperSettings();
+
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+// モーダルを閉じる
+function closeDeveloperSettingsModal() {
+  const modal = document.getElementById('developerSettingsModal');
+  if (!modal) return;
+
+  modal.style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+// 閉じるボタンのイベント
+document.getElementById('btnCloseDeveloperSettings')?.addEventListener('click', closeDeveloperSettingsModal);
+
+// オーバーレイクリックで閉じる
+document.getElementById('developerSettingsModal')?.addEventListener('click', e => {
+  if (e.target.id === 'developerSettingsModal') {
+    closeDeveloperSettingsModal();
+  }
+});
+
+// ローカルストレージから設定を読み込む
+function loadDeveloperSettings() {
+  try {
+    const settings = JSON.parse(localStorage.getItem(STORAGE_KEY_DEVELOPER) || '{}');
+
+    document.getElementById('developerApiKey').value = settings.apiKey || '';
+    document.getElementById('developerModel').value = settings.model || 'gpt-4.1-nano';
+    document.getElementById('developerBaseUrl').value = settings.baseUrl || '';
+  } catch (error) {
+    console.error('Failed to load developer settings:', error);
+  }
+}
+
+// 設定を保存
+document.getElementById('btnSaveDeveloperSettings')?.addEventListener('click', () => {
+  const apiKey = document.getElementById('developerApiKey').value.trim();
+  const model = document.getElementById('developerModel').value;
+  const baseUrl = document.getElementById('developerBaseUrl').value.trim();
+
+  if (!apiKey) {
+    showDeveloperStatus('APIキーを入力してください', 'error');
+    return;
+  }
+
+  const settings = {
+    apiKey,
+    model,
+    baseUrl: baseUrl || undefined,
+  };
+
+  try {
+    localStorage.setItem(STORAGE_KEY_DEVELOPER, JSON.stringify(settings));
+    localStorage.setItem('jsonld_user_openai_key', apiKey); // 互換性のため
+    localStorage.setItem('jsonld_usage_mode', 'permanent'); // 開発者モードを有効化
+
+    showDeveloperStatus('設定を保存しました', 'success');
+
+    // 2秒後にモーダルを閉じる
+    setTimeout(() => {
+      closeDeveloperSettingsModal();
+    }, 2000);
+  } catch (error) {
+    showDeveloperStatus('保存に失敗しました: ' + error.message, 'error');
+  }
+});
+
+// 接続テスト
+document.getElementById('btnTestConnection')?.addEventListener('click', async () => {
+  const apiKey = document.getElementById('developerApiKey').value.trim();
+  const model = document.getElementById('developerModel').value;
+  const baseUrl = document.getElementById('developerBaseUrl').value.trim();
+
+  if (!apiKey) {
+    showDeveloperStatus('APIキーを入力してください', 'error');
+    return;
+  }
+
+  showDeveloperStatus('接続テスト中...', 'info');
+
+  try {
+    const endpoint = isVercel ? '/api/test-connection' : `${PROXY_SERVER}/api/test-connection`;
+
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userApiKey: apiKey,
+        model,
+        baseUrl: baseUrl || undefined,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (data.ok) {
+      showDeveloperStatus(`接続成功！モデル: ${data.model}`, 'success');
+    } else {
+      showDeveloperStatus(`接続失敗: ${data.error}`, 'error');
+    }
+  } catch (error) {
+    showDeveloperStatus(`エラー: ${error.message}`, 'error');
+  }
+});
+
+// 設定をクリア
+document.getElementById('btnClearDeveloperSettings')?.addEventListener('click', () => {
+  if (!confirm('開発者設定をすべてクリアしますか？')) {
+    return;
+  }
+
+  localStorage.removeItem(STORAGE_KEY_DEVELOPER);
+  localStorage.removeItem('jsonld_user_openai_key');
+  localStorage.removeItem('jsonld_usage_mode');
+
+  document.getElementById('developerApiKey').value = '';
+  document.getElementById('developerModel').value = 'gpt-4.1-nano';
+  document.getElementById('developerBaseUrl').value = '';
+
+  showDeveloperStatus('設定をクリアしました', 'success');
+});
+
+// ステータス表示
+function showDeveloperStatus(message, type = 'info') {
+  const statusDiv = document.getElementById('developerSettingsStatus');
+  if (!statusDiv) return;
+
+  const colors = {
+    success: { bg: '#d4edda', text: '#155724', border: '#c3e6cb' },
+    error: { bg: '#f8d7da', text: '#721c24', border: '#f5c6cb' },
+    info: { bg: '#d1ecf1', text: '#0c5460', border: '#bee5eb' },
+  };
+
+  const color = colors[type] || colors.info;
+
+  statusDiv.style.display = 'block';
+  statusDiv.style.background = color.bg;
+  statusDiv.style.color = color.text;
+  statusDiv.style.border = `1px solid ${color.border}`;
+  statusDiv.querySelector('p').textContent = message;
+}
