@@ -179,7 +179,7 @@ class AdvisorManager extends BaseAdvisorManager {
           <div class="advisor-perspective-switcher">
             <button type="button" class="advisor-perspective-btn ${mode === 'employer' ? 'active' : ''}" data-action="advisor-switch-perspective-employer">採用側視点</button>
             <button type="button" class="advisor-perspective-btn ${mode === 'applicant' ? 'active' : ''}" data-action="advisor-switch-perspective-applicant">応募者視点</button>
-            <button type="button" class="advisor-perspective-btn ${mode === 'agent' ? 'active' : ''}" data-action="advisor-switch-perspective-agent">エージェント視点</button>
+            <button type="button" class="advisor-perspective-btn advisor-perspective-btn-agent ${mode === 'agent' ? 'active' : ''}" data-action="advisor-switch-perspective-agent" title="営業戦略・市場分析・双方へのアドバイスを提供"><span class="btn-title">エージェント向け</span><span class="btn-description">営業戦略・市場分析・双方へのアドバイス</span></button>
           </div>
           <div id="advisorExportButtons" class="advisor-export-buttons"></div>
         </div>

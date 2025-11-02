@@ -37,7 +37,7 @@ describe('AdvisorManager Modal Layout - 2+1 Grid', () => {
           <div class="advisor-perspective-switcher">
             <button class="advisor-perspective-btn active" data-action="advisor-switch-perspective-employer" type="button">採用側視点</button>
             <button class="advisor-perspective-btn" data-action="advisor-switch-perspective-applicant" type="button">応募者視点</button>
-            <button class="advisor-perspective-btn" data-action="advisor-switch-perspective-agent" type="button">エージェント視点</button>
+            <button class="advisor-perspective-btn advisor-perspective-btn-agent" data-action="advisor-switch-perspective-agent" type="button"><span class="btn-title">エージェント向け</span><span class="btn-description">営業戦略・市場分析・双方へのアドバイス</span></button>
           </div>
         </div>
       </div>
@@ -75,7 +75,7 @@ describe('AdvisorManager Modal Layout - 2+1 Grid', () => {
 
     it('Agent button should be in third position', () => {
       const buttons = switcher.querySelectorAll('.advisor-perspective-btn');
-      expect(buttons[2].textContent).toContain('エージェント視点');
+      expect(buttons[2].textContent).toContain('エージェント向け');
     });
   });
 
@@ -184,7 +184,8 @@ describe('AdvisorManager Modal Layout - 2+1 Grid', () => {
 
       expect(buttons[0].textContent).toContain('採用側視点');
       expect(buttons[1].textContent).toContain('応募者視点');
-      expect(buttons[2].textContent).toContain('エージェント視点');
+      expect(buttons[2].textContent).toContain('エージェント向け');
+      expect(buttons[2].textContent).toContain('営業戦略');
     });
   });
 });

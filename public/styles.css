@@ -2926,6 +2926,33 @@ html[data-theme='dark'] .score-breakdown > div {
   grid-column: 1 / -1;
 }
 
+.advisor-perspective-btn-agent {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 4px;
+  padding: 14px 16px;
+  min-height: 60px;
+}
+
+.advisor-perspective-btn-agent .btn-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: block;
+}
+
+.advisor-perspective-btn-agent .btn-description {
+  font-weight: 400;
+  font-size: 0.8rem;
+  opacity: 0.8;
+  display: block;
+}
+
+.advisor-perspective-btn-agent:hover .btn-description {
+  opacity: 1;
+}
+
 .advisor-perspective-btn:hover {
   background: var(--accent-hover-bg-color);
   border-color: var(--accent-color);
