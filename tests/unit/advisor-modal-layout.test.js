@@ -145,7 +145,7 @@ describe('AdvisorManager Modal Layout - 2+1 Grid', () => {
       switcher.style.width = '300px';
       const buttons = switcher.querySelectorAll('.advisor-perspective-btn');
 
-      buttons.forEach((btn) => {
+      buttons.forEach(btn => {
         const styles = window.getComputedStyle(btn);
         // Grid should prevent wrapping
         expect(styles.display).not.toBe('block');
@@ -166,7 +166,7 @@ describe('AdvisorManager Modal Layout - 2+1 Grid', () => {
     it('All buttons should be keyboard accessible', () => {
       const buttons = switcher.querySelectorAll('.advisor-perspective-btn');
 
-      buttons.forEach((btn) => {
+      buttons.forEach(btn => {
         expect(btn.tagName).toBe('BUTTON');
         expect(btn.getAttribute('type')).toBe('button');
       });

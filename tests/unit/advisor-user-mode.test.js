@@ -40,27 +40,27 @@ describe('Advisor User Mode Management', () => {
       perspectiveCache: {},
 
       // User mode management methods
-      saveSelectedUserMode: function(mode) {
+      saveSelectedUserMode: function (mode) {
         localStorage.setItem('jsonld_advisor_selected_user_mode', mode);
       },
-      getSelectedUserMode: function() {
+      getSelectedUserMode: function () {
         return localStorage.getItem('jsonld_advisor_selected_user_mode');
       },
-      clearSelectedUserMode: function() {
+      clearSelectedUserMode: function () {
         localStorage.removeItem('jsonld_advisor_selected_user_mode');
       },
 
       // Analysis methods
-      startAnalysis: async function(mode) {
+      startAnalysis: async function (mode) {
         this.currentMode = mode;
         this.saveSelectedUserMode(mode);
       },
 
-      closeAdvisorView: function() {
+      closeAdvisorView: function () {
         this.clearSelectedUserMode();
       },
 
-      switchPerspective: async function(newMode) {
+      switchPerspective: async function (newMode) {
         const selectedUserMode = this.getSelectedUserMode();
         if (selectedUserMode && selectedUserMode !== newMode) {
           console.log('[Test] 別のユーザータイプへの切り替えは禁止');

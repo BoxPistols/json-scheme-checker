@@ -56,7 +56,9 @@ describe('AdvisorManager Export Functionality', () => {
       currentModel: 'gpt-5-nano',
       getAdviceContent: vi.fn(() => {
         const content = document.querySelector('.advisor-markdown');
-        return content ? content.textContent : '採用側視点のアドバイス\n候補者の技術スキルを評価してください。';
+        return content
+          ? content.textContent
+          : '採用側視点のアドバイス\n候補者の技術スキルを評価してください。';
       }),
       getJobPostingText: vi.fn(() => {
         const jobContent = document.getElementById('advisorJobContent');

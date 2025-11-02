@@ -34,7 +34,11 @@ describe('AdvisorManager Perspective Switcher - Token Consumption', () => {
     manager = {
       currentMode: 'employer',
       perspectiveCache: {
-        employer: { content: 'Employer advice', usage: { prompt_tokens: 100 }, model: 'gpt-5-nano' }
+        employer: {
+          content: 'Employer advice',
+          usage: { prompt_tokens: 100 },
+          model: 'gpt-5-nano',
+        },
       },
       isStreaming: false,
       currentUsage: { prompt_tokens: 100 },
@@ -43,7 +47,7 @@ describe('AdvisorManager Perspective Switcher - Token Consumption', () => {
         allowed: true,
         remaining: 9,
         maxRequests: 10,
-        mode: 'normal'
+        mode: 'normal',
       })),
       fetchAdvice: vi.fn(),
       updateTokenCountDisplay: vi.fn(),
@@ -54,7 +58,11 @@ describe('AdvisorManager Perspective Switcher - Token Consumption', () => {
   describe('キャッシュ確認機能', () => {
     it('キャッシュありの場合、トークン消費警告を表示しない', async () => {
       const newMode = 'applicant';
-      manager.perspectiveCache[newMode] = { content: 'Applicant advice', usage: { prompt_tokens: 150 }, model: 'gpt-5-nano' };
+      manager.perspectiveCache[newMode] = {
+        content: 'Applicant advice',
+        usage: { prompt_tokens: 150 },
+        model: 'gpt-5-nano',
+      };
 
       // switchPerspectiveの実装で、キャッシュがある場合は警告なし
       expect(manager.perspectiveCache[newMode]).toBeDefined();
