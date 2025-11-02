@@ -33,7 +33,7 @@ pnpm dev
 cp .env.example .env
 # .envを編集してOpenAI APIキーを設定
 OPENAI_API_KEY=sk-your-key-here
-OPENAI_MODEL=gpt-4.1-nano
+OPENAI_MODEL=gpt-5-nano
 ```
 
 ### Vercelへのデプロイ
@@ -48,7 +48,7 @@ Vercelダッシュボードで環境変数を設定してください。
 
 - **バックエンド**: Node.js + Express + Axios
 - **フロントエンド**: Vanilla JavaScript + CSS3 + HTML5
-- **AI機能**: OpenAI GPT-4.1 nano
+- **AI機能**: OpenAI GPT-5 nano
 
 ## プロジェクト構成
 
@@ -212,7 +212,7 @@ eventSource.addEventListener('message', event => {
 
 ```bash
 OPENAI_API_KEY=sk-your-key-here
-OPENAI_MODEL=gpt-4.1-nano
+OPENAI_MODEL=gpt-5-nano
 ```
 
 またはクエリパラメータで指定（ユーザー側）:
@@ -265,6 +265,35 @@ curl -N "http://localhost:3333/api/web-advisor?url=https://example.com&userApiKe
 - Vercel環境でサーバー再起動時にメモリがリセットされます
 - 本番で永続的な制限が必要な場合はVercel KVまたはUpstash Redisの導入を推奨
 
+### モデル利用制限
+
+#### 公開無料版で利用可能なモデル
+
+サーバー既定のAPIキーを使用する場合、以下の2つのモデルが選択可能です：
+
+- **gpt-5-nano**（既定）: 超低レイテンシ、リアルタイム応答向け
+- **gpt-4.1-nano**: 最も安価、コスト重視
+
+これらのモデルを切り替えることで、性能とコストのトレードオフを比較・学習できます。
+
+#### MyAPI必須のモデル
+
+以下のモデルを使用するには、**MyAPIモード（独自のOpenAI APIキー）が必須**です：
+
+- gpt-5, gpt-5-mini
+- gpt-4.1, gpt-4.1-mini
+- gpt-4o, gpt-4o-mini
+- gpt-3.5-turbo
+- o3, o3-mini
+
+MyAPIモードの設定方法：
+1. ヘッダーの「My API」ボタンをクリック
+2. 独自のOpenAI APIキーを入力
+3. 使用したいモデルを選択
+4. 保存
+
+詳細は[MODEL_PRICING.md](./docs/MODEL_PRICING.md)を参照してください。
+
 ### APIキー管理
 
 - サーバーAPIキーは環境変数で保護
@@ -292,74 +321,21 @@ localhost URLをテストする場合はローカル環境で起動してくだ�
 | タイムアウト          | 対象サイトのレスポンスが遅い、ネットワークを確認      |
 | AI機能が動作しない    | OpenAI APIキーを設定、環境変数を確認                  |
 
-## Claude Code Skills
+## AIアシスタント (Claude Code) の活用
 
-このプロジェクトでは、Claude Code専用のスキルを提供して開発効率を向上させています。
+このプロジェクトでは、開発効率を最大化するためにAIアシスタント(Claude Code)を積極的に活用しています。AIは、MCP(Model Context Protocol)という仕組みを通じて、ドキュメント検索やコードレビューといった様々なタスクを自動化します。
 
-### 利用可能なスキル
+初めての方は、まず以下のガイドで全体像を把握することをお勧めします。
 
-#### api-check
+- **[AIアシスタント活用ガイド](./.ai-docs/AI_ASSISTANT_GUIDE.md)** - **（まずここから）** MCP、Skills、SubAgentなど、AI関連機能の全体像を解説しています。
 
-API仕様の一貫性と品質をチェックします。
+### クイックリファレンス: 主なスキル
 
-```
-api-check
-```
+- `code-review`: コードレビューを実行
+- `api-check`: API仕様の品質をチェック
+- `deploy-check`: デプロイ前のチェックリストを実行
 
-**チェック項目**:
-
-- エンドポイント構造の確認
-- CORS設定の確認
-- エラーハンドリングの確認
-- 入力検証の確認
-- レート制限の確認
-- レスポンス形式の確認
-
-#### deploy-check
-
-Vercelへのデプロイ前に必要な全ての確認を実行します。
-
-```
-deploy-check
-```
-
-**チェック項目**:
-
-- 環境設定の確認
-- 依存関係の確認
-- ビルドとテストの確認
-- Vercel設定の確認
-- セキュリティチェック
-- ドキュメントの確認
-- パフォーマンスチェック
-
-#### code-review
-
-最近の変更に対して包括的なコードレビューを実行します。
-
-```
-code-review
-```
-
-**レビュー観点**:
-
-- コード品質
-- エラーハンドリング
-- セキュリティ
-- パフォーマンス
-- テスタビリティ
-- ベストプラクティス
-- ドキュメント
-
-### スキルの使用方法
-
-Claude Codeで以下のように実行します：
-
-```
-api-check
-```
-
-詳細は [Claude Code Skills ガイド](./.ai-docs/shared/09_CLAUDE_CODE_SKILLS.md) を参照してください。
+詳細は各ガイドを参照してください。
 
 ## ドキュメント
 

@@ -257,7 +257,7 @@ module.exports = async (req, res) => {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
-    const selectedModel = model || process.env.OPENAI_MODEL || 'gpt-4.1-nano';
+    const selectedModel = model || process.env.OPENAI_MODEL || 'gpt-5-nano';
     const isGPT5 = selectedModel.startsWith('gpt-5');
 
     const requestParams = {

@@ -20,7 +20,7 @@ module.exports = async (req, res) => {
     const client = new OpenAI({ apiKey: userApiKey, baseURL: baseUrl || undefined });
 
     // 軽量な呼び出しで疎通確認
-    const usedModel = model || process.env.OPENAI_MODEL || 'gpt-4.1-nano';
+    const usedModel = model || process.env.OPENAI_MODEL || 'gpt-5-nano';
 
     // GPT-5モデルかどうかを判定
     const isGPT5 = usedModel.startsWith('gpt-5');

@@ -1813,6 +1813,9 @@ function openDeveloperSettingsModal() {
   // ローカルストレージから設定を読み込む
   loadDeveloperSettings();
 
+  // ラジオボタンの切り替えイベントを設定
+  setupApiModeToggle();
+
   modal.classList.add('modal-overlay--visible');
   document.body.style.overflow = 'hidden';
 }
@@ -1824,6 +1827,32 @@ function closeDeveloperSettingsModal() {
 
   modal.classList.remove('modal-overlay--visible');
   document.body.style.overflow = '';
+}
+
+// APIモードの切り替え設定
+function setupApiModeToggle() {
+  const radioFree = document.getElementById('radioModeFree');
+  const radioMyAPI = document.getElementById('radioModeMyAPI');
+  const freeArea = document.getElementById('freeModelArea');
+  const myApiArea = document.getElementById('myApiArea');
+
+  if (!radioFree || !radioMyAPI || !freeArea || !myApiArea) return;
+
+  function toggleAreas() {
+    if (radioFree.checked) {
+      freeArea.style.display = 'block';
+      myApiArea.style.display = 'none';
+    } else {
+      freeArea.style.display = 'none';
+      myApiArea.style.display = 'block';
+    }
+  }
+
+  radioFree.addEventListener('change', toggleAreas);
+  radioMyAPI.addEventListener('change', toggleAreas);
+
+  // 初期表示
+  toggleAreas();
 }
 
 // 閉じるボタンのイベント
@@ -1842,10 +1871,18 @@ document.getElementById('developerSettingsModal')?.addEventListener('click', e =
 function loadDeveloperSettings() {
   try {
     const settings = JSON.parse(localStorage.getItem(STORAGE_KEY_DEVELOPER) || '{}');
+    const hasApiKey = !!(settings.apiKey && settings.apiKey.trim());
 
-    document.getElementById('developerApiKey').value = settings.apiKey || '';
-    document.getElementById('developerModel').value = settings.model || 'gpt-4.1-nano';
-    document.getElementById('developerBaseUrl').value = settings.baseUrl || '';
+    // APIキーの有無でモードを判定
+    if (hasApiKey) {
+      document.getElementById('radioModeMyAPI').checked = true;
+      document.getElementById('developerApiKey').value = settings.apiKey || '';
+      document.getElementById('developerModel').value = settings.model || 'gpt-5-nano';
+      document.getElementById('developerBaseUrl').value = settings.baseUrl || '';
+    } else {
+      document.getElementById('radioModeFree').checked = true;
+      document.getElementById('freeModelSelect').value = settings.model || 'gpt-5-nano';
+    }
   } catch (error) {
     console.error('Failed to load developer settings:', error);
   }
@@ -1853,25 +1890,40 @@ function loadDeveloperSettings() {
 
 // 設定を保存
 document.getElementById('btnSaveDeveloperSettings')?.addEventListener('click', () => {
-  const apiKey = document.getElementById('developerApiKey').value.trim();
-  const model = document.getElementById('developerModel').value;
-  const baseUrl = document.getElementById('developerBaseUrl').value.trim();
+  const isFreeMode = document.getElementById('radioModeFree').checked;
+  let settings = {};
 
-  if (!apiKey) {
-    showDeveloperStatus('APIキーを入力してください', 'error');
-    return;
+  if (isFreeMode) {
+    // 無料版モード
+    const model = document.getElementById('freeModelSelect').value;
+    settings = { model };
+
+    // APIキーをクリア
+    localStorage.removeItem('jsonld_user_openai_key');
+    localStorage.removeItem('jsonld_usage_mode');
+  } else {
+    // MyAPIモード
+    const apiKey = document.getElementById('developerApiKey').value.trim();
+    const model = document.getElementById('developerModel').value;
+    const baseUrl = document.getElementById('developerBaseUrl').value.trim();
+
+    if (!apiKey) {
+      showDeveloperStatus('APIキーを入力してください', 'error');
+      return;
+    }
+
+    settings = {
+      apiKey,
+      model,
+      baseUrl: baseUrl || undefined,
+    };
+
+    localStorage.setItem('jsonld_user_openai_key', apiKey); // 互換性のため
+    localStorage.setItem('jsonld_usage_mode', 'permanent'); // 開発者モードを有効化
   }
-
-  const settings = {
-    apiKey,
-    model,
-    baseUrl: baseUrl || undefined,
-  };
 
   try {
     localStorage.setItem(STORAGE_KEY_DEVELOPER, JSON.stringify(settings));
-    localStorage.setItem('jsonld_user_openai_key', apiKey); // 互換性のため
-    localStorage.setItem('jsonld_usage_mode', 'permanent'); // 開発者モードを有効化
 
     showDeveloperStatus('設定を保存しました', 'success');
 
@@ -1889,6 +1941,13 @@ document.getElementById('btnSaveDeveloperSettings')?.addEventListener('click', (
 
 // 接続テスト
 document.getElementById('btnTestConnection')?.addEventListener('click', async () => {
+  const isFreeMode = document.getElementById('radioModeFree').checked;
+
+  if (isFreeMode) {
+    showDeveloperStatus('無料版モードでは接続テストは不要です', 'info');
+    return;
+  }
+
   const apiKey = document.getElementById('developerApiKey').value.trim();
   const model = document.getElementById('developerModel').value;
   const baseUrl = document.getElementById('developerBaseUrl').value.trim();
@@ -1935,9 +1994,15 @@ document.getElementById('btnClearDeveloperSettings')?.addEventListener('click', 
   localStorage.removeItem('jsonld_user_openai_key');
   localStorage.removeItem('jsonld_usage_mode');
 
+  // 無料版モードに戻す
+  document.getElementById('radioModeFree').checked = true;
+  document.getElementById('freeModelSelect').value = 'gpt-5-nano';
   document.getElementById('developerApiKey').value = '';
-  document.getElementById('developerModel').value = 'gpt-4.1-nano';
+  document.getElementById('developerModel').value = 'gpt-5-nano';
   document.getElementById('developerBaseUrl').value = '';
+
+  // 表示を更新
+  setupApiModeToggle();
 
   showDeveloperStatus('設定をクリアしました', 'success');
 

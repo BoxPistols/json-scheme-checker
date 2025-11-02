@@ -113,9 +113,9 @@ for await (const chunk of stream) {
 
 ## よくある質問
 
-### Q1: gpt-4.1-nanoは動くのに、gpt-5-nanoが404/400になる
+### Q1: gpt-5-nanoに変更したら404/400エラーが出る
 
-**A**: パラメータ制限が原因です。gpt-4.1-nanoで動いていたコードに`temperature`などのパラメータが含まれている場合、それらを削除してください。
+**A**: パラメータ制限が原因です。gpt-5-nanoでは`temperature`などのパラメータが使用できないため、それらを削除してください。
 
 ### Q2: 組織認証（Organization Verification）は必要？
 

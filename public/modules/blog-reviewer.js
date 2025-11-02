@@ -828,7 +828,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
     console.log('[BlogReviewer] Displaying usage:', this.currentUsage);
 
     // モデル名を取得
-    const model = this.currentArticle.model || 'gpt-4.1-nano';
+    const model = this.currentArticle.model || 'gpt-5-nano';
 
     // BaseAdvisorManagerの共通メソッドを使用してHTML生成
     const usageHtml = this.renderApiUsagePanel(this.currentUsage, model);

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Webアドバイザー デモ</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -186,7 +187,7 @@
     <div class="input-section">
         <div class="input-group">
             <input type="url" id="urlInput" placeholder="URLを入力 (例: https://example.com)" 
-                   value="https://schema.org">
+                   value="https://zenn.dev/studio/articles/431afa748fbed1">
             <button id="runBtn" onclick="runAnalysis()">分析実行</button>
         </div>
         <div class="hint">
@@ -294,7 +295,7 @@
                             
                             case 'token':
                                 currentResult += data.content;
-                                resultArea.innerHTML = marked(currentResult);
+                                resultArea.innerHTML = window.marked.parse(currentResult);
                                 break;
                             
                             case 'done':
@@ -351,21 +352,6 @@
 
         function rerun() {
             runAnalysis();
-        }
-
-        // シンプルなMarkdownパーサー
-        function marked(text) {
-            return text
-                .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-                .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-                .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-                .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
-                .replace(/\*(.*?)\*/gim, '<em>$1</em>')
-                .replace(/^\- (.*)$/gim, '<li>$1</li>')
-                .replace(/^\d+\. (.*)$/gim, '<li>$1</li>')
-                .replace(/\n\n/g, '</p><p>')
-                .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
-                .replace(/<\/ul>\s*<ul>/g, '');
         }
 
         // Enterキーで実行
