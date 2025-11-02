@@ -141,6 +141,8 @@ class AdvisorManager extends BaseAdvisorManager {
       return;
     }
     this.currentMode = mode;
+    // ユーザーが選択したモードを保存（結果ページでの表示制御用）
+    this.saveSelectedUserMode(mode);
     this.closeModal('ModeOverlay');
     this.showAdvisorView(mode);
     await this.fetchAdvice(mode);
@@ -176,11 +178,6 @@ class AdvisorManager extends BaseAdvisorManager {
             <span class="advisor-accordion-icon">▼</span>AI分析結果
           </h3>
           <div class="advisor-advice-content advisor-accordion-content" id="advisorAdviceContent"><div class="advisor-loading"></div></div>
-          <div class="advisor-perspective-switcher">
-            <button type="button" class="advisor-perspective-btn ${mode === 'employer' ? 'active' : ''}" data-action="advisor-switch-perspective-employer">採用側視点</button>
-            <button type="button" class="advisor-perspective-btn ${mode === 'applicant' ? 'active' : ''}" data-action="advisor-switch-perspective-applicant">応募者視点</button>
-            <button type="button" class="advisor-perspective-btn advisor-perspective-btn-agent ${mode === 'agent' ? 'active' : ''}" data-action="advisor-switch-perspective-agent" title="営業戦略・市場分析・双方へのアドバイスを提供"><span class="btn-title">エージェント向け</span><span class="btn-description">営業戦略・市場分析・双方へのアドバイス</span></button>
-          </div>
           <div id="advisorExportButtons" class="advisor-export-buttons"></div>
         </div>
       </div>
@@ -193,6 +190,7 @@ class AdvisorManager extends BaseAdvisorManager {
   closeAdvisorView() {
     this.isStreaming = false;
     this.perspectiveCache = {}; // キャッシュをクリア
+    this.clearSelectedUserMode(); // ユーザータイプ選択をクリア
     this.closeModal('View');
     const container = document.querySelector('.container');
     if (container) container.style.display = '';
@@ -309,6 +307,13 @@ class AdvisorManager extends BaseAdvisorManager {
    * 視点を切り替えて再分析を実行（キャッシュ対応）
    */
   async switchPerspective(newMode) {
+    // ユーザーが選択したモード以外への切り替えは禁止
+    const selectedUserMode = this.getSelectedUserMode();
+    if (selectedUserMode && selectedUserMode !== newMode) {
+      console.log('[Advisor] 別のユーザータイプモードへの切り替えは許可されません');
+      return;
+    }
+
     // 現在のモードと同じ場合は何もしない
     if (this.currentMode === newMode) return;
 
@@ -615,6 +620,29 @@ class AdvisorManager extends BaseAdvisorManager {
       agent: 'エージェント視点',
     };
     return labels[mode] || mode;
+  }
+
+  /**
+   * ユーザーが選択したモードを保存
+   */
+  saveSelectedUserMode(mode) {
+    localStorage.setItem('jsonld_advisor_selected_user_mode', mode);
+    console.log('[Advisor] 選択ユーザータイプを保存:', mode);
+  }
+
+  /**
+   * ユーザーが選択したモードを取得
+   */
+  getSelectedUserMode() {
+    return localStorage.getItem('jsonld_advisor_selected_user_mode');
+  }
+
+  /**
+   * ユーザーが選択したモードをクリア
+   */
+  clearSelectedUserMode() {
+    localStorage.removeItem('jsonld_advisor_selected_user_mode');
+    console.log('[Advisor] 選択ユーザータイプをクリア');
   }
 }
 
