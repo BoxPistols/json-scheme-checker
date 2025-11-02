@@ -34,6 +34,9 @@ class AdvisorManager extends BaseAdvisorManager {
         'advisor-switch-perspective-agent': () => this.switchPerspective('agent'),
         'advisor-toggle-job-section': () => this.toggleAccordion('job'),
         'advisor-toggle-advice-section': () => this.toggleAccordion('advice'),
+        // Web-prefixed actions for cross-module compatibility
+        'web-save-developer-key': () => this.saveDeveloperKey(),
+        'web-start-analysis': () => this.showModeSelector(),
       },
       actions: {
         closeStakeholderPrompt: 'advisor-close-stakeholder-prompt',

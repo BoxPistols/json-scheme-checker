@@ -32,6 +32,9 @@ class BlogReviewerManager extends BaseAdvisorManager {
         'blog-close-review-view': () => this.closeReviewView(),
         'blog-fetch-review': () => this.fetchReview(),
         'show-blog-confirm-dialog': () => this.showConfirmDialog(),
+        // Web-prefixed actions for cross-module compatibility
+        'web-save-developer-key': () => this.saveDeveloperKey(),
+        'web-start-analysis': () => this.showConfirmDialog(),
       },
       actions: {
         closeStakeholderPrompt: 'blog-close-stakeholder-prompt',
