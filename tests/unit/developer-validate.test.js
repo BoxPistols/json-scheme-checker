@@ -54,15 +54,16 @@ describe('Developer modal validations', () => {
     localStorage.setItem('jsonld_user_openai_key', 'sk-abc');
     localStorage.setItem('jsonld_user_api_provider', 'openai');
     localStorage.setItem('jsonld_user_api_base_url', 'https://api.openai.com/v1');
-    localStorage.setItem('jsonld_user_api_model', 'gpt-5-nano');
+    localStorage.setItem('jsonld_user_api_model', 'gpt-4.1-nano');
     const confirmSpy = vi.spyOn(window, 'confirm').mockImplementation(() => true);
     const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
     mgr.resetDeveloperSettings();
-    // saveUserApiKey('') は removeItem を行う実装
+    // resetDeveloperSettings は clearUserApiCredentials で key/provider/baseUrl を削除し、
+    // model をデフォルト値（gpt-5-nano）に設定する
     expect(localStorage.getItem('jsonld_user_openai_key')).toBeNull();
     expect(localStorage.getItem('jsonld_user_api_provider')).toBeNull();
     expect(localStorage.getItem('jsonld_user_api_base_url')).toBeNull();
-    expect(localStorage.getItem('jsonld_user_api_model')).toBeNull();
+    expect(localStorage.getItem('jsonld_user_api_model')).toBe('gpt-5-nano');
     confirmSpy.mockRestore();
     alertSpy.mockRestore();
   });

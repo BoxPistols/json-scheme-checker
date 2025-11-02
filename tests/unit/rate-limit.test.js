@@ -4,13 +4,12 @@ import mod from '../../public/modules/base-advisor.js';
 const BaseAdvisorManager = mod.BaseAdvisorManager || mod.default || mod;
 
 class RLManager extends BaseAdvisorManager {
-  constructor(stakeholder = false) {
+  constructor(stakeholder = false, maxRequests = 50) {
     super({
       elemIdPrefix: 'rl',
       RATE_LIMIT_KEY: 'jsonld_rl_usage',
       USER_API_KEY: 'jsonld_user_openai_key',
-      MAX_REQUESTS_PER_DAY: 2,
-      MAX_REQUESTS_STAKEHOLDER: 3,
+      MAX_REQUESTS_PER_DAY: maxRequests,
     });
     this._stakeholder = stakeholder;
   }
@@ -25,7 +24,7 @@ describe('Rate limit logic', () => {
   });
 
   it('enforces MAX_REQUESTS_PER_DAY when not stakeholder and no user key', () => {
-    const mgr = new RLManager(false);
+    const mgr = new RLManager(false, 2); // Small limit for this test
     let rl = mgr.checkRateLimit();
     expect(rl.allowed).toBe(true);
     mgr.recordUsage();
@@ -39,8 +38,10 @@ describe('Rate limit logic', () => {
     ).toBe(true);
   });
 
-  it('uses stakeholder limit when stakeholder mode', () => {
-    const mgr = new RLManager(true);
+  it('uses unified normal limit (50/24h) for all users', () => {
+    // stakeholder mode is deprecated; unified to 50 requests/24h
+    const mgr = new RLManager(false);
+    // Record 2 usages (within 50 limit)
     mgr.recordUsage();
     mgr.recordUsage();
     let rl = mgr.checkRateLimit();
