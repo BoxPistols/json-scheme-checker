@@ -344,7 +344,7 @@ class AdvisorManager extends BaseAdvisorManager {
     const adviceContent = document.getElementById('advisorAdviceContent');
     if (!adviceContent) return;
 
-    // キャッシュがある場合はキャッシュから表示
+    // キャッシュがある場合はキャッシュから表示（トークン消費なし）
     if (this.perspectiveCache[newMode]) {
       console.log(`[Advisor] Using cached data for ${newMode}`);
       const cached = this.perspectiveCache[newMode];
@@ -356,14 +356,59 @@ class AdvisorManager extends BaseAdvisorManager {
       this.currentUsage = cached.usage;
       this.currentModel = cached.model;
       this.displayUsage();
+
+      // キャッシュ利用のバッジを表示
+      this.showCacheNotification(`${modeTitle}（キャッシュから取得）`);
       return;
     }
 
-    // キャッシュがない場合は新しく取得
+    // キャッシュがない場合、トークン消費を確認
     console.log(`[Advisor] Fetching new data for ${newMode}`);
+    const rateLimit = this.checkRateLimit();
+    const willConsumeTokens = !rateLimit.allowed || rateLimit.mode !== 'developer';
+
+    if (willConsumeTokens && rateLimit.mode === 'normal') {
+      const message = `この操作で追加のトークンが消費されます。
+視点: ${modeTitle}
+残り使用回数: ${rateLimit.remaining} / ${rateLimit.maxRequests}
+
+続けますか？`;
+
+      if (!window.confirm(message)) {
+        console.log('[Advisor] Perspective switch cancelled by user');
+        this.currentMode = null; // モード変更をキャンセル
+        return;
+      }
+    }
+
+    // 新しく取得
     adviceContent.innerHTML =
       '<div class="advisor-loading"><div class="advisor-spinner"></div><p>AI分析中...</p></div>';
     await this.fetchAdvice(newMode);
+  }
+
+  /**
+   * キャッシュ利用通知を表示
+   */
+  showCacheNotification(message) {
+    const adviceContent = document.getElementById('advisorAdviceContent');
+    if (!adviceContent) return;
+
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+      padding: 12px 16px;
+      margin-bottom: 12px;
+      background: var(--secondary-bg-color);
+      border-left: 4px solid var(--info-color, #0066cc);
+      border-radius: 4px;
+      font-size: 0.875rem;
+      color: var(--secondary-text-color);
+    `;
+    notification.innerHTML = `<strong>キャッシュから取得</strong><br>${message}（追加トークン消費なし）`;
+    adviceContent.insertBefore(notification, adviceContent.firstChild);
+
+    // 5秒後に自動削除
+    setTimeout(() => notification.remove(), 5000);
   }
 
   /**

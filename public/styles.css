@@ -2902,7 +2902,8 @@ html[data-theme='dark'] .score-breakdown > div {
 
 /* Perspective Switcher */
 .advisor-perspective-switcher {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 8px;
   padding: 16px 24px;
   border-top: 1px solid var(--border-color);
@@ -2910,7 +2911,6 @@ html[data-theme='dark'] .score-breakdown > div {
 }
 
 .advisor-perspective-btn {
-  flex: 1;
   padding: 12px 16px;
   border: 1px solid var(--border-color);
   background: var(--card-bg-color);
@@ -2920,6 +2920,10 @@ html[data-theme='dark'] .score-breakdown > div {
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
+}
+
+.advisor-perspective-btn:nth-child(3) {
+  grid-column: 1 / -1;
 }
 
 .advisor-perspective-btn:hover {

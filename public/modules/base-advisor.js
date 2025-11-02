@@ -173,6 +173,15 @@ class BaseAdvisorManager {
   }
 
   /**
+   * Clears all user API credentials (key, provider, baseUrl).
+   */
+  clearUserApiCredentials() {
+    this.saveUserApiKey('');
+    this.saveUserApiProvider('');
+    this.saveUserApiBaseUrl('');
+  }
+
+  /**
    * Resets all special modes and API keys.
    */
   resetToNormalMode() {
