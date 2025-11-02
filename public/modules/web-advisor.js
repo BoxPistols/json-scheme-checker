@@ -267,6 +267,9 @@ class WebAdvisorManager extends BaseAdvisorManager {
     const isVercel = window.location.hostname.includes('vercel.app');
     const base = isVercel ? '' : 'http://127.0.0.1:3333';
 
+    console.log('[WebAdvisor-fetchAnalysis] Base URL:', base);
+    console.log('[WebAdvisor-fetchAnalysis] Target URL:', this.currentUrl);
+
     // まずセッション発行（キーやモデル等を安全に送る）
     let sessionToken = '';
     try {
@@ -276,6 +279,11 @@ class WebAdvisorManager extends BaseAdvisorManager {
         baseUrl: this.getUserApiBaseUrl?.() || '',
         model: this.getUserApiModel?.() || '',
       };
+      console.log('[WebAdvisor-fetchAnalysis] Sending session payload:', {
+        hasUserApiKey: !!payload.userApiKey,
+        provider: payload.provider,
+        model: payload.model,
+      });
       const resp = await fetch(`${base}/api/web-advisor/session`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -284,8 +292,12 @@ class WebAdvisorManager extends BaseAdvisorManager {
       if (resp.ok) {
         const js = await resp.json();
         sessionToken = js.sessionToken || '';
+        console.log('[WebAdvisor-fetchAnalysis] Session created:', sessionToken ? 'YES' : 'NO');
+      } else {
+        console.log('[WebAdvisor-fetchAnalysis] Session endpoint failed:', resp.status);
       }
-    } catch (_) {
+    } catch (err) {
+      console.log('[WebAdvisor-fetchAnalysis] Session creation error:', err.message);
       // セッションが作れない場合でもSSEは続行（envキーのみで解析可能）
     }
 
@@ -293,6 +305,7 @@ class WebAdvisorManager extends BaseAdvisorManager {
     if (sessionToken) params.set('sessionToken', sessionToken);
 
     const url = `${base}/api/web-advisor?${params.toString()}`;
+    console.log('[WebAdvisor-fetchAnalysis] SSE URL:', url);
 
     try {
       content.innerHTML = '<div class="advisor-markdown"></div>';
@@ -301,38 +314,46 @@ class WebAdvisorManager extends BaseAdvisorManager {
 
       const es = new EventSource(url);
       this.eventSource = es;
+      console.log('[WebAdvisor-fetchAnalysis] EventSource created');
 
       es.onmessage = e => {
+        console.log('[WebAdvisor-SSE-onmessage] Event:', e.data?.substring(0, 100));
         if (!e.data) return;
         try {
           const data = JSON.parse(e.data);
+          console.log('[WebAdvisor-SSE-onmessage] Type:', data.type);
           switch (data.type) {
             case 'token':
               full += data.content || '';
               md.innerHTML = this.renderMarkdown(full);
               break;
             case 'done':
+              console.log('[WebAdvisor-SSE-onmessage] Analysis complete');
               this.isStreaming = false;
               this.recordUsage();
               setAnalysisInactive('web-advisor'); // グローバル状態をクリア
               es.close();
               break;
             case 'error':
+              console.log('[WebAdvisor-SSE-onmessage] Error:', data.message);
               this.isStreaming = false;
               setAnalysisInactive('web-advisor'); // グローバル状態をクリア
               md.innerHTML = `<div class="advisor-error"><p>${this.escapeHtml(data.message || '分析に失敗しました')}</p></div>`;
               es.close();
               break;
             default:
+              console.log('[WebAdvisor-SSE-onmessage] Ignored type:', data.type);
               // init/progress/meta は必要に応じて拡張
               break;
           }
-        } catch (_) {
+        } catch (err) {
+          console.log('[WebAdvisor-SSE-onmessage] Parse error:', err.message);
           // 無視
         }
       };
 
       es.onerror = () => {
+        console.log('[WebAdvisor-SSE-onerror] Connection error, isStreaming:', this.isStreaming);
         if (this.isStreaming) {
           this.isStreaming = false;
           setAnalysisInactive('web-advisor'); // グローバル状態をクリア
@@ -341,6 +362,7 @@ class WebAdvisorManager extends BaseAdvisorManager {
         es.close();
       };
     } catch (err) {
+      console.log('[WebAdvisor-fetchAnalysis] Error:', err.message);
       this.isStreaming = false;
       setAnalysisInactive('web-advisor'); // グローバル状態をクリア
       content.innerHTML = `<div class="advisor-error"><p>${this.escapeHtml(err.message || '分析開始に失敗しました')}</p></div>`;

@@ -482,6 +482,8 @@ ${h1Count === 1 && hasTitle && hasDescription ? '★★★☆☆' : '★★☆�
  * Webアドバイザーエンドポイント（SSE）
  */
 module.exports = async (req, res) => {
+  console.log('[Web-Advisor-Endpoint] Request started');
+
   // CORSヘッダー（すべてのオリジンを許可）
   const origin = req.headers.origin;
   res.setHeader('Access-Control-Allow-Origin', origin || '*');
@@ -507,6 +509,9 @@ module.exports = async (req, res) => {
     model: modelQ,
   } = req.query;
 
+  console.log('[Web-Advisor-Endpoint] URL:', url);
+  console.log('[Web-Advisor-Endpoint] Has sessionToken:', !!sessionToken);
+
   // セッション取得（存在すればこちらを優先）
   let userApiKey = null;
   let provider = null;
@@ -517,13 +522,16 @@ module.exports = async (req, res) => {
       const { getSession } = require('./web-advisor-session-store');
       const s = getSession(sessionToken);
       if (!s) {
+        console.log('[Web-Advisor-Endpoint] Invalid sessionToken');
         return res.status(400).json({ error: 'Invalid or expired sessionToken' });
       }
       userApiKey = s.userApiKey || null;
       provider = s.provider || null;
       baseUrl = s.baseUrl || null;
       model = s.model || null;
-    } catch (_) {
+      console.log('[Web-Advisor-Endpoint] Session retrieved, hasApiKey:', !!userApiKey);
+    } catch (err) {
+      console.log('[Web-Advisor-Endpoint] Session error:', err.message);
       // 無視してフォールバック
     }
   }
@@ -618,6 +626,8 @@ module.exports = async (req, res) => {
       `data: ${JSON.stringify({ type: 'progress', stage: 'fetching', message: 'ページを取得中...' })}\n\n`
     );
 
+    console.log('[Web-Advisor] Fetching URL:', url);
+
     const fetchResponse = await fetchWithRetry(url, {
       headers: {
         'User-Agent':
@@ -629,6 +639,7 @@ module.exports = async (req, res) => {
     });
 
     const html = await fetchResponse.text();
+    console.log('[Web-Advisor] HTML fetched, length:', html.length);
 
     // メタ情報解析
     res.write(
@@ -636,6 +647,7 @@ module.exports = async (req, res) => {
     );
 
     const metadata = extractMetadata(html);
+    console.log('[Web-Advisor] Metadata extracted, title:', metadata.title?.substring(0, 50));
 
     // メタ情報送信
     res.write(`data: ${JSON.stringify({ type: 'meta', data: metadata })}\n\n`);
@@ -646,6 +658,7 @@ module.exports = async (req, res) => {
     );
 
     const apiKey = userApiKey || process.env.OPENAI_API_KEY;
+    console.log('[Web-Advisor] Has API key:', !!apiKey);
 
     if (apiKey) {
       // OpenAI APIによる分析（baseUrlがあればOpenAI互換エンドポイントとして利用）

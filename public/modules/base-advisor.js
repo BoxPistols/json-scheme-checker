@@ -148,9 +148,7 @@ class BaseAdvisorManager {
     const allowed = remaining > 0;
 
     // リセット時刻はJST（Asia/Tokyo +9h）で計算
-    const resetTime = recentRequests.length > 0
-      ? new Date(recentRequests[0] + oneDayMs)
-      : null;
+    const resetTime = recentRequests.length > 0 ? new Date(recentRequests[0] + oneDayMs) : null;
 
     return {
       allowed,
@@ -224,7 +222,6 @@ class BaseAdvisorManager {
     }
   }
 
-
   /**
    * Clears all user API credentials (key, provider, baseUrl).
    */
@@ -243,7 +240,6 @@ class BaseAdvisorManager {
     alert('通常モードに戻しました。');
     // this.config.ui.showConfirmDialog(); // Re-render the confirmation dialog
   }
-
 
   /**
    * Shows a prompt for entering a developer API key.
