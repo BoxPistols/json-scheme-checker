@@ -105,6 +105,8 @@ body {
   font-size: 1rem;
   font-weight: 400;
   transition: background-color 0.3s ease, color 0.3s ease;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 .container {
