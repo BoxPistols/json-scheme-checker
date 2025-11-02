@@ -1927,7 +1927,7 @@ document.getElementById('btnTestConnection')?.addEventListener('click', async ()
 
 // 設定をクリア
 document.getElementById('btnClearDeveloperSettings')?.addEventListener('click', () => {
-  if (!confirm('開発者設定をすべてクリアしますか？')) {
+  if (!confirm('拡張モード設定をすべてクリアしますか？')) {
     return;
   }
 

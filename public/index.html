@@ -70,7 +70,7 @@
                         <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="currentColor"/>
                     </svg>
                     JobPost</a>
-                <button type="button" class="btn-my-api" id="btnMyApi" title="開発者設定">
+                <button type="button" class="btn-my-api" id="btnMyApi" title="拡張モード設定（無制限モード）">
                     My API
                 </button>
                 <span class="api-status-chip" id="apiModelChip" title="現在のモデル">
@@ -1021,9 +1021,9 @@ export default function Home() {
             <div class="modal-container" style="max-width: 600px;">
                 <div class="modal-header">
                     <div>
-                        <h2>開発者設定</h2>
-                        <div style="font-size: 0.75rem; color: var(--secondary-text-color); margin-top: 4px;">
-                            Developer Mode / 無制限モード
+                        <h2>拡張モード設定（無制限モード）</h2>
+                        <div style="font-size: 12px; color: var(--secondary-text-color); margin-top: 4px;">
+                            Developer Mode（無制限モード）と同一の設定です
                         </div>
                     </div>
                     <button type="button" class="modal-close-btn" id="btnCloseDeveloperSettings" aria-label="閉じる">
@@ -1050,7 +1050,7 @@ export default function Home() {
                                 placeholder="sk-..."
                                 style="width: 100%; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 14px;"
                             />
-                            <p style="margin: 4px 0 0; font-size: 0.75rem; color: var(--secondary-text-color);">
+                            <p style="margin: 4px 0 0; font-size: 12px; color: var(--secondary-text-color);">
                                 APIキーは安全にローカルストレージに保存されます
                             </p>
                         </div>
@@ -1072,7 +1072,7 @@ export default function Home() {
                                 <option value="gpt-4o">gpt-4o（品質重視: $2.50/1M入力）</option>
                                 <option value="gpt-5">gpt-5（最高品質: $10.00/1M入力・推定）</option>
                             </select>
-                            <p style="margin: 4px 0 0; font-size: 0.75rem; color: var(--secondary-text-color);">
+                            <p style="margin: 4px 0 0; font-size: 12px; color: var(--secondary-text-color);">
                                 GPT-5シリーズは超低レイテンシですが、temperatureパラメータは非対応です
                             </p>
                         </div>
@@ -1094,7 +1094,7 @@ export default function Home() {
                                         placeholder="https://api.openai.com/v1"
                                         style="width: 100%; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 14px;"
                                     />
-                                    <p style="margin: 4px 0 0; font-size: 0.75rem; color: var(--secondary-text-color);">
+                                    <p style="margin: 4px 0 0; font-size: 12px; color: var(--secondary-text-color);">
                                         OpenAI互換APIを使用する場合のみ指定
                                     </p>
                                 </div>
