@@ -5,26 +5,20 @@ class BlogReviewerManager extends BaseAdvisorManager {
     const config = {
       RATE_LIMIT_KEY: 'jsonld_blog_reviewer_usage',
       USER_API_KEY: 'jsonld_blog_reviewer_openai_key',
-      STAKEHOLDER_MODE_KEY: 'jsonld_blog_reviewer_stakeholder',
       USAGE_TOTAL_KEY: 'jsonld_usage_blog_reviewer_total',
       USAGE_MODE_KEY: 'jsonld_usage_mode',
-      MAX_REQUESTS_PER_DAY: 10,
-      MAX_REQUESTS_STAKEHOLDER: 30,
+      MAX_REQUESTS_PER_DAY: 50,
       elemIdPrefix: 'blogReviewer',
       ui: {
         showConfirmDialog: () => this.showConfirmDialog(),
-        closeStakeholderPrompt: () => this.closeModal('stakeholderPrompt'),
         closeDeveloperPrompt: () => this.closeModal('developerPrompt'),
       },
       actionHandlers: {
-        'blog-close-stakeholder-prompt': () => this.closeModal('stakeholderPrompt'),
-        'blog-confirm-stakeholder': () => this.confirmStakeholder(),
         'blog-close-developer-prompt': () => this.closeModal('developerPrompt'),
         'blog-toggle-developer-key-visibility': () => this.toggleDeveloperKeyVisibility(),
         'blog-save-developer-key': () => this.saveDeveloperKey(),
         'blog-test-developer-connection': () => this.testDeveloperConnection(),
         'blog-reset-developer-settings': () => this.resetDeveloperSettings(),
-        'blog-show-stakeholder-prompt': () => this.showStakeholderPrompt(),
         'blog-show-developer-prompt': () => this.showDeveloperPrompt(),
         'blog-reset-to-normal-mode': () => this.resetToNormalMode(),
         'blog-close-confirm-dialog': () => this.closeConfirmDialog(),
@@ -34,8 +28,6 @@ class BlogReviewerManager extends BaseAdvisorManager {
         'show-blog-confirm-dialog': () => this.showConfirmDialog(),
       },
       actions: {
-        closeStakeholderPrompt: 'blog-close-stakeholder-prompt',
-        confirmStakeholder: 'blog-confirm-stakeholder',
         closeDeveloperPrompt: 'blog-close-developer-prompt',
         toggleDeveloperKeyVisibility: 'blog-toggle-developer-key-visibility',
         saveDeveloperKey: 'blog-save-developer-key',
@@ -425,13 +417,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
         ? rateLimit.resetTime.toLocaleString('ja-JP')
         : '不明';
 
-      let message = `利用制限に達しました。\n\nリセット時刻: ${resetTimeStr}\n\n`;
-      if (rateLimit.mode === 'stakeholder') {
-        message += 'MyAPIモードで自分のAPIキーを使用すると制限なしで利用できます。';
-      } else {
-        message += '関係者モードで30回/24時間、またはMyAPIモードで無制限利用が可能です。';
-      }
-
+      const message = `利用制限に達しました。\n\nリセット時刻: ${resetTimeStr}\n\nMyAPIモード（Header「My API」設定）で自分のOpenAI APIキーを使用すると無制限利用できます。`;
       alert(message);
       return;
     }

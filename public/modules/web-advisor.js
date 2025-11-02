@@ -5,26 +5,20 @@ class WebAdvisorManager extends BaseAdvisorManager {
     const config = {
       RATE_LIMIT_KEY: 'jsonld_web_advisor_usage',
       USER_API_KEY: 'jsonld_web_advisor_openai_key',
-      STAKEHOLDER_MODE_KEY: 'jsonld_web_advisor_stakeholder',
       USAGE_TOTAL_KEY: 'jsonld_usage_web_advisor_total',
       USAGE_MODE_KEY: 'jsonld_usage_mode',
-      MAX_REQUESTS_PER_DAY: 10,
-      MAX_REQUESTS_STAKEHOLDER: 30,
+      MAX_REQUESTS_PER_DAY: 50,
       elemIdPrefix: 'webAdvisor',
       ui: {
         showConfirmDialog: () => this.showConfirmDialog(),
-        closeStakeholderPrompt: () => this.closeModal('stakeholderPrompt'),
         closeDeveloperPrompt: () => this.closeModal('developerPrompt'),
       },
       actionHandlers: {
-        'web-close-stakeholder-prompt': () => this.closeModal('stakeholderPrompt'),
-        'web-confirm-stakeholder': () => this.confirmStakeholder(),
         'web-close-developer-prompt': () => this.closeModal('developerPrompt'),
         'web-toggle-developer-key-visibility': () => this.toggleDeveloperKeyVisibility(),
         'web-save-developer-key': () => this.saveDeveloperKey(),
         'web-test-developer-connection': () => this.testDeveloperConnection(),
         'web-reset-developer-settings': () => this.resetDeveloperSettings(),
-        'web-show-stakeholder-prompt': () => this.showStakeholderPrompt(),
         'web-show-developer-prompt': () => this.showDeveloperPrompt(),
         'web-reset-to-normal-mode': () => this.resetToNormalMode(),
         'web-close-confirm-dialog': () => this.closeConfirmDialog(),
@@ -34,8 +28,6 @@ class WebAdvisorManager extends BaseAdvisorManager {
         'show-web-confirm-dialog': () => this.showConfirmDialog(),
       },
       actions: {
-        closeStakeholderPrompt: 'web-close-stakeholder-prompt',
-        confirmStakeholder: 'web-confirm-stakeholder',
         closeDeveloperPrompt: 'web-close-developer-prompt',
         toggleDeveloperKeyVisibility: 'web-toggle-developer-key-visibility',
         saveDeveloperKey: 'web-save-developer-key',
@@ -203,7 +195,7 @@ class WebAdvisorManager extends BaseAdvisorManager {
         ? rateLimit.resetTime.toLocaleString('ja-JP')
         : '不明';
       alert(
-        `利用制限に達しました。\n\nリセット時刻: ${resetTimeStr}\n\n関係者モード（30回/24h）またはMyAPIモードをご利用ください。`
+        `利用制限に達しました。\n\nリセット時刻: ${resetTimeStr}\n\nMyAPIモード（Header「My API」設定）で自分のOpenAI APIキーを使用すると無制限利用できます。`
       );
       return;
     }

@@ -2105,15 +2105,10 @@ function updateHeaderApiStatus() {
     }
   });
 
-  // 関係者モードかどうかを確認
-  const isStakeholder =
-    localStorage.getItem('jsonld_advisor_stakeholder') === 'true' ||
-    localStorage.getItem('jsonld_blog_reviewer_stakeholder') === 'true' ||
-    localStorage.getItem('jsonld_web_advisor_stakeholder') === 'true';
-
-  const maxRequests = isStakeholder ? 30 : 10;
+  // 無料版の上限は一律50回/24時間（JST日次リセット）
+  const maxRequests = 50;
   const remaining = Math.max(0, maxRequests - totalUsed);
 
-  // 表示（例: "5/10" または "15/30"）
+  // 表示（例: "45/50"）
   usageCountEl.textContent = `${remaining}/${maxRequests}`;
 }

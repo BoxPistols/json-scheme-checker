@@ -19,9 +19,8 @@ export const STORAGE_KEYS = {
 
 // レート制限
 export const RATE_LIMITS = {
-  NORMAL: 10, // 通常モード: 10回/24時間
-  STAKEHOLDER: 30, // 関係者モード: 30回/24時間
-  DEVELOPER: Infinity, // 開発者モード: 無制限
+  NORMAL: 50, // 無料版: 50回/24時間（JST日次リセット）
+  DEVELOPER: Infinity, // MyAPIモード: 無制限
 };
 
 // タイムアウト設定（ミリ秒）

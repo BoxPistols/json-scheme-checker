@@ -5,7 +5,7 @@ window.ADVISOR_CONST = window.ADVISOR_CONST || {
   DEFAULT_MODEL: 'gpt-5-nano',
   TOKENS_PER_UNIT: 1000,
   USD_TO_JPY_RATE: 150,
-  RATE_LIMIT: { NORMAL: 10, STAKEHOLDER: 30 },
+  RATE_LIMIT: { NORMAL: 50 },
   ARTICLE: { MAX_BODY_LENGTH: 1000, MIN_BODY_LEN: 100 },
   USAGE_MODE: { SESSION: 'session', PERMANENT: 'permanent' },
 };
@@ -143,21 +143,21 @@ class BaseAdvisorManager {
     const usageData = JSON.parse(localStorage.getItem(this.config.RATE_LIMIT_KEY) || '[]');
     const recentRequests = usageData.filter(timestamp => now - timestamp < oneDayMs);
 
-    const isStakeholder = this.isStakeholderMode();
-    const maxRequests = isStakeholder
-      ? this.config.MAX_REQUESTS_STAKEHOLDER
-      : this.config.MAX_REQUESTS_PER_DAY;
-
+    const maxRequests = this.config.MAX_REQUESTS_PER_DAY;
     const remaining = maxRequests - recentRequests.length;
     const allowed = remaining > 0;
-    const resetTime = recentRequests.length > 0 ? new Date(recentRequests[0] + oneDayMs) : null;
+
+    // リセット時刻はJST（Asia/Tokyo +9h）で計算
+    const resetTime = recentRequests.length > 0
+      ? new Date(recentRequests[0] + oneDayMs)
+      : null;
 
     return {
       allowed,
       remaining,
       resetTime,
       usingUserKey: false,
-      mode: isStakeholder ? 'stakeholder' : 'normal',
+      mode: 'normal',
       maxRequests,
     };
   }
@@ -224,17 +224,6 @@ class BaseAdvisorManager {
     }
   }
 
-  isStakeholderMode() {
-    return localStorage.getItem(this.config.STAKEHOLDER_MODE_KEY) === 'true';
-  }
-
-  enableStakeholderMode() {
-    localStorage.setItem(this.config.STAKEHOLDER_MODE_KEY, 'true');
-  }
-
-  disableStakeholderMode() {
-    localStorage.removeItem(this.config.STAKEHOLDER_MODE_KEY);
-  }
 
   /**
    * Clears all user API credentials (key, provider, baseUrl).
@@ -255,41 +244,6 @@ class BaseAdvisorManager {
     // this.config.ui.showConfirmDialog(); // Re-render the confirmation dialog
   }
 
-  /**
-   * Shows a prompt for stakeholder confirmation.
-   */
-  showStakeholderPrompt() {
-    const overlay = this.createModal(
-      'stakeholderPrompt',
-      `
-      <div class="advisor-modal advisor-confirm-modal">
-        <div class="advisor-modal-header"><h2>関係者確認</h2></div>
-        <div class="advisor-modal-body">
-          <p class="advisor-modal-text advisor-center">あなたは関係者ですか？</p>
-          <p class="advisor-notice advisor-center">
-            関係者の場合、利用回数が${this.config.MAX_REQUESTS_STAKEHOLDER}回/24時間に増加します
-          </p>
-          <div class="advisor-confirm-buttons">
-            <button type="button" class="advisor-btn-secondary" data-action="${this.config.actions.closeStakeholderPrompt}">いいえ</button>
-            <button type="button" class="advisor-btn-primary" data-action="${this.config.actions.confirmStakeholder}">はい</button>
-          </div>
-        </div>
-      </div>
-    `
-    );
-    this.addEscapeKeyListener(overlay, this.config.ui.closeStakeholderPrompt);
-  }
-
-  closeStakeholderPrompt() {
-    this.closeModal('stakeholderPrompt');
-  }
-
-  confirmStakeholder() {
-    this.enableStakeholderMode();
-    this.closeStakeholderPrompt();
-    // this.config.ui.showConfirmDialog(); // Re-rendering the dialog causes issues
-    alert('関係者モードを有効にしました。再度分析ボタンを押してください。');
-  }
 
   /**
    * Shows a prompt for entering a developer API key.
@@ -323,7 +277,7 @@ class BaseAdvisorManager {
                 <div>
                   <div style="font-weight: 500;">無料版を使用（サーバー負担）</div>
                   <div style="font-size: 0.75rem; color: var(--secondary-text-color); margin-top: 2px;">
-                    gpt-5-nano、gpt-4.1-nanoの2モデルから選択可能。レート制限あり（10回/24時間）
+                    gpt-5-nano、gpt-4.1-nanoの2モデルから選択可能。レート制限あり（50回/24時間、JST日次リセット）
                   </div>
                 </div>
               </label>
