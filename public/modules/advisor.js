@@ -498,7 +498,7 @@ class AdvisorManager extends BaseAdvisorManager {
   }
 
   /**
-   * PDF形式でエクスポート
+   * PDF形式でエクスポート（HTML形式で日本語対応）
    */
   exportToPDF() {
     try {
@@ -508,81 +508,110 @@ class AdvisorManager extends BaseAdvisorManager {
       const jobContent = document.getElementById('advisorJobContent');
       const adviceContent = document.querySelector('.advisor-markdown');
 
-      const pageHeight = 297;
-      const pageWidth = 210;
-      const margin = 10;
-      const lineHeight = 5;
-      let yPosition = margin;
+      const jobText = jobContent ? jobContent.innerText : '情報なし';
+      const adviceText = adviceContent ? adviceContent.innerText : '情報なし';
 
-      let pdfContent = '';
+      // HTML形式のPDF（ブラウザで印刷→PDFで保存）
+      const htmlContent = `
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>AI分析結果エクスポート</title>
+  <style>
+    body {
+      font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif;
+      margin: 20px;
+      line-height: 1.6;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      border-bottom: 2px solid #5a7ca3;
+      padding-bottom: 10px;
+      color: #5a7ca3;
+    }
+    .metadata {
+      background-color: #f5f7fa;
+      padding: 15px;
+      border-radius: 4px;
+      margin: 20px 0;
+    }
+    .metadata p {
+      margin: 8px 0;
+    }
+    .section {
+      margin: 30px 0;
+      page-break-inside: avoid;
+    }
+    .section h2 {
+      border-left: 4px solid #5a7ca3;
+      padding-left: 10px;
+      margin-top: 0;
+      color: #2c3e50;
+    }
+    .content {
+      background-color: #ffffff;
+      padding: 15px;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-size: 13px;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 12px;
+      color: #999;
+    }
+    @media print {
+      body { margin: 0; }
+      .section { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <h1>AI分析結果エクスポート</h1>
 
-      pdfContent += `%PDF-1.4\n`;
-      pdfContent += `1 0 obj\n`;
-      pdfContent += `<< /Type /Catalog /Pages 2 0 R >>\n`;
-      pdfContent += `endobj\n`;
-      pdfContent += `2 0 obj\n`;
-      pdfContent += `<< /Type /Pages /Kids [3 0 R] /Count 1 >>\n`;
-      pdfContent += `endobj\n`;
-      pdfContent += `3 0 obj\n`;
-      pdfContent += `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageWidth * 2.83} ${pageHeight * 2.83}] /Contents 4 0 R /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> >>\n`;
-      pdfContent += `endobj\n`;
-      pdfContent += `4 0 obj\n`;
+  <div class="metadata">
+    <p><strong>エクスポート日時:</strong> ${timestamp}</p>
+    <p><strong>視点:</strong> ${modeLabel}</p>
+    <p><strong>使用モデル:</strong> ${this.currentModel}</p>
+    <p><strong>トークン使用数:</strong> 入力 ${this.currentUsage.prompt_tokens}、出力 ${this.currentUsage.completion_tokens}</p>
+  </div>
 
-      let streamContent = '';
-      streamContent += `BT /F2 14 Tf ${margin * 2.83} ${(pageHeight - margin) * 2.83} Td (AI分析結果エクスポート) Tj\n`;
-      streamContent += `0 -${lineHeight * 2.83} Td /F1 10 Tf\n`;
-      streamContent += `/F1 10 Tf ${margin * 2.83} ${(pageHeight - margin - 10) * 2.83} Td (エクスポート日時: ${timestamp}) Tj\n`;
-      streamContent += `0 -${lineHeight * 2.83} Td (視点: ${modeLabel}) Tj\n`;
-      streamContent += `0 -${lineHeight * 2.83} Td (モデル: ${this.currentModel}) Tj\n`;
-      streamContent += `0 -${lineHeight * 2.83} Td (トークン使用数: 入力 ${this.currentUsage.prompt_tokens}, 出力 ${this.currentUsage.completion_tokens}) Tj\n`;
-      streamContent += `0 -${lineHeight * 3.5} Td /F2 12 Tf (求人情報) Tj\n`;
-      streamContent += `0 -${lineHeight * 2.83} Td /F1 10 Tf\n`;
+  <div class="section">
+    <h2>求人情報</h2>
+    <div class="content">${this.escapeHtml(jobText)}</div>
+  </div>
 
-      if (jobContent) {
-        const jobText = jobContent.innerText;
-        streamContent += `(${this.escapePdfText(jobText.substring(0, 100))}) Tj\n`;
-      }
+  <div class="section">
+    <h2>AI分析結果</h2>
+    <div class="content">${this.escapeHtml(adviceText)}</div>
+  </div>
 
-      streamContent += `0 -${lineHeight * 3.5} Td /F2 12 Tf (AI分析結果) Tj\n`;
-      streamContent += `0 -${lineHeight * 2.83} Td /F1 10 Tf\n`;
+  <div class="footer">
+    <p>このドキュメントは自動生成されました。</p>
+    <p>ブラウザの「印刷」機能から「PDFに保存」を選択してダウンロードしてください。</p>
+  </div>
 
-      if (adviceContent) {
-        const adviceText = adviceContent.innerText;
-        streamContent += `(${this.escapePdfText(adviceText.substring(0, 100))}) Tj\n`;
-      }
+  <script>
+    // ページ読み込み後に自動印刷ダイアログを表示（オプション）
+    // window.print();
+  </script>
+</body>
+</html>
+      `;
 
-      streamContent += `ET\n`;
-
-      pdfContent += `<< /Length ${streamContent.length} >>\nstream\n`;
-      pdfContent += streamContent;
-      pdfContent += `\nendstream\nendobj\n`;
-      pdfContent += `5 0 obj\n`;
-      pdfContent += `<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\n`;
-      pdfContent += `endobj\n`;
-      pdfContent += `6 0 obj\n`;
-      pdfContent += `<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>\n`;
-      pdfContent += `endobj\n`;
-      pdfContent += `xref\n`;
-      pdfContent += `0 7\n`;
-      pdfContent += `0000000000 65535 f \n`;
-      pdfContent += `0000000009 00000 n \n`;
-      pdfContent += `0000000058 00000 n \n`;
-      pdfContent += `0000000115 00000 n \n`;
-      pdfContent += `0000000300 00000 n \n`;
-      pdfContent += `0000001000 00000 n \n`;
-      pdfContent += `0000001100 00000 n \n`;
-      pdfContent += `trailer\n`;
-      pdfContent += `<< /Size 7 /Root 1 0 R >>\n`;
-      pdfContent += `startxref\n`;
-      pdfContent += `${pdfContent.length}\n`;
-      pdfContent += `%%EOF\n`;
-
-      const blob = new Blob([pdfContent], { type: 'application/pdf' });
+      const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8;' });
       const dateStr = new Date().toISOString().split('T')[0];
-      const filename = `advice_${this.currentMode}_${dateStr}.pdf`;
+      const filename = `advice_${this.currentMode}_${dateStr}.html`;
 
       this.downloadFile(blob, filename);
-      console.log('[Advisor] PDF export successful:', filename);
+      console.log('[Advisor] PDF export successful (HTML形式):', filename);
     } catch (error) {
       console.error('[Advisor] PDF export failed:', error);
       alert('PDFエクスポートに失敗しました。');
@@ -601,13 +630,6 @@ class AdvisorManager extends BaseAdvisorManager {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-  }
-
-  /**
-   * PDF用テキストをエスケープ
-   */
-  escapePdfText(text) {
-    return text.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)').substring(0, 200);
   }
 
   /**
