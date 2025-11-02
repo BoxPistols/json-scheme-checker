@@ -2105,7 +2105,7 @@ function updateHeaderApiStatus() {
     }
   });
 
-  // 無料版の上限は一律50回/24時間（JST日次リセット）
+  // 無料版の上限は一律50回/24時間（毎日0:00にリセット）
   const maxRequests = 50;
   const remaining = Math.max(0, maxRequests - totalUsed);
 

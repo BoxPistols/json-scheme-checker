@@ -277,7 +277,7 @@ class BaseAdvisorManager {
                 <div>
                   <div style="font-weight: 500;">無料版を使用（サーバー負担）</div>
                   <div style="font-size: 0.75rem; color: var(--secondary-text-color); margin-top: 2px;">
-                    gpt-5-nano、gpt-4.1-nanoの2モデルから選択可能。レート制限あり（50回/24時間、JST日次リセット）
+                    gpt-5-nano、gpt-4.1-nanoの2モデルから選択可能。レート制限あり（50回/24時間、毎日0:00にリセット）
                   </div>
                 </div>
               </label>

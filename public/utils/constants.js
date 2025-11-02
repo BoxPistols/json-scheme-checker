@@ -19,7 +19,7 @@ export const STORAGE_KEYS = {
 
 // レート制限
 export const RATE_LIMITS = {
-  NORMAL: 50, // 無料版: 50回/24時間（JST日次リセット）
+  NORMAL: 50, // 無料版: 50回/24時間（毎日0:00にリセット）
   DEVELOPER: Infinity, // MyAPIモード: 無制限
 };
 
