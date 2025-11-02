@@ -590,10 +590,21 @@ class BlogReviewerManager extends BaseAdvisorManager {
    * AIレビューを取得（ストリーミング）
    */
   async fetchReview() {
+    // グローバルな分析実行状態をチェック（複数の分析の同時実行を防ぐ）
+    if (!canStartAnalysis('blog-reviewer')) {
+      alert('別の分析が実行中です。しばらくお待ちください。');
+      return;
+    }
+
     const reviewContent = document.getElementById('blogReviewerReviewContent');
     if (!reviewContent) return;
 
     this.isStreaming = true;
+    setAnalysisActive('blog-reviewer'); // グローバルにアクティブ化
+
+    // AbortControllerを作成してグローバルに保存
+    const abortController = new AbortController();
+    window.ANALYSIS_STATE.abortControllers['blog-reviewer'] = abortController;
 
     try {
       const isVercel = window.location.hostname.includes('vercel.app');
@@ -611,6 +622,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
           userApiKey: userApiKey || undefined,
           model: this.model,
         }),
+        signal: abortController.signal,
       });
 
       if (!response.ok) {
@@ -686,8 +698,20 @@ class BlogReviewerManager extends BaseAdvisorManager {
       } finally {
         // ストリームを確実にキャンセル
         reader.cancel().catch(err => console.warn('Reader cancel failed:', err));
+
+        // グローバルな分析状態をクリア
+        this.isStreaming = false;
+        setAnalysisInactive('blog-reviewer');
+        delete window.ANALYSIS_STATE.abortControllers['blog-reviewer'];
       }
     } catch (error) {
+      // AbortError（キャンセル）の場合
+      if (error.name === 'AbortError') {
+        console.log('[BlogReviewer] 分析がキャンセルされました');
+        reviewContent.innerHTML = '<div class="advisor-notice"><p>分析がキャンセルされました</p></div>';
+        return;
+      }
+
       console.error('BlogReviewer fetch error:', error);
       const isVercel = window.location.hostname.includes('vercel.app');
       const errorMessage = isVercel

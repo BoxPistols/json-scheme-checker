@@ -194,6 +194,11 @@ class AdvisorManager extends BaseAdvisorManager {
     this.isStreaming = false;
     this.perspectiveCache = {}; // キャッシュをクリア
     this.clearSelectedUserMode(); // ユーザータイプ選択をクリア
+
+    // グローバルな分析状態をクリア
+    setAnalysisInactive('advisor');
+    cancelAnalysis('advisor');
+
     this.closeModal('View');
     const container = document.querySelector('.container');
     if (container) container.style.display = '';
@@ -214,10 +219,22 @@ class AdvisorManager extends BaseAdvisorManager {
   }
 
   async fetchAdvice(mode) {
+    // グローバルな分析実行状態をチェック（複数の分析の同時実行を防ぐ）
+    if (!canStartAnalysis('advisor')) {
+      alert('別の分析が実行中です。しばらくお待ちください。');
+      return;
+    }
+
     const adviceContent = document.getElementById('advisorAdviceContent');
     if (!adviceContent) return;
+
     this.isStreaming = true;
+    setAnalysisActive('advisor'); // グローバルにアクティブ化
     console.log('[Advisor] fetchAdvice started for mode:', mode);
+
+    // AbortControllerを作成してグローバルに保存
+    const abortController = new AbortController();
+    window.ANALYSIS_STATE.abortControllers['advisor'] = abortController;
 
     try {
       const apiUrl = window.location.hostname.includes('vercel.app')
@@ -232,6 +249,7 @@ class AdvisorManager extends BaseAdvisorManager {
           mode,
           userApiKey: this.getUserApiKey() || undefined,
         }),
+        signal: abortController.signal,
       });
 
       console.log('[Advisor] API response status:', response.status);
@@ -289,8 +307,19 @@ class AdvisorManager extends BaseAdvisorManager {
       }
       console.log('[Advisor] fetchAdvice completed');
     } catch (error) {
-      console.error('[Advisor] fetchAdvice error:', error);
-      adviceContent.innerHTML = `<div class="advisor-error"><p>AI分析に失敗しました</p><button type="button" data-action="advisor-fetch-advice">再試行</button></div>`;
+      // AbortError（キャンセル）なら詳細を異なるように処理
+      if (error.name === 'AbortError') {
+        console.log('[Advisor] 分析がキャンセルされました');
+        adviceContent.innerHTML = '<div class="advisor-notice"><p>分析がキャンセルされました</p></div>';
+      } else {
+        console.error('[Advisor] fetchAdvice error:', error);
+        adviceContent.innerHTML = `<div class="advisor-error"><p>AI分析に失敗しました</p><button type="button" data-action="advisor-fetch-advice">再試行</button></div>`;
+      }
+    } finally {
+      // 必ずクリーンアップ
+      this.isStreaming = false;
+      setAnalysisInactive('advisor');
+      delete window.ANALYSIS_STATE.abortControllers['advisor'];
     }
   }
 

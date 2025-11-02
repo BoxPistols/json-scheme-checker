@@ -10,6 +10,67 @@ window.ADVISOR_CONST = window.ADVISOR_CONST || {
   USAGE_MODE: { SESSION: 'session', PERMANENT: 'permanent' },
 };
 
+// グローバルな分析ストリーミング状態管理（複数の分析の同時実行を防ぐ）
+window.ANALYSIS_STATE = window.ANALYSIS_STATE || {
+  activeAnalysis: null, // 現在実行中の分析（'advisor', 'blog-reviewer', 'web-advisor', null）
+  abortControllers: {}, // 各分析のAbortController
+  isStreaming: false, // ストリーミング実行中フラグ
+};
+
+/**
+ * グローバルな分析実行状態をチェック（複数の分析の同時実行を防ぐ）
+ * @param {string} analyzerType - アナライザータイプ ('advisor', 'blog-reviewer', 'web-advisor')
+ * @returns {boolean} 実行可能ならtrue
+ */
+function canStartAnalysis(analyzerType) {
+  if (window.ANALYSIS_STATE.isStreaming) {
+    console.warn(
+      `[MultiAnalysisGuard] 分析実行中のため、${analyzerType}の実行をスキップしました。現在実行中：${window.ANALYSIS_STATE.activeAnalysis}`
+    );
+    return false;
+  }
+  return true;
+}
+
+/**
+ * 分析の開始状態を設定
+ * @param {string} analyzerType - アナライザータイプ
+ */
+function setAnalysisActive(analyzerType) {
+  // 他の分析が実行中なら、そのリクエストをキャンセル
+  if (window.ANALYSIS_STATE.activeAnalysis && window.ANALYSIS_STATE.activeAnalysis !== analyzerType) {
+    cancelAnalysis(window.ANALYSIS_STATE.activeAnalysis);
+  }
+  window.ANALYSIS_STATE.activeAnalysis = analyzerType;
+  window.ANALYSIS_STATE.isStreaming = true;
+  console.log(`[MultiAnalysisGuard] ${analyzerType} 分析を開始`);
+}
+
+/**
+ * 分析の終了状態を設定
+ * @param {string} analyzerType - アナライザータイプ
+ */
+function setAnalysisInactive(analyzerType) {
+  if (window.ANALYSIS_STATE.activeAnalysis === analyzerType) {
+    window.ANALYSIS_STATE.activeAnalysis = null;
+    window.ANALYSIS_STATE.isStreaming = false;
+    console.log(`[MultiAnalysisGuard] ${analyzerType} 分析を終了`);
+  }
+}
+
+/**
+ * 実行中の分析をキャンセル
+ * @param {string} analyzerType - アナライザータイプ
+ */
+function cancelAnalysis(analyzerType) {
+  const controller = window.ANALYSIS_STATE.abortControllers[analyzerType];
+  if (controller) {
+    console.log(`[MultiAnalysisGuard] ${analyzerType} 分析をキャンセル`);
+    controller.abort();
+    delete window.ANALYSIS_STATE.abortControllers[analyzerType];
+  }
+}
+
 class BaseAdvisorManager {
   constructor(config) {
     if (!config) {
