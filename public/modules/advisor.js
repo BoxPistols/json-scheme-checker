@@ -125,10 +125,10 @@ class AdvisorManager extends BaseAdvisorManager {
             <button type="button" class="advisor-mode-btn" data-action="advisor-start-applicant">
               <h3>応募者向け</h3><p>面接対策と要件傾向の分析を提供</p>
             </button>
+            </div>
             <button type="button" class="advisor-mode-btn" data-action="advisor-start-agent">
               <h3>エージェント向け</h3><p>営業戦略・市場分析・双方へのアドバイスを提供</p>
             </button>
-          </div>
         </div>
       </div>
     `
@@ -490,7 +490,7 @@ class AdvisorManager extends BaseAdvisorManager {
 
     exportContainer.innerHTML = `
       <button type="button" class="advisor-export-btn advisor-export-csv-btn" aria-label="AI分析結果をCSV形式でエクスポート">CSVでエクスポート</button>
-      <button type="button" class="advisor-export-btn advisor-export-pdf-btn" aria-label="AI分析結果をPDF形式でエクスポート">PDFでエクスポート</button>
+      <button type="button" class="advisor-export-btn advisor-export-pdf-btn" aria-label="AI分析結果をHTMLでエクスポート（ブラウザの印刷機能でPDF化）">HTMLをPDF化</button>
     `;
 
     const csvBtn = exportContainer.querySelector('.advisor-export-csv-btn');
@@ -515,33 +515,34 @@ class AdvisorManager extends BaseAdvisorManager {
       const jobText = jobContent ? this.cleanHtmlText(jobContent.innerText) : '情報なし';
       const adviceText = adviceContent ? adviceContent.innerText : '情報なし';
 
-      // CSVヘッダー付きで整形
+      // CSVを項目,値の形式で整形（BOM付きUTF-8対応）
       const csvLines = [];
 
-      // メタデータセクション
-      csvLines.push('【エクスポート情報】');
+      // ヘッダー行
+      csvLines.push('項目,値');
+
+      // メタデータ
       csvLines.push(`エクスポート日時,${new Date().toLocaleString('ja-JP')}`);
       csvLines.push(`視点,${modeLabel}`);
       csvLines.push(`使用モデル,${this.currentModel}`);
-      csvLines.push(`トークン使用数,"入力: ${this.currentUsage.prompt_tokens}, 出力: ${this.currentUsage.completion_tokens}"`);
-      csvLines.push('');
+      csvLines.push(`入力トークン数,${this.currentUsage.prompt_tokens}`);
+      csvLines.push(`出力トークン数,${this.currentUsage.completion_tokens}`);
 
-      // 求人情報セクション
-      csvLines.push('【求人情報】');
+      // 求人情報（セクションヘッダー）
+      csvLines.push('求人情報（タイトル）,');
       const jobLines = jobText.split('\n').filter(line => line.trim().length > 0);
-      jobLines.forEach(line => {
-        csvLines.push(this.escapeCsvLine(line));
-      });
-      csvLines.push('');
+      jobLines.slice(0, 1).forEach(line => csvLines.push(`,${this.escapeCsvValue(line)}`)); // 最初の行（タイトル）
 
-      // AI分析結果セクション
-      csvLines.push('【AI分析結果】');
+      csvLines.push('求人情報（詳細）,');
+      jobLines.slice(1).forEach(line => csvLines.push(`,${this.escapeCsvValue(line)}`)); // 残りの行（詳細）
+
+      // AI分析結果
+      csvLines.push('AI分析結果,');
       const adviceLines = adviceText.split('\n').filter(line => line.trim().length > 0);
-      adviceLines.forEach(line => {
-        csvLines.push(this.escapeCsvLine(line));
-      });
+      adviceLines.forEach(line => csvLines.push(`,${this.escapeCsvValue(line)}`));
 
-      const csvContent = csvLines.join('\n');
+      // BOM付きUTF-8でエンコード（Excelで正常に表示される）
+      const csvContent = '\ufeff' + csvLines.join('\n');
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const filename = `advice_${this.currentMode}_${timestamp}.csv`;
 
@@ -566,6 +567,16 @@ class AdvisorManager extends BaseAdvisorManager {
   }
 
   /**
+   * CSV用に値をエスケープ（ダブルクォートで囲む）
+   */
+  escapeCsvValue(value) {
+    // ダブルクォートが含まれている場合は2倍にする
+    const escaped = String(value).replace(/"/g, '""');
+    // ダブルクォートで囲む
+    return `"${escaped}"`;
+  }
+
+  /**
    * CSV用に行をエスケープ（改行や特殊文字を処理）
    */
   escapeCsvLine(line) {
@@ -576,7 +587,9 @@ class AdvisorManager extends BaseAdvisorManager {
   }
 
   /**
-   * PDF形式でエクスポート（HTML形式で日本語対応）
+   * HTMLファイルでエクスポート（ブラウザで印刷→PDFで保存）
+   * 注：実装上HTMLファイルがダウンロードされます。
+   *     ブラウザで開き、「印刷」→「PDFとして保存」でPDF化してください。
    */
   exportToPDF() {
     try {
