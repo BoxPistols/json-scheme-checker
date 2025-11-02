@@ -2,6 +2,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 
 describe('AdvisorManager Modal Layout - 2+1 Grid', () => {
+  // eslint-disable-next-line no-unused-vars
   let container;
   let switcher;
 

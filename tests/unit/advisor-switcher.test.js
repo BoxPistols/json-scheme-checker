@@ -3,6 +3,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 describe('AdvisorManager Perspective Switcher - Token Consumption', () => {
   let manager;
+  // eslint-disable-next-line no-unused-vars
   let mockContainer;
 
   beforeEach(() => {

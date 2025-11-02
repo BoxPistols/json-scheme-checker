@@ -3,6 +3,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 describe('AdvisorManager Export Functionality', () => {
   let manager;
+  // eslint-disable-next-line no-unused-vars
   let mockContainer;
 
   beforeEach(() => {
@@ -137,6 +138,7 @@ describe('AdvisorManager Export Functionality', () => {
     });
 
     it('CSV export should trigger download', () => {
+      // eslint-disable-next-line no-unused-vars
       const createElementSpy = vi.spyOn(document, 'createElement');
       manager.exportToCSV();
 
