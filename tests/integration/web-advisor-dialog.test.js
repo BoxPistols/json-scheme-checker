@@ -60,7 +60,7 @@ describe('Web Advisor Dialog - UI Simplification', () => {
       },
     };
 
-    global.webAdvisorManager = mockWebAdvisorManager;
+    window.webAdvisorManager = mockWebAdvisorManager;
   });
 
   describe('Dialog UI - No Mode Buttons', () => {
