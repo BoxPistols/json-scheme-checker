@@ -163,6 +163,7 @@ h1 {
   justify-content: center;
   gap: 12px;
   margin-top: 8px;
+  flex-wrap: wrap;
 }
 
 .server-status {
@@ -3196,12 +3197,7 @@ html[data-theme='dark'] .score-breakdown > div {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.1),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
   animation: skeleton-shimmer 2s infinite;
 }
 
@@ -3220,7 +3216,8 @@ html[data-theme='dark'] .score-breakdown > div {
 }
 
 @keyframes skeleton-pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
