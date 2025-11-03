@@ -29,11 +29,11 @@ const isLocalhost = ['localhost', '127.0.0.1'].includes(hostname);
 
 // プロキシURL決定
 if (isVercel) {
-  proxyUrl = '/api/proxy';                    // サーバーレス関数
+  proxyUrl = '/api/proxy'; // サーバーレス関数
 } else if (isLocalhost) {
-  proxyUrl = 'http://localhost:3333/proxy';   // ローカルExpress
+  proxyUrl = 'http://localhost:3333/proxy'; // ローカルExpress
 } else {
-  proxyUrl = `http://{hostname}:3333/proxy`;  // LAN内デバイス
+  proxyUrl = `http://{hostname}:3333/proxy`; // LAN内デバイス
 }
 ```
 

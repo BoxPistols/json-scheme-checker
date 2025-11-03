@@ -199,7 +199,7 @@ module.exports = async (req, res) => {
 
   try {
     // レート制限チェック（ユーザーのAPIキー使用時はスキップ）
-    const { article, userApiKey, provider, baseUrl, model } = req.body;
+    const { article, userApiKey, baseUrl, model } = req.body;
     if (!userApiKey) {
       const clientIp = getClientIp(req);
       const rateLimitResult = checkRateLimit(clientIp);
@@ -257,7 +257,7 @@ module.exports = async (req, res) => {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
-    const selectedModel = model || process.env.OPENAI_MODEL || 'gpt-4.1-nano';
+    const selectedModel = model || process.env.OPENAI_MODEL || 'gpt-5-nano';
     const isGPT5 = selectedModel.startsWith('gpt-5');
 
     const requestParams = {

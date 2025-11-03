@@ -227,7 +227,7 @@ export function Select({
   if (required) select.required = true;
   if (disabled) select.disabled = true;
 
-  options.forEach((option) => {
+  options.forEach(option => {
     const opt = document.createElement('option');
     opt.value = option.value;
     opt.textContent = option.label;

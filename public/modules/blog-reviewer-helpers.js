@@ -11,21 +11,47 @@ window.BlogReviewerHelpers = {
     if (!element) return '';
     const clone = element.cloneNode(true);
     const excludeSelector = [
-      'script', 'style', 'nav', 'header', 'footer', 'aside', '.sidebar',
-      'form', 'button', 'input', 'select', 'textarea',
-      '[role="dialog"]', '[role="alert"]', '.modal', '.dialog', '.overlay',
-      '#basicAuthDialog', '#authSection', '[class*="auth-"]',
-      '.advisor-overlay', '.advisor-modal', 'details'
+      'script',
+      'style',
+      'nav',
+      'header',
+      'footer',
+      'aside',
+      '.sidebar',
+      'form',
+      'button',
+      'input',
+      'select',
+      'textarea',
+      '[role="dialog"]',
+      '[role="alert"]',
+      '.modal',
+      '.dialog',
+      '.overlay',
+      '#basicAuthDialog',
+      '#authSection',
+      '[class*="auth-"]',
+      '.advisor-overlay',
+      '.advisor-modal',
+      'details',
     ].join(',');
     clone.querySelectorAll(excludeSelector).forEach(el => el.remove());
 
     let text = clone.textContent.replace(/\s+/g, ' ').trim();
     const unwantedPhrases = [
-      '認証情報の保存方法', '保存しない（最もセキュア）', 'タブを閉じるまで保存（推奨）',
-      '24時間保存（利便性重視）', '永続保存（期限なし）', 'すべてクリア',
-      'Basic認証', 'ユーザー名', 'パスワード'
+      '認証情報の保存方法',
+      '保存しない（最もセキュア）',
+      'タブを閉じるまで保存（推奨）',
+      '24時間保存（利便性重視）',
+      '永続保存（期限なし）',
+      'すべてクリア',
+      'Basic認証',
+      'ユーザー名',
+      'パスワード',
     ];
-    unwantedPhrases.forEach(phrase => { text = text.replace(new RegExp(phrase, 'g'), ''); });
+    unwantedPhrases.forEach(phrase => {
+      text = text.replace(new RegExp(phrase, 'g'), '');
+    });
     return text.replace(/\s+/g, ' ').trim();
   },
 
@@ -48,22 +74,34 @@ window.BlogReviewerHelpers = {
     if (!enriched.articleBody) {
       let bodyText = '';
       const articleElement = root.querySelector('article');
-      if (articleElement) bodyText = this?.extractTextContent
-        ? this.extractTextContent(articleElement)
-        : window.BlogReviewerHelpers.extractTextContent(articleElement);
+      if (articleElement)
+        bodyText = this?.extractTextContent
+          ? this.extractTextContent(articleElement)
+          : window.BlogReviewerHelpers.extractTextContent(articleElement);
 
       if (!bodyText) {
         const mainElement = root.querySelector('main');
-        if (mainElement) bodyText = this?.extractTextContent
-          ? this.extractTextContent(mainElement)
-          : window.BlogReviewerHelpers.extractTextContent(mainElement);
+        if (mainElement)
+          bodyText = this?.extractTextContent
+            ? this.extractTextContent(mainElement)
+            : window.BlogReviewerHelpers.extractTextContent(mainElement);
       }
 
       if (!bodyText) {
         const contentSelectors = [
-          'article','main','[role="main"]','.entry-content','.post-content','.article-content','.content',
-          '[class*="entry"][class*="content"]','[class*="post"][class*="content"]','[class*="article"][class*="content"]',
-          '[class*="content"]','[class*="article"]','[class*="post"]'
+          'article',
+          'main',
+          '[role="main"]',
+          '.entry-content',
+          '.post-content',
+          '.article-content',
+          '.content',
+          '[class*="entry"][class*="content"]',
+          '[class*="post"][class*="content"]',
+          '[class*="article"][class*="content"]',
+          '[class*="content"]',
+          '[class*="article"]',
+          '[class*="post"]',
         ];
         for (const selector of contentSelectors) {
           const el = root.querySelector(selector);
@@ -71,7 +109,10 @@ window.BlogReviewerHelpers = {
             const text = this?.extractTextContent
               ? this.extractTextContent(el)
               : window.BlogReviewerHelpers.extractTextContent(el);
-            if (text.length > window.ADVISOR_CONST.ARTICLE.MIN_BODY_LEN) { bodyText = text; break; }
+            if (text.length > window.ADVISOR_CONST.ARTICLE.MIN_BODY_LEN) {
+              bodyText = text;
+              break;
+            }
           }
         }
       }
@@ -86,7 +127,10 @@ window.BlogReviewerHelpers = {
    * @returns {string}
    */
   renderMarkdown(markdown) {
-    let html = (typeof markdown === 'string' ? markdown : '').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+    let html = (typeof markdown === 'string' ? markdown : '').replace(
+      /[&<>]/g,
+      c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]
+    );
     html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
     html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
     html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
@@ -94,21 +138,35 @@ window.BlogReviewerHelpers = {
     html = html.replace(/^\- (.*$)/gim, '<li>$1</li>');
     html = html.replace(/^\d+\. (.*$)/gim, '<li>$1</li>');
     html = html.replace(/\n/g, '<br>');
-    html = html.replace(/((?:<li>.*?<\/li>(?:<br>)*)+)/g, m => `<ul>${m.replace(/<br>/g, '')}</ul>`);
+
+    // 見出しの直後の <br> を削除（h1, h2, h3）
+    html = html.replace(/<\/(h[123])><br>/g, '</$1>');
+
+    html = html.replace(
+      /((?:<li>.*?<\/li>(?:<br>)*)+)/g,
+      m => `<ul>${m.replace(/<br>/g, '')}</ul>`
+    );
+    // </li> の直後の <br> を削除
+    html = html.replace(/<\/li><br>/g, '</li>');
     return html;
   },
 
   /** Articleのフォーマット（HTML） */
   formatArticle(article) {
-    const escapeHtml = (t) => {
+    const escapeHtml = t => {
       const div = document.createElement('div');
       div.textContent = t ?? '';
       return div.innerHTML;
     };
     const headline = article.headline || article.name || article.title || '不明';
-    const author = article.author?.name || (typeof article.author === 'string' ? article.author : '不明');
-    const datePublished = article.datePublished ? new Date(article.datePublished).toLocaleDateString('ja-JP') : '不明';
-    const dateModified = article.dateModified ? new Date(article.dateModified).toLocaleDateString('ja-JP') : '不明';
+    const author =
+      article.author?.name || (typeof article.author === 'string' ? article.author : '不明');
+    const datePublished = article.datePublished
+      ? new Date(article.datePublished).toLocaleDateString('ja-JP')
+      : '不明';
+    const dateModified = article.dateModified
+      ? new Date(article.dateModified).toLocaleDateString('ja-JP')
+      : '不明';
     const description = article.description || article.abstract || '説明なし';
 
     const MAX_BODY_LENGTH = window.ADVISOR_CONST.ARTICLE.MAX_BODY_LENGTH;
@@ -177,8 +235,13 @@ window.BlogReviewerHelpers = {
   getAccumulatedUsage(config) {
     try {
       const mode = localStorage.getItem(config.USAGE_MODE_KEY) || 'session';
-      const dataStr = mode === 'session' ? sessionStorage.getItem(config.USAGE_TOTAL_KEY) : localStorage.getItem(config.USAGE_TOTAL_KEY);
-      return dataStr ? JSON.parse(dataStr) : { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 };
+      const dataStr =
+        mode === 'session'
+          ? sessionStorage.getItem(config.USAGE_TOTAL_KEY)
+          : localStorage.getItem(config.USAGE_TOTAL_KEY);
+      return dataStr
+        ? JSON.parse(dataStr)
+        : { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 };
     } catch {
       return { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 };
     }
@@ -187,7 +250,8 @@ window.BlogReviewerHelpers = {
     try {
       const mode = localStorage.getItem(config.USAGE_MODE_KEY) || 'session';
       const dataStr = JSON.stringify(usage);
-      if (mode === 'session') sessionStorage.setItem(config.USAGE_TOTAL_KEY, dataStr); else localStorage.setItem(config.USAGE_TOTAL_KEY, dataStr);
+      if (mode === 'session') sessionStorage.setItem(config.USAGE_TOTAL_KEY, dataStr);
+      else localStorage.setItem(config.USAGE_TOTAL_KEY, dataStr);
     } catch {}
   },
   addToAccumulatedUsage(config, usage) {
@@ -202,6 +266,5 @@ window.BlogReviewerHelpers = {
   setUsageMode(config, mode) {
     if (mode !== 'session' && mode !== 'permanent') return;
     localStorage.setItem(config.USAGE_MODE_KEY, mode);
-  }
-}
+  },
 };

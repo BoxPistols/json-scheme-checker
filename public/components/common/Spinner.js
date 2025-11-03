@@ -12,11 +12,7 @@
  * @param {string} props.className - 追加CSSクラス
  * @returns {HTMLElement}
  */
-export function Spinner({
-  size = 'medium',
-  color = '',
-  className = '',
-}) {
+export function Spinner({ size = 'medium', color = '', className = '' }) {
   const spinner = document.createElement('div');
   spinner.className = `spinner spinner-${size} ${color} ${className}`.trim();
   spinner.setAttribute('aria-label', 'Loading');
@@ -39,10 +35,7 @@ export function Spinner({
  * @param {string} props.size - スピナーサイズ
  * @returns {HTMLElement}
  */
-export function FullScreenSpinner({
-  message = '',
-  size = 'large',
-}) {
+export function FullScreenSpinner({ message = '', size = 'large' }) {
   const overlay = document.createElement('div');
   overlay.className = 'spinner-overlay';
 

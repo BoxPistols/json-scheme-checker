@@ -4,21 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JSON-LD Schema Viewer - Webサイト構造化データの可視化ツール</title>
-    <meta name="description" content="JSON-LDスキーマを視覚化・検証するツール。JobPostingなどの構造化データをテーブル形式やJSON形式で表示。SEO対策に必須のメタタグやOG タグも自動チェック。">
+    <title>Schema Viewer & AI Advisor - Web構造化データの可視化とAIアドバイザー</title>
+    <meta name="description" content="Web構造化データを可視化・分析し、AIアドバイザーで求人情報やブログ記事、Webページのレビューをサポート。JSON-LDスキーマの自動検証とSEO最適化支援。">
     <meta name="robots" content="index,follow">
 
     <!-- Open Graph -->
-    <meta property="og:title" content="JSON-LD Schema Viewer">
-    <meta property="og:description" content="Webサイトのスキーマ構造化データを可視化・検証するツール">
+    <meta property="og:title" content="Schema Viewer & AI Advisor">
+    <meta property="og:description" content="Web構造化データの可視化、AIアドバイザーで求人やブログ記事のレビュー、SEO最適化支援">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://json-ld-view.vercel.app/">
     <meta property="og:image" content="/og-image.png">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="JSON-LD Schema Viewer">
-    <meta name="twitter:description" content="JSON-LDスキーマを視覚化・検証するツール">
+    <meta name="twitter:title" content="Schema Viewer & AI Advisor">
+    <meta name="twitter:description" content="Web構造化データの可視化、AIアドバイザーで求人やブログ記事のレビュー、SEO最適化支援">
     <meta name="twitter:image" content="/og-image.png">
 
     <!-- Canonical -->
@@ -29,17 +29,17 @@
     {
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
-      "name": "JSON-LD Schema Viewer",
-      "description": "JSON-LDスキーマを視覚化・検証するツール。Webサイトの構造化データをテーブル形式やJSON形式で表示し、SEO対策に必要なメタタグやOG タグを自動チェック。",
+      "name": "Schema Viewer & AI Advisor",
+      "description": "Web構造化データを可視化・分析し、AIアドバイザーで求人情報やブログ記事、Webページのレビューをサポート。JSON-LDスキーマの自動検証とSEO最適化支援ツール。",
       "url": "https://json-ld-view.vercel.app/",
       "applicationCategory": "Utility",
       "operatingSystem": "Web",
       "image": "/og-image.png",
       "author": {
         "@type": "Person",
-        "name": "JSON-LD Schema Viewer Developer"
+        "name": "Schema Viewer & AI Advisor Developer"
       },
-      "dateModified": "2025-01-22"
+      "dateModified": "2025-11-02"
     }
     </script>
 
@@ -52,17 +52,34 @@
     <div class="container">
         <header>
             <div class="header-row">
-                <img src="/logo.svg" alt="JSON-LD Schema Viewer ロゴ" class="logo-xl">
-                <h1 class="heading-reset">JSON-LD Schema Viewer</h1>
+                <img src="/logo.svg" alt="Schema Viewer & AI Advisor ロゴ" class="logo-xl">
+                <h1 class="heading-reset">Schema Viewer & AI Advisor</h1>
             </div>
-            <p class="subtitle">Webページ内のJSONスキーマ/SEO関連のチェックツール</p>
+            <p class="subtitle">Web構造化データの可視化、AIによるSEO最適化支援、求人やブログメディアのレビューをAIアドバイザー</p>
             <div class="header-actions">
-                <span class="server-status" id="serverStatus">サーバー確認中...</span>
-                <a class="doc-pill" target="_blank" rel="noopener noreferrer"
-                    href="https://developers.google.com/search/docs/appearance/structured-data/job-posting?hl=ja">Google公式リファレンス</a>
                 <button type="button" class="btn-guide" id="btnGuide">
-                    使い方
+                    Help
                 </button>
+                <span class="server-status" id="serverStatus">Checking...</span>
+                <a class="doc-pill" target="_blank" rel="noopener noreferrer"
+                    href="https://developers.google.com/search/docs/appearance/structured-data/job-posting?hl=ja">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="currentColor"/>
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="currentColor"/>
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="currentColor"/>
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="currentColor"/>
+                    </svg>
+                    JobPost</a>
+                <button type="button" class="btn-my-api" id="btnMyApi" title="API設定">
+                    My API
+                </button>
+                <span class="api-status-chip" id="apiModelChip" title="現在のモデル">
+                    <span class="api-status-label">Model:</span>
+                    <span id="apiModelName">gpt-5-nano</span>
+                </span>
+                <span class="api-status-chip" id="apiUsageChip" title="本日の利用回数">
+                    <span id="apiUsageCount">-</span>
+                </span>
                 <button type="button" class="btn-theme-toggle" id="btnThemeToggle" title="テーマを切り替え">
                     <svg id="theme-icon-light" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
                     <svg id="theme-icon-dark" class="icon-hidden" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
@@ -998,6 +1015,8 @@ export default function Home() {
         </div>
 
         <div id="snackbar" class="snackbar" role="status" aria-live="polite" aria-atomic="true"></div>
+
+        <!-- developerSettingsModal は app.js で動的に生成 -->
 
         <script src="/modules/base-advisor.js"></script>
         <script src="/modules/advisor.js"></script>

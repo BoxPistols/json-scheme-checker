@@ -162,7 +162,7 @@ export function formatJson(obj, indent = 2) {
  * @returns {string}
  */
 export function snakeToCamel(str) {
-  return str.replace(/_([a-z])/g, (g) => g[1].toUpperCase());
+  return str.replace(/_([a-z])/g, g => g[1].toUpperCase());
 }
 
 /**
@@ -171,5 +171,5 @@ export function snakeToCamel(str) {
  * @returns {string}
  */
 export function camelToSnake(str) {
-  return str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
+  return str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
 }

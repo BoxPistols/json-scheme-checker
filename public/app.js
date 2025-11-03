@@ -19,6 +19,161 @@ if (isVercel) {
 
 console.log('Environment:', isVercel ? 'Vercel' : 'Local', 'Proxy:', PROXY_SERVER || 'API Routes');
 
+function createDeveloperSettingsModal() {
+  if (document.getElementById('developerSettingsModal')) {
+    return;
+  }
+
+  const template = document.createElement('template');
+  template.innerHTML = `
+    <div id="developerSettingsModal" class="modal-overlay">
+      <div class="modal-container" style="max-width: 600px;">
+        <div class="modal-header">
+          <div>
+            <h2>API設定</h2>
+            <div style="font-size: 12px; color: var(--secondary-text-color); margin-top: 4px;">
+              API設定を、無料版と自身で取得したAPIキーを使用するモードで切り替えることができます
+            </div>
+          </div>
+          <button type="button" class="modal-close-btn" id="btnCloseDeveloperSettings" aria-label="閉じる">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <section class="modal-section">
+            <div style="margin-bottom: 24px; padding: 16px; background: var(--secondary-bg-color); border-radius: 8px; border: 1px solid var(--border-color);">
+              <label style="display: block; margin-bottom: 12px; font-weight: 600; font-size: 0.9rem;">利用モード</label>
+              <div style="display: flex; flex-direction: column; gap: 12px;">
+                <label style="display: flex; align-items: start; cursor: pointer; padding: 12px; border-radius: 6px; border: 2px solid var(--border-color); transition: all 0.2s;" class="mode-radio-label">
+                  <input type="radio" name="apiMode" value="free" id="radioModeFree" checked style="margin-top: 2px; margin-right: 8px; cursor: pointer;">
+                  <div>
+                    <div style="font-weight: 500;">無料版を使用（サーバー負担）</div>
+                    <div style="font-size: 0.75rem; color: var(--secondary-text-color); margin-top: 2px;">
+                      gpt-5-nano（最新世代低レイテンシ）を利用可能。レート制限あり（50回/24時間、毎日0:00にリセット）
+                    </div>
+                  </div>
+                </label>
+                <label style="display: flex; align-items: start; cursor: pointer; padding: 12px; border-radius: 6px; border: 2px solid var(--border-color); transition: all 0.2s;" class="mode-radio-label">
+                  <input type="radio" name="apiMode" value="myapi" id="radioModeMyAPI" style="margin-top: 2px; margin-right: 8px; cursor: pointer;">
+                  <div>
+                    <div style="font-weight: 500;">MyAPIを使用（ユーザー負担）</div>
+                    <div style="font-size: 0.75rem; color: var(--secondary-text-color); margin-top: 2px;">
+                      独自のOpenAI APIキーを使用。全モデル選択可能、レート制限なし
+                    </div>
+                  </div>
+                </label>
+              </div>
+            </div>
+            <div id="freeModelArea" style="margin-bottom: 16px;">
+              <div class="form-group">
+                <label for="freeModelSelect" style="display: block; margin-bottom: 4px; font-weight: 500;">
+                  モデル選択
+                </label>
+                <select
+                  id="freeModelSelect"
+                  class="form-select"
+                  style="width: 100%; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 14px;"
+                >
+                  <option value="gpt-5-nano">gpt-5-nano（超低レイテンシ、$0.05/1M入力）</option>
+                  <option value="gpt-4.1-nano">gpt-4.1-nano（互換性重視、$0.08/1M入力）</option>
+                </select>
+                <p style="margin: 4px 0 0; font-size: 12px; color: var(--secondary-text-color);">
+                  無料枠ではgpt-5-nano（既定）か、互換性を優先するgpt-4.1-nanoを選択できます
+                </p>
+              </div>
+            </div>
+            <div id="myApiArea" style="display: none;">
+              <div class="form-group" style="margin-bottom: 16px;">
+                <label for="developerApiKey" style="display: block; margin-bottom: 4px; font-weight: 500;">
+                  OpenAI APIキー
+                </label>
+                <input
+                  type="password"
+                  id="developerApiKey"
+                  class="form-input"
+                  placeholder="sk-..."
+                  style="width: 100%; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 14px;"
+                />
+                <p style="margin: 4px 0 0; font-size: 12px; color: var(--secondary-text-color);">
+                  APIキーは安全にローカルストレージに保存されます
+                </p>
+              </div>
+              <div class="form-group" style="margin-bottom: 16px;">
+                <label for="developerModel" style="display: block; margin-bottom: 4px; font-weight: 500;">
+                  モデル
+                </label>
+                <select
+                  id="developerModel"
+                  class="form-select"
+                  style="width: 100%; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 14px;"
+                >
+                  <option value="gpt-5-nano">gpt-5-nano（超低レイテンシ: $0.05/1M入力）</option>
+                  <option value="gpt-4.1-nano">gpt-4.1-nano（レガシー互換: $0.08/1M入力）</option>
+                  <option value="gpt-4.1-mini">gpt-4.1-mini（$0.40/1M入力）</option>
+                  <option value="gpt-5-mini">gpt-5-mini（$0.30/1M入力・推定）</option>
+                  <option value="gpt-4o">gpt-4o（品質重視: $2.50/1M入力）</option>
+                  <option value="gpt-5">gpt-5（最高品質: $1.25/1M入力）</option>
+                </select>
+                <p style="margin: 4px 0 0; font-size: 12px; color: var(--secondary-text-color);">
+                  GPT-5シリーズは超低レイテンシですが、temperatureパラメータは非対応です
+                </p>
+              </div>
+              <details style="margin-bottom: 16px;">
+                <summary style="cursor: pointer; font-weight: 500; margin-bottom: 8px;">
+                  詳細設定（オプション）
+                </summary>
+                <div style="padding-left: 16px;">
+                  <div class="form-group">
+                    <label for="developerBaseUrl" style="display: block; margin-bottom: 4px; font-weight: 500;">
+                      Base URL
+                    </label>
+                    <input
+                      type="url"
+                      id="developerBaseUrl"
+                      class="form-input"
+                      placeholder="https://api.openai.com/v1"
+                      style="width: 100%; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 14px;"
+                    />
+                    <p style="margin: 4px 0 0; font-size: 12px; color: var(--secondary-text-color);">
+                      OpenAI互換APIを使用する場合のみ指定
+                    </p>
+                  </div>
+                </div>
+              </details>
+            </div>
+            <div id="developerSettingsStatus" style="margin-bottom: 16px; padding: 12px; border-radius: 4px; display: none;">
+              <p style="margin: 0; font-size: 0.875rem;"></p>
+            </div>
+            <div style="display: flex; gap: 8px; justify-content: flex-end;">
+              <button type="button" id="btnTestConnection" class="btn-modal-secondary">
+                接続テスト
+              </button>
+              <button type="button" id="btnClearDeveloperSettings" class="btn-modal-secondary">
+                クリア
+              </button>
+              <button type="button" id="btnSaveDeveloperSettings" class="btn-modal-primary">
+                保存
+              </button>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  `.trim();
+
+  const modal = template.content.firstElementChild;
+  if (!modal) {
+    console.error('developerSettingsModalの生成に失敗しました');
+    return;
+  }
+
+  document.body.appendChild(modal);
+}
+
+createDeveloperSettingsModal();
+
 // パスワードの表示/非表示を切り替え
 function togglePasswordVisibility() {
   const passwordField = document.getElementById('password');
@@ -359,6 +514,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   });
+
+  // ヘッダーのAPI状態表示を初期化
+  updateHeaderApiStatus();
 });
 
 // 認証情報の保存方法を復元
@@ -949,12 +1107,12 @@ async function checkServerStatus() {
     const response = await fetch(healthUrl);
 
     if (response.ok) {
-      statusElement.textContent = isVercel ? 'Vercel API稼働中' : 'サーバー稼働中';
+      statusElement.textContent = 'Server OK';
       statusElement.className = 'server-status';
       return true;
     }
   } catch (error) {
-    statusElement.textContent = isVercel ? 'API エラー' : 'サーバーオフライン';
+    statusElement.textContent = 'Offline';
     statusElement.className = 'server-status offline';
     return false;
   }
@@ -1260,17 +1418,42 @@ function displaySchemas(schemas, url) {
 
   showResults();
 
-  // AI Advisor: JobPosting検出
+  // 前のページロードからのボタンをすべてクリア（重複表示防止）
+  console.log('[App] 以前のボタンをクリア');
   if (typeof advisorManager !== 'undefined') {
-    advisorManager.detectJobPosting(schemas);
+    advisorManager.hideAdvisorButton();
   }
-  // Blog Reviewer: Article/BlogPosting検出
   if (typeof blogReviewerManager !== 'undefined') {
-    blogReviewerManager.detectBlogPost(schemas);
+    blogReviewerManager.hideReviewButton();
   }
-  // Web Advisor: スキーマ無し/WebPageのみ検出
   if (typeof webAdvisorManager !== 'undefined') {
-    webAdvisorManager.detectNoSchemaOrWebPageOnly(schemas, url);
+    webAdvisorManager.hideAnalysisButton();
+  }
+
+  // AI分析: 専用アドバイザーを優先表示
+  let hasSpecializedAdvisor = false;
+
+  // 1. JobPosting検出
+  if (typeof advisorManager !== 'undefined') {
+    if (advisorManager.detectJobPosting(schemas)) {
+      console.log('[App] JobPosting検出 → Advisor');
+      hasSpecializedAdvisor = true;
+    }
+  }
+
+  // 2. Article/BlogPosting検出
+  if (typeof blogReviewerManager !== 'undefined') {
+    if (blogReviewerManager.detectBlogPost(schemas)) {
+      console.log('[App] BlogPost検出 → BlogReviewer');
+      hasSpecializedAdvisor = true;
+    }
+  }
+
+  // 3. Web分析（専用アドバイザーがない場合のみ表示）
+  if (!hasSpecializedAdvisor && typeof webAdvisorManager !== 'undefined') {
+    if (webAdvisorManager.detectNoSchemaOrWebPageOnly(schemas, url)) {
+      console.log('[App] 一般的なWebページ → WebAdvisor');
+    }
   }
 }
 
@@ -1711,7 +1894,7 @@ function showNoData(url) {
 
   showResults();
   showSnackbar('JSON-LDスキーマが見つかりませんでした', 'warning', 4000);
-  
+
   // Web Advisor: スキーマ無し検出
   if (typeof webAdvisorManager !== 'undefined' && url) {
     webAdvisorManager.detectNoSchemaOrWebPageOnly([], url);
@@ -1779,6 +1962,7 @@ document.addEventListener('keydown', function (e) {
       { id: 'robotsGuideModal', close: closeRobotsModal },
       { id: 'twitterCardGuideModal', close: closeTwitterCardModal },
       { id: 'openGraphGuideModal', close: closeOpenGraphModal },
+      { id: 'developerSettingsModal', close: closeDeveloperSettingsModal },
     ];
 
     modals.forEach(modal => {
@@ -1789,3 +1973,298 @@ document.addEventListener('keydown', function (e) {
     });
   }
 });
+
+// ========================================
+// 開発者設定パネル
+// ========================================
+
+const STORAGE_KEY_DEVELOPER = 'jsonld_developer_settings';
+
+// My APIボタンのクリックイベント
+document.getElementById('btnMyApi')?.addEventListener('click', () => {
+  openDeveloperSettingsModal();
+});
+
+// モーダルを開く
+function openDeveloperSettingsModal() {
+  const modal = document.getElementById('developerSettingsModal');
+  if (!modal) return;
+
+  // ローカルストレージから設定を読み込む
+  loadDeveloperSettings();
+
+  // ラジオボタンの切り替えイベントを設定
+  setupApiModeToggle();
+
+  modal.classList.add('modal-overlay--visible');
+  document.body.style.overflow = 'hidden';
+}
+
+// モーダルを閉じる
+function closeDeveloperSettingsModal() {
+  const modal = document.getElementById('developerSettingsModal');
+  if (!modal) return;
+
+  modal.classList.remove('modal-overlay--visible');
+  document.body.style.overflow = '';
+}
+
+// APIモードの切り替え設定
+function setupApiModeToggle() {
+  const radioFree = document.getElementById('radioModeFree');
+  const radioMyAPI = document.getElementById('radioModeMyAPI');
+  const freeArea = document.getElementById('freeModelArea');
+  const myApiArea = document.getElementById('myApiArea');
+
+  if (!radioFree || !radioMyAPI || !freeArea || !myApiArea) return;
+
+  function toggleAreas() {
+    if (radioFree.checked) {
+      freeArea.style.display = 'block';
+      myApiArea.style.display = 'none';
+    } else {
+      freeArea.style.display = 'none';
+      myApiArea.style.display = 'block';
+    }
+  }
+
+  radioFree.addEventListener('change', toggleAreas);
+  radioMyAPI.addEventListener('change', toggleAreas);
+
+  // 初期表示
+  toggleAreas();
+}
+
+// 閉じるボタンのイベント
+document
+  .getElementById('btnCloseDeveloperSettings')
+  ?.addEventListener('click', closeDeveloperSettingsModal);
+
+// オーバーレイクリックで閉じる
+document.getElementById('developerSettingsModal')?.addEventListener('click', e => {
+  if (e.target.id === 'developerSettingsModal') {
+    closeDeveloperSettingsModal();
+  }
+});
+
+// ローカルストレージから設定を読み込む
+function loadDeveloperSettings() {
+  try {
+    const settings = JSON.parse(localStorage.getItem(STORAGE_KEY_DEVELOPER) || '{}');
+    const hasApiKey = !!(settings.apiKey && settings.apiKey.trim());
+
+    // APIキーの有無でモードを判定
+    if (hasApiKey) {
+      document.getElementById('radioModeMyAPI').checked = true;
+      document.getElementById('developerApiKey').value = settings.apiKey || '';
+      document.getElementById('developerModel').value = settings.model || 'gpt-5-nano';
+      document.getElementById('developerBaseUrl').value = settings.baseUrl || '';
+    } else {
+      document.getElementById('radioModeFree').checked = true;
+      document.getElementById('freeModelSelect').value = settings.model || 'gpt-5-nano';
+    }
+  } catch (error) {
+    console.error('Failed to load developer settings:', error);
+  }
+}
+
+// 設定を保存
+document.getElementById('btnSaveDeveloperSettings')?.addEventListener('click', () => {
+  const isFreeMode = document.getElementById('radioModeFree').checked;
+  let settings = {};
+
+  if (isFreeMode) {
+    // 無料版モード
+    const model = document.getElementById('freeModelSelect').value;
+    settings = { model };
+
+    // APIキーをクリア
+    localStorage.removeItem('jsonld_user_openai_key');
+    localStorage.removeItem('jsonld_usage_mode');
+  } else {
+    // MyAPIモード
+    const apiKey = document.getElementById('developerApiKey').value.trim();
+    const model = document.getElementById('developerModel').value;
+    const baseUrl = document.getElementById('developerBaseUrl').value.trim();
+
+    if (!apiKey) {
+      showDeveloperStatus('APIキーを入力してください', 'error');
+      return;
+    }
+
+    settings = {
+      apiKey,
+      model,
+      baseUrl: baseUrl || undefined,
+    };
+
+    localStorage.setItem('jsonld_user_openai_key', apiKey); // 互換性のため
+    localStorage.setItem('jsonld_usage_mode', 'permanent'); // 開発者モードを有効化
+  }
+
+  try {
+    localStorage.setItem(STORAGE_KEY_DEVELOPER, JSON.stringify(settings));
+
+    showDeveloperStatus('設定を保存しました', 'success');
+
+    // ヘッダー表示を更新
+    updateHeaderApiStatus();
+
+    // 2秒後にモーダルを閉じる
+    setTimeout(() => {
+      closeDeveloperSettingsModal();
+    }, 2000);
+  } catch (error) {
+    showDeveloperStatus('保存に失敗しました: ' + error.message, 'error');
+  }
+});
+
+// 接続テスト
+document.getElementById('btnTestConnection')?.addEventListener('click', async () => {
+  const isFreeMode = document.getElementById('radioModeFree').checked;
+
+  if (isFreeMode) {
+    showDeveloperStatus('無料版モードでは接続テストは不要です', 'info');
+    return;
+  }
+
+  const apiKey = document.getElementById('developerApiKey').value.trim();
+  const model = document.getElementById('developerModel').value;
+  const baseUrl = document.getElementById('developerBaseUrl').value.trim();
+
+  if (!apiKey) {
+    showDeveloperStatus('APIキーを入力してください', 'error');
+    return;
+  }
+
+  showDeveloperStatus('接続テスト中...', 'info');
+
+  try {
+    const endpoint = isVercel ? '/api/test-connection' : `${PROXY_SERVER}/api/test-connection`;
+
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userApiKey: apiKey,
+        model,
+        baseUrl: baseUrl || undefined,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (data.ok) {
+      showDeveloperStatus(`接続成功！モデル: ${data.model}`, 'success');
+    } else {
+      showDeveloperStatus(`接続失敗: ${data.error}`, 'error');
+    }
+  } catch (error) {
+    showDeveloperStatus(`エラー: ${error.message}`, 'error');
+  }
+});
+
+// 設定をクリア
+document.getElementById('btnClearDeveloperSettings')?.addEventListener('click', () => {
+  if (!confirm('拡張モード設定をすべてクリアしますか？')) {
+    return;
+  }
+
+  localStorage.removeItem(STORAGE_KEY_DEVELOPER);
+  localStorage.removeItem('jsonld_user_openai_key');
+  localStorage.removeItem('jsonld_usage_mode');
+
+  // 無料版モードに戻す
+  document.getElementById('radioModeFree').checked = true;
+  document.getElementById('freeModelSelect').value = 'gpt-5-nano';
+  document.getElementById('developerApiKey').value = '';
+  document.getElementById('developerModel').value = 'gpt-5-nano';
+  document.getElementById('developerBaseUrl').value = '';
+
+  // 表示を更新
+  setupApiModeToggle();
+
+  showDeveloperStatus('設定をクリアしました', 'success');
+
+  // ヘッダー表示を更新
+  updateHeaderApiStatus();
+});
+
+// ステータス表示
+function showDeveloperStatus(message, type = 'info') {
+  const statusDiv = document.getElementById('developerSettingsStatus');
+  if (!statusDiv) return;
+
+  const colors = {
+    success: { bg: '#d4edda', text: '#155724', border: '#c3e6cb' },
+    error: { bg: '#f8d7da', text: '#721c24', border: '#f5c6cb' },
+    info: { bg: '#d1ecf1', text: '#0c5460', border: '#bee5eb' },
+  };
+
+  const color = colors[type] || colors.info;
+
+  statusDiv.style.display = 'block';
+  statusDiv.style.background = color.bg;
+  statusDiv.style.color = color.text;
+  statusDiv.style.border = `1px solid ${color.border}`;
+  statusDiv.querySelector('p').textContent = message;
+}
+
+// ヘッダーのAPI状態表示を更新
+function updateHeaderApiStatus() {
+  const modelNameEl = document.getElementById('apiModelName');
+  const usageCountEl = document.getElementById('apiUsageCount');
+
+  if (!modelNameEl || !usageCountEl) return;
+
+  // モデル名を取得
+  try {
+    const settings = JSON.parse(localStorage.getItem(STORAGE_KEY_DEVELOPER) || '{}');
+    const modelName = settings.model || 'gpt-5-nano';
+
+    // モデル名を短縮表示（gpt-5-nano-2025-08-07 -> gpt-5-nano）
+    const shortModelName = modelName.replace(/-\d{4}-\d{2}-\d{2}$/, '');
+    modelNameEl.textContent = shortModelName;
+  } catch (error) {
+    modelNameEl.textContent = 'gpt-5-nano';
+  }
+
+  // 利用回数を取得
+  const userApiKey = localStorage.getItem('jsonld_user_openai_key');
+
+  if (userApiKey) {
+    // 開発者モード: 無制限
+    usageCountEl.textContent = '無制限';
+    return;
+  }
+
+  // 無料版: 各アドバイザーのレート制限を確認
+  const now = Date.now();
+  const oneDayMs = 24 * 60 * 60 * 1000;
+
+  // 各アドバイザーのレート制限キー
+  const rateLimitKeys = [
+    'jsonld_advisor_usage',
+    'jsonld_blog_reviewer_usage',
+    'jsonld_web_advisor_usage',
+  ];
+
+  // すべてのアドバイザーの合計利用回数を計算
+  let totalUsed = 0;
+  rateLimitKeys.forEach(key => {
+    try {
+      const usageData = JSON.parse(localStorage.getItem(key) || '[]');
+      const recentRequests = usageData.filter(timestamp => now - timestamp < oneDayMs);
+      totalUsed += recentRequests.length;
+    } catch (error) {
+      // エラーは無視
+    }
+  });
+
+  // 無料版の上限は一律50回/24時間（毎日0:00にリセット）
+  const maxRequests = 50;
+  const remaining = Math.max(0, maxRequests - totalUsed);
+
+  // 表示（例: "45/50"）
+  usageCountEl.textContent = `${remaining}/${maxRequests}`;
+}

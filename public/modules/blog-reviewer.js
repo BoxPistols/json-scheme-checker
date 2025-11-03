@@ -5,37 +5,31 @@ class BlogReviewerManager extends BaseAdvisorManager {
     const config = {
       RATE_LIMIT_KEY: 'jsonld_blog_reviewer_usage',
       USER_API_KEY: 'jsonld_blog_reviewer_openai_key',
-      STAKEHOLDER_MODE_KEY: 'jsonld_blog_reviewer_stakeholder',
       USAGE_TOTAL_KEY: 'jsonld_usage_blog_reviewer_total',
       USAGE_MODE_KEY: 'jsonld_usage_mode',
-      MAX_REQUESTS_PER_DAY: 10,
-      MAX_REQUESTS_STAKEHOLDER: 30,
+      MAX_REQUESTS_PER_DAY: 50,
       elemIdPrefix: 'blogReviewer',
       ui: {
         showConfirmDialog: () => this.showConfirmDialog(),
-        closeStakeholderPrompt: () => this.closeModal('stakeholderPrompt'),
         closeDeveloperPrompt: () => this.closeModal('developerPrompt'),
       },
       actionHandlers: {
-        'blog-close-stakeholder-prompt': () => this.closeModal('stakeholderPrompt'),
-        'blog-confirm-stakeholder': () => this.confirmStakeholder(),
         'blog-close-developer-prompt': () => this.closeModal('developerPrompt'),
         'blog-toggle-developer-key-visibility': () => this.toggleDeveloperKeyVisibility(),
         'blog-save-developer-key': () => this.saveDeveloperKey(),
         'blog-test-developer-connection': () => this.testDeveloperConnection(),
         'blog-reset-developer-settings': () => this.resetDeveloperSettings(),
-        'blog-show-stakeholder-prompt': () => this.showStakeholderPrompt(),
         'blog-show-developer-prompt': () => this.showDeveloperPrompt(),
-        'blog-reset-to-normal-mode': () => this.resetToNormalMode(),
+        'blog-reset-to-free-mode': () => this.resetToFreeMode(),
         'blog-close-confirm-dialog': () => this.closeConfirmDialog(),
         'blog-start-review': () => this.startReview(),
         'blog-close-review-view': () => this.closeReviewView(),
         'blog-fetch-review': () => this.fetchReview(),
         'show-blog-confirm-dialog': () => this.showConfirmDialog(),
+        'blog-reviewer-toggle-article-section': () => this.toggleAccordion('article'),
+        'blog-reviewer-toggle-review-section': () => this.toggleAccordion('review'),
       },
       actions: {
-        closeStakeholderPrompt: 'blog-close-stakeholder-prompt',
-        confirmStakeholder: 'blog-confirm-stakeholder',
         closeDeveloperPrompt: 'blog-close-developer-prompt',
         toggleDeveloperKeyVisibility: 'blog-toggle-developer-key-visibility',
         saveDeveloperKey: 'blog-save-developer-key',
@@ -128,8 +122,10 @@ class BlogReviewerManager extends BaseAdvisorManager {
         '[BlogReviewerManager] Review button shown with enriched data:',
         this.currentArticle
       );
+      return true;
     } else {
       console.log('[BlogReviewerManager] No Article/BlogPosting found in schemas');
+      return false;
     }
   }
 
@@ -303,7 +299,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
       if (schemasContainer) {
         console.log('[BlogReviewerManager] Using schemasContainer as fallback');
         const button = this.createReviewButton();
-        schemasContainer.parentElement.insertBefore(button, schemasContainer);
+        schemasContainer.parentElement.appendChild(button);
         return;
       }
       return;
@@ -316,7 +312,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
     }
 
     const button = this.createReviewButton();
-    actionsContainer.insertBefore(button, actionsContainer.firstChild);
+    actionsContainer.appendChild(button);
     console.log('[BlogReviewerManager] Review button inserted into DOM');
   }
 
@@ -351,36 +347,13 @@ class BlogReviewerManager extends BaseAdvisorManager {
 
   /**
    * レビュー実行確認ダイアログを表示
+   * Dialog内にはAPI関連情報は含めない（API設定はHeaderのMy APIで管理）
    */
   showConfirmDialog() {
-    const rateLimit = this.checkRateLimit();
-
-    let rateLimitHtml = '';
-    let modeLabel = '';
-    if (rateLimit.mode === 'developer') {
-      rateLimitHtml =
-        '<div class="advisor-rate-info advisor-rate-unlimited">MyAPIモード（無制限）</div>';
-      modeLabel = 'MyAPIモード';
-    } else if (rateLimit.mode === 'stakeholder') {
-      if (!rateLimit.allowed) {
-        const resetTimeStr = rateLimit.resetTime
-          ? rateLimit.resetTime.toLocaleString('ja-JP')
-          : '不明';
-        rateLimitHtml = `<div class="advisor-rate-info advisor-rate-exceeded">利用制限に達しました（リセット: ${resetTimeStr}）</div>`;
-      } else {
-        rateLimitHtml = `<div class="advisor-rate-info advisor-rate-stakeholder">関係者モード - 残り ${rateLimit.remaining} 回 / ${rateLimit.maxRequests} 回（24時間）</div>`;
-      }
-      modeLabel = '関係者モード';
-    } else {
-      if (!rateLimit.allowed) {
-        const resetTimeStr = rateLimit.resetTime
-          ? rateLimit.resetTime.toLocaleString('ja-JP')
-          : '不明';
-        rateLimitHtml = `<div class="advisor-rate-info advisor-rate-exceeded">利用制限に達しました（リセット: ${resetTimeStr}）</div>`;
-      } else {
-        rateLimitHtml = `<div class="advisor-rate-info">残り ${rateLimit.remaining} 回 / ${rateLimit.maxRequests} 回（24時間）</div>`;
-      }
-      modeLabel = '通常モード';
+    // currentArticleがnullの場合は何もしない（誤動作防止）
+    if (!this.currentArticle) {
+      console.warn('[BlogReviewer] showConfirmDialog called but currentArticle is null');
+      return;
     }
 
     const overlay = document.createElement('div');
@@ -388,23 +361,15 @@ class BlogReviewerManager extends BaseAdvisorManager {
     overlay.className = 'advisor-overlay';
     overlay.innerHTML = `
       <div class="advisor-modal">
-        <div class="advisor-modal-header advisor-modal-header--stack">
-          <div class="advisor-modal-header-row">
-            <div class="advisor-mode-buttons-small">
-              <button type="button" class="advisor-mode-btn-small" data-action="blog-reset-to-normal-mode" title="通常モード（10回/24時間）に戻す">通常モード</button>
-              <button type="button" class="advisor-mode-btn-small" data-action="blog-show-stakeholder-prompt" title="関係者は30回/24時間まで利用可能">関係者</button>
-              <button type="button" class="advisor-mode-btn-small" data-action="blog-show-developer-prompt" title="自分のAPIキーで無制限利用">MyAPI</button>
-            </div>
-            <button type="button" class="advisor-modal-close" data-action="blog-close-confirm-dialog">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-            </button>
-          </div>
+        <div class="advisor-modal-header">
           <h2>ブログ記事レビュー</h2>
+          <button type="button" class="advisor-modal-close" data-action="blog-close-confirm-dialog">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
         </div>
         <div class="advisor-modal-body">
-          ${rateLimitHtml}
           <p class="advisor-modal-text advisor-center advisor-muted">SEO観点、EEAT観点、アクセシビリティ観点でブログ記事をレビューします。</p>
           <div class="advisor-confirm-buttons">
             <button type="button" class="advisor-btn-secondary" data-action="blog-close-confirm-dialog">キャンセル</button>
@@ -439,6 +404,13 @@ class BlogReviewerManager extends BaseAdvisorManager {
    * レビューを開始
    */
   async startReview() {
+    // currentArticleがnullの場合は何もしない（誤動作防止）
+    if (!this.currentArticle) {
+      console.error('[BlogReviewer] startReview called but currentArticle is null');
+      alert('レビュー対象の記事が見つかりません。');
+      return;
+    }
+
     // レート制限チェック
     const rateLimit = this.checkRateLimit();
     if (!rateLimit.allowed) {
@@ -447,13 +419,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
         ? rateLimit.resetTime.toLocaleString('ja-JP')
         : '不明';
 
-      let message = `利用制限に達しました。\n\nリセット時刻: ${resetTimeStr}\n\n`;
-      if (rateLimit.mode === 'stakeholder') {
-        message += 'MyAPIモードで自分のAPIキーを使用すると制限なしで利用できます。';
-      } else {
-        message += '関係者モードで30回/24時間、またはMyAPIモードで無制限利用が可能です。';
-      }
-
+      const message = `利用制限に達しました。\n\nリセット時刻: ${resetTimeStr}\n\nMyAPIモード（Header「My API」設定）で自分のOpenAI APIキーを使用すると無制限利用できます。`;
       alert(message);
       return;
     }
@@ -487,18 +453,36 @@ class BlogReviewerManager extends BaseAdvisorManager {
       ${headerHtml}
       <div class="advisor-view-content">
         <div class="advisor-job-panel">
-          <h3>記事情報</h3>
-          <div class="advisor-job-content" id="blogReviewerArticleContent">
+          <h3 class="advisor-accordion-header" data-action="blog-reviewer-toggle-article-section">
+            <span class="advisor-accordion-icon">▼</span>記事情報
+          </h3>
+          <div class="advisor-job-content advisor-accordion-content" id="blogReviewerArticleContent">
             ${this.formatArticle(this.currentArticle)}
           </div>
         </div>
         <div class="advisor-advice-panel">
-          <h3>AI分析結果</h3>
-          <div class="advisor-advice-content" id="blogReviewerReviewContent">
-            <div class="advisor-loading">
-              <div class="advisor-spinner"></div>
-              <p>AI分析中...</p>
+          <h3 class="advisor-accordion-header" data-action="blog-reviewer-toggle-review-section">
+            <span class="advisor-accordion-icon">▼</span>AI分析結果
+          </h3>
+          <div class="advisor-advice-content advisor-accordion-content" id="blogReviewerReviewContent">
+            <div class="advisor-progress-container" id="blogReviewerProgressContainer">
+              <div class="advisor-progress-bar">
+                <div class="advisor-progress-fill" id="blogReviewerProgressFill"></div>
+              </div>
+              <div class="advisor-progress-text" id="blogReviewerProgressText">準備中...</div>
             </div>
+            <div class="advisor-skeleton-loader" id="blogReviewerSkeletonLoader">
+              <div class="advisor-skeleton-item large"></div>
+              <div class="advisor-skeleton-item medium"></div>
+              <div class="advisor-skeleton-item medium"></div>
+              <div class="advisor-skeleton-item small"></div>
+              <div style="height: 8px;"></div>
+              <div class="advisor-skeleton-item large"></div>
+              <div class="advisor-skeleton-item medium"></div>
+              <div class="advisor-skeleton-item medium"></div>
+              <div class="advisor-skeleton-item small"></div>
+            </div>
+            <div class="advisor-markdown" id="blogReviewerMarkdown"></div>
           </div>
         </div>
       </div>
@@ -587,10 +571,21 @@ class BlogReviewerManager extends BaseAdvisorManager {
    * AIレビューを取得（ストリーミング）
    */
   async fetchReview() {
+    // グローバルな分析実行状態をチェック（複数の分析の同時実行を防ぐ）
+    if (!canStartAnalysis('blog-reviewer')) {
+      alert('別の分析が実行中です。しばらくお待ちください。');
+      return;
+    }
+
     const reviewContent = document.getElementById('blogReviewerReviewContent');
     if (!reviewContent) return;
 
     this.isStreaming = true;
+    setAnalysisActive('blog-reviewer'); // グローバルにアクティブ化
+
+    // AbortControllerを作成してグローバルに保存
+    const abortController = new AbortController();
+    window.ANALYSIS_STATE.abortControllers['blog-reviewer'] = abortController;
 
     try {
       const isVercel = window.location.hostname.includes('vercel.app');
@@ -608,6 +603,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
           userApiKey: userApiKey || undefined,
           model: this.model,
         }),
+        signal: abortController.signal,
       });
 
       if (!response.ok) {
@@ -630,13 +626,18 @@ class BlogReviewerManager extends BaseAdvisorManager {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      reviewContent.innerHTML = '<div class="advisor-markdown"></div>';
-      const markdownDiv = reviewContent.querySelector('.advisor-markdown');
+      // 既存のマークダウン要素を使用（HTML 上書きしない）
+      const md = document.getElementById('blogReviewerMarkdown');
+      if (!md) {
+        throw new Error('マークダウン要素が見つかりません');
+      }
 
+      this.updateProgress(0, '初期化中...');
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let buffer = '';
       let fullText = '';
+      let firstTokenReceived = false;
 
       try {
         while (this.isStreaming) {
@@ -652,6 +653,12 @@ class BlogReviewerManager extends BaseAdvisorManager {
               const data = line.slice(6);
               if (data === '[DONE]') {
                 this.isStreaming = false;
+                this.updateProgress(100, '完了');
+                // プログレスバーとスケルトンを非表示
+                const progressContainer = document.getElementById('blogReviewerProgressContainer');
+                if (progressContainer) {
+                  progressContainer.style.display = 'none';
+                }
                 // 使用履歴を記録（成功時のみ）
                 this.recordUsage();
                 break;
@@ -664,7 +671,18 @@ class BlogReviewerManager extends BaseAdvisorManager {
                   console.log('[BlogReviewer] Received model:', parsed.model);
                 } else if (parsed.content) {
                   fullText += parsed.content;
-                  markdownDiv.innerHTML = this.renderMarkdown(fullText);
+
+                  // 初回トークン受信時、スケルトンローダーを非表示
+                  if (!firstTokenReceived) {
+                    firstTokenReceived = true;
+                    const skeletonLoader = document.getElementById('blogReviewerSkeletonLoader');
+                    if (skeletonLoader) {
+                      skeletonLoader.style.display = 'none';
+                    }
+                  }
+
+                  this.updateProgress(50, '分析中...');
+                  md.innerHTML = this.renderMarkdown(fullText);
                 } else if (parsed.usage) {
                   // usage情報を保存して表示
                   console.log('[BlogReviewer] Received usage:', parsed.usage);
@@ -683,27 +701,55 @@ class BlogReviewerManager extends BaseAdvisorManager {
       } finally {
         // ストリームを確実にキャンセル
         reader.cancel().catch(err => console.warn('Reader cancel failed:', err));
+
+        // グローバルな分析状態をクリア
+        this.isStreaming = false;
+        setAnalysisInactive('blog-reviewer');
+        delete window.ANALYSIS_STATE.abortControllers['blog-reviewer'];
       }
     } catch (error) {
+      // プログレスバーとスケルトン非表示
+      const progressContainer = document.getElementById('blogReviewerProgressContainer');
+      const skeletonLoader = document.getElementById('blogReviewerSkeletonLoader');
+      if (progressContainer) {
+        progressContainer.style.display = 'none';
+      }
+      if (skeletonLoader) {
+        skeletonLoader.style.display = 'none';
+      }
+
+      // AbortError（キャンセル）の場合
+      if (error.name === 'AbortError') {
+        console.log('[BlogReviewer] 分析がキャンセルされました');
+        const md = document.getElementById('blogReviewerMarkdown');
+        if (md) {
+          md.innerHTML = '<div class="advisor-notice"><p>分析がキャンセルされました</p></div>';
+        }
+        return;
+      }
+
       console.error('BlogReviewer fetch error:', error);
       const isVercel = window.location.hostname.includes('vercel.app');
       const errorMessage = isVercel
         ? '予期せぬエラーが発生しました。時間をおいて再度お試しください。'
         : this.escapeHtml(error.message);
 
-      reviewContent.innerHTML = `
-        <div class="advisor-error">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-            <path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
+      const md = document.getElementById('blogReviewerMarkdown');
+      if (md) {
+        md.innerHTML = `
+          <div class="advisor-error">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+              <path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
           <p>AI分析に失敗しました</p>
           <p class="advisor-error-detail">${errorMessage}</p>
-          <button class="advisor-btn-primary" data-action="fetch-review">
+          <button class="advisor-btn-primary" data-action="blog-fetch-review">
             再試行
           </button>
         </div>
       `;
+      }
     }
   }
 
@@ -732,14 +778,58 @@ class BlogReviewerManager extends BaseAdvisorManager {
     // 改行
     html = html.replace(/\n/g, '<br>');
 
+    // 見出しの直後の <br> を削除（h1, h2, h3）
+    html = html.replace(/<\/(h[123])><br>/g, '</$1>');
+
     // 連続する<li>タグを<ul>で囲む（改行変換後に実行）
     html = html.replace(
       /((?:<li>.*?<\/li>(?:<br>)*)+)/g,
       match => `<ul>${match.replace(/<br>/g, '')}</ul>`
     );
 
+    // </li> の直後の <br> を削除
+    html = html.replace(/<\/li><br>/g, '</li>');
+
     return html;
   }
+
+  /**
+   * プログレスバーを更新
+   */
+  updateProgress(percentage, text) {
+    const fill = document.getElementById('blogReviewerProgressFill');
+    const textEl = document.getElementById('blogReviewerProgressText');
+
+    if (fill) {
+      fill.style.width = Math.min(percentage, 100) + '%';
+    }
+
+    if (textEl) {
+      textEl.textContent = text;
+    }
+  }
+
+  /**
+   * アコーディオンを開閉
+   */
+  toggleAccordion(section) {
+    const contentId =
+      section === 'article' ? 'blogReviewerArticleContent' : 'blogReviewerReviewContent';
+    const content = document.getElementById(contentId);
+    const header = content?.previousElementSibling;
+    const icon = header?.querySelector('.advisor-accordion-icon');
+
+    if (!content || !header || !icon) return;
+
+    if (content.classList.contains('advisor-accordion-collapsed')) {
+      content.classList.remove('advisor-accordion-collapsed');
+      icon.textContent = '▼';
+    } else {
+      content.classList.add('advisor-accordion-collapsed');
+      icon.textContent = '▶';
+    }
+  }
+
   /**
    * ヘッダの使用量チップを更新
    */
@@ -828,7 +918,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
     console.log('[BlogReviewer] Displaying usage:', this.currentUsage);
 
     // モデル名を取得
-    const model = this.currentArticle.model || 'gpt-4.1-nano';
+    const model = this.currentArticle.model || 'gpt-5-nano';
 
     // BaseAdvisorManagerの共通メソッドを使用してHTML生成
     const usageHtml = this.renderApiUsagePanel(this.currentUsage, model);

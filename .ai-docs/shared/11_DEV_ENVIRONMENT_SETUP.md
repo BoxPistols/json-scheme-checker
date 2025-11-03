@@ -52,6 +52,7 @@ chmod +x .husky/pre-commit
 2. **Prettier**: コードフォーマットの自動整形
 
 **対象ファイル**:
+
 - JavaScriptファイル: `*.js`, `*.jsx`
 - JSONファイル: `*.json`
 - Markdownファイル: `*.md`
@@ -100,6 +101,7 @@ curl http://localhost:3333/health
 **原因**: フックファイルに実行権限がない
 
 **解決方法**:
+
 ```bash
 chmod +x .husky/pre-commit
 ```
@@ -109,6 +111,7 @@ chmod +x .husky/pre-commit
 **原因**: huskyとlint-stagedがインストールされていない
 
 **解決方法**:
+
 ```bash
 pnpm add -D husky lint-staged
 pnpm exec husky install
@@ -119,6 +122,7 @@ pnpm exec husky install
 **原因**: 自動修正できないエラーがある
 
 **解決方法**:
+
 1. エラーメッセージを確認
 2. 手動で修正
 3. または `.eslintrc.json` でルールを調整
@@ -128,6 +132,7 @@ pnpm exec husky install
 **原因**: ローカルでは成功するがCIで失敗する
 
 **解決方法**:
+
 1. `.github/workflows/ci.yml` のログを確認
 2. ローカルで同じコマンドを実行
 3. 環境変数の違いを確認

@@ -176,22 +176,32 @@ function extractMetadata(html) {
       if (text) metadata.headings.h3.push(text);
     });
 
-  // body内のテキストスニペット抽出（最初の3000文字）
+  // body内のテキストスニペット抽出
   // scriptとstyleタグを除外してテキストを取得
   $('script').remove();
   $('style').remove();
-  const bodyText = $('body').text().replace(/\s+/g, ' ').trim();
-  metadata.bodySnippet = bodyText.substring(0, 3000);
+  $('nav').remove();
+  $('footer').remove();
+  let bodyText = $('body').text().replace(/\s+/g, ' ').trim();
+
+  // トークン制限対策：テキスト長を制限（約8000文字 = 約2000トークン）
+  // これでも OpenAI のプロンプト内のトークンと合わせると一定のバッファが残る
+  const MAX_BODY_LENGTH = 8000;
+  if (bodyText.length > MAX_BODY_LENGTH) {
+    bodyText = bodyText.substring(0, MAX_BODY_LENGTH) + '...\n（以降省略）';
+  }
+
+  metadata.bodySnippet = bodyText;
 
   return metadata;
 }
 
 /**
- * プロンプトを生成（ブログコンテンツ向け）
+ * プロンプトを生成（汎用Webページ分析）
+ * ページの性質を判定して、ブログメディアまたは一般的なWebページとしてレビューを提供
  */
 function buildPrompt(metadata, url) {
-  return `あなたは経験豊富なWebサイトアナリストです。以下のページ情報を分析し、コンテンツの品質、読者価値、SEO、エンゲージメントの観点から具体的な改善提案を日本語で提供してください。
-コンテンツの品質、読者価値、SEO、エンゲージメントの観点から分析し、具体的な改善提案を日本語で提供してください。
+  return `あなたは経験豊富なWebサイト分析家です。以下のページ情報を分析し、ページの性質を判定した上で、適切な観点からコンテンツ品質、SEO、ユーザビリティについて具体的な改善提案を日本語で提供してください。
 
 【分析対象URL】
 ${url}
@@ -214,37 +224,46 @@ H1: ${metadata.headings.h1.join(', ') || '（なし）'}
 H2: ${metadata.headings.h2.slice(0, 8).join(', ') || '（なし）'}
 H3: ${metadata.headings.h3.slice(0, 5).join(', ') || '（なし）'}
 
-本文抜粋（最初の1000文字）:
-${metadata.bodySnippet.substring(0, 1000)}...
+本文抜粋:
+${metadata.bodySnippet}
 
 【重要な制約】
 - 絵文字は使用しないでください
 - 簡潔で実践的な提案をしてください
-- ブログ記事として評価してください
+- **ページの性質を判定してから分析してください**
+  - ブログメディア: 長めの本文、複数のH2見出し、記事らしいタイトルを含むページ
+  - 一般的なWebページ: 企業サイト、ポートフォリオ、ランディングページ、製品紹介など
+
+【判定基準】
+- **ブログメディア**と判定: 本文が1000文字以上、H2見出しが3個以上、記事的なタイトルと説明
+- **一般的なWebページ**と判定: 上記の条件を満たさない場合
 
 【出力形式】
-以下の構造で出力してください：
 
-## 記事の総合評価
+## ページの性質判定
+
+[このページがブログメディアか一般的なWebページかを判定し、その理由を1-2文で説明してください]
+
+## 総合評価
 
 ### 評価スコア
 [★★★☆☆ のように5段階で評価]
 
 ### 強み
-- [この記事の良い点を3つ]
+- [このページの良い点を3つ]
 
 ### 改善が必要な点
 - [改善すべき点を3つ]
 
 ## コンテンツ品質
 
-### 記事構成の評価
-[導入、本文、結論の構成について]
+### ページ構成の評価
+[ページ構成、見出し階層、コンテンツボリュームについて]
 
-### 読みやすさ
-- 文章の流れ: [評価]
+### 読みやすさと明瞭性
+- 見出し構造: [評価]
 - 段落構成: [評価]
-- 専門用語の扱い: [評価]
+- 情報の整理度: [評価]
 
 ### 改善提案
 1. [具体的な改善案]
@@ -255,30 +274,30 @@ ${metadata.bodySnippet.substring(0, 1000)}...
 ### 現状の評価
 - タイトルの魅力度: [評価]
 - メタディスクリプション: [評価]
-- キーワード最適化: [評価]
+- 見出し階層の最適性: [評価]
 
 ### 改善提案
 1. **タイトル改善案**: [具体的な代替案]
 2. **メタディスクリプション改善案**: [具体的な代替案]
 3. **見出し最適化**: [改善案]
 
-## 読者エンゲージメント
+## ユーザビリティとエンゲージメント
 
-### ターゲット読者
-[想定される読者層]
+### 現状分析
+[ページの目的に応じたユーザー体験について]
 
-### エンゲージメント向上策
-1. **冒頭の改善**: [読者を引き込む方法]
-2. **CTA（Call to Action）**: [行動喚起の提案]
-3. **視覚的要素**: [図表・画像の活用提案]
+### 改善提案
+1. **最初の印象**: [ユーザーを引き込む方法]
+2. **情報の流れ**: [ナビゲーション改善提案]
+3. **視覚的要素**: [レイアウト・デザイン改善提案]
 
 ## 技術的な改善点
 
 ### 構造化データ
-[追加すべきスキーマタイプと理由]
+[追加すべきスキーマタイプと理由（例：LocalBusiness, BlogPosting など）]
 
-### パフォーマンス
-[ページ速度や技術的な観点からの提案]
+### ページ最適化
+[ページ速度、アクセシビリティ、技術的な観点からの提案]
 
 ## 優先度の高い改善項目（TOP3）
 
@@ -288,11 +307,12 @@ ${metadata.bodySnippet.substring(0, 1000)}...
 
 ## まとめ
 
-[記事の潜在能力と、改善による期待効果を2-3文で]`;
+[このページの目的達成度と、改善による期待効果を2-3文で]`;
 }
 
 /**
- * フォールバックテンプレートを生成（ブログ記事向け）
+ * フォールバックテンプレートを生成（汎用Webページ分析）
+ * ページの性質を判定して、ブログメディアまたは一般的なWebページとしてテンプレートを生成
  */
 function generateFallbackTemplate(metadata, _url) {
   const h1Count = metadata.headings.h1.length;
@@ -300,86 +320,180 @@ function generateFallbackTemplate(metadata, _url) {
   const h3Count = metadata.headings.h3.length;
   const hasTitle = !!metadata.title;
   const hasDescription = !!metadata.description;
+  const bodyLength = metadata.bodySnippet.length;
 
-  return `## 記事の総合評価
+  // ページの性質を判定（ブログメディア vs 一般的なWebページ）
+  const isBlogLike = bodyLength > 1000 && h2Count >= 3 && hasTitle;
+
+  if (isBlogLike) {
+    // ブログメディアの場合
+    return `## ページの性質判定
+
+このページはブログメディアの特徴を持っています。十分なコンテンツボリュームと複数の見出し構造が確認されます。
+
+## 総合評価
 
 ### 評価スコア
 ${h1Count === 1 && h2Count > 0 && hasTitle ? '★★★☆☆' : '★★☆☆☆'}
 
 ### 強み
-- ${hasTitle ? 'タイトルが設定されている' : 'ページが存在する'}
-- ${h2Count > 0 ? '見出し構造がある' : 'コンテンツが存在する'}
-- ${hasDescription ? 'メタディスクリプションが設定されている' : 'アクセス可能なページである'}
+- ${h2Count > 3 ? '充実した見出し構造による明確な記事構成' : 'コンテンツが構成されている'}
+- ${bodyLength > 2000 ? '十分なコンテンツボリュームがある' : 'ある程度のコンテンツが存在する'}
+- ${hasDescription ? 'メタディスクリプションが設定されている' : '基本的なページ構成がある'}
 
 ### 改善が必要な点
 - ${h1Count === 0 ? 'H1見出しが設定されていない' : h1Count > 1 ? 'H1見出しが複数存在する' : '見出し階層の最適化'}
-- ${!hasDescription ? 'メタディスクリプションが未設定' : 'メタディスクリプションの最適化'}
-- 構造化データ（BlogPostingスキーマ）が未実装
+- ${!hasDescription ? 'メタディスクリプションが未設定' : 'メタディスクリプションの改善'}
+- ${!metadata.og.image ? 'OGイメージタグが未設定' : 'OGタグの最適化'}
 
 ## コンテンツ品質
 
-### 記事構成の評価
-現在の見出し構造: H1(${h1Count}個)、H2(${h2Count}個)、H3(${h3Count}個)
+### ページ構成の評価
+見出し構造: H1(${h1Count}個)、H2(${h2Count}個)、H3(${h3Count}個)
+コンテンツボリュームは${bodyLength > 2000 ? '充分' : bodyLength > 1000 ? 'まあまあ' : '限定的'}です。
 
-### 読みやすさ
-- 文章の流れ: 詳細な分析にはAI解析が必要です
-- 段落構成: 見出しが${h2Count > 3 ? '適切に' : '少なめに'}配置されています
-- 専門用語の扱い: コンテンツ分析が必要です
+### 読みやすさと明瞭性
+- 見出し構造: ${h2Count >= 3 ? '適切に構成されている' : '改善の余地あり'}
+- 段落構成: 見出しで${h2Count > 3 ? 'しっかり' : 'まあまあ'}区切られています
+- 情報の整理度: 詳細な分析にはAI解析が必要です
 
 ### 改善提案
-1. ${h1Count !== 1 ? 'H1見出しを1つだけ設定し、記事のメインテーマを明確にする' : 'H2見出しを増やして記事構成を明確にする'}
-2. ${!hasDescription ? 'メタディスクリプションを追加して検索結果での表示を改善する' : '見出し階層を整理して読みやすさを向上させる'}
+1. ${h1Count !== 1 ? 'H1見出しを1つだけ設定し、ページのメインテーマを明確にする' : 'H2見出しの内容を記事の構成に合わせて最適化する'}
+2. ${!hasDescription ? 'メタディスクリプションを追加して検索結果での表示を改善する' : '見出し階層を整理してSEOを向上させる'}
 
 ## SEOとディスカバリー
 
 ### 現状の評価
-- タイトルの魅力度: ${hasTitle ? '設定済み（最適化の余地あり）' : '未設定'}
+- タイトルの魅力度: ${hasTitle ? '設定済み（改善可能）' : '未設定'}
 - メタディスクリプション: ${hasDescription ? '設定済み（改善可能）' : '未設定'}
-- キーワード最適化: AI分析が必要です
+- 見出し階層の最適性: ${h2Count >= 3 ? '良好' : '改善が必要'}
 
 ### 改善提案
-1. **タイトル改善案**: ${hasTitle ? '読者の関心を引く具体的な数字や結果を含める' : 'まずタイトルタグを設定する'}
-2. **メタディスクリプション改善案**: ${hasDescription ? '120-160文字で記事の価値を明確に伝える' : 'メタディスクリプションを追加（120-160文字）'}
-3. **見出し最適化**: ${h2Count < 3 ? 'H2見出しを追加して記事を構造化' : 'キーワードを含む見出しに改善'}
+1. **タイトル改善案**: ${hasTitle ? '検索キーワードを含めて具体的にする' : 'ページの内容を反映したタイトルを設定する'}
+2. **メタディスクリプション改善案**: ${hasDescription ? '120-160文字でコンテンツの価値を明確に伝える' : 'メタディスクリプションを追加（120-160文字）'}
+3. **見出し最適化**: キーワードを含む見出しに改善し、検索向けに最適化する
 
-## 読者エンゲージメント
+## ユーザビリティとエンゲージメント
 
-### ターゲット読者
-ページ内容から判断するには詳細な分析が必要です
+### 現状分析
+ブログメディアとして、読者の関心を引き、理解しやすいコンテンツ構成が重要です。
 
-### エンゲージメント向上策
-1. **冒頭の改善**: 最初の段落で読者の課題や関心事に言及する
-2. **CTA（Call to Action）**: 記事末尾に次のアクションを促す要素を追加
-3. **視覚的要素**: 図表や画像を追加して理解を助ける
+### 改善提案
+1. **最初の印象**: 導入文で読者の関心や課題を明確に示す
+2. **情報の流れ**: 見出しの順序を論理的に整理し、読者が迷わないようにする
+3. **視覚的要素**: 見出しのスタイルやマークアップを適切に活用する
 
 ## 技術的な改善点
 
 ### 構造化データ
 BlogPostingスキーマの追加を推奨します（著者、公開日、更新日などの情報を含める）
 
-### パフォーマンス
-ページ速度の測定と画像最適化を検討してください
+### ページ最適化
+ページ速度の測定と、モバイル対応を確認してください。
 
 ## 優先度の高い改善項目（TOP3）
 
-1. **${h1Count !== 1 ? 'H1見出しの最適化' : !hasDescription ? 'メタディスクリプションの追加' : '構造化データの実装'}**: 検索エンジン対策の基本
-2. **${h2Count < 3 ? '見出し構造の充実' : 'タイトルタグの最適化'}**: 読みやすさとSEOの改善
-3. **BlogPostingスキーマの追加**: 検索結果でのリッチスニペット表示
+1. **${h1Count !== 1 ? 'H1見出しの最適化' : 'BlogPostingスキーマの追加'}**: 検索エンジン対策の基本
+2. **メタディスクリプションの最適化**: 検索結果でのクリック率向上
+3. **見出し構造の最終確認**: ユーザー体験とSEOの改善
 
 ## まとめ
 
-基本的なSEO要素の改善から始めることで、検索順位とユーザー体験を向上させることができます。
+このページはブログメディアとしてのポテンシャルを持っています。基本的なSEO要素（タイトル、メタディスクリプション）の最適化とBlogPostingスキーマの追加により、検索順位とユーザー体験をさらに向上させることができます。
 より詳細な分析と具体的な改善提案には、AI分析（OpenAI API）の利用を推奨します。
 
 ---
 ※ このアドバイスはテンプレートベースで生成されました。
 より詳細な分析にはOpenAI APIキーの設定が必要です。`;
+  } else {
+    // 一般的なWebページの場合
+    return `## ページの性質判定
+
+このページは企業サイト、ポートフォリオ、ランディングページなど、一般的なWebページと判定されます。
+
+## 総合評価
+
+### 評価スコア
+${h1Count === 1 && hasTitle && hasDescription ? '★★★☆☆' : '★★☆☆☆'}
+
+### 強み
+- ${hasTitle ? 'タイトルが設定されている' : 'ページが存在する'}
+- ${hasDescription ? 'メタディスクリプションが設定されている' : 'ページ構造がある'}
+- ${h1Count > 0 ? 'H1見出しが設定されている' : 'コンテンツが存在する'}
+
+### 改善が必要な点
+- ${h1Count === 0 ? 'H1見出しが設定されていない' : h1Count > 1 ? 'H1見出しが複数存在する' : '見出し階層の最適化'}
+- ${!hasDescription ? 'メタディスクリプションが未設定' : 'メタディスクリプションの改善'}
+- ${h2Count === 0 ? '見出し構造が不足している' : 'ページ構造の最適化'}
+
+## コンテンツ品質
+
+### ページ構成の評価
+見出し構造: H1(${h1Count}個)、H2(${h2Count}個)、H3(${h3Count}個)
+ページは${bodyLength > 1000 ? 'まあまあ充実' : 'コンパクト'}な内容になっています。
+
+### 読みやすさと明瞭性
+- 見出し構造: ${h2Count > 0 ? 'ある程度構成されている' : '改善が必要'}
+- 段落構成: ${h2Count > 0 ? '見出しで区切られている' : 'フラットな構成'}
+- 情報の整理度: 詳細な分析にはAI解析が必要です
+
+### 改善提案
+1. ${h1Count !== 1 ? 'H1見出しを1つだけ設定し、ページの主題を明確にする' : '見出し階層をチェックして情報構造を最適化する'}
+2. ${!hasDescription ? 'メタディスクリプションを追加して検索結果での表示を改善する' : '見出しの数を増やしてページ構造を明確にする'}
+
+## SEOとディスカバリー
+
+### 現状の評価
+- タイトルの魅力度: ${hasTitle ? '設定済み（改善可能）' : '未設定'}
+- メタディスクリプション: ${hasDescription ? '設定済み（改善可能）' : '未設定'}
+- 見出し階層の最適性: ${h2Count > 0 ? '基本的に対応' : '改善が必要'}
+
+### 改善提案
+1. **タイトル改善案**: ${hasTitle ? 'ページの主要キーワードを含めて改善する' : 'ページの内容を反映したタイトルを設定する'}
+2. **メタディスクリプション改善案**: ${hasDescription ? '120-160文字でページの価値を明確に伝える' : 'メタディスクリプションを追加（120-160文字）'}
+3. **見出し最適化**: ${h2Count === 0 ? 'コンテンツに見出しを追加して構造化する' : '見出しにキーワードを含める'}
+
+## ユーザビリティとエンゲージメント
+
+### 現状分析
+ページの目的（販売、情報提供、お問い合わせなど）に応じた、わかりやすい構成が重要です。
+
+### 改善提案
+1. **最初の印象**: ファーストビューでページの目的と価値を明確に示す
+2. **情報の流れ**: ユーザーが求める情報に容易にアクセスできるナビゲーション
+3. **視覚的要素**: ボタン、セクション分け、カラーを活用した見やすさの向上
+
+## 技術的な改善点
+
+### 構造化データ
+ページの目的に応じた適切なスキーマ（Organization、LocalBusiness、Productなど）の追加を推奨します。
+
+### ページ最適化
+ページ速度、モバイル対応、アクセシビリティの確認をお勧めします。
+
+## 優先度の高い改善項目（TOP3）
+
+1. **${h1Count !== 1 ? 'H1見出しの最適化' : 'タイトル・メタディスクリプション改善'}**: SEO基礎要素
+2. **${h2Count === 0 ? '見出しの追加' : 'ページ構造の最適化'}**: ユーザビリティとSEO向上
+3. **適切なスキーマの追加**: 検索結果でのリッチスニペット表示
+
+## まとめ
+
+基本的なSEO要素（タイトル、メタディスクリプション、H1見出し）の最適化から始めることで、検索順位とユーザー体験を向上させることができます。
+より詳細な分析と具体的な改善提案には、AI分析（OpenAI API）の利用を推奨します。
+
+---
+※ このアドバイスはテンプレートベースで生成されました。
+より詳細な分析にはOpenAI APIキーの設定が必要です。`;
+  }
 }
 
 /**
  * Webアドバイザーエンドポイント（SSE）
  */
 module.exports = async (req, res) => {
+  console.log('[Web-Advisor-Endpoint] Request started');
+
   // CORSヘッダー（すべてのオリジンを許可）
   const origin = req.headers.origin;
   res.setHeader('Access-Control-Allow-Origin', origin || '*');
@@ -405,6 +519,9 @@ module.exports = async (req, res) => {
     model: modelQ,
   } = req.query;
 
+  console.log('[Web-Advisor-Endpoint] URL:', url);
+  console.log('[Web-Advisor-Endpoint] Has sessionToken:', !!sessionToken);
+
   // セッション取得（存在すればこちらを優先）
   let userApiKey = null;
   let provider = null;
@@ -415,13 +532,16 @@ module.exports = async (req, res) => {
       const { getSession } = require('./web-advisor-session-store');
       const s = getSession(sessionToken);
       if (!s) {
+        console.log('[Web-Advisor-Endpoint] Invalid sessionToken');
         return res.status(400).json({ error: 'Invalid or expired sessionToken' });
       }
       userApiKey = s.userApiKey || null;
       provider = s.provider || null;
       baseUrl = s.baseUrl || null;
       model = s.model || null;
-    } catch (_) {
+      console.log('[Web-Advisor-Endpoint] Session retrieved, hasApiKey:', !!userApiKey);
+    } catch (err) {
+      console.log('[Web-Advisor-Endpoint] Session error:', err.message);
       // 無視してフォールバック
     }
   }
@@ -516,6 +636,8 @@ module.exports = async (req, res) => {
       `data: ${JSON.stringify({ type: 'progress', stage: 'fetching', message: 'ページを取得中...' })}\n\n`
     );
 
+    console.log('[Web-Advisor] Fetching URL:', url);
+
     const fetchResponse = await fetchWithRetry(url, {
       headers: {
         'User-Agent':
@@ -527,6 +649,7 @@ module.exports = async (req, res) => {
     });
 
     const html = await fetchResponse.text();
+    console.log('[Web-Advisor] HTML fetched, length:', html.length);
 
     // メタ情報解析
     res.write(
@@ -534,6 +657,7 @@ module.exports = async (req, res) => {
     );
 
     const metadata = extractMetadata(html);
+    console.log('[Web-Advisor] Metadata extracted, title:', metadata.title?.substring(0, 50));
 
     // メタ情報送信
     res.write(`data: ${JSON.stringify({ type: 'meta', data: metadata })}\n\n`);
@@ -544,19 +668,43 @@ module.exports = async (req, res) => {
     );
 
     const apiKey = userApiKey || process.env.OPENAI_API_KEY;
+    console.log('[Web-Advisor] Has API key:', !!apiKey);
 
     if (apiKey) {
       // OpenAI APIによる分析（baseUrlがあればOpenAI互換エンドポイントとして利用）
       const openai = new OpenAI({ apiKey, baseURL: baseUrl || undefined });
       const prompt = buildPrompt(metadata, url);
 
-      const selectedModel = model || process.env.OPENAI_MODEL || 'gpt-4.1-nano';
+      const usingServerKey = !userApiKey && !!process.env.OPENAI_API_KEY;
+      const PUBLIC_ALLOWED_MODELS = (process.env.PUBLIC_ALLOWED_MODELS || 'gpt-5-nano')
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean);
+
+      let selectedModel = model || process.env.OPENAI_MODEL || 'gpt-5-nano';
+
+      // サーバー既定キー使用時はモデルとbaseUrlを強制（エンドユーザーの上書きを無効化）
+      if (usingServerKey) {
+        if (!PUBLIC_ALLOWED_MODELS.includes(selectedModel)) {
+          if (
+            process.env.OPENAI_MODEL &&
+            PUBLIC_ALLOWED_MODELS.includes(process.env.OPENAI_MODEL)
+          ) {
+            selectedModel = process.env.OPENAI_MODEL;
+          } else {
+            selectedModel = PUBLIC_ALLOWED_MODELS[0];
+          }
+        }
+        baseUrl = undefined; // 既定キー利用時は独自ベースURLを禁止
+      }
+
       const isGPT5 = selectedModel.startsWith('gpt-5');
 
       const requestParams = {
         model: selectedModel,
         messages: [{ role: 'user', content: prompt }],
         stream: true,
+        stream_options: { include_usage: true },
       };
 
       // GPT-5では temperature は非対応
@@ -564,13 +712,39 @@ module.exports = async (req, res) => {
         requestParams.temperature = 0.7;
       }
 
-      const stream = await openai.chat.completions.create(requestParams);
+      try {
+        const stream = await openai.chat.completions.create(requestParams);
 
-      for await (const chunk of stream) {
-        const content = chunk.choices[0]?.delta?.content;
-        if (content) {
-          res.write(`data: ${JSON.stringify({ type: 'token', content })}\n\n`);
+        for await (const chunk of stream) {
+          const content = chunk.choices[0]?.delta?.content;
+          if (content) {
+            res.write(`data: ${JSON.stringify({ type: 'token', content })}\n\n`);
+          }
+
+          // usage情報を送信
+          if (chunk.usage) {
+            res.write(
+              `data: ${JSON.stringify({ type: 'usage', data: chunk.usage, model: selectedModel })}\n\n`
+            );
+          }
         }
+      } catch (apiError) {
+        console.error('[Web-Advisor] OpenAI API Error:', {
+          message: apiError.message,
+          status: apiError.status,
+          code: apiError.code,
+          error: apiError.error?.message || apiError.error,
+        });
+        // API エラーが発生した場合は error イベント送信
+        res.write(
+          `data: ${JSON.stringify({
+            type: 'error',
+            message: `API分析に失敗しました: ${apiError.message}`,
+          })}\n\n`
+        );
+        cleanup();
+        res.end();
+        return;
       }
     } else {
       // フォールバックテンプレート

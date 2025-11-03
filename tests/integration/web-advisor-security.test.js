@@ -18,7 +18,7 @@ describe('Web Advisor security', () => {
   it('creates session token via POST', async () => {
     const res = await request(app)
       .post('/api/web-advisor/session')
-      .send({ userApiKey: 'sk-test', model: 'gpt-4.1-nano' })
+      .send({ userApiKey: 'sk-test', model: 'gpt-5-nano' })
       .set('Content-Type', 'application/json');
     expect(res.status).toBe(200);
     expect(res.body.sessionToken).toBeTruthy();

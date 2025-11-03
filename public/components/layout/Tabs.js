@@ -11,12 +11,7 @@
  * @param {string} props.className - 追加CSSクラス
  * @returns {HTMLElement}
  */
-export function Tabs({
-  tabs = [],
-  activeTabId = '',
-  onTabChange,
-  className = '',
-}) {
+export function Tabs({ tabs = [], activeTabId = '', onTabChange, className = '' }) {
   const container = document.createElement('div');
   container.className = `tabs-container ${className}`.trim();
 
@@ -31,13 +26,16 @@ export function Tabs({
       activeTabId === tab.id || (!activeTabId && index === 0) ? ' active' : ''
     }`;
     tabButton.setAttribute('role', 'tab');
-    tabButton.setAttribute('aria-selected', activeTabId === tab.id || (!activeTabId && index === 0));
+    tabButton.setAttribute(
+      'aria-selected',
+      activeTabId === tab.id || (!activeTabId && index === 0)
+    );
     tabButton.setAttribute('aria-controls', `panel-${tab.id}`);
     tabButton.textContent = tab.label;
 
     tabButton.addEventListener('click', () => {
       // すべてのボタンから active を除去
-      tabList.querySelectorAll('.tabs-button').forEach((btn) => {
+      tabList.querySelectorAll('.tabs-button').forEach(btn => {
         btn.classList.remove('active');
         btn.setAttribute('aria-selected', 'false');
       });
@@ -47,7 +45,7 @@ export function Tabs({
       tabButton.setAttribute('aria-selected', 'true');
 
       // すべてのパネルを非表示
-      container.querySelectorAll('.tabs-panel').forEach((panel) => {
+      container.querySelectorAll('.tabs-panel').forEach(panel => {
         panel.classList.remove('active');
       });
 
@@ -106,13 +104,13 @@ export function activateTab(container, tabId) {
   const tabButtons = tabList.querySelectorAll('.tabs-button');
   const panels = container.querySelectorAll('.tabs-panel');
 
-  tabButtons.forEach((btn) => {
+  tabButtons.forEach(btn => {
     const isActive = btn.getAttribute('aria-controls') === `panel-${tabId}`;
     btn.classList.toggle('active', isActive);
     btn.setAttribute('aria-selected', isActive);
   });
 
-  panels.forEach((panel) => {
+  panels.forEach(panel => {
     const isActive = panel.id === `panel-${tabId}`;
     panel.classList.toggle('active', isActive);
   });

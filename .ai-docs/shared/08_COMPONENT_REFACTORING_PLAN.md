@@ -17,22 +17,26 @@ Advisor と Blog Reviewer の両モジュールで、以下の要素が重複実
 ### 2. Hover スタイルの不統一
 
 **before**:
+
 - `advisor-mode-btn-small`: 背景色で表現 (background: var(--secondary-bg-color))
 - `advisor-mode-btn`: border + background変更
 - 統一されていない
 
 **after** (修正済み):
+
 - すべてのモード選択ボタン: 背景なし、border + 文字色のみ
 - 統一された hover 体験
 
 ### 3. モーダル閉じるボタン
 
 **問題**:
+
 - Advisor: `onclick="this.closest('.advisor-overlay').remove()"` (インライン)
 - Blog Reviewer: `data-action="close-confirm-dialog"` (イベントデリゲーション)
 - 統一されていない
 
 **解決** (修正済み):
+
 - 両方とも `data-action` ベースに統一
 
 ---
@@ -42,6 +46,7 @@ Advisor と Blog Reviewer の両モジュールで、以下の要素が重複実
 ### ✅ CSS 修正
 
 `.advisor-mode-btn-small` の hover スタイル統一：
+
 ```css
 /* before */
 .advisor-mode-btn-small:hover {
@@ -62,6 +67,7 @@ Advisor と Blog Reviewer の両モジュールで、以下の要素が重複実
 ### ✅ JavaScript 修正
 
 Advisor モーダルの閉じるボタン：
+
 ```javascript
 // before
 <button class="advisor-modal-close" onclick="this.closest('.advisor-overlay').remove()">
@@ -71,6 +77,7 @@ Advisor モーダルの閉じるボタン：
 ```
 
 Blog Reviewer モーダルの閉じるボタン：
+
 ```javascript
 // before
 <button class="advisor-modal-close" data-action="close-confirm-dialog">
@@ -94,9 +101,9 @@ const modal = ConfirmDialog({
   content: renderModeButtons(),
   actions: [
     { label: '採用側向け', onClick: () => startAnalysis('employer') },
-    { label: '応募者向け', onClick: () => startAnalysis('applicant') }
+    { label: '応募者向け', onClick: () => startAnalysis('applicant') },
   ],
-  onClose: () => closeModal()
+  onClose: () => closeModal(),
 });
 
 document.body.appendChild(modal);

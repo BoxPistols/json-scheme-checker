@@ -33,7 +33,7 @@ pnpm dev
 cp .env.example .env
 # .envを編集してOpenAI APIキーを設定
 OPENAI_API_KEY=sk-your-key-here
-OPENAI_MODEL=gpt-4.1-nano
+OPENAI_MODEL=gpt-5-nano
 ```
 
 ### Vercelへのデプロイ
@@ -48,7 +48,7 @@ Vercelダッシュボードで環境変数を設定してください。
 
 - **バックエンド**: Node.js + Express + Axios
 - **フロントエンド**: Vanilla JavaScript + CSS3 + HTML5
-- **AI機能**: OpenAI GPT-4.1 nano
+- **AI機能**: OpenAI GPT-5 nano
 
 ## プロジェクト構成
 
@@ -177,9 +177,9 @@ open http://localhost:3333/web-advisor-demo.html
 const url = encodeURIComponent('https://example.com');
 const eventSource = new EventSource(`/api/web-advisor?url=${url}`);
 
-eventSource.addEventListener('message', (event) => {
+eventSource.addEventListener('message', event => {
   const data = JSON.parse(event.data);
-  
+
   switch (data.type) {
     case 'init':
       console.log('開始:', data.message);
@@ -212,7 +212,7 @@ eventSource.addEventListener('message', (event) => {
 
 ```bash
 OPENAI_API_KEY=sk-your-key-here
-OPENAI_MODEL=gpt-4.1-nano
+OPENAI_MODEL=gpt-5-nano
 ```
 
 またはクエリパラメータで指定（ユーザー側）:
@@ -253,7 +253,7 @@ curl -N "http://localhost:3333/api/web-advisor?url=https://example.com&userApiKe
 
 現在の制限：
 
-- **通常モード（クライアント側）**: 10回/24時間（localStorage）
+- **無料版（サーバー負担）**: 50回/24時間（localStorage）
 - **関係者モード**: 30回/24時間
 - **開発者キー使用時**: 無制限
 - **Webアドバイザー（サーバー側）**: 10回/24時間/IP（メモリベース、userApiKey使用時はスキップ）
@@ -264,6 +264,60 @@ curl -N "http://localhost:3333/api/web-advisor?url=https://example.com&userApiKe
 - Webアドバイザー: サーバー側レート制限（メモリベース）
 - Vercel環境でサーバー再起動時にメモリがリセットされます
 - 本番で永続的な制限が必要な場合はVercel KVまたはUpstash Redisの導入を推奨
+
+### モデル利用制限
+
+#### 公開無料版で利用可能なモデル
+
+サーバー既定のAPIキーを使用する場合、現在選択可能なモデルは次のとおりです：
+
+- **gpt-5-nano**（既定）: 超低レイテンシかつ最新料金で最もコスト効率が高い
+- **gpt-4.1-nano**: 既存ワークロードとの互換性を重視したレガシーnano系
+
+どちらのモデルも無料枠内で利用でき、切り替え設定は「My API」モーダルの無料版セレクトから行えます。
+
+#### gpt-5-nano と gpt-4.1-nano の比較（本プロダクト観点）
+
+- **速度/レイテンシ**
+  - gpt-5-nano: 初回トークンまでが短く、SSEの体感が最もスムーズ
+  - gpt-4.1-nano: 5-nano比でやや遅い
+- **コスト（MyAPI利用時の目安）**
+  - gpt-5-nano: 低コスト
+  - gpt-4.1-nano: 5-nanoより高コスト
+- **パラメータ制御**
+  - gpt-5-nano: temperature / top_p 等は非対応（本プロダクトでも送信しない）
+  - gpt-4.1-nano: MyAPI時に temperature などの調整が可能
+- **出力傾向**
+  - gpt-5-nano: 簡潔・要点重視で高速
+  - gpt-4.1-nano: 旧4.1系プロンプトとの互換が高く、口調調整が効きやすい
+- **無料枠カウント**
+  - 両モデルとも無料枠は合算で 50回/24h（localStorageで各アドバイザーが記録/判定）
+
+##### 推奨の使い分け
+- まずは既定の **gpt-5-nano**（高速・安価・安定）
+- 次の場合は **gpt-4.1-nano**
+  - 旧4.1系前提のプロンプトや互換要件がある
+  - MyAPIで温度や創作度合いを細かくコントロールしたい
+  - 既存ドキュメント/テンプレに対して4.1系の出力が適合しやすい
+
+#### MyAPI必須のモデル
+
+以下のモデルを使用するには、**MyAPIモード（独自のOpenAI APIキー）が必須**です：
+
+- gpt-5, gpt-5-mini
+- gpt-4.1, gpt-4.1-mini
+- gpt-4o, gpt-4o-mini
+- gpt-3.5-turbo
+- o3, o3-mini
+
+MyAPIモードの設定方法：
+
+1. ヘッダーの「My API」ボタンをクリック
+2. 独自のOpenAI APIキーを入力
+3. 使用したいモデルを選択
+4. 保存
+
+詳細は[MODEL_PRICING.md](./docs/MODEL_PRICING.md)を参照してください。
 
 ### APIキー管理
 
@@ -285,75 +339,80 @@ localhost URLをテストする場合はローカル環境で起動してくだ�
 
 ## トラブルシューティング
 
-| 問題 | 解決方法 |
-|------|--------|
-| CORSエラー | サーバーが起動していることを確認、`/health`でチェック |
-| localhostアクセス不可 | Vercelではなくローカル環境を使用、ポート番号を確認 |
-| タイムアウト | 対象サイトのレスポンスが遅い、ネットワークを確認 |
-| AI機能が動作しない | OpenAI APIキーを設定、環境変数を確認 |
+| 問題                  | 解決方法                                              |
+| --------------------- | ----------------------------------------------------- |
+| CORSエラー            | サーバーが起動していることを確認、`/health`でチェック |
+| localhostアクセス不可 | Vercelではなくローカル環境を使用、ポート番号を確認    |
+| タイムアウト          | 対象サイトのレスポンスが遅い、ネットワークを確認      |
+| AI機能が動作しない    | OpenAI APIキーを設定、環境変数を確認                  |
 
-## Claude Code Skills
+## AIアシスタント (Claude Code) の活用
 
-このプロジェクトでは、Claude Code専用のスキルを提供して開発効率を向上させています。
+このプロジェクトでは、開発効率を最大化するためにAIアシスタント(Claude Code)を積極的に活用しています。AIは、MCP(Model Context Protocol)という仕組みを通じて、ドキュメント検索やコードレビューといった様々なタスクを自動化します。
 
-### 利用可能なスキル
+初めての方は、まず以下のガイドで全体像を把握することをお勧めします。
 
-#### api-check
-API仕様の一貫性と品質をチェックします。
+- **[AIアシスタント活用ガイド](./.ai-docs/AI_ASSISTANT_GUIDE.md)** - **（まずここから）** MCP、Skills、SubAgentなど、AI関連機能の全体像を解説しています。
 
-```
-api-check
-```
+### クイックリファレンス: 主なスキル
 
-**チェック項目**:
-- エンドポイント構造の確認
-- CORS設定の確認
-- エラーハンドリングの確認
-- 入力検証の確認
-- レート制限の確認
-- レスポンス形式の確認
+- `code-review`: コードレビューを実行
+- `api-check`: API仕様の品質をチェック
+- `deploy-check`: デプロイ前のチェックリストを実行
 
-#### deploy-check
-Vercelへのデプロイ前に必要な全ての確認を実行します。
+詳細は各ガイドを参照してください。
 
-```
-deploy-check
-```
+### GitHub Actions自動レビュー
 
-**チェック項目**:
-- 環境設定の確認
-- 依存関係の確認
-- ビルドとテストの確認
-- Vercel設定の確認
-- セキュリティチェック
-- ドキュメントの確認
-- パフォーマンスチェック
+このプロジェクトではGitHub Actionsを使用した**オプショナルな自動コードレビュー**を実装しています。
 
-#### code-review
-最近の変更に対して包括的なコードレビューを実行します。
+#### 実行方法
 
-```
-code-review
+**方法1: 手動トリガー**
+
+GitHub UIから手動でレビューを実行します：
+
+```bash
+# GitHub リポジトリ → Actions → Claude Code Review → Run workflow
 ```
 
-**レビュー観点**:
-- コード品質
-- エラーハンドリング
-- セキュリティ
-- パフォーマンス
-- テスタビリティ
-- ベストプラクティス
-- ドキュメント
+**方法2: PR説明に [review] キーワードを含める**
 
-### スキルの使用方法
+PR説明文に `[review]` を含めることで、自動的にレビューが実行されます：
 
-Claude Codeで以下のように実行します：
+```markdown
+## PR説明
 
-```
-api-check
+バグ修正: ユーザー認証の問題を修正
+
+[review]
 ```
 
-詳細は [Claude Code Skills ガイド](./.ai-docs/shared/09_CLAUDE_CODE_SKILLS.md) を参照してください。
+**方法3: GitHub コメントで /code-review または @claude を記述**
+
+PR やイシューのコメントで以下のいずれかを記述するとレビューが実行されます：
+
+```markdown
+/code-review
+```
+
+または
+
+```markdown
+@claude このコードをレビューしてください
+```
+
+#### レビュー内容
+
+自動レビューでは以下の観点から分析します：
+
+- コード品質とベストプラクティス
+- 潜在的なバグや問題
+- パフォーマンスの考慮
+- セキュリティの懸念
+- テストカバレッジ
+
+レビュー結果はPRコメントとして自動投稿されます。
 
 ## ドキュメント
 
