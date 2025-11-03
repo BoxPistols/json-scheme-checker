@@ -306,6 +306,9 @@ class AdvisorManager extends BaseAdvisorManager {
     // 改行を先に <br> に変換
     html = html.replace(/\n/g, '<br>');
 
+    // 見出しの直後の <br> を削除（h1, h2, h3）
+    html = html.replace(/<\/(h[123])><br>/g, '</$1>');
+
     // 複数の <li>...<br><li>... パターンを <ul> で包括
     html = html.replace(
       /(<li>.*?<\/li>(?:<br>)*)+/g,

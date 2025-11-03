@@ -138,6 +138,10 @@ window.BlogReviewerHelpers = {
     html = html.replace(/^\- (.*$)/gim, '<li>$1</li>');
     html = html.replace(/^\d+\. (.*$)/gim, '<li>$1</li>');
     html = html.replace(/\n/g, '<br>');
+
+    // 見出しの直後の <br> を削除（h1, h2, h3）
+    html = html.replace(/<\/(h[123])><br>/g, '</$1>');
+
     html = html.replace(
       /((?:<li>.*?<\/li>(?:<br>)*)+)/g,
       m => `<ul>${m.replace(/<br>/g, '')}</ul>`
