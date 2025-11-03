@@ -226,6 +226,7 @@ class WebAdvisorManager extends BaseAdvisorManager {
             </div>
             <div class="advisor-markdown" id="webAdvisorMarkdown"></div>
           </div>
+          <div id="webAdvisorExportButtons" class="advisor-export-buttons"></div>
         </div>
       </div>
     `;
@@ -490,6 +491,7 @@ class WebAdvisorManager extends BaseAdvisorManager {
               this.currentUsage = data.data;
               this.currentModel = data.model || 'gpt-5-nano';
               this.displayUsage();
+              this.showExportButtons();
               break;
             case 'done':
               console.log('[WebAdvisor-SSE-onmessage] Analysis complete');
@@ -633,31 +635,195 @@ class WebAdvisorManager extends BaseAdvisorManager {
   }
 
   /**
-   * マークダウンをHTMLに変換（advisor.jsと同じ実装）
+   * マークダウンをHTMLに変換（BaseAdvisorManagerの共通メソッドを使用）
+   * @deprecated renderMarkdownCommon()を使用してください
    */
   renderMarkdown(markdown) {
-    let html = this.escapeHtml(markdown);
-    html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>').replace(/^## (.*$)/gim, '<h2>$1</h2>');
-    html = html
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/^\- (.*$)/gim, '<li>$1</li>');
+    return this.renderMarkdownCommon(markdown);
+  }
 
-    // 改行を先に <br> に変換
-    html = html.replace(/\n/g, '<br>');
+  /**
+   * エクスポートボタンを表示
+   */
+  showExportButtons() {
+    const exportContainer = document.getElementById('webAdvisorExportButtons');
+    if (!exportContainer) return;
 
-    // 見出しの前後の <br> を削除（h1, h2, h3）
-    html = html.replace(/<br><(h[123])>/g, '<$1>'); // 見出しの前
-    html = html.replace(/<\/(h[123])><br>/g, '</$1>'); // 見出しの後
-
-    // 複数の <li>...<br><li>... パターンを <ul> で包括
-    html = html.replace(
-      /(<li>.*?<\/li>(?:<br>)*)+/g,
-      match => `<ul>${match.replace(/<br>/g, '')}</ul>`
+    this.showExportButtonsCommon(
+      'webAdvisorExportButtons',
+      () => this.exportToCSV(),
+      () => this.exportToPDF()
     );
+  }
 
-    // </li><br> 後の <br> を削除（リスト項目間）
-    html = html.replace(/<\/li><br>/g, '</li>');
-    return html;
+  /**
+   * CSV形式でエクスポート（整形済みで見やすい形式）
+   */
+  exportToCSV() {
+    try {
+      const timestamp = new Date().toISOString().split('T')[0];
+
+      const metadataContent = document.getElementById('webAdvisorMetadata');
+      const analysisContent = document.querySelector('.advisor-markdown');
+
+      // メタデータ抽出（HTMLタグ除去）
+      const metadataText = metadataContent ? this.cleanHtmlText(metadataContent.innerText) : '情報なし';
+      const analysisText = analysisContent ? analysisContent.innerText : '情報なし';
+
+      // CSVを項目,値の形式で整形（BOM付きUTF-8対応）
+      const csvLines = [];
+
+      // ヘッダー行
+      csvLines.push('項目,値');
+
+      // メタデータ
+      csvLines.push(`エクスポート日時,${new Date().toLocaleString('ja-JP')}`);
+      csvLines.push(`使用モデル,${this.currentModel}`);
+      csvLines.push(`入力トークン数,${this.currentUsage.prompt_tokens}`);
+      csvLines.push(`出力トークン数,${this.currentUsage.completion_tokens}`);
+
+      // ページ情報（セクションヘッダー）
+      csvLines.push('ページ情報,');
+      const metadataLines = metadataText.split('\n').filter(line => line.trim().length > 0);
+      metadataLines.forEach(line => csvLines.push(`,${this.escapeCsvValue(line)}`));
+
+      // AI分析結果
+      csvLines.push('AI分析結果,');
+      const analysisLines = analysisText.split('\n').filter(line => line.trim().length > 0);
+      analysisLines.forEach(line => csvLines.push(`,${this.escapeCsvValue(line)}`));
+
+      // BOM付きUTF-8でエンコード（Excelで正常に表示される）
+      const csvContent = '\ufeff' + csvLines.join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const filename = `web_analysis_${timestamp}.csv`;
+
+      this.downloadFile(blob, filename);
+      console.log('[WebAdvisor] CSV export successful:', filename);
+    } catch (error) {
+      console.error('[WebAdvisor] CSV export failed:', error);
+      alert('CSVエクスポートに失敗しました。');
+    }
+  }
+
+  /**
+   * HTMLファイルでエクスポート（ブラウザで印刷→PDFで保存）
+   * 注：実装上HTMLファイルがダウンロードされます。
+   *     ブラウザで開き、「印刷」→「PDFとして保存」でPDF化してください。
+   */
+  exportToPDF() {
+    try {
+      const timestamp = new Date().toLocaleString('ja-JP');
+
+      const metadataContent = document.getElementById('webAdvisorMetadata');
+      const analysisContent = document.querySelector('.advisor-markdown');
+
+      const metadataText = metadataContent ? metadataContent.innerText : '情報なし';
+      const analysisText = analysisContent ? analysisContent.innerText : '情報なし';
+
+      // HTML形式のPDF（ブラウザで印刷→PDFで保存）
+      const htmlContent = `
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Webページ分析結果エクスポート</title>
+  <style>
+    body {
+      font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif;
+      margin: 20px;
+      line-height: 1.6;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      border-bottom: 2px solid #5a7ca3;
+      padding-bottom: 10px;
+      color: #5a7ca3;
+    }
+    .metadata {
+      background-color: #f5f7fa;
+      padding: 15px;
+      border-radius: 4px;
+      margin: 20px 0;
+    }
+    .metadata p {
+      margin: 8px 0;
+    }
+    .section {
+      margin: 30px 0;
+      page-break-inside: avoid;
+    }
+    .section h2 {
+      border-left: 4px solid #5a7ca3;
+      padding-left: 10px;
+      margin-top: 0;
+      color: #2c3e50;
+    }
+    .content {
+      background-color: #ffffff;
+      padding: 15px;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-size: 13px;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 12px;
+      color: #999;
+    }
+    @media print {
+      body { margin: 0; }
+      .section { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Webページ分析結果エクスポート</h1>
+
+  <div class="metadata">
+    <p><strong>エクスポート日時:</strong> ${timestamp}</p>
+    <p><strong>使用モデル:</strong> ${this.currentModel}</p>
+    <p><strong>トークン使用数:</strong> 入力 ${this.currentUsage.prompt_tokens}、出力 ${this.currentUsage.completion_tokens}</p>
+  </div>
+
+  <div class="section">
+    <h2>対象ページ情報</h2>
+    <div class="content">${this.escapeHtml(metadataText)}</div>
+  </div>
+
+  <div class="section">
+    <h2>AI分析結果</h2>
+    <div class="content">${this.escapeHtml(analysisText)}</div>
+  </div>
+
+  <div class="footer">
+    <p>このドキュメントは自動生成されました。</p>
+    <p>ブラウザの「印刷」機能から「PDFに保存」を選択してダウンロードしてください。</p>
+  </div>
+
+  <script>
+    // ページ読み込み後に自動印刷ダイアログを表示（オプション）
+    // window.print();
+  </script>
+</body>
+</html>
+      `;
+
+      const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8;' });
+      const dateStr = new Date().toISOString().split('T')[0];
+      const filename = `web_analysis_${dateStr}.html`;
+
+      this.downloadFile(blob, filename);
+      console.log('[WebAdvisor] PDF export successful (HTML形式):', filename);
+    } catch (error) {
+      console.error('[WebAdvisor] PDF export failed:', error);
+      alert('PDFエクスポートに失敗しました。');
+    }
   }
 }
 

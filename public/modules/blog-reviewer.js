@@ -484,6 +484,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
             </div>
             <div class="advisor-markdown" id="blogReviewerMarkdown"></div>
           </div>
+          <div id="blogReviewerExportButtons" class="advisor-export-buttons"></div>
         </div>
       </div>
     `;
@@ -688,6 +689,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
                   console.log('[BlogReviewer] Received usage:', parsed.usage);
                   this.currentUsage = parsed.usage;
                   this.displayUsage();
+                  this.showExportButtons();
                   this.addToAccumulatedUsage(parsed.usage);
                 } else if (parsed.error) {
                   throw new Error(parsed.error);
@@ -754,44 +756,13 @@ class BlogReviewerManager extends BaseAdvisorManager {
   }
 
   /**
-   * Markdownを簡易的にHTMLに変換
+   * Markdownを簡易的にHTMLに変換（BaseAdvisorManagerの共通メソッドを使用）
    * @param {string} markdown - Markdown文字列
    * @returns {string} HTML文字列
+   * @deprecated renderMarkdownCommon()を使用してください
    */
   renderMarkdown(markdown) {
-    let html = this.escapeHtml(markdown);
-
-    // 見出し
-    html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
-    html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
-    html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
-
-    // 太字
-    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-
-    // リスト（ハイフン）
-    html = html.replace(/^\- (.*$)/gim, '<li>$1</li>');
-
-    // 番号付きリスト
-    html = html.replace(/^\d+\. (.*$)/gim, '<li>$1</li>');
-
-    // 改行
-    html = html.replace(/\n/g, '<br>');
-
-    // 見出しの前後の <br> を削除（h1, h2, h3）
-    html = html.replace(/<br><(h[123])>/g, '<$1>'); // 見出しの前
-    html = html.replace(/<\/(h[123])><br>/g, '</$1>'); // 見出しの後
-
-    // 連続する<li>タグを<ul>で囲む（改行変換後に実行）
-    html = html.replace(
-      /((?:<li>.*?<\/li>(?:<br>)*)+)/g,
-      match => `<ul>${match.replace(/<br>/g, '')}</ul>`
-    );
-
-    // </li> の直後の <br> を削除
-    html = html.replace(/<\/li><br>/g, '</li>');
-
-    return html;
+    return this.renderMarkdownCommon(markdown);
   }
 
   /**
@@ -966,6 +937,193 @@ class BlogReviewerManager extends BaseAdvisorManager {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+  }
+
+  /**
+   * エクスポートボタンを表示
+   */
+  showExportButtons() {
+    const exportContainer = document.getElementById('blogReviewerExportButtons');
+    if (!exportContainer) return;
+
+    this.showExportButtonsCommon(
+      'blogReviewerExportButtons',
+      () => this.exportToCSV(),
+      () => this.exportToPDF()
+    );
+  }
+
+  /**
+   * CSV形式でエクスポート（整形済みで見やすい形式）
+   */
+  exportToCSV() {
+    try {
+      const timestamp = new Date().toISOString().split('T')[0];
+
+      const articleContent = document.getElementById('blogReviewerArticleContent');
+      const reviewContent = document.querySelector('.advisor-markdown');
+
+      // メタデータ抽出（HTMLタグ除去）
+      const articleText = articleContent ? this.cleanHtmlText(articleContent.innerText) : '情報なし';
+      const reviewText = reviewContent ? reviewContent.innerText : '情報なし';
+
+      // CSVを項目,値の形式で整形（BOM付きUTF-8対応）
+      const csvLines = [];
+
+      // ヘッダー行
+      csvLines.push('項目,値');
+
+      // メタデータ
+      csvLines.push(`エクスポート日時,${new Date().toLocaleString('ja-JP')}`);
+      csvLines.push(`使用モデル,${this.model}`);
+      csvLines.push(`入力トークン数,${this.currentUsage.prompt_tokens}`);
+      csvLines.push(`出力トークン数,${this.currentUsage.completion_tokens}`);
+
+      // 記事情報（セクションヘッダー）
+      csvLines.push('記事情報（タイトル）,');
+      const articleLines = articleText.split('\n').filter(line => line.trim().length > 0);
+      articleLines.slice(0, 1).forEach(line => csvLines.push(`,${this.escapeCsvValue(line)}`)); // 最初の行（タイトル）
+
+      csvLines.push('記事情報（詳細）,');
+      articleLines.slice(1).forEach(line => csvLines.push(`,${this.escapeCsvValue(line)}`)); // 残りの行（詳細）
+
+      // AI分析結果
+      csvLines.push('AI分析結果,');
+      const reviewLines = reviewText.split('\n').filter(line => line.trim().length > 0);
+      reviewLines.forEach(line => csvLines.push(`,${this.escapeCsvValue(line)}`));
+
+      // BOM付きUTF-8でエンコード（Excelで正常に表示される）
+      const csvContent = '\ufeff' + csvLines.join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const filename = `blog_review_${timestamp}.csv`;
+
+      this.downloadFile(blob, filename);
+      console.log('[BlogReviewer] CSV export successful:', filename);
+    } catch (error) {
+      console.error('[BlogReviewer] CSV export failed:', error);
+      alert('CSVエクスポートに失敗しました。');
+    }
+  }
+
+  /**
+   * HTMLファイルでエクスポート（ブラウザで印刷→PDFで保存）
+   * 注：実装上HTMLファイルがダウンロードされます。
+   *     ブラウザで開き、「印刷」→「PDFとして保存」でPDF化してください。
+   */
+  exportToPDF() {
+    try {
+      const timestamp = new Date().toLocaleString('ja-JP');
+
+      const articleContent = document.getElementById('blogReviewerArticleContent');
+      const reviewContent = document.querySelector('.advisor-markdown');
+
+      const articleText = articleContent ? articleContent.innerText : '情報なし';
+      const reviewText = reviewContent ? reviewContent.innerText : '情報なし';
+
+      // HTML形式のPDF（ブラウザで印刷→PDFで保存）
+      const htmlContent = `
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ブログ記事レビュー結果エクスポート</title>
+  <style>
+    body {
+      font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif;
+      margin: 20px;
+      line-height: 1.6;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      border-bottom: 2px solid #5a7ca3;
+      padding-bottom: 10px;
+      color: #5a7ca3;
+    }
+    .metadata {
+      background-color: #f5f7fa;
+      padding: 15px;
+      border-radius: 4px;
+      margin: 20px 0;
+    }
+    .metadata p {
+      margin: 8px 0;
+    }
+    .section {
+      margin: 30px 0;
+      page-break-inside: avoid;
+    }
+    .section h2 {
+      border-left: 4px solid #5a7ca3;
+      padding-left: 10px;
+      margin-top: 0;
+      color: #2c3e50;
+    }
+    .content {
+      background-color: #ffffff;
+      padding: 15px;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-size: 13px;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 12px;
+      color: #999;
+    }
+    @media print {
+      body { margin: 0; }
+      .section { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <h1>ブログ記事レビュー結果エクスポート</h1>
+
+  <div class="metadata">
+    <p><strong>エクスポート日時:</strong> ${timestamp}</p>
+    <p><strong>使用モデル:</strong> ${this.model}</p>
+    <p><strong>トークン使用数:</strong> 入力 ${this.currentUsage.prompt_tokens}、出力 ${this.currentUsage.completion_tokens}</p>
+  </div>
+
+  <div class="section">
+    <h2>記事情報</h2>
+    <div class="content">${this.escapeHtml(articleText)}</div>
+  </div>
+
+  <div class="section">
+    <h2>AI分析結果</h2>
+    <div class="content">${this.escapeHtml(reviewText)}</div>
+  </div>
+
+  <div class="footer">
+    <p>このドキュメントは自動生成されました。</p>
+    <p>ブラウザの「印刷」機能から「PDFに保存」を選択してダウンロードしてください。</p>
+  </div>
+
+  <script>
+    // ページ読み込み後に自動印刷ダイアログを表示（オプション）
+    // window.print();
+  </script>
+</body>
+</html>
+      `;
+
+      const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8;' });
+      const dateStr = new Date().toISOString().split('T')[0];
+      const filename = `blog_review_${dateStr}.html`;
+
+      this.downloadFile(blob, filename);
+      console.log('[BlogReviewer] PDF export successful (HTML形式):', filename);
+    } catch (error) {
+      console.error('[BlogReviewer] PDF export failed:', error);
+      alert('PDFエクスポートに失敗しました。');
+    }
   }
 }
 

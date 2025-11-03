@@ -76,11 +76,14 @@ function createDeveloperSettingsModal() {
                   class="form-select"
                   style="width: 100%; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 14px;"
                 >
-                  <option value="gpt-5-nano">gpt-5-nano（超低レイテンシ、$0.05/1M入力）</option>
-                  <option value="gpt-4.1-nano">gpt-4.1-nano（互換性重視、$0.08/1M入力）</option>
+                  <option value="gpt-5-nano">gpt-5-nano（最速、簡潔な回答）</option>
+                  <option value="gpt-4.1-nano">gpt-4.1-nano（やや遅い、詳細な回答）</option>
                 </select>
+                <p style="margin: 8px 0 4px 0; font-size: 12px; color: var(--secondary-text-color);">
+                  gpt-5-nano: 超低レイテンシで最速応答、要点重視の分析（推奨）
+                </p>
                 <p style="margin: 4px 0 0; font-size: 12px; color: var(--secondary-text-color);">
-                  無料枠ではgpt-5-nano（既定）か、互換性を優先するgpt-4.1-nanoを選択できます
+                  gpt-4.1-nano: やや遅い、より詳細な説明が必要な場合
                 </p>
               </div>
             </div>

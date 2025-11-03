@@ -353,29 +353,12 @@ class AdvisorManager extends BaseAdvisorManager {
     }
   }
 
+  /**
+   * マークダウンをHTMLに変換（BaseAdvisorManagerの共通メソッドを使用）
+   * @deprecated renderMarkdownCommon()を使用してください
+   */
   renderMarkdown(markdown) {
-    let html = this.escapeHtml(markdown);
-    html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>').replace(/^## (.*$)/gim, '<h2>$1</h2>');
-    html = html
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/^\- (.*$)/gim, '<li>$1</li>');
-
-    // 改行を先に <br> に変換
-    html = html.replace(/\n/g, '<br>');
-
-    // 見出しの前後の <br> を削除（h1, h2, h3）
-    html = html.replace(/<br><(h[123])>/g, '<$1>'); // 見出しの前
-    html = html.replace(/<\/(h[123])><br>/g, '</$1>'); // 見出しの後
-
-    // 複数の <li>...<br><li>... パターンを <ul> で包括
-    html = html.replace(
-      /(<li>.*?<\/li>(?:<br>)*)+/g,
-      match => `<ul>${match.replace(/<br>/g, '')}</ul>`
-    );
-
-    // </li><br> 後の <br> を削除（リスト項目間）
-    html = html.replace(/<\/li><br>/g, '</li>');
-    return html;
+    return this.renderMarkdownCommon(markdown);
   }
 
   /**
