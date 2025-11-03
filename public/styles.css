@@ -3297,7 +3297,7 @@ html[data-theme='dark'] .score-breakdown > div {
 .advisor-markdown h2 {
   font-size: 1.5rem;
   margin-top: 20px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   color: var(--text-color);
 }
 
