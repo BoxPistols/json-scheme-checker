@@ -187,7 +187,33 @@ class BaseAdvisorManager {
   }
 
   getUserApiModel() {
-    return localStorage.getItem('jsonld_user_api_model') || '';
+    const storedModel = localStorage.getItem('jsonld_user_api_model') || '';
+
+    if (!storedModel) {
+      return '';
+    }
+
+    const allowedModels = new Set([
+      'gpt-5-nano',
+      'gpt-5-nano-2025-08-07',
+      'gpt-5-mini',
+      'gpt-5',
+      'gpt-4.1-mini',
+      'gpt-4.1',
+      'gpt-4o',
+      'gpt-4o-mini',
+      'gpt-3.5-turbo',
+      'o3',
+      'o3-mini',
+    ]);
+
+    if (!allowedModels.has(storedModel)) {
+      console.warn('[BaseAdvisor] Unsupported stored model detected:', storedModel, 'Fallback to gpt-5-nano');
+      localStorage.setItem('jsonld_user_api_model', 'gpt-5-nano');
+      return 'gpt-5-nano';
+    }
+
+    return storedModel;
   }
 
   saveUserApiKey(apiKey) {
@@ -235,8 +261,7 @@ class BaseAdvisorManager {
    * Resets all special modes and API keys.
    */
   resetToNormalMode() {
-    this.disableStakeholderMode();
-    this.saveUserApiKey('');
+    this.clearUserApiCredentials();
     alert('通常モードに戻しました。');
     // this.config.ui.showConfirmDialog(); // Re-render the confirmation dialog
   }
@@ -256,7 +281,7 @@ class BaseAdvisorManager {
       `
       <div class="advisor-modal advisor-developer-modal">
         <div class="advisor-modal-header">
-          <h2>拡張モード設定（無制限モード）</h2>
+          <h2>API設定</h2>
           <button type="button" class="advisor-modal-close" data-action="${this.config.actions.closeDeveloperPrompt}" aria-label="閉じる">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -273,7 +298,7 @@ class BaseAdvisorManager {
                 <div>
                   <div style="font-weight: 500;">無料版を使用（サーバー負担）</div>
                   <div style="font-size: 0.75rem; color: var(--secondary-text-color); margin-top: 2px;">
-                    gpt-5-nano、gpt-4.1-nanoの2モデルから選択可能。レート制限あり（50回/24時間、毎日0:00にリセット）
+                    gpt-5-nano（最新世代低レイテンシ）を利用可能。レート制限あり（50回/24時間、毎日0:00にリセット）
                   </div>
                 </div>
               </label>
@@ -295,9 +320,8 @@ class BaseAdvisorManager {
               <label class="advisor-label" for="advisorFreeModelSelect">モデル選択</label>
               <select id="advisorFreeModelSelect" class="advisor-input">
                 <option value="gpt-5-nano">gpt-5-nano（超低レイテンシ、$0.05/1M入力）</option>
-                <option value="gpt-4.1-nano">gpt-4.1-nano（最安価、$0.10/1M入力）</option>
               </select>
-              <div class="advisor-help-text">2つのモデルを切り替えて性能とコストのトレードオフを比較できます</div>
+              <div class="advisor-help-text">無料枠ではgpt-5-nanoを提供します。低遅延で安定した応答を得られます</div>
             </div>
           </div>
 
@@ -319,7 +343,6 @@ class BaseAdvisorManager {
               <label class="advisor-label" for="developerApiModelInput">モデル</label>
               <select id="developerApiModelInput" class="advisor-input">
                 <option value="gpt-5-nano" ${currentModel === 'gpt-5-nano' ? 'selected' : ''}>gpt-5-nano（超低レイテンシ: $0.05/1M入力）</option>
-                <option value="gpt-4.1-nano" ${currentModel === 'gpt-4.1-nano' ? 'selected' : ''}>gpt-4.1-nano（コスト重視: $0.10/1M入力）</option>
                 <option value="gpt-4.1-mini" ${currentModel === 'gpt-4.1-mini' ? 'selected' : ''}>gpt-4.1-mini（$0.40/1M入力）</option>
                 <option value="gpt-5-mini" ${currentModel === 'gpt-5-mini' ? 'selected' : ''}>gpt-5-mini（$0.30/1M入力・推定）</option>
                 <option value="gpt-4o" ${currentModel === 'gpt-4o' ? 'selected' : ''}>gpt-4o（品質重視: $2.50/1M入力）</option>
@@ -578,7 +601,6 @@ class BaseAdvisorManager {
       'gpt-5-mini': { input: 0.0003, output: 0.0015 }, // $0.30/1M, $1.50/1M (推定)
       'gpt-5': { input: 0.00125, output: 0.01 }, // $1.25/1M, $10.00/1M
       // GPT-4.1 シリーズ
-      'gpt-4.1-nano': { input: 0.0001, output: 0.0004 }, // $0.10/1M, $0.40/1M
       'gpt-4.1-mini': { input: 0.0004, output: 0.0016 }, // $0.40/1M, $1.60/1M
       'gpt-4.1': { input: 0.002, output: 0.008 }, // $2.00/1M, $8.00/1M
       // GPT-4o シリーズ

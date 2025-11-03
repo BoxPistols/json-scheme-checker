@@ -676,7 +676,7 @@ module.exports = async (req, res) => {
       const prompt = buildPrompt(metadata, url);
 
       const usingServerKey = !userApiKey && !!process.env.OPENAI_API_KEY;
-      const PUBLIC_ALLOWED_MODELS = (process.env.PUBLIC_ALLOWED_MODELS || 'gpt-5-nano,gpt-4.1-nano')
+      const PUBLIC_ALLOWED_MODELS = (process.env.PUBLIC_ALLOWED_MODELS || 'gpt-5-nano')
         .split(',')
         .map(s => s.trim())
         .filter(Boolean);

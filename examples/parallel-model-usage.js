@@ -1,4 +1,4 @@
-// 4.1-nanoと5-nanoを並行使用する例
+// gpt-5-nanoを互換ロジックと最新ロジックで並行使用する例
 require('dotenv').config();
 const OpenAI = require('openai');
 
@@ -7,13 +7,13 @@ const openai = new OpenAI({
 });
 
 /**
- * GPT-4.1-nano 用の関数
- * 既存の安定稼働コードをそのまま維持
+ * GPT-5-nano 用の関数（従来ロジック互換）
+ * 既存コードの構造を維持しつつ、非対応パラメータは自動で省略
  */
-async function useGpt41Nano(userMessage, options = {}) {
+async function useGpt5NanoLegacyMode(userMessage, options = {}) {
   try {
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4.1-nano',
+      model: 'gpt-5-nano',
       messages: [
         {
           role: 'system',
@@ -24,15 +24,13 @@ async function useGpt41Nano(userMessage, options = {}) {
           content: userMessage,
         },
       ],
-      // gpt-4.1-nanoでは使用可能なパラメータ
-      temperature: options.temperature || 0.7,
-      top_p: options.top_p || 1.0,
+      // 旧ロジック由来のパラメータは自動的に省略（gpt-5-nanoは非対応）
       max_tokens: options.max_tokens || 1000,
     });
 
     return completion.choices[0].message.content;
   } catch (error) {
-    console.error('GPT-4.1-nano エラー:', error.message);
+    console.error('GPT-5-nano(互換モード) エラー:', error.message);
     throw error;
   }
 }
@@ -71,11 +69,11 @@ async function useGpt5Nano(userMessage, options = {}) {
 /**
  * モデルを切り替えて使用する統一関数
  */
-async function useAI(userMessage, modelType = '4.1-nano', options = {}) {
-  if (modelType === '5-nano') {
+async function useAI(userMessage, modelType = 'legacy', options = {}) {
+  if (modelType === 'realtime') {
     return await useGpt5Nano(userMessage, options);
   } else {
-    return await useGpt41Nano(userMessage, options);
+    return await useGpt5NanoLegacyMode(userMessage, options);
   }
 }
 
@@ -83,22 +81,22 @@ async function useAI(userMessage, modelType = '4.1-nano', options = {}) {
 async function main() {
   const testMessage = 'JavaScriptとTypeScriptの違いを簡潔に説明してください。';
 
-  console.log('=== GPT-4.1-nano（既存の安定版） ===');
+  console.log('=== GPT-5-nano（互換モード） ===');
   try {
-    const result41 = await useAI(testMessage, '4.1-nano', {
-      temperature: 0.7, // 4.1では使用可能
+    const resultLegacy = await useAI(testMessage, 'legacy', {
+      max_tokens: 800,
     });
-    console.log('回答:', result41);
+    console.log('回答:', resultLegacy);
   } catch (error) {
     console.error('エラー:', error.message);
   }
 
   console.log('\n=== GPT-5-nano（新規テスト版） ===');
   try {
-    const result5 = await useAI(testMessage, '5-nano', {
+    const resultRealtime = await useAI(testMessage, 'realtime', {
       // temperatureは指定しない
     });
-    console.log('回答:', result5);
+    console.log('回答:', resultRealtime);
   } catch (error) {
     console.error('エラー:', error.message);
   }
@@ -108,7 +106,7 @@ main();
 
 // エクスポート（他のファイルから使用可能）
 module.exports = {
-  useGpt41Nano,
+  useGpt5NanoLegacyMode,
   useGpt5Nano,
   useAI,
 };
