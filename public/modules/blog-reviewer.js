@@ -459,10 +459,24 @@ class BlogReviewerManager extends BaseAdvisorManager {
         <div class="advisor-advice-panel">
           <h3>AI分析結果</h3>
           <div class="advisor-advice-content" id="blogReviewerReviewContent">
-            <div class="advisor-loading">
-              <div class="advisor-spinner"></div>
-              <p>AI分析中...</p>
+            <div class="advisor-progress-container" id="blogReviewerProgressContainer">
+              <div class="advisor-progress-bar">
+                <div class="advisor-progress-fill" id="blogReviewerProgressFill"></div>
+              </div>
+              <div class="advisor-progress-text" id="blogReviewerProgressText">準備中...</div>
             </div>
+            <div class="advisor-skeleton-loader" id="blogReviewerSkeletonLoader">
+              <div class="advisor-skeleton-item large"></div>
+              <div class="advisor-skeleton-item medium"></div>
+              <div class="advisor-skeleton-item medium"></div>
+              <div class="advisor-skeleton-item small"></div>
+              <div style="height: 8px;"></div>
+              <div class="advisor-skeleton-item large"></div>
+              <div class="advisor-skeleton-item medium"></div>
+              <div class="advisor-skeleton-item medium"></div>
+              <div class="advisor-skeleton-item small"></div>
+            </div>
+            <div class="advisor-markdown" id="blogReviewerMarkdown"></div>
           </div>
         </div>
       </div>
@@ -606,13 +620,18 @@ class BlogReviewerManager extends BaseAdvisorManager {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      reviewContent.innerHTML = '<div class="advisor-markdown"></div>';
-      const markdownDiv = reviewContent.querySelector('.advisor-markdown');
+      // 既存のマークダウン要素を使用（HTML 上書きしない）
+      const md = document.getElementById('blogReviewerMarkdown');
+      if (!md) {
+        throw new Error('マークダウン要素が見つかりません');
+      }
 
+      this.updateProgress(0, '初期化中...');
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let buffer = '';
       let fullText = '';
+      let firstTokenReceived = false;
 
       try {
         while (this.isStreaming) {
@@ -628,6 +647,12 @@ class BlogReviewerManager extends BaseAdvisorManager {
               const data = line.slice(6);
               if (data === '[DONE]') {
                 this.isStreaming = false;
+                this.updateProgress(100, '完了');
+                // プログレスバーとスケルトンを非表示
+                const progressContainer = document.getElementById('blogReviewerProgressContainer');
+                if (progressContainer) {
+                  progressContainer.style.display = 'none';
+                }
                 // 使用履歴を記録（成功時のみ）
                 this.recordUsage();
                 break;
@@ -640,7 +665,18 @@ class BlogReviewerManager extends BaseAdvisorManager {
                   console.log('[BlogReviewer] Received model:', parsed.model);
                 } else if (parsed.content) {
                   fullText += parsed.content;
-                  markdownDiv.innerHTML = this.renderMarkdown(fullText);
+
+                  // 初回トークン受信時、スケルトンローダーを非表示
+                  if (!firstTokenReceived) {
+                    firstTokenReceived = true;
+                    const skeletonLoader = document.getElementById('blogReviewerSkeletonLoader');
+                    if (skeletonLoader) {
+                      skeletonLoader.style.display = 'none';
+                    }
+                  }
+
+                  this.updateProgress(50, '分析中...');
+                  md.innerHTML = this.renderMarkdown(fullText);
                 } else if (parsed.usage) {
                   // usage情報を保存して表示
                   console.log('[BlogReviewer] Received usage:', parsed.usage);
@@ -666,11 +702,23 @@ class BlogReviewerManager extends BaseAdvisorManager {
         delete window.ANALYSIS_STATE.abortControllers['blog-reviewer'];
       }
     } catch (error) {
+      // プログレスバーとスケルトン非表示
+      const progressContainer = document.getElementById('blogReviewerProgressContainer');
+      const skeletonLoader = document.getElementById('blogReviewerSkeletonLoader');
+      if (progressContainer) {
+        progressContainer.style.display = 'none';
+      }
+      if (skeletonLoader) {
+        skeletonLoader.style.display = 'none';
+      }
+
       // AbortError（キャンセル）の場合
       if (error.name === 'AbortError') {
         console.log('[BlogReviewer] 分析がキャンセルされました');
-        reviewContent.innerHTML =
-          '<div class="advisor-notice"><p>分析がキャンセルされました</p></div>';
+        const md = document.getElementById('blogReviewerMarkdown');
+        if (md) {
+          md.innerHTML = '<div class="advisor-notice"><p>分析がキャンセルされました</p></div>';
+        }
         return;
       }
 
@@ -680,12 +728,14 @@ class BlogReviewerManager extends BaseAdvisorManager {
         ? '予期せぬエラーが発生しました。時間をおいて再度お試しください。'
         : this.escapeHtml(error.message);
 
-      reviewContent.innerHTML = `
-        <div class="advisor-error">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-            <path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
+      const md = document.getElementById('blogReviewerMarkdown');
+      if (md) {
+        md.innerHTML = `
+          <div class="advisor-error">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+              <path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
           <p>AI分析に失敗しました</p>
           <p class="advisor-error-detail">${errorMessage}</p>
           <button class="advisor-btn-primary" data-action="fetch-review">
@@ -735,6 +785,23 @@ class BlogReviewerManager extends BaseAdvisorManager {
 
     return html;
   }
+
+  /**
+   * プログレスバーを更新
+   */
+  updateProgress(percentage, text) {
+    const fill = document.getElementById('blogReviewerProgressFill');
+    const textEl = document.getElementById('blogReviewerProgressText');
+
+    if (fill) {
+      fill.style.width = Math.min(percentage, 100) + '%';
+    }
+
+    if (textEl) {
+      textEl.textContent = text;
+    }
+  }
+
   /**
    * ヘッダの使用量チップを更新
    */

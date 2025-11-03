@@ -152,7 +152,26 @@ class AdvisorManager extends BaseAdvisorManager {
           <h3 class="advisor-accordion-header" data-action="advisor-toggle-advice-section">
             <span class="advisor-accordion-icon">▼</span>AI分析結果
           </h3>
-          <div class="advisor-advice-content advisor-accordion-content" id="advisorAdviceContent"><div class="advisor-loading"></div></div>
+          <div class="advisor-advice-content advisor-accordion-content" id="advisorAdviceContent">
+            <div class="advisor-progress-container" id="advisorProgressContainer">
+              <div class="advisor-progress-bar">
+                <div class="advisor-progress-fill" id="advisorProgressFill"></div>
+              </div>
+              <div class="advisor-progress-text" id="advisorProgressText">準備中...</div>
+            </div>
+            <div class="advisor-skeleton-loader" id="advisorSkeletonLoader">
+              <div class="advisor-skeleton-item large"></div>
+              <div class="advisor-skeleton-item medium"></div>
+              <div class="advisor-skeleton-item medium"></div>
+              <div class="advisor-skeleton-item small"></div>
+              <div style="height: 8px;"></div>
+              <div class="advisor-skeleton-item large"></div>
+              <div class="advisor-skeleton-item medium"></div>
+              <div class="advisor-skeleton-item medium"></div>
+              <div class="advisor-skeleton-item small"></div>
+            </div>
+            <div class="advisor-markdown" id="advisorMarkdown"></div>
+          </div>
           <div id="advisorExportButtons" class="advisor-export-buttons"></div>
         </div>
       </div>
@@ -227,11 +246,17 @@ class AdvisorManager extends BaseAdvisorManager {
       console.log('[Advisor] API response status:', response.status);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-      adviceContent.innerHTML = '<div class="advisor-markdown"></div>';
-      const markdownDiv = adviceContent.querySelector('.advisor-markdown');
+      // 既存のマークダウン要素を使用（HTML 上書きしない）
+      const md = document.getElementById('advisorMarkdown');
+      if (!md) {
+        throw new Error('マークダウン要素が見つかりません');
+      }
+
+      this.updateProgress(0, '初期化中...');
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let fullText = '';
+      let firstTokenReceived = false;
 
       console.log('[Advisor] Starting streaming loop...');
       while (this.isStreaming) {
@@ -250,6 +275,12 @@ class AdvisorManager extends BaseAdvisorManager {
             console.log('[Advisor] Received [DONE] signal');
             this.isStreaming = false;
             this.recordUsage();
+            this.updateProgress(100, '完了');
+            // プログレスバーとスケルトンを非表示
+            const progressContainer = document.getElementById('advisorProgressContainer');
+            if (progressContainer) {
+              progressContainer.style.display = 'none';
+            }
             // キャッシュに保存
             this.perspectiveCache[mode] = {
               content: fullText,
@@ -267,7 +298,18 @@ class AdvisorManager extends BaseAdvisorManager {
               console.log('[Advisor] Received model:', parsed.model);
             } else if (parsed.content) {
               fullText += parsed.content;
-              markdownDiv.innerHTML = this.renderMarkdown(fullText);
+
+              // 初回トークン受信時、スケルトンローダーを非表示
+              if (!firstTokenReceived) {
+                firstTokenReceived = true;
+                const skeletonLoader = document.getElementById('advisorSkeletonLoader');
+                if (skeletonLoader) {
+                  skeletonLoader.style.display = 'none';
+                }
+              }
+
+              this.updateProgress(50, '分析中...');
+              md.innerHTML = this.renderMarkdown(fullText);
             } else if (parsed.usage) {
               this.currentUsage = parsed.usage;
               this.displayUsage();
@@ -279,14 +321,29 @@ class AdvisorManager extends BaseAdvisorManager {
       }
       console.log('[Advisor] fetchAdvice completed');
     } catch (error) {
+      // プログレスバーとスケルトン非表示
+      const progressContainer = document.getElementById('advisorProgressContainer');
+      const skeletonLoader = document.getElementById('advisorSkeletonLoader');
+      if (progressContainer) {
+        progressContainer.style.display = 'none';
+      }
+      if (skeletonLoader) {
+        skeletonLoader.style.display = 'none';
+      }
+
       // AbortError（キャンセル）なら詳細を異なるように処理
       if (error.name === 'AbortError') {
         console.log('[Advisor] 分析がキャンセルされました');
-        adviceContent.innerHTML =
-          '<div class="advisor-notice"><p>分析がキャンセルされました</p></div>';
+        const md = document.getElementById('advisorMarkdown');
+        if (md) {
+          md.innerHTML = '<div class="advisor-notice"><p>分析がキャンセルされました</p></div>';
+        }
       } else {
         console.error('[Advisor] fetchAdvice error:', error);
-        adviceContent.innerHTML = `<div class="advisor-error"><p>AI分析に失敗しました</p><button type="button" data-action="advisor-fetch-advice">再試行</button></div>`;
+        const md = document.getElementById('advisorMarkdown');
+        if (md) {
+          md.innerHTML = `<div class="advisor-error"><p>AI分析に失敗しました</p><button type="button" data-action="advisor-fetch-advice">再試行</button></div>`;
+        }
       }
     } finally {
       // 必ずクリーンアップ
@@ -318,6 +375,22 @@ class AdvisorManager extends BaseAdvisorManager {
     // </li><br> 後の <br> を削除（リスト項目間）
     html = html.replace(/<\/li><br>/g, '</li>');
     return html;
+  }
+
+  /**
+   * プログレスバーを更新
+   */
+  updateProgress(percentage, text) {
+    const fill = document.getElementById('advisorProgressFill');
+    const textEl = document.getElementById('advisorProgressText');
+
+    if (fill) {
+      fill.style.width = Math.min(percentage, 100) + '%';
+    }
+
+    if (textEl) {
+      textEl.textContent = text;
+    }
   }
 
   displayUsage() {
