@@ -3415,6 +3415,32 @@ html[data-theme='dark'] .score-breakdown > div {
   .advisor-job-content,
   .advisor-advice-content {
     padding: 16px;
+    /* モバイル時はアコーディオン機能を有効化 */
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    overflow: hidden;
+  }
+
+  /* アコーディオンが展開状態の場合 */
+  .advisor-accordion-content:not(.advisor-accordion-collapsed) {
+    max-height: 100vh;
+    padding-top: 16px;
+    padding-bottom: 16px;
+  }
+
+  /* アコーディオンが閉じている状態 */
+  .advisor-accordion-collapsed {
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    overflow: hidden;
+  }
+
+  /* アコーディオンヘッダーのアイコンロテーション */
+  .advisor-accordion-icon {
+    transition: transform 0.3s ease;
+    display: inline-block;
   }
 }
 /* ==========================================

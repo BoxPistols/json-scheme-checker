@@ -26,6 +26,8 @@ class BlogReviewerManager extends BaseAdvisorManager {
         'blog-close-review-view': () => this.closeReviewView(),
         'blog-fetch-review': () => this.fetchReview(),
         'show-blog-confirm-dialog': () => this.showConfirmDialog(),
+        'blog-reviewer-toggle-article-section': () => this.toggleAccordion('article'),
+        'blog-reviewer-toggle-review-section': () => this.toggleAccordion('review'),
       },
       actions: {
         closeDeveloperPrompt: 'blog-close-developer-prompt',
@@ -451,14 +453,18 @@ class BlogReviewerManager extends BaseAdvisorManager {
       ${headerHtml}
       <div class="advisor-view-content">
         <div class="advisor-job-panel">
-          <h3>記事情報</h3>
-          <div class="advisor-job-content" id="blogReviewerArticleContent">
+          <h3 class="advisor-accordion-header" data-action="blog-reviewer-toggle-article-section">
+            <span class="advisor-accordion-icon">▼</span>記事情報
+          </h3>
+          <div class="advisor-job-content advisor-accordion-content" id="blogReviewerArticleContent">
             ${this.formatArticle(this.currentArticle)}
           </div>
         </div>
         <div class="advisor-advice-panel">
-          <h3>AI分析結果</h3>
-          <div class="advisor-advice-content" id="blogReviewerReviewContent">
+          <h3 class="advisor-accordion-header" data-action="blog-reviewer-toggle-review-section">
+            <span class="advisor-accordion-icon">▼</span>AI分析結果
+          </h3>
+          <div class="advisor-advice-content advisor-accordion-content" id="blogReviewerReviewContent">
             <div class="advisor-progress-container" id="blogReviewerProgressContainer">
               <div class="advisor-progress-bar">
                 <div class="advisor-progress-fill" id="blogReviewerProgressFill"></div>
@@ -799,6 +805,26 @@ class BlogReviewerManager extends BaseAdvisorManager {
 
     if (textEl) {
       textEl.textContent = text;
+    }
+  }
+
+  /**
+   * アコーディオンを開閉
+   */
+  toggleAccordion(section) {
+    const contentId = section === 'article' ? 'blogReviewerArticleContent' : 'blogReviewerReviewContent';
+    const content = document.getElementById(contentId);
+    const header = content?.previousElementSibling;
+    const icon = header?.querySelector('.advisor-accordion-icon');
+
+    if (!content || !header || !icon) return;
+
+    if (content.classList.contains('advisor-accordion-collapsed')) {
+      content.classList.remove('advisor-accordion-collapsed');
+      icon.textContent = '▼';
+    } else {
+      content.classList.add('advisor-accordion-collapsed');
+      icon.textContent = '▶';
     }
   }
 
