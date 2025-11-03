@@ -77,9 +77,10 @@ function createDeveloperSettingsModal() {
                   style="width: 100%; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 14px;"
                 >
                   <option value="gpt-5-nano">gpt-5-nano（超低レイテンシ、$0.05/1M入力）</option>
+                  <option value="gpt-4.1-nano">gpt-4.1-nano（互換性重視、$0.08/1M入力）</option>
                 </select>
                 <p style="margin: 4px 0 0; font-size: 12px; color: var(--secondary-text-color);">
-                  無料枠ではgpt-5-nanoを提供します。低遅延で安定した応答を得られます
+                  無料枠ではgpt-5-nano（既定）か、互換性を優先するgpt-4.1-nanoを選択できます
                 </p>
               </div>
             </div>
@@ -109,6 +110,7 @@ function createDeveloperSettingsModal() {
                   style="width: 100%; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 14px;"
                 >
                   <option value="gpt-5-nano">gpt-5-nano（超低レイテンシ: $0.05/1M入力）</option>
+                  <option value="gpt-4.1-nano">gpt-4.1-nano（レガシー互換: $0.08/1M入力）</option>
                   <option value="gpt-4.1-mini">gpt-4.1-mini（$0.40/1M入力）</option>
                   <option value="gpt-5-mini">gpt-5-mini（$0.30/1M入力・推定）</option>
                   <option value="gpt-4o">gpt-4o（品質重視: $2.50/1M入力）</option>

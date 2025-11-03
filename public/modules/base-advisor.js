@@ -196,6 +196,7 @@ class BaseAdvisorManager {
     const allowedModels = new Set([
       'gpt-5-nano',
       'gpt-5-nano-2025-08-07',
+      'gpt-4.1-nano',
       'gpt-5-mini',
       'gpt-5',
       'gpt-4.1-mini',
@@ -324,8 +325,10 @@ class BaseAdvisorManager {
               <label class="advisor-label" for="advisorFreeModelSelect">モデル選択</label>
               <select id="advisorFreeModelSelect" class="advisor-input">
                 <option value="gpt-5-nano">gpt-5-nano（超低レイテンシ、$0.05/1M入力）</option>
+                <option value="gpt-4.1-nano">gpt-4.1-nano（互換性重視、$0.08/1M入力）</option>
               </select>
-              <div class="advisor-help-text">無料枠ではgpt-5-nanoを提供します。低遅延で安定した応答を得られます</div>
+              <div class="advisor-help-text">無料枠ではgpt-5-nano（既定）またはgpt-4.1-nano（旧モデル互換）を選択できます</div>
+              <div class="advisor-help-text">※ 一日のリクエスト上限: 50回（毎日0:00リセット）</div>
             </div>
           </div>
 
@@ -347,6 +350,7 @@ class BaseAdvisorManager {
               <label class="advisor-label" for="developerApiModelInput">モデル</label>
               <select id="developerApiModelInput" class="advisor-input">
                 <option value="gpt-5-nano" ${currentModel === 'gpt-5-nano' ? 'selected' : ''}>gpt-5-nano（超低レイテンシ: $0.05/1M入力）</option>
+                <option value="gpt-4.1-nano" ${currentModel === 'gpt-4.1-nano' ? 'selected' : ''}>gpt-4.1-nano（レガシー互換: $0.08/1M入力）</option>
                 <option value="gpt-4.1-mini" ${currentModel === 'gpt-4.1-mini' ? 'selected' : ''}>gpt-4.1-mini（$0.40/1M入力）</option>
                 <option value="gpt-5-mini" ${currentModel === 'gpt-5-mini' ? 'selected' : ''}>gpt-5-mini（$0.30/1M入力・推定）</option>
                 <option value="gpt-4o" ${currentModel === 'gpt-4o' ? 'selected' : ''}>gpt-4o（品質重視: $2.50/1M入力）</option>
@@ -602,6 +606,7 @@ class BaseAdvisorManager {
       // GPT-5 シリーズ（2025年8月リリース）
       'gpt-5-nano': { input: 0.00005, output: 0.0004 }, // $0.05/1M, $0.40/1M
       'gpt-5-nano-2025-08-07': { input: 0.00005, output: 0.0004 }, // $0.05/1M, $0.40/1M
+      'gpt-4.1-nano': { input: 0.00008, output: 0.00035 }, // $0.08/1M, $0.35/1M（レガシー互換）
       'gpt-5-mini': { input: 0.0003, output: 0.0015 }, // $0.30/1M, $1.50/1M (推定)
       'gpt-5': { input: 0.00125, output: 0.01 }, // $1.25/1M, $10.00/1M
       // GPT-4.1 シリーズ

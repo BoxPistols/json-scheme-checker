@@ -272,8 +272,9 @@ curl -N "http://localhost:3333/api/web-advisor?url=https://example.com&userApiKe
 サーバー既定のAPIキーを使用する場合、現在選択可能なモデルは次のとおりです：
 
 - **gpt-5-nano**（既定）: 超低レイテンシかつ最新料金で最もコスト効率が高い
+- **gpt-4.1-nano**: 既存ワークロードとの互換性を重視したレガシーnano系
 
-料金改定に伴い旧nano系モデルは終了し、gpt-5-nanoに統一されました。
+どちらのモデルも無料枠内で利用でき、切り替え設定は「My API」モーダルの無料版セレクトから行えます。
 
 #### MyAPI必須のモデル
 
