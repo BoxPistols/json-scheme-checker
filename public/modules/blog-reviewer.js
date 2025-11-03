@@ -744,12 +744,13 @@ class BlogReviewerManager extends BaseAdvisorManager {
             </svg>
           <p>AI分析に失敗しました</p>
           <p class="advisor-error-detail">${errorMessage}</p>
-          <button class="advisor-btn-primary" data-action="fetch-review">
+          <button class="advisor-btn-primary" data-action="blog-fetch-review">
             再試行
           </button>
         </div>
       `;
     }
+  }
   }
 
   /**
