@@ -20,7 +20,7 @@ describe('Web Advisor - renderMarkdown Method', () => {
         html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>').replace(/^## (.*$)/gim, '<h2>$1</h2>');
         html = html
           .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-          .replace(/^\- (.*$)/gim, '<li>$1</li>');
+          .replace(/^- (.*$)/gim, '<li>$1</li>');
         html = html.replace(
           /((?:<li>.*?<\/li>(?:<br>)*)+)/g,
           match => `<ul>${match.replace(/<br>/g, '')}</ul>`
