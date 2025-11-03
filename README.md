@@ -253,7 +253,7 @@ curl -N "http://localhost:3333/api/web-advisor?url=https://example.com&userApiKe
 
 現在の制限：
 
-- **通常モード（クライアント側）**: 10回/24時間（localStorage）
+- **無料版（サーバー負担）**: 50回/24時間（localStorage）
 - **関係者モード**: 30回/24時間
 - **開発者キー使用時**: 無制限
 - **Webアドバイザー（サーバー側）**: 10回/24時間/IP（メモリベース、userApiKey使用時はスキップ）

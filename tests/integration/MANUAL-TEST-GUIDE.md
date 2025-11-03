@@ -22,16 +22,19 @@ curl http://localhost:3333/health
 ### 1. 求人ページテスト (JobPosting)
 
 #### 目的
+
 求人ページから `JobPosting` スキーマを正しく抽出し、「求人/求職アドバイスを受ける」ボタンが表示されることを確認
 
 #### 手順
 
 1. **ブラウザでアプリを開く**
+
    ```
    http://localhost:3333
    ```
 
 2. **求人URL を入力**
+
    ```
    https://freelance.levtech.jp/project/detail/28421/
    ```
@@ -46,6 +49,7 @@ curl http://localhost:3333/health
    - [ ] ボタンクリック後、**loading インジケーター**が表示される
 
 5. **ブラウザコンソル確認**
+
    ```
    F12 → Console タブ
    以下のような正常なログが出力されていること：
@@ -63,11 +67,13 @@ curl http://localhost:3333/health
 ### 2. ブログページテスト (BlogPosting)
 
 #### 目的
+
 ブログページから `BlogPosting` スキーマを正しく抽出し、「ブログ記事レビュー」ボタンが表示されることを確認
 
 #### 手順
 
 1. **同じアプリで新しいURLを入力**
+
    ```
    https://www.engineer-factory.com/media/skill/4878/
    ```
@@ -82,6 +88,7 @@ curl http://localhost:3333/health
    - [ ] ボタンクリック後、**loading インジケーター**が表示される
 
 4. **ブラウザコンソル確認**
+
    ```
    以下のようなスキーマ抽出ログ：
    [Schema Detection] Extracted schemas: [BlogPosting]
@@ -97,11 +104,13 @@ curl http://localhost:3333/health
 ### 3. Webページテスト (WebPage)
 
 #### 目的
+
 一般的なWebページから `WebPage` スキーマを検出し、「Webページ分析を受ける」ボタンが表示されることを確認
 
 #### 手順
 
 1. **同じアプリで新しいURLを入力**
+
    ```
    https://levtech.jp/media/article/focus/detail_680/
    ```
@@ -116,6 +125,7 @@ curl http://localhost:3333/health
    - [ ] ボタンクリック後、**loading インジケーター**が表示される
 
 4. **ブラウザコンソル確認**
+
    ```
    以下のようなログ：
    [Web Advisor] Detection: WebPage schema detected
@@ -147,6 +157,7 @@ pnpm test -- tests/integration/real-url-schema-detection.test.js 2>&1 | grep "UR
 ```
 
 出力例：
+
 ```
 [URL廃止警告] 求人ページテスト: https://freelance.levtech.jp/project/detail/28421/ が見つかりません (404)。
 URL廃止またはリダイレクト対応が必要です。
@@ -172,9 +183,11 @@ URL廃止またはリダイレクト対応が必要です。
 
 ```javascript
 const MOCK_RESPONSES = {
-  '求人ページ': {
-    url: 'https://NEW_SITE.jp/job/detail/NEW_ID/',  // ← ここを更新
-    schema: { /* ... */ },
+  求人ページ: {
+    url: 'https://NEW_SITE.jp/job/detail/NEW_ID/', // ← ここを更新
+    schema: {
+      /* ... */
+    },
     expectedButton: 'advisorTriggerBtn',
     expectedText: '求人/求職アドバイスを受ける',
   },
@@ -191,6 +204,7 @@ const MOCK_RESPONSES = {
 **原因**: ローカル開発サーバーが起動していない
 
 **対応**:
+
 ```bash
 pnpm dev
 # サーバーが localhost:3333 で起動するまで待つ
@@ -201,12 +215,14 @@ pnpm dev
 **原因**: スキーマが検出されていない
 
 **確認手順**:
+
 1. ブラウザコンソールを開く (F12)
 2. Network タブで `/proxy?url=...` リクエストを確認
 3. Response に `<script type="application/ld+json">` が含まれているか確認
 4. JSON-LD が正しく formatted されているか確認
 
 **対応**:
+
 ```bash
 # コマンドで直接確認
 curl "http://localhost:3333/proxy?url=https://example.com" | grep -A 5 "application/ld+json"
@@ -217,6 +233,7 @@ curl "http://localhost:3333/proxy?url=https://example.com" | grep -A 5 "applicat
 **原因**: JavaScript エラーまたはボタン実装の問題
 
 **確認手順**:
+
 1. ブラウザコンソールでエラーメッセージを確認
 2. 以下のログが表示されているか確認:
    ```
@@ -228,11 +245,11 @@ curl "http://localhost:3333/proxy?url=https://example.com" | grep -A 5 "applicat
 
 ## 期待される挙動まとめ
 
-| ページタイプ | URL | スキーマ | ボタンテキスト | アクション |
-|-----------|-----|---------|--------------|-----------|
-| 求人 | freelance.levtech.jp | JobPosting | 「求人/求職アドバイスを受ける」 | 送信 → Loading表示 |
-| ブログ | engineer-factory.com | BlogPosting | 「ブログ記事レビュー」 | 送信 → Loading表示 |
-| Webページ | levtech.jp | WebPage | 「Webページ分析を受ける」 | 送信 → Loading表示 |
+| ページタイプ | URL                  | スキーマ    | ボタンテキスト                  | アクション         |
+| ------------ | -------------------- | ----------- | ------------------------------- | ------------------ |
+| 求人         | freelance.levtech.jp | JobPosting  | 「求人/求職アドバイスを受ける」 | 送信 → Loading表示 |
+| ブログ       | engineer-factory.com | BlogPosting | 「ブログ記事レビュー」          | 送信 → Loading表示 |
+| Webページ    | levtech.jp           | WebPage     | 「Webページ分析を受ける」       | 送信 → Loading表示 |
 
 ---
 

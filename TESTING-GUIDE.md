@@ -74,11 +74,11 @@ pnpm test:watch
 
 ### 新規テスト（3パターン）
 
-| タイプ | URL | スキーマ | ボタン |
-|-------|-----|---------|-------|
-| 求人 | https://freelance.levtech.jp/project/detail/28421/ | JobPosting | 求人/求職アドバイスを受ける |
-| ブログ | https://www.engineer-factory.com/media/skill/4878/ | BlogPosting | ブログ記事レビュー |
-| Web | https://levtech.jp/media/article/focus/detail_680/ | WebPage | Webページ分析を受ける |
+| タイプ | URL                                                | スキーマ    | ボタン                      |
+| ------ | -------------------------------------------------- | ----------- | --------------------------- |
+| 求人   | https://freelance.levtech.jp/project/detail/28421/ | JobPosting  | 求人/求職アドバイスを受ける |
+| ブログ | https://www.engineer-factory.com/media/skill/4878/ | BlogPosting | ブログ記事レビュー          |
+| Web    | https://levtech.jp/media/article/focus/detail_680/ | WebPage     | Webページ分析を受ける       |
 
 ## セキュリティテストの詳細
 
@@ -169,6 +169,7 @@ URL廃止またはリダイレクト対応が必要です。
    - 新しいURLとスキーマ情報に置き換え
 
 3. **テストを再実行**
+
    ```bash
    pnpm test:summary
    ```
@@ -203,11 +204,13 @@ pnpm test && pnpm lint
 ### テストが失敗する場合
 
 1. **エラーメッセージを確認**
+
    ```bash
    pnpm test 2>&1 | head -50
    ```
 
 2. **特定のテストのみ実行**
+
    ```bash
    pnpm test -- tests/unit/ai-advisor-button-submit.test.js
    ```
@@ -248,11 +251,13 @@ curl -I https://freelance.levtech.jp/project/detail/28421/
 ### 新しいテストを追加する場合
 
 1. **テストファイルを作成**
+
    ```bash
    tests/unit/my-feature.test.js
    ```
 
 2. **テストコードを記述**
+
    ```javascript
    describe('My Feature', () => {
      it('should do something', () => {

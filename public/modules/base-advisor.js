@@ -155,7 +155,7 @@ class BaseAdvisorManager {
       remaining,
       resetTime,
       usingUserKey: false,
-      mode: 'normal',
+      mode: 'free',
       maxRequests,
     };
   }
@@ -208,7 +208,11 @@ class BaseAdvisorManager {
     ]);
 
     if (!allowedModels.has(storedModel)) {
-      console.warn('[BaseAdvisor] Unsupported stored model detected:', storedModel, 'Fallback to gpt-5-nano');
+      console.warn(
+        '[BaseAdvisor] Unsupported stored model detected:',
+        storedModel,
+        'Fallback to gpt-5-nano'
+      );
       localStorage.setItem('jsonld_user_api_model', 'gpt-5-nano');
       return 'gpt-5-nano';
     }
@@ -258,11 +262,11 @@ class BaseAdvisorManager {
   }
 
   /**
-   * Resets all special modes and API keys.
+   * Resets all special modes and API keys (free mode).
    */
-  resetToNormalMode() {
+  resetToFreeMode() {
     this.clearUserApiCredentials();
-    alert('通常モードに戻しました。');
+    alert('無料版に戻しました。');
     // this.config.ui.showConfirmDialog(); // Re-render the confirmation dialog
   }
 

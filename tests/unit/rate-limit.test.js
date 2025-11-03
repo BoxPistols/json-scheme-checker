@@ -38,7 +38,7 @@ describe('Rate limit logic', () => {
     ).toBe(true);
   });
 
-  it('uses unified normal limit (50/24h) for all users', () => {
+  it('uses unified free tier limit (50/24h) for all users', () => {
     // stakeholder mode is deprecated; unified to 50 requests/24h
     const mgr = new RLManager(false);
     // Record 2 usages (within 50 limit)

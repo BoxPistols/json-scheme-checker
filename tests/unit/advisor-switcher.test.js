@@ -48,7 +48,7 @@ describe('AdvisorManager Perspective Switcher - Token Consumption', () => {
         allowed: true,
         remaining: 9,
         maxRequests: 10,
-        mode: 'normal',
+        mode: 'free',
       })),
       fetchAdvice: vi.fn(),
       updateTokenCountDisplay: vi.fn(),

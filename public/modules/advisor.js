@@ -16,7 +16,7 @@ class AdvisorManager extends BaseAdvisorManager {
         'advisor-test-developer-connection': () => this.testDeveloperConnection(),
         'advisor-reset-developer-settings': () => this.resetDeveloperSettings(),
         'advisor-show-developer-prompt': () => this.showDeveloperPrompt(),
-        'advisor-reset-to-normal-mode': () => this.resetToNormalMode(),
+        'advisor-reset-to-free-mode': () => this.resetToFreeMode(),
         'advisor-start-employer': () => this.startAnalysis('employer'),
         'advisor-start-applicant': () => this.startAnalysis('applicant'),
         'advisor-start-agent': () => this.startAnalysis('agent'),
@@ -474,7 +474,7 @@ class AdvisorManager extends BaseAdvisorManager {
     const rateLimit = this.checkRateLimit();
     const willConsumeTokens = !rateLimit.allowed || rateLimit.mode !== 'developer';
 
-    if (willConsumeTokens && rateLimit.mode === 'normal') {
+    if (willConsumeTokens && rateLimit.mode === 'free') {
       const message = `この操作で追加のトークンが消費されます。
 視点: ${modeTitle}
 残り使用回数: ${rateLimit.remaining} / ${rateLimit.maxRequests}

@@ -17,8 +17,7 @@ console.log('='.repeat(70));
 const tests = [
   {
     name: 'SSRF対策: プライベートIP (127.0.0.1) へのアクセスをブロック',
-    description:
-      'localhost:80 への直接アクセスは 403 Forbidden を返す必要があります',
+    description: 'localhost:80 への直接アクセスは 403 Forbidden を返す必要があります',
     url: 'http://127.0.0.1:3333/api/web-advisor?url=http://127.0.0.1:80',
     expectedStatus: [400, 403],
     expectedIn: 'エラーレスポンス: プライベートネットワークはアクセス不可',
@@ -32,16 +31,14 @@ const tests = [
   },
   {
     name: 'SSRF対策: プライベートレンジ (192.168.x.x) をブロック',
-    description:
-      'プライベートIPアドレスレンジ（192.168.0.0/16）へのアクセスを拒否',
+    description: 'プライベートIPアドレスレンジ（192.168.0.0/16）へのアクセスを拒否',
     url: 'http://127.0.0.1:3333/api/web-advisor?url=http://192.168.1.1/',
     expectedStatus: [400, 403],
     expectedIn: 'エラーレスポンス: プライベートネットワークアクセス拒否',
   },
   {
     name: 'sessionToken検証: 無効なトークンを拒否',
-    description:
-      '無効な sessionToken を指定した場合、400 Bad Request を返す',
+    description: '無効な sessionToken を指定した場合、400 Bad Request を返す',
     url: 'http://127.0.0.1:3333/api/web-advisor?url=https://example.com&sessionToken=invalid',
     expectedStatus: [400],
     expectedIn: 'エラーレスポンス: 無効または期限切れのsessionToken',
@@ -65,10 +62,7 @@ tests.forEach((test, index) => {
   console.log(`テスト ${testNum}: ${test.name}`);
   console.log(`説明: ${test.description}`);
 
-  // URLを解析
-  const url = new URL(test.url);
-
-  const req = http.get(test.url, (res) => {
+  const req = http.get(test.url, res => {
     const isExpected = test.expectedStatus.includes(res.statusCode);
     const status = isExpected ? 'パス' : '失敗';
 
@@ -86,7 +80,7 @@ tests.forEach((test, index) => {
     completed++;
   });
 
-  req.on('error', (err) => {
+  req.on('error', err => {
     console.error(`エラー: ${err.message}`);
     console.log('✗ 失敗\n');
     completed++;

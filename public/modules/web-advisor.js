@@ -20,7 +20,7 @@ class WebAdvisorManager extends BaseAdvisorManager {
         'web-test-developer-connection': () => this.testDeveloperConnection(),
         'web-reset-developer-settings': () => this.resetDeveloperSettings(),
         'web-show-developer-prompt': () => this.showDeveloperPrompt(),
-        'web-reset-to-normal-mode': () => this.resetToNormalMode(),
+        'web-reset-to-free-mode': () => this.resetToFreeMode(),
         'web-close-confirm-dialog': () => this.closeConfirmDialog(),
         'web-start-analysis': () => this.startAnalysis(),
         'web-close-result-view': () => this.closeResultView(),

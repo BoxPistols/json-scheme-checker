@@ -7,11 +7,8 @@ describe('Web Advisor - Fallback Template Page Nature Detection', () => {
   beforeEach(() => {
     // Mock the fallback template generation function
     generateFallbackTemplate = (metadata, _url) => {
-      const h1Count = metadata.headings.h1.length;
       const h2Count = metadata.headings.h2.length;
-      const h3Count = metadata.headings.h3.length;
       const hasTitle = !!metadata.title;
-      const hasDescription = !!metadata.description;
       const bodyLength = metadata.bodySnippet.length;
 
       // ページの性質を判定（ブログメディア vs 一般的なWebページ）

@@ -16,7 +16,7 @@ const rl = readline.createInterface({
 
 let testOutput = '';
 
-rl.on('line', (line) => {
+rl.on('line', line => {
   testOutput += line + '\n';
   process.stdout.write(line + '\n');
 });
@@ -64,8 +64,8 @@ rl.on('close', () => {
 
   // テストの解析
   const results = {};
-  testPatterns.forEach((pattern) => {
-    const matched = pattern.files.some((file) => testOutput.includes(file));
+  testPatterns.forEach(pattern => {
+    const matched = pattern.files.some(file => testOutput.includes(file));
     const passed = testOutput.includes('✓');
     results[pattern.name] = {
       matched,
@@ -77,17 +77,11 @@ rl.on('close', () => {
   console.log('新規テスト（求人・Blog・Webページのloading確認）:');
   console.log('─'.repeat(70));
 
-  const jobTestMatch = testOutput.match(
-    /ai-advisor-button-submit\.test\.js \((\d+) tests?\)/
-  );
-  const realUrlMatch = testOutput.match(
-    /real-url-schema-detection\.test\.js \((\d+) tests?\)/
-  );
+  const jobTestMatch = testOutput.match(/ai-advisor-button-submit\.test\.js \((\d+) tests?\)/);
+  const realUrlMatch = testOutput.match(/real-url-schema-detection\.test\.js \((\d+) tests?\)/);
 
   if (jobTestMatch) {
-    console.log(
-      `✓ ai-advisor-button-submit.test.js: ${jobTestMatch[1]} テスト成功`
-    );
+    console.log(`✓ ai-advisor-button-submit.test.js: ${jobTestMatch[1]} テスト成功`);
     console.log('  - 求人ページ: ボタン表示 + loading確認');
     console.log('  - ブログページ: ボタン表示 + loading確認');
     console.log('  - Webページ: ボタン表示 + loading確認');

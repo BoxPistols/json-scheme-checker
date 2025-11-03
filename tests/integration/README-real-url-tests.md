@@ -7,18 +7,21 @@
 ## テスト対象URL
 
 ### 1. 求人ページ（JobPosting スキーマ）
+
 - **URL**: https://freelance.levtech.jp/project/detail/28421/
 - **期待スキーマ**: `JobPosting`
 - **期待ボタン**: 「求人/求職アドバイスを受ける」
 - **ID**: `advisorTriggerBtn`
 
 ### 2. ブログページ（BlogPosting スキーマ）
+
 - **URL**: https://www.engineer-factory.com/media/skill/4878/
 - **期待スキーマ**: `BlogPosting`
 - **期待ボタン**: 「ブログ記事レビュー」
 - **ID**: `blogReviewerTriggerBtn`
 
 ### 3. Webページ（WebPage スキーマ）
+
 - **URL**: https://levtech.jp/media/article/focus/detail_680/
 - **期待スキーマ**: `WebPage`
 - **期待ボタン**: 「Webページ分析を受ける」
@@ -60,16 +63,19 @@
 ## テスト実行
 
 ### すべてのテストを実行
+
 ```bash
 pnpm test
 ```
 
 ### このテストスイートのみ実行
+
 ```bash
 pnpm test -- tests/integration/real-url-schema-detection.test.js
 ```
 
 ### 特定のテストケースのみ実行
+
 ```bash
 pnpm test -- tests/integration/real-url-schema-detection.test.js --reporter=verbose
 ```
@@ -150,6 +156,7 @@ pnpm test -- tests/integration/real-url-schema-detection.test.js
 2. **スキーマ検出失敗**
    - URLのスキーマ内容が変更されていないか確認
    - 実URLにアクセスして手動でスキーマ確認
+
    ```bash
    curl "http://localhost:3333/proxy?url=https://example.com" | grep "script type"
    ```

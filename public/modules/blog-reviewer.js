@@ -20,7 +20,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
         'blog-test-developer-connection': () => this.testDeveloperConnection(),
         'blog-reset-developer-settings': () => this.resetDeveloperSettings(),
         'blog-show-developer-prompt': () => this.showDeveloperPrompt(),
-        'blog-reset-to-normal-mode': () => this.resetToNormalMode(),
+        'blog-reset-to-free-mode': () => this.resetToFreeMode(),
         'blog-close-confirm-dialog': () => this.closeConfirmDialog(),
         'blog-start-review': () => this.startReview(),
         'blog-close-review-view': () => this.closeReviewView(),

@@ -199,7 +199,7 @@ module.exports = async (req, res) => {
 
   try {
     // レート制限チェック（ユーザーのAPIキー使用時はスキップ）
-    const { article, userApiKey, provider, baseUrl, model } = req.body;
+    const { article, userApiKey, baseUrl, model } = req.body;
     if (!userApiKey) {
       const clientIp = getClientIp(req);
       const rateLimitResult = checkRateLimit(clientIp);

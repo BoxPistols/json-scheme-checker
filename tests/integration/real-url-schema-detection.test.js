@@ -385,22 +385,18 @@ describe('実URL統合テスト - スキーマ判定とボタン表示', () => {
         text: async () => '',
       });
 
-      try {
-        const response = await global.fetch(testCase.url);
-        expect(response.ok).toBe(false);
+      const response = await global.fetch(testCase.url);
+      expect(response.ok).toBe(false);
 
-        if (!response.ok) {
-          console.warn(
-            `[URL廃止警告] 求人ページテスト: ${testCase.url} が見つかりません (404)。` +
-              'URL廃止またはリダイレクト対応が必要です。'
-          );
-        }
-
-        expect(consoleSpy).toHaveBeenCalled();
-        expect(consoleSpy.mock.calls[0][0]).toContain('URL廃止警告');
-      } catch (error) {
-        throw error;
+      if (!response.ok) {
+        console.warn(
+          `[URL廃止警告] 求人ページテスト: ${testCase.url} が見つかりません (404)。` +
+            'URL廃止またはリダイレクト対応が必要です。'
+        );
       }
+
+      expect(consoleSpy).toHaveBeenCalled();
+      expect(consoleSpy.mock.calls[0][0]).toContain('URL廃止警告');
     });
 
     it('ブログURLが404の場合、テストはスキップされ警告を出力', async () => {
