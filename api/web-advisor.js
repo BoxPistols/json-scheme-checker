@@ -1,43 +1,6 @@
 const OpenAI = require('openai');
 const cheerio = require('cheerio');
 
-// メモリベースのレート制限管理
-const rateLimitStore = new Map();
-const RATE_LIMIT_WINDOW = 24 * 60 * 60 * 1000; // 24時間
-const MAX_REQUESTS_PER_IP = 50;
-
-// レート制限クリーンアップのインターバル（30分ごと）
-let cleanupInterval = null;
-
-/**
- * 古いレート制限エントリをクリーンアップ
- */
-function cleanupRateLimitStore() {
-  const now = Date.now();
-  for (const [key, entries] of rateLimitStore.entries()) {
-    const activeEntries = entries.filter(timestamp => now - timestamp < RATE_LIMIT_WINDOW);
-    if (activeEntries.length === 0) {
-      rateLimitStore.delete(key);
-    } else if (activeEntries.length !== entries.length) {
-      rateLimitStore.set(key, activeEntries);
-    }
-  }
-}
-
-/**
- * 定期的なクリーンアップを開始
- */
-function startPeriodicCleanup() {
-  if (!cleanupInterval) {
-    cleanupInterval = setInterval(
-      () => {
-        cleanupRateLimitStore();
-      },
-      30 * 60 * 1000
-    ); // 30分ごと
-  }
-}
-
 /**
  * 指数バックオフによる再試行機能付きfetch
  */
@@ -67,53 +30,6 @@ async function fetchWithRetry(url, options = {}, maxRetries = 3) {
       await new Promise(resolve => setTimeout(resolve, delay));
     }
   }
-}
-
-/**
- * クライアントのIPアドレスを取得
- */
-function getClientIp(req) {
-  return (
-    req.headers['x-vercel-forwarded-for']?.split(',')[0].trim() ||
-    req.headers['x-forwarded-for']?.split(',')[0].trim() ||
-    req.headers['x-real-ip'] ||
-    req.connection?.remoteAddress ||
-    '0.0.0.0'
-  );
-}
-
-/**
- * レート制限をチェック
- */
-function checkRateLimit(ip) {
-  // 定期クリーンアップを開始（初回呼び出し時）
-  startPeriodicCleanup();
-
-  const now = Date.now();
-  const entries = rateLimitStore.get(ip) || [];
-
-  // 古いエントリをフィルタ（IPごとに個別にクリーンアップ）
-  const activeEntries = entries.filter(timestamp => now - timestamp < RATE_LIMIT_WINDOW);
-
-  if (activeEntries.length >= MAX_REQUESTS_PER_IP) {
-    const oldestTimestamp = activeEntries[0];
-    const resetTime = new Date(oldestTimestamp + RATE_LIMIT_WINDOW);
-    return {
-      allowed: false,
-      remaining: 0,
-      resetTime: resetTime.toISOString(),
-      retryAfter: Math.ceil((oldestTimestamp + RATE_LIMIT_WINDOW - now) / 1000),
-    };
-  }
-
-  activeEntries.push(now);
-  rateLimitStore.set(ip, activeEntries);
-
-  return {
-    allowed: true,
-    remaining: MAX_REQUESTS_PER_IP - activeEntries.length,
-    resetTime: new Date(now + RATE_LIMIT_WINDOW).toISOString(),
-  };
 }
 
 /**
@@ -589,25 +505,6 @@ module.exports = async (req, res) => {
     }
   } catch (error) {
     return res.status(400).json({ error: '無効なURL形式です' });
-  }
-
-  // レート制限チェック（userApiKey使用時はスキップ）
-  if (!userApiKey) {
-    const clientIp = getClientIp(req);
-    const rateLimitResult = checkRateLimit(clientIp);
-
-    if (!rateLimitResult.allowed) {
-      res.setHeader('Retry-After', rateLimitResult.retryAfter);
-      return res.status(429).json({
-        error: 'レート制限に達しました',
-        remaining: rateLimitResult.remaining,
-        resetTime: rateLimitResult.resetTime,
-        retryAfter: rateLimitResult.retryAfter,
-      });
-    }
-
-    res.setHeader('X-RateLimit-Remaining', rateLimitResult.remaining);
-    res.setHeader('X-RateLimit-Reset', rateLimitResult.resetTime);
   }
 
   // SSEヘッダー設定
