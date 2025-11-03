@@ -778,8 +778,9 @@ class BlogReviewerManager extends BaseAdvisorManager {
     // 改行
     html = html.replace(/\n/g, '<br>');
 
-    // 見出しの直後の <br> を削除（h1, h2, h3）
-    html = html.replace(/<\/(h[123])><br>/g, '</$1>');
+    // 見出しの前後の <br> を削除（h1, h2, h3）
+    html = html.replace(/<br><(h[123])>/g, '<$1>'); // 見出しの前
+    html = html.replace(/<\/(h[123])><br>/g, '</$1>'); // 見出しの後
 
     // 連続する<li>タグを<ul>で囲む（改行変換後に実行）
     html = html.replace(
