@@ -133,8 +133,8 @@ class WebAdvisorManager extends BaseAdvisorManager {
       <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\">\n        <path d=\"M12 2l2 7h7l-5.5 4 2 7-5.5-4-5.5 4 2-7-5.5-4h7z\"/>\n      </svg>\n      Webページ分析を受ける
     `;
 
-    // actions containerの最初に挿入
-    actionsContainer.insertBefore(button, actionsContainer.firstChild);
+    // actions containerに追加
+    actionsContainer.appendChild(button);
     console.log('[WebAdvisor] Analysis button inserted');
   }
 

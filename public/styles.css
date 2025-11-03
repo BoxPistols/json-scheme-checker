@@ -2387,6 +2387,14 @@ html[data-theme='dark'] .score-breakdown > div {
    AI Advisor Styles
    ============================================ */
 
+/* AI Actions Container - 複数のボタンを横並びで表示 */
+.ai-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
 /* Advisor Trigger Button */
 .advisor-trigger-btn {
   display: inline-flex;
@@ -2402,7 +2410,7 @@ html[data-theme='dark'] .score-breakdown > div {
   cursor: pointer;
   transition: opacity 0.2s ease;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-  margin-bottom: 20px;
+  margin-bottom: 0;
 }
 
 .advisor-trigger-btn:hover {

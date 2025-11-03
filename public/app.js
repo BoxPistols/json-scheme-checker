@@ -1275,12 +1275,14 @@ function displaySchemas(schemas, url) {
     webAdvisorManager.hideAnalysisButton();
   }
 
-  // AI分析: 優先順位に基づいて排他的に実行（複数の同時実行を防ぐ）
-  // 1. JobPosting検出（最優先）
+  // AI分析: すべての該当する分析ボタンを表示（並行表示）
+  let hasAnyAdvisor = false;
+
+  // 1. JobPosting検出
   if (typeof advisorManager !== 'undefined') {
     if (advisorManager.detectJobPosting(schemas)) {
       console.log('[App] JobPosting検出 → Advisor');
-      return;
+      hasAnyAdvisor = true;
     }
   }
 
@@ -1288,15 +1290,14 @@ function displaySchemas(schemas, url) {
   if (typeof blogReviewerManager !== 'undefined') {
     if (blogReviewerManager.detectBlogPost(schemas)) {
       console.log('[App] BlogPost検出 → BlogReviewer');
-      return;
+      hasAnyAdvisor = true;
     }
   }
 
-  // 3. Web分析（スキーマ無し/WebPageのみ）
-  if (typeof webAdvisorManager !== 'undefined') {
+  // 3. Web分析（専用アドバイザーがない場合のみ）
+  if (!hasAnyAdvisor && typeof webAdvisorManager !== 'undefined') {
     if (webAdvisorManager.detectNoSchemaOrWebPageOnly(schemas, url)) {
       console.log('[App] 一般的なWebページ → WebAdvisor');
-      return;
     }
   }
 }

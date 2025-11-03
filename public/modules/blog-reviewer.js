@@ -299,7 +299,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
       if (schemasContainer) {
         console.log('[BlogReviewerManager] Using schemasContainer as fallback');
         const button = this.createReviewButton();
-        schemasContainer.parentElement.insertBefore(button, schemasContainer);
+        schemasContainer.parentElement.appendChild(button);
         return;
       }
       return;
@@ -312,7 +312,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
     }
 
     const button = this.createReviewButton();
-    actionsContainer.insertBefore(button, actionsContainer.firstChild);
+    actionsContainer.appendChild(button);
     console.log('[BlogReviewerManager] Review button inserted into DOM');
   }
 
