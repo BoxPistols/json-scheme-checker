@@ -749,8 +749,8 @@ class BlogReviewerManager extends BaseAdvisorManager {
           </button>
         </div>
       `;
+      }
     }
-  }
   }
 
   /**
@@ -813,7 +813,8 @@ class BlogReviewerManager extends BaseAdvisorManager {
    * アコーディオンを開閉
    */
   toggleAccordion(section) {
-    const contentId = section === 'article' ? 'blogReviewerArticleContent' : 'blogReviewerReviewContent';
+    const contentId =
+      section === 'article' ? 'blogReviewerArticleContent' : 'blogReviewerReviewContent';
     const content = document.getElementById(contentId);
     const header = content?.previousElementSibling;
     const icon = header?.querySelector('.advisor-accordion-icon');

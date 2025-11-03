@@ -26,6 +26,8 @@ class WebAdvisorManager extends BaseAdvisorManager {
         'web-close-result-view': () => this.closeResultView(),
         'web-fetch-analysis': () => this.fetchAnalysis(),
         'show-web-confirm-dialog': () => this.showConfirmDialog(),
+        'web-toggle-metadata-section': () => this.toggleAccordion('metadata'),
+        'web-toggle-content-section': () => this.toggleAccordion('content'),
       },
       actions: {
         closeDeveloperPrompt: 'web-close-developer-prompt',
@@ -191,16 +193,20 @@ class WebAdvisorManager extends BaseAdvisorManager {
       ${headerHtml}
       <div class="advisor-view-content">
         <div class="advisor-job-panel">
-          <h3>対象ページ</h3>
-          <div class="advisor-job-content" id="webAdvisorMetadata">
+          <h3 class="advisor-accordion-header" data-action="web-toggle-metadata-section">
+            <span class="advisor-accordion-icon">▼</span>対象ページ
+          </h3>
+          <div class="advisor-job-content advisor-accordion-content" id="webAdvisorMetadata">
             <div style="padding: 8px 0;">
               <p style="margin: 0 0 4px 0; font-size: 12px; opacity: 0.7;">読み込み中...</p>
             </div>
           </div>
         </div>
         <div class="advisor-advice-panel">
-          <h3>AI分析結果</h3>
-          <div class="advisor-advice-content" id="webAdvisorContent">
+          <h3 class="advisor-accordion-header" data-action="web-toggle-content-section">
+            <span class="advisor-accordion-icon">▼</span>AI分析結果
+          </h3>
+          <div class="advisor-advice-content advisor-accordion-content" id="webAdvisorContent">
             <div class="advisor-progress-container" id="webAdvisorProgressContainer">
               <div class="advisor-progress-bar">
                 <div class="advisor-progress-fill" id="webAdvisorProgressFill"></div>
@@ -478,6 +484,13 @@ class WebAdvisorManager extends BaseAdvisorManager {
               this.updateProgress(tokenProgress, `分析中...${tokenCount}トークン`);
               md.innerHTML = this.renderMarkdown(full);
               break;
+            case 'usage':
+              // usage情報を保存して表示
+              console.log('[WebAdvisor] Received usage:', data.data);
+              this.currentUsage = data.data;
+              this.currentModel = data.model || 'gpt-5-nano';
+              this.displayUsage();
+              break;
             case 'done':
               console.log('[WebAdvisor-SSE-onmessage] Analysis complete');
               this.updateProgress(100, '完了');
@@ -567,6 +580,55 @@ class WebAdvisorManager extends BaseAdvisorManager {
     if (modalType === 'stakeholderPrompt' || modalType === 'developerPrompt') {
       const overlay = document.querySelector('.advisor-overlay');
       if (overlay) overlay.remove();
+    }
+  }
+
+  /**
+   * アコーディオンの開閉を切り替え
+   */
+  toggleAccordion(section) {
+    const contentId = section === 'metadata' ? 'webAdvisorMetadata' : 'webAdvisorContent';
+    const content = document.getElementById(contentId);
+    const header = content?.previousElementSibling;
+    const icon = header?.querySelector('.advisor-accordion-icon');
+
+    if (!content || !header || !icon) return;
+
+    if (content.classList.contains('advisor-accordion-collapsed')) {
+      content.classList.remove('advisor-accordion-collapsed');
+      icon.textContent = '▼';
+    } else {
+      content.classList.add('advisor-accordion-collapsed');
+      icon.textContent = '▶';
+    }
+  }
+
+  /**
+   * API使用量を表示
+   */
+  displayUsage() {
+    if (!this.currentUsage) {
+      console.log('[WebAdvisor] No usage data to display');
+      return;
+    }
+
+    console.log('[WebAdvisor] Displaying usage:', this.currentUsage);
+
+    // モデル名を取得
+    const model = this.currentModel || 'gpt-5-nano';
+
+    // BaseAdvisorManagerの共通メソッドを使用してHTML生成
+    const usageHtml = this.renderApiUsagePanel(this.currentUsage, model);
+
+    // 分析結果コンテンツの末尾に追加
+    const content = document.getElementById('webAdvisorContent');
+    if (content) {
+      const markdownDiv = content.querySelector('.advisor-markdown');
+      if (markdownDiv) {
+        const container = document.createElement('div');
+        container.innerHTML = usageHtml;
+        markdownDiv.appendChild(container);
+      }
     }
   }
 

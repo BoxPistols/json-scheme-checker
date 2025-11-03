@@ -704,6 +704,7 @@ module.exports = async (req, res) => {
         model: selectedModel,
         messages: [{ role: 'user', content: prompt }],
         stream: true,
+        stream_options: { include_usage: true },
       };
 
       // GPT-5では temperature は非対応
@@ -718,6 +719,13 @@ module.exports = async (req, res) => {
           const content = chunk.choices[0]?.delta?.content;
           if (content) {
             res.write(`data: ${JSON.stringify({ type: 'token', content })}\n\n`);
+          }
+
+          // usage情報を送信
+          if (chunk.usage) {
+            res.write(
+              `data: ${JSON.stringify({ type: 'usage', data: chunk.usage, model: selectedModel })}\n\n`
+            );
           }
         }
       } catch (apiError) {
