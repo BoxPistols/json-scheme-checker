@@ -324,11 +324,12 @@ class BaseAdvisorManager {
             <div class="advisor-field">
               <label class="advisor-label" for="advisorFreeModelSelect">モデル選択</label>
               <select id="advisorFreeModelSelect" class="advisor-input">
-                <option value="gpt-5-nano">gpt-5-nano（超低レイテンシ、$0.05/1M入力）</option>
-                <option value="gpt-4.1-nano">gpt-4.1-nano（互換性重視、$0.08/1M入力）</option>
+                <option value="gpt-5-nano">gpt-5-nano（最速、簡潔な回答）</option>
+                <option value="gpt-4.1-nano">gpt-4.1-nano（やや遅い、詳細な回答）</option>
               </select>
-              <div class="advisor-help-text">無料枠ではgpt-5-nano（既定）またはgpt-4.1-nano（旧モデル互換）を選択できます</div>
-              <div class="advisor-help-text">※ 一日のリクエスト上限: 50回（毎日0:00リセット）</div>
+              <div class="advisor-help-text">gpt-5-nano: 超低レイテンシで最速応答、要点重視の分析（推奨）</div>
+              <div class="advisor-help-text">gpt-4.1-nano: やや遅い、より詳細な説明が必要な場合</div>
+              <div class="advisor-help-text">※ 一日のリクエスト上限: 50回/デバイス</div>
             </div>
           </div>
 
