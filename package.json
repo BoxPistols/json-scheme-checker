@@ -13,7 +13,9 @@
     "format:check": "prettier --check \"**/*.{js,json,md}\"",
     "fix": "npm run format && npm run lint:fix",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:summary": "vitest run 2>&1 | node tests/test-summary.js",
+    "test:security": "node tests/verify-security.js"
   },
   "dependencies": {
     "@vercel/kv": "^2.0.0",
