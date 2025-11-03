@@ -302,12 +302,17 @@ class AdvisorManager extends BaseAdvisorManager {
     html = html
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/^\- (.*$)/gim, '<li>$1</li>');
+
+    // 改行を先に <br> に変換
+    html = html.replace(/\n/g, '<br>');
+
+    // 複数の <li>...<br><li>... パターンを <ul> で包括
     html = html.replace(
-      /((?:<li>.*?<\/li>(?:<br>)*)+)/g,
+      /(<li>.*?<\/li>(?:<br>)*)+/g,
       match => `<ul>${match.replace(/<br>/g, '')}</ul>`
     );
-    html = html.replace(/\n/g, '<br>');
-    // </li> の直後の <br> を削除
+
+    // </li><br> 後の <br> を削除（リスト項目間）
     html = html.replace(/<\/li><br>/g, '</li>');
     return html;
   }
