@@ -4,7 +4,7 @@ const cheerio = require('cheerio');
 // メモリベースのレート制限管理
 const rateLimitStore = new Map();
 const RATE_LIMIT_WINDOW = 24 * 60 * 60 * 1000; // 24時間
-const MAX_REQUESTS_PER_IP = 10;
+const MAX_REQUESTS_PER_IP = 50;
 
 // レート制限クリーンアップのインターバル（30分ごと）
 let cleanupInterval = null;

@@ -3,7 +3,7 @@ const OpenAI = require('openai');
 // メモリベースのレート制限管理
 const rateLimitStore = new Map();
 const RATE_LIMIT_WINDOW = 24 * 60 * 60 * 1000; // 24時間
-const MAX_REQUESTS_PER_IP = 10; // IP単位での制限
+const MAX_REQUESTS_PER_IP = 50; // IP単位での制限
 
 /**
  * 古いレート制限エントリをクリーンアップ (リクエスト毎に実行)
