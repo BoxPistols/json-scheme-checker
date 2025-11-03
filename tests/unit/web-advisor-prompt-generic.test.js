@@ -8,7 +8,9 @@ describe('Web Advisor - Generic Prompt Generation', () => {
     // Mock the buildPrompt function
     mockBuildPrompt = (metadata, url) => {
       const titleSection = metadata.title ? `タイトル: ${metadata.title}` : 'タイトル: （未設定）';
-      const descSection = metadata.description ? `説明: ${metadata.description}` : '説明: （未設定）';
+      const descSection = metadata.description
+        ? `説明: ${metadata.description}`
+        : '説明: （未設定）';
 
       return `あなたは経験豊富なWebサイト分析家です。以下のページ情報を分析し、ページの性質を判定した上で、適切な観点からコンテンツ品質、SEO、ユーザビリティについて具体的な改善提案を日本語で提供してください。
 
@@ -110,7 +112,9 @@ ${metadata.bodySnippet.substring(0, 1000)}...
 
       const prompt = mockBuildPrompt(metadata, 'http://example.com');
 
-      expect(prompt).toContain('一般的なWebページ: 企業サイト、ポートフォリオ、ランディングページ、製品紹介など');
+      expect(prompt).toContain(
+        '一般的なWebページ: 企業サイト、ポートフォリオ、ランディングページ、製品紹介など'
+      );
     });
 
     it('should include URL in analysis target section', () => {

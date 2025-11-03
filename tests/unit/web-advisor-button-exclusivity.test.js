@@ -1,4 +1,5 @@
 /* @vitest-environment jsdom */
+/* global advisorManager, blogReviewerManager, webAdvisorManager */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 describe('Web Analysis Button Exclusivity - 1 Page = 1 Analysis', () => {
@@ -25,7 +26,7 @@ describe('Web Analysis Button Exclusivity - 1 Page = 1 Analysis', () => {
         btn.textContent = '求人/求職アドバイスを受ける';
         document.getElementById('aiActions').appendChild(btn);
       }),
-      detectJobPosting: vi.fn(function() {
+      detectJobPosting: vi.fn(function () {
         this.hideAdvisorButton();
         this.showAdvisorButton();
         return true;
@@ -43,7 +44,7 @@ describe('Web Analysis Button Exclusivity - 1 Page = 1 Analysis', () => {
         btn.textContent = 'ブログ記事レビュー';
         document.getElementById('aiActions').appendChild(btn);
       }),
-      detectBlogPost: vi.fn(function() {
+      detectBlogPost: vi.fn(function () {
         this.hideReviewButton();
         this.showReviewButton();
         return true;
@@ -61,7 +62,7 @@ describe('Web Analysis Button Exclusivity - 1 Page = 1 Analysis', () => {
         btn.textContent = 'Webページ分析を受ける';
         document.getElementById('aiActions').appendChild(btn);
       }),
-      detectNoSchemaOrWebPageOnly: vi.fn(function() {
+      detectNoSchemaOrWebPageOnly: vi.fn(function () {
         this.hideAnalysisButton();
         this.showAnalysisButton();
         return true;

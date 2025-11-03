@@ -1,22 +1,25 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Webページ分析 - JSON-LD Schema Viewer</title>
-    <meta name="robots" content="noindex,nofollow">
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="/styles.css">
+    <meta name="robots" content="noindex,nofollow" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/styles.css" />
     <script>
       // テーマ適用（FOUCを防止）
-      (function() {
+      (function () {
         try {
           const themeKey = 'jsonld_theme';
-          const savedTheme = localStorage.getItem(themeKey) ||
+          const savedTheme =
+            localStorage.getItem(themeKey) ||
             (window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
           document.documentElement.dataset.theme = savedTheme;
         } catch (e) {
-          const osTheme = window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          const osTheme = window.matchMedia?.('(prefers-color-scheme: dark)').matches
+            ? 'dark'
+            : 'light';
           document.documentElement.dataset.theme = osTheme;
         }
       })();
@@ -148,7 +151,9 @@
       }
 
       @keyframes spin {
-        to { transform: rotate(360deg); }
+        to {
+          transform: rotate(360deg);
+        }
       }
 
       .advisor-actions {
@@ -196,220 +201,226 @@
         font-weight: 600;
       }
     </style>
-</head>
-<body>
-  <div class="advisor-page">
-    <div class="advisor-container">
-      <div class="advisor-header">
-        <div class="advisor-title">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 2l2 7h7l-5.5 4 2 7-5.5-4-5.5 4 2-7-5.5-4h7z"/>
-          </svg>
-          <h1>Webページ分析</h1>
+  </head>
+  <body>
+    <div class="advisor-page">
+      <div class="advisor-container">
+        <div class="advisor-header">
+          <div class="advisor-title">
+            <svg
+              width="32"
+              height="32"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M12 2l2 7h7l-5.5 4 2 7-5.5-4-5.5 4 2-7-5.5-4h7z" />
+            </svg>
+            <h1>Webページ分析</h1>
+          </div>
+          <button class="advisor-btn advisor-btn-secondary" onclick="window.close()">閉じる</button>
         </div>
-        <button class="advisor-btn advisor-btn-secondary" onclick="window.close()">
-          閉じる
-        </button>
-      </div>
 
-      <div id="urlDisplay" class="advisor-url-display">
-        <strong>分析対象URL:</strong>
-        <code id="targetUrl"></code>
-      </div>
-
-      <div id="statusPanel" class="advisor-status-panel">
-        <div class="advisor-loading">
-          <div class="advisor-spinner"></div>
-          <span>分析を開始しています...</span>
+        <div id="urlDisplay" class="advisor-url-display">
+          <strong>分析対象URL:</strong>
+          <code id="targetUrl"></code>
         </div>
-      </div>
 
-      <div id="resultPanel" class="advisor-result-panel">
-        <div id="resultContent" class="advisor-result-content"></div>
-        <div class="advisor-actions">
-          <button class="advisor-btn advisor-btn-secondary" onclick="copyResult()">
-            結果をコピー
-          </button>
-          <button class="advisor-btn advisor-btn-secondary" onclick="saveResult()">
-            結果を保存
-          </button>
-          <button class="advisor-btn advisor-btn-primary" onclick="window.close()">
-            閉じる
-          </button>
+        <div id="statusPanel" class="advisor-status-panel">
+          <div class="advisor-loading">
+            <div class="advisor-spinner"></div>
+            <span>分析を開始しています...</span>
+          </div>
+        </div>
+
+        <div id="resultPanel" class="advisor-result-panel">
+          <div id="resultContent" class="advisor-result-content"></div>
+          <div class="advisor-actions">
+            <button class="advisor-btn advisor-btn-secondary" onclick="copyResult()">
+              結果をコピー
+            </button>
+            <button class="advisor-btn advisor-btn-secondary" onclick="saveResult()">
+              結果を保存
+            </button>
+            <button class="advisor-btn advisor-btn-primary" onclick="window.close()">閉じる</button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <script>
-    let currentResult = '';
-    let eventSource = null;
+    <script>
+      let currentResult = '';
+      let eventSource = null;
 
-    // URLパラメータから分析対象URLを取得
-    const params = new URLSearchParams(window.location.search);
-    const targetUrl = params.get('url');
+      // URLパラメータから分析対象URLを取得
+      const params = new URLSearchParams(window.location.search);
+      const targetUrl = params.get('url');
 
-    if (!targetUrl) {
-      document.getElementById('statusPanel').innerHTML =
-        '<div class="status-error">URLが指定されていません</div>';
-    } else {
-      document.getElementById('targetUrl').textContent = targetUrl;
-      startAnalysis();
-    }
-
-    function startAnalysis() {
-      const statusPanel = document.getElementById('statusPanel');
-      const resultPanel = document.getElementById('resultPanel');
-      const resultContent = document.getElementById('resultContent');
-
-      // 環境検出
-      const currentHost = window.location.hostname;
-      const isVercel = currentHost.includes('vercel.app') || currentHost.includes('vercel.sh');
-      const isLocalhost = currentHost === 'localhost' || currentHost === '127.0.0.1';
-
-      let apiUrl;
-      if (isVercel) {
-        apiUrl = `/api/web-advisor?url=${encodeURIComponent(targetUrl)}`;
-      } else if (isLocalhost) {
-        apiUrl = `http://localhost:3333/api/web-advisor?url=${encodeURIComponent(targetUrl)}`;
+      if (!targetUrl) {
+        document.getElementById('statusPanel').innerHTML =
+          '<div class="status-error">URLが指定されていません</div>';
       } else {
-        apiUrl = `http://${currentHost}:3333/api/web-advisor?url=${encodeURIComponent(targetUrl)}`;
+        document.getElementById('targetUrl').textContent = targetUrl;
+        startAnalysis();
       }
 
-      // ユーザーAPIキーがあれば追加
-      const userApiKey = localStorage.getItem('jsonld_web_advisor_openai_key');
-      if (userApiKey) {
-        apiUrl += `&userApiKey=${encodeURIComponent(userApiKey)}`;
-      }
+      function startAnalysis() {
+        const statusPanel = document.getElementById('statusPanel');
+        const resultPanel = document.getElementById('resultPanel');
+        const resultContent = document.getElementById('resultContent');
 
-      eventSource = new EventSource(apiUrl);
+        // 環境検出
+        const currentHost = window.location.hostname;
+        const isVercel = currentHost.includes('vercel.app') || currentHost.includes('vercel.sh');
+        const isLocalhost = currentHost === 'localhost' || currentHost === '127.0.0.1';
 
-      eventSource.addEventListener('message', (event) => {
-        try {
-          const data = JSON.parse(event.data);
-
-          switch (data.type) {
-            case 'init':
-              statusPanel.innerHTML = `
-                <div class="advisor-loading">
-                  <div class="advisor-spinner"></div>
-                  <span>${data.message}</span>
-                </div>
-              `;
-              break;
-
-            case 'progress':
-              statusPanel.innerHTML = `
-                <div class="advisor-loading">
-                  <div class="advisor-spinner"></div>
-                  <span>${data.message}</span>
-                </div>
-              `;
-              break;
-
-            case 'meta':
-              // メタ情報は表示しない（簡潔にするため）
-              break;
-
-            case 'token':
-              currentResult += data.content;
-              renderMarkdown(resultContent, currentResult);
-              resultPanel.classList.add('active');
-              break;
-
-            case 'done':
-              statusPanel.innerHTML = '<div class="status-success">分析が完了しました</div>';
-              if (eventSource) {
-                eventSource.close();
-                eventSource = null;
-              }
-              break;
-
-            case 'error':
-              statusPanel.innerHTML = `<div class="status-error">エラー: ${data.message}</div>`;
-              if (eventSource) {
-                eventSource.close();
-                eventSource = null;
-              }
-              break;
-          }
-        } catch (error) {
-          console.error('Parse error:', error);
+        let apiUrl;
+        if (isVercel) {
+          apiUrl = `/api/web-advisor?url=${encodeURIComponent(targetUrl)}`;
+        } else if (isLocalhost) {
+          apiUrl = `http://localhost:3333/api/web-advisor?url=${encodeURIComponent(targetUrl)}`;
+        } else {
+          apiUrl = `http://${currentHost}:3333/api/web-advisor?url=${encodeURIComponent(targetUrl)}`;
         }
-      });
 
-      eventSource.addEventListener('error', (error) => {
-        console.error('EventSource error:', error);
-        statusPanel.innerHTML = '<div class="status-error">接続エラーが発生しました</div>';
+        // ユーザーAPIキーがあれば追加
+        const userApiKey = localStorage.getItem('jsonld_web_advisor_openai_key');
+        if (userApiKey) {
+          apiUrl += `&userApiKey=${encodeURIComponent(userApiKey)}`;
+        }
+
+        eventSource = new EventSource(apiUrl);
+
+        eventSource.addEventListener('message', event => {
+          try {
+            const data = JSON.parse(event.data);
+
+            switch (data.type) {
+              case 'init':
+                statusPanel.innerHTML = `
+                <div class="advisor-loading">
+                  <div class="advisor-spinner"></div>
+                  <span>${data.message}</span>
+                </div>
+              `;
+                break;
+
+              case 'progress':
+                statusPanel.innerHTML = `
+                <div class="advisor-loading">
+                  <div class="advisor-spinner"></div>
+                  <span>${data.message}</span>
+                </div>
+              `;
+                break;
+
+              case 'meta':
+                // メタ情報は表示しない（簡潔にするため）
+                break;
+
+              case 'token':
+                currentResult += data.content;
+                renderMarkdown(resultContent, currentResult);
+                resultPanel.classList.add('active');
+                break;
+
+              case 'done':
+                statusPanel.innerHTML = '<div class="status-success">分析が完了しました</div>';
+                if (eventSource) {
+                  eventSource.close();
+                  eventSource = null;
+                }
+                break;
+
+              case 'error':
+                statusPanel.innerHTML = `<div class="status-error">エラー: ${data.message}</div>`;
+                if (eventSource) {
+                  eventSource.close();
+                  eventSource = null;
+                }
+                break;
+            }
+          } catch (error) {
+            console.error('Parse error:', error);
+          }
+        });
+
+        eventSource.addEventListener('error', error => {
+          console.error('EventSource error:', error);
+          statusPanel.innerHTML = '<div class="status-error">接続エラーが発生しました</div>';
+          if (eventSource) {
+            eventSource.close();
+            eventSource = null;
+          }
+        });
+      }
+
+      function renderMarkdown(container, text) {
+        if (!text) return;
+
+        // 簡易的なMarkdown変換
+        const html = text
+          .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+          .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+          .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+          .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
+          .replace(/\*(.*?)\*/gim, '<em>$1</em>')
+          .replace(/^\d+\.\s+(.*)$/gim, '<li>$1</li>')
+          .replace(/^-\s+(.*)$/gim, '<li>$1</li>')
+          .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
+          .split('\n\n')
+          .map(para => {
+            if (para.startsWith('<h') || para.startsWith('<ul>')) {
+              return para;
+            }
+            return para ? `<p>${para}</p>` : '';
+          })
+          .join('');
+
+        container.innerHTML = html;
+      }
+
+      function copyResult() {
+        if (!currentResult) {
+          alert('コピーする内容がありません');
+          return;
+        }
+
+        navigator.clipboard
+          .writeText(currentResult)
+          .then(() => {
+            alert('結果をクリップボードにコピーしました');
+          })
+          .catch(err => {
+            console.error('Copy failed:', err);
+            alert('コピーに失敗しました');
+          });
+      }
+
+      function saveResult() {
+        if (!currentResult) {
+          alert('保存する内容がありません');
+          return;
+        }
+
+        const blob = new Blob([currentResult], { type: 'text/markdown' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `web-advisor-${Date.now()}.md`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+
+      // ページを閉じる時にEventSourceをクリーンアップ
+      window.addEventListener('beforeunload', () => {
         if (eventSource) {
           eventSource.close();
-          eventSource = null;
         }
       });
-    }
-
-    function renderMarkdown(container, text) {
-      if (!text) return;
-
-      // 簡易的なMarkdown変換
-      const html = text
-        .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-        .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-        .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-        .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
-        .replace(/\*(.*?)\*/gim, '<em>$1</em>')
-        .replace(/^\d+\.\s+(.*)$/gim, '<li>$1</li>')
-        .replace(/^-\s+(.*)$/gim, '<li>$1</li>')
-        .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
-        .split('\n\n')
-        .map(para => {
-          if (para.startsWith('<h') || para.startsWith('<ul>')) {
-            return para;
-          }
-          return para ? `<p>${para}</p>` : '';
-        })
-        .join('');
-
-      container.innerHTML = html;
-    }
-
-    function copyResult() {
-      if (!currentResult) {
-        alert('コピーする内容がありません');
-        return;
-      }
-
-      navigator.clipboard.writeText(currentResult).then(() => {
-        alert('結果をクリップボードにコピーしました');
-      }).catch(err => {
-        console.error('Copy failed:', err);
-        alert('コピーに失敗しました');
-      });
-    }
-
-    function saveResult() {
-      if (!currentResult) {
-        alert('保存する内容がありません');
-        return;
-      }
-
-      const blob = new Blob([currentResult], { type: 'text/markdown' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `web-advisor-${Date.now()}.md`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
-
-    // ページを閉じる時にEventSourceをクリーンアップ
-    window.addEventListener('beforeunload', () => {
-      if (eventSource) {
-        eventSource.close();
-      }
-    });
-  </script>
-</body>
+    </script>
+  </body>
 </html>

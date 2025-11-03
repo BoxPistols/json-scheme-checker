@@ -17,9 +17,7 @@ describe('Web Advisor - renderMarkdown Method', () => {
       escapeHtml,
       renderMarkdown(markdown) {
         let html = this.escapeHtml(markdown);
-        html = html
-          .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-          .replace(/^## (.*$)/gim, '<h2>$1</h2>');
+        html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>').replace(/^## (.*$)/gim, '<h2>$1</h2>');
         html = html
           .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
           .replace(/^\- (.*$)/gim, '<li>$1</li>');

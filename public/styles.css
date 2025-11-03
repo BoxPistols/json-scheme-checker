@@ -24,6 +24,8 @@ html {
   --secondary-bg-color: #f8fafc;
   --secondary-text-color: #64748b;
   --accent-color: #3b82f6;
+  --link-color: #3b82f6;
+  --link-visited-color: #3b82f6;
   --error-color: #ef4444;
   --error-bg-color: #fef2f2;
   --success-color: #10b981;
@@ -82,6 +84,8 @@ html[data-theme='dark'] {
   --primary-shadow-color: rgba(129, 140, 248, 0.2);
   --accent-hover-bg-color: rgba(96, 165, 250, 0.1);
   --accent-hover-color: #3b82f6;
+  --link-color: #60a5fa; /* Blue 400 */
+  --link-visited-color: #60a5fa;
   --info-blue-text-color: #93c5fd;
   --info-blue-heading-color: #60a5fa;
   --info-yellow-text-color: #fcd34d;
@@ -3157,6 +3161,116 @@ html[data-theme='dark'] .score-breakdown > div {
 @keyframes advisor-spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* Skeleton Loading */
+.advisor-skeleton-loader {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  animation: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.advisor-skeleton-item {
+  height: 16px;
+  background: var(--secondary-bg-color);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.advisor-skeleton-item::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  animation: skeleton-shimmer 2s infinite;
+}
+
+.advisor-skeleton-item.large {
+  height: 24px;
+  margin-bottom: 8px;
+}
+
+.advisor-skeleton-item.medium {
+  height: 20px;
+}
+
+.advisor-skeleton-item.small {
+  height: 14px;
+  width: 70%;
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Progress Bar */
+.advisor-progress-container {
+  margin-bottom: 16px;
+}
+
+.advisor-progress-bar {
+  height: 4px;
+  background: var(--border-color);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.advisor-progress-fill {
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--accent-color),
+    var(--primary-color),
+    var(--accent-color)
+  );
+  background-size: 200% 100%;
+  width: 0%;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 2px;
+  animation: progress-shimmer 2s infinite;
+}
+
+.advisor-progress-text {
+  font-size: 11px;
+  color: var(--secondary-text-color);
+  margin-top: 4px;
+  text-align: center;
+  opacity: 0.8;
+}
+
+@keyframes progress-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
   }
 }
 

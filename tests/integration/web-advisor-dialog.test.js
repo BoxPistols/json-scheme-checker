@@ -139,7 +139,9 @@ describe('Web Advisor Dialog - UI Simplification', () => {
       const description = overlay.querySelector('.advisor-modal-text');
 
       expect(description).toBeTruthy();
-      expect(description.textContent).toContain('SEO/EEAT/アクセシビリティ観点で対象ページを分析します');
+      expect(description.textContent).toContain(
+        'SEO/EEAT/アクセシビリティ観点で対象ページを分析します'
+      );
     });
   });
 

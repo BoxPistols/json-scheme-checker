@@ -38,6 +38,7 @@ class WebAdvisorManager extends BaseAdvisorManager {
     super(config);
 
     this.currentUrl = null;
+    this.currentMetadata = null; // メタデータを保存
     this.isStreaming = false;
     this.currentResult = '';
     this.eventSource = null;
@@ -225,13 +226,34 @@ class WebAdvisorManager extends BaseAdvisorManager {
       ${headerHtml}
       <div class="advisor-view-content">
         <div class="advisor-job-panel">
-          <h3>対象URL</h3>
-          <div class="advisor-job-content"><a href="${this.escapeHtml(this.currentUrl)}" target="_blank">${this.escapeHtml(this.currentUrl)}</a></div>
+          <h3>対象ページ</h3>
+          <div class="advisor-job-content" id="webAdvisorMetadata">
+            <div style="padding: 8px 0;">
+              <p style="margin: 0 0 4px 0; font-size: 12px; opacity: 0.7;">読み込み中...</p>
+            </div>
+          </div>
         </div>
         <div class="advisor-advice-panel">
           <h3>AI分析結果</h3>
           <div class="advisor-advice-content" id="webAdvisorContent">
-            <div class="advisor-loading"><div class="advisor-spinner"></div><p>AI分析中...</p></div>
+            <div class="advisor-progress-container" id="webAdvisorProgressContainer">
+              <div class="advisor-progress-bar">
+                <div class="advisor-progress-fill" id="webAdvisorProgressFill"></div>
+              </div>
+              <div class="advisor-progress-text" id="webAdvisorProgressText">準備中...</div>
+            </div>
+            <div class="advisor-skeleton-loader" id="webAdvisorSkeletonLoader">
+              <div class="advisor-skeleton-item large"></div>
+              <div class="advisor-skeleton-item medium"></div>
+              <div class="advisor-skeleton-item medium"></div>
+              <div class="advisor-skeleton-item small"></div>
+              <div style="height: 8px;"></div>
+              <div class="advisor-skeleton-item large"></div>
+              <div class="advisor-skeleton-item medium"></div>
+              <div class="advisor-skeleton-item medium"></div>
+              <div class="advisor-skeleton-item small"></div>
+            </div>
+            <div class="advisor-markdown" id="webAdvisorMarkdown"></div>
           </div>
         </div>
       </div>
@@ -240,6 +262,129 @@ class WebAdvisorManager extends BaseAdvisorManager {
     container.style.display = 'none';
     document.body.appendChild(view);
     setTimeout(() => view.classList.add('active'), 10);
+  }
+
+  /**
+   * メタデータパネルを更新（meta イベント受信時に呼び出し）
+   */
+  updateMetadataPanel() {
+    if (!this.currentMetadata) return;
+
+    const panel = document.getElementById('webAdvisorMetadata');
+    if (!panel) return;
+
+    const { title, description, headings, og } = this.currentMetadata;
+    const h1Content = headings.h1.length > 0 ? headings.h1[0] : '';
+    const h2Content = headings.h2.length > 0 ? headings.h2.slice(0, 3).join(' / ') : '';
+
+    let metadataHtml = `
+      <div style="padding: 8px 0; font-size: 13px; line-height: 1.6;">
+        <p style="margin: 0 0 8px 0;">
+          <strong style="display: block; margin-bottom: 2px;">URL</strong>
+          <a href="${this.escapeHtml(this.currentUrl)}" target="_blank" style="color: var(--link-color); text-decoration: none; word-break: break-all; font-size: 12px;">
+            ${this.escapeHtml(this.currentUrl)}
+          </a>
+        </p>
+    `;
+
+    if (title) {
+      metadataHtml += `
+        <p style="margin: 0 0 8px 0;">
+          <strong style="display: block; margin-bottom: 2px;">タイトル</strong>
+          <span style="font-size: 12px; opacity: 0.9;">${this.escapeHtml(title.substring(0, 80))}</span>
+        </p>
+      `;
+    }
+
+    if (description) {
+      metadataHtml += `
+        <p style="margin: 0 0 8px 0;">
+          <strong style="display: block; margin-bottom: 2px;">説明</strong>
+          <span style="font-size: 12px; opacity: 0.8;">${this.escapeHtml(description.substring(0, 100))}</span>
+        </p>
+      `;
+    }
+
+    if (h1Content) {
+      metadataHtml += `
+        <p style="margin: 0 0 8px 0;">
+          <strong style="display: block; margin-bottom: 2px;">H1</strong>
+          <span style="font-size: 12px; opacity: 0.85;">${this.escapeHtml(h1Content.substring(0, 60))}</span>
+        </p>
+      `;
+    }
+
+    if (h2Content) {
+      metadataHtml += `
+        <p style="margin: 0 0 8px 0;">
+          <strong style="display: block; margin-bottom: 2px;">見出し構成</strong>
+          <span style="font-size: 12px; opacity: 0.8;">${this.escapeHtml(h2Content.substring(0, 100))}</span>
+        </p>
+      `;
+    }
+
+    // Open Graph メタデータを表示
+    if (og) {
+      metadataHtml += `<div style="margin-top: 12px; padding-top: 8px; border-top: 1px solid var(--border-color);">`;
+
+      if (og.title) {
+        metadataHtml += `
+          <p style="margin: 0 0 6px 0;">
+            <strong style="display: block; margin-bottom: 2px; font-size: 12px; opacity: 0.7;">OG:Title</strong>
+            <span style="font-size: 12px; opacity: 0.8;">${this.escapeHtml(og.title.substring(0, 70))}</span>
+          </p>
+        `;
+      }
+
+      if (og.image) {
+        metadataHtml += `
+          <p style="margin: 0 0 6px 0;">
+            <strong style="display: block; margin-bottom: 2px; font-size: 12px; opacity: 0.7;">OG:Image</strong>
+            <img src="${this.escapeHtml(og.image)}" style="max-width: 100%; height: auto; border-radius: 3px; margin-top: 4px;" alt="OG Image" onerror="this.style.display='none'">
+          </p>
+        `;
+      }
+
+      if (og.description) {
+        metadataHtml += `
+          <p style="margin: 0 0 6px 0;">
+            <strong style="display: block; margin-bottom: 2px; font-size: 12px; opacity: 0.7;">OG:Description</strong>
+            <span style="font-size: 12px; opacity: 0.75;">${this.escapeHtml(og.description.substring(0, 90))}</span>
+          </p>
+        `;
+      }
+
+      if (og.type) {
+        metadataHtml += `
+          <p style="margin: 0;">
+            <strong style="display: block; margin-bottom: 2px; font-size: 12px; opacity: 0.7;">OG:Type</strong>
+            <span style="font-size: 12px; opacity: 0.75;">${this.escapeHtml(og.type)}</span>
+          </p>
+        `;
+      }
+
+      metadataHtml += '</div>';
+    }
+
+    metadataHtml += '</div>';
+
+    panel.innerHTML = metadataHtml;
+  }
+
+  /**
+   * プログレスバーを更新
+   */
+  updateProgress(percentage, text) {
+    const fill = document.getElementById('webAdvisorProgressFill');
+    const textEl = document.getElementById('webAdvisorProgressText');
+
+    if (fill) {
+      fill.style.width = Math.min(percentage, 100) + '%';
+    }
+
+    if (textEl) {
+      textEl.textContent = text;
+    }
   }
 
   /** SSEで分析を取得 */
@@ -308,13 +453,22 @@ class WebAdvisorManager extends BaseAdvisorManager {
     console.log('[WebAdvisor-fetchAnalysis] SSE URL:', url);
 
     try {
-      content.innerHTML = '<div class="advisor-markdown"></div>';
-      const md = content.querySelector('.advisor-markdown');
+      // 既存のマークダウン要素を使用（HTML上書きしない）
+      const md = document.getElementById('webAdvisorMarkdown');
+      if (!md) {
+        throw new Error('マークダウン要素が見つかりません');
+      }
+
       let full = '';
+      let tokenCount = 0;
+      let firstTokenReceived = false;
 
       const es = new EventSource(url);
       this.eventSource = es;
       console.log('[WebAdvisor-fetchAnalysis] EventSource created');
+
+      // 初期プログレスを表示
+      this.updateProgress(0, '初期化中...');
 
       es.onmessage = e => {
         console.log('[WebAdvisor-SSE-onmessage] Event:', e.data?.substring(0, 100));
@@ -323,12 +477,48 @@ class WebAdvisorManager extends BaseAdvisorManager {
           const data = JSON.parse(e.data);
           console.log('[WebAdvisor-SSE-onmessage] Type:', data.type);
           switch (data.type) {
+            case 'init':
+              this.updateProgress(5, data.message || '初期化中...');
+              break;
+            case 'progress':
+              // stage に応じてプログレスを更新
+              if (data.stage === 'fetching') {
+                this.updateProgress(15, data.message || 'ページを取得中...');
+              } else if (data.stage === 'parsing') {
+                this.updateProgress(45, data.message || 'ページを解析中...');
+              } else if (data.stage === 'analyzing') {
+                this.updateProgress(70, data.message || 'AI分析中...');
+              }
+              break;
+            case 'meta':
+              // メタデータを保存してパネルを更新
+              this.currentMetadata = data.data;
+              this.updateMetadataPanel();
+              break;
             case 'token':
               full += data.content || '';
+              tokenCount++;
+
+              // 初回トークン受信時、スケルトンローダーを非表示
+              if (!firstTokenReceived) {
+                firstTokenReceived = true;
+                const skeletonLoader = document.getElementById('webAdvisorSkeletonLoader');
+                if (skeletonLoader) {
+                  skeletonLoader.style.display = 'none';
+                }
+              }
+
+              // トークン受信に応じてプログレスを更新（70% -> 99%）
+              const tokenProgress = 70 + Math.min(tokenCount * 0.5, 29);
+              this.updateProgress(tokenProgress, `分析中...${tokenCount}トークン`);
               md.innerHTML = this.renderMarkdown(full);
               break;
             case 'done':
               console.log('[WebAdvisor-SSE-onmessage] Analysis complete');
+              this.updateProgress(100, '完了');
+              // プログレスバーを非表示（スケルトンローダーは初回トークン時に既に非表示）
+              const doneProgressContainer = document.getElementById('webAdvisorProgressContainer');
+              if (doneProgressContainer) doneProgressContainer.style.display = 'none';
               this.isStreaming = false;
               this.recordUsage();
               setAnalysisInactive('web-advisor'); // グローバル状態をクリア
@@ -336,6 +526,11 @@ class WebAdvisorManager extends BaseAdvisorManager {
               break;
             case 'error':
               console.log('[WebAdvisor-SSE-onmessage] Error:', data.message);
+              // プログレスバーとスケルトンローダーを非表示
+              const errProgressContainer = document.getElementById('webAdvisorProgressContainer');
+              const errSkeletonLoader = document.getElementById('webAdvisorSkeletonLoader');
+              if (errProgressContainer) errProgressContainer.style.display = 'none';
+              if (errSkeletonLoader) errSkeletonLoader.style.display = 'none';
               this.isStreaming = false;
               setAnalysisInactive('web-advisor'); // グローバル状態をクリア
               md.innerHTML = `<div class="advisor-error"><p>${this.escapeHtml(data.message || '分析に失敗しました')}</p></div>`;
@@ -343,7 +538,6 @@ class WebAdvisorManager extends BaseAdvisorManager {
               break;
             default:
               console.log('[WebAdvisor-SSE-onmessage] Ignored type:', data.type);
-              // init/progress/meta は必要に応じて拡張
               break;
           }
         } catch (err) {
@@ -355,6 +549,11 @@ class WebAdvisorManager extends BaseAdvisorManager {
       es.onerror = () => {
         console.log('[WebAdvisor-SSE-onerror] Connection error, isStreaming:', this.isStreaming);
         if (this.isStreaming) {
+          // プログレスバーとスケルトンローダーを非表示
+          const errorProgressContainer = document.getElementById('webAdvisorProgressContainer');
+          const errorSkeletonLoader = document.getElementById('webAdvisorSkeletonLoader');
+          if (errorProgressContainer) errorProgressContainer.style.display = 'none';
+          if (errorSkeletonLoader) errorSkeletonLoader.style.display = 'none';
           this.isStreaming = false;
           setAnalysisInactive('web-advisor'); // グローバル状態をクリア
           md.innerHTML = '<div class="advisor-error"><p>接続に失敗しました</p></div>';
@@ -363,9 +562,17 @@ class WebAdvisorManager extends BaseAdvisorManager {
       };
     } catch (err) {
       console.log('[WebAdvisor-fetchAnalysis] Error:', err.message);
+      // プログレスバーとスケルトンローダーを非表示
+      const catchProgressContainer = document.getElementById('webAdvisorProgressContainer');
+      const catchSkeletonLoader = document.getElementById('webAdvisorSkeletonLoader');
+      if (catchProgressContainer) catchProgressContainer.style.display = 'none';
+      if (catchSkeletonLoader) catchSkeletonLoader.style.display = 'none';
       this.isStreaming = false;
       setAnalysisInactive('web-advisor'); // グローバル状態をクリア
-      content.innerHTML = `<div class="advisor-error"><p>${this.escapeHtml(err.message || '分析開始に失敗しました')}</p></div>`;
+      const md = document.getElementById('webAdvisorMarkdown');
+      if (md) {
+        md.innerHTML = `<div class="advisor-error"><p>${this.escapeHtml(err.message || '分析開始に失敗しました')}</p></div>`;
+      }
     }
   }
 
@@ -411,7 +618,10 @@ class WebAdvisorManager extends BaseAdvisorManager {
       /((?:<li>.*?<\/li>(?:<br>)*)+)/g,
       match => `<ul>${match.replace(/<br>/g, '')}</ul>`
     );
-    return html.replace(/\n/g, '<br>');
+    html = html.replace(/\n/g, '<br>');
+    // </li> の直後の <br> を削除
+    html = html.replace(/<\/li><br>/g, '</li>');
+    return html;
   }
 }
 

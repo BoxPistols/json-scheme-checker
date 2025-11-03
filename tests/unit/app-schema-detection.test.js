@@ -1,4 +1,5 @@
 /* @vitest-environment jsdom */
+/* global advisorManager, blogReviewerManager, webAdvisorManager */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 describe('App Schema Detection Logic - Exclusive Classification', () => {
@@ -9,20 +10,19 @@ describe('App Schema Detection Logic - Exclusive Classification', () => {
   beforeEach(() => {
     // Mock detection methods
     mockAdvisorManager = {
-      detectJobPosting: vi.fn((schemas) => {
+      detectJobPosting: vi.fn(schemas => {
         return schemas.some(
-          (item) =>
+          item =>
             item['@type'] === 'JobPosting' ||
-            (Array.isArray(item['@type']) &&
-              item['@type'].includes('JobPosting'))
+            (Array.isArray(item['@type']) && item['@type'].includes('JobPosting'))
         );
       }),
     };
 
     mockBlogReviewerManager = {
-      detectBlogPost: vi.fn((schemas) => {
+      detectBlogPost: vi.fn(schemas => {
         return schemas.some(
-          (item) =>
+          item =>
             item['@type'] === 'Article' ||
             item['@type'] === 'BlogPosting' ||
             item['@type'] === 'NewsArticle' ||
@@ -35,20 +35,15 @@ describe('App Schema Detection Logic - Exclusive Classification', () => {
     };
 
     mockWebAdvisorManager = {
-      detectNoSchemaOrWebPageOnly: vi.fn((schemas) => {
-        const exclusiveAdvisorTypes = [
-          'JobPosting',
-          'BlogPosting',
-          'Article',
-          'NewsArticle',
-        ];
+      detectNoSchemaOrWebPageOnly: vi.fn(schemas => {
+        const exclusiveAdvisorTypes = ['JobPosting', 'BlogPosting', 'Article', 'NewsArticle'];
 
-        const hasExclusiveAdvisor = schemas.some((schema) => {
+        const hasExclusiveAdvisor = schemas.some(schema => {
           const type = schema['@type'];
           if (!type) return false;
 
           if (Array.isArray(type)) {
-            return type.some((t) => exclusiveAdvisorTypes.includes(t));
+            return type.some(t => exclusiveAdvisorTypes.includes(t));
           }
 
           return exclusiveAdvisorTypes.includes(type);
@@ -143,16 +138,12 @@ describe('App Schema Detection Logic - Exclusive Classification', () => {
 
     it('should return false when exclusive schema (JobPosting) present', () => {
       const schemas = [{ '@type': 'JobPosting', name: 'Job' }];
-      expect(webAdvisorManager.detectNoSchemaOrWebPageOnly(schemas)).toBe(
-        false
-      );
+      expect(webAdvisorManager.detectNoSchemaOrWebPageOnly(schemas)).toBe(false);
     });
 
     it('should return false when exclusive schema (Article) present', () => {
       const schemas = [{ '@type': 'Article', headline: 'Test' }];
-      expect(webAdvisorManager.detectNoSchemaOrWebPageOnly(schemas)).toBe(
-        false
-      );
+      expect(webAdvisorManager.detectNoSchemaOrWebPageOnly(schemas)).toBe(false);
     });
 
     it('should return false when exclusive schema in array @type', () => {
@@ -161,9 +152,7 @@ describe('App Schema Detection Logic - Exclusive Classification', () => {
           '@type': ['WebPage', 'BlogPosting'],
         },
       ];
-      expect(webAdvisorManager.detectNoSchemaOrWebPageOnly(schemas)).toBe(
-        false
-      );
+      expect(webAdvisorManager.detectNoSchemaOrWebPageOnly(schemas)).toBe(false);
     });
   });
 

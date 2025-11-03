@@ -306,7 +306,10 @@ class AdvisorManager extends BaseAdvisorManager {
       /((?:<li>.*?<\/li>(?:<br>)*)+)/g,
       match => `<ul>${match.replace(/<br>/g, '')}</ul>`
     );
-    return html.replace(/\n/g, '<br>');
+    html = html.replace(/\n/g, '<br>');
+    // </li> の直後の <br> を削除
+    html = html.replace(/<\/li><br>/g, '</li>');
+    return html;
   }
 
   displayUsage() {

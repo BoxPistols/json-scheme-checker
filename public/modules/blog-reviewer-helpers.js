@@ -142,6 +142,8 @@ window.BlogReviewerHelpers = {
       /((?:<li>.*?<\/li>(?:<br>)*)+)/g,
       m => `<ul>${m.replace(/<br>/g, '')}</ul>`
     );
+    // </li> の直後の <br> を削除
+    html = html.replace(/<\/li><br>/g, '</li>');
     return html;
   },
 
