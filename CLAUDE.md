@@ -168,6 +168,85 @@ try {
 
 ## 開発時の注意点
 
+### 共通コンポーネント化の原則（必読）
+
+このプロジェクトでは複数の AI 分析ページ（JobPosting Advisor、Blog Reviewer、Web Advisor）があります。**DRY（Don't Repeat Yourself）原則に従い、共通機能は必ず再利用可能な形に抽象化してください。**
+
+#### 共通コンポーネント化すべき機能
+
+1. **マークダウン変換**
+   - 各Advisorで `renderMarkdown()` を実装するのではなく、`BaseAdvisorManager.renderMarkdownCommon()` を使用
+   - 理由：マークダウン仕様は全Advisorで共通。重複実装は保守性を低下させる
+
+2. **エクスポート機能（CSV/HTML）**
+   - `BaseAdvisorManager.showExportButtonsCommon()` でUI生成
+   - `BaseAdvisorManager.downloadFile()` でファイル保存
+   - 各Advisor固有の処理（CSVデータ生成など）のみ個別実装
+
+3. **API使用量表示**
+   - すべてのAdvisorで `renderApiUsagePanel()` を共有（既に実装済み）
+   - ストリーミング完了時に同じUI形式で表示
+
+4. **アコーディオン機能**
+   - 開閉ロジックは `BaseAdvisorManager.toggleAccordionCommon()` で統一
+   - 各Advisorで呼び出すのみ
+
+5. **ユーティリティ関数**
+   - `escapeCsvValue()` - CSV値エスケープ
+   - `cleanHtmlText()` - HTML除去
+   - `escapeHtml()` - HTML特殊文字エスケープ
+   - これらは全Advisorで使用可能
+
+#### 実装パターン（アンチパターン vs 正しいパターン）
+
+**アンチパターン：**
+
+```javascript
+// Advisor.js
+renderMarkdown(markdown) { ... } // 実装A
+
+// BlogReviewer.js
+renderMarkdown(markdown) { ... } // 実装Bで若干異なる
+
+// WebAdvisor.js
+renderMarkdown(markdown) { ... } // 実装Cで別のバリエーション
+```
+
+**正しいパターン：**
+
+```javascript
+// base-advisor.js
+renderMarkdownCommon(markdown) { ... } // 共通実装（統一）
+
+// 各Advisor.js
+md.innerHTML = this.renderMarkdownCommon(fullText);
+```
+
+#### 新機能追加時のチェックリスト
+
+新しいAI分析機能を追加する際は、以下を確認してください：
+
+- [ ] **既存の共通メソッドがないか確認** - 他のAdvisorで同じ機能が実装されていないか
+- [ ] **BaseAdvisorManagerで共通化可能か確認** - 機能が複数のAdvisorで再利用可能なら共通化
+- [ ] **命名規則に統一性があるか確認** - メソッド名が一貫しているか（例：`renderMarkdownCommon`, `showExportButtonsCommon`）
+- [ ] **ドキュメント を更新** - CLAUDE.mdの本セクションを更新
+- [ ] **Linterで検証** - `pnpm lint` でコード品質を確認
+
+#### 共通メソッドリスト（Base Advisor Manager）
+
+以下のメソッドは全Advisorで利用可能です：
+
+| メソッド                                              | 目的                     | 使用例                                                                    |
+| ----------------------------------------------------- | ------------------------ | ------------------------------------------------------------------------- |
+| `renderMarkdownCommon(markdown)`                      | マークダウン → HTML 変換 | `md.innerHTML = this.renderMarkdownCommon(text)`                          |
+| `toggleAccordionCommon(contentId)`                    | アコーディオン開閉       | `this.toggleAccordionCommon('advisorReviewContent')`                      |
+| `showExportButtonsCommon(containerId, onCsv, onHtml)` | エクスポート UI 生成     | `this.showExportButtonsCommon('exportButtons', () => {...}, () => {...})` |
+| `downloadFile(blob, filename)`                        | ファイルダウンロード     | `this.downloadFile(blob, 'result.csv')`                                   |
+| `escapeCsvValue(value)`                               | CSV値エスケープ          | `csvLine += this.escapeCsvValue(text)`                                    |
+| `cleanHtmlText(text)`                                 | HTML除去                 | `plainText = this.cleanHtmlText(htmlContent.innerText)`                   |
+| `escapeHtml(text)`                                    | HTML特殊文字エスケープ   | `safe = this.escapeHtml(userInput)`                                       |
+| `renderApiUsagePanel(usage, model)`                   | API使用量パネル生成      | `container.innerHTML = this.renderApiUsagePanel(usage, model)`            |
+
 ### server.js 修正時
 
 ```bash

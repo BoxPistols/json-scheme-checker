@@ -775,6 +775,130 @@ class BaseAdvisorManager {
   getMarkdownElement(prefixId) {
     return document.getElementById(`${prefixId}Markdown`);
   }
+
+  /**
+   * マークダウンをHTML に変換する共通メソッド（全Advisor共通化）
+   * @param {string} markdown - マークダウンテキスト
+   * @returns {string} HTML文字列
+   */
+  renderMarkdownCommon(markdown) {
+    let html = this.escapeHtml(markdown);
+
+    // 見出し（h1, h2, h3）
+    html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+    html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>').replace(/^## (.*$)/gim, '<h2>$1</h2>');
+
+    // 太字
+    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+    // リスト（ハイフン + 番号付き）
+    html = html.replace(/^\- (.*$)/gim, '<li>$1</li>').replace(/^\d+\. (.*$)/gim, '<li>$1</li>');
+
+    // 改行を先に <br> に変換
+    html = html.replace(/\n/g, '<br>');
+
+    // 見出しの前後の <br> を削除（h1, h2, h3）
+    html = html.replace(/<br><(h[123])>/g, '<$1>'); // 見出しの前
+    html = html.replace(/<\/(h[123])><br>/g, '</$1>'); // 見出しの後
+
+    // 複数の <li>...<br><li>... パターンを <ul> で包括
+    html = html.replace(
+      /(<li>.*?<\/li>(?:<br>)*)+/g,
+      match => `<ul>${match.replace(/<br>/g, '')}</ul>`
+    );
+
+    // </li><br> 後の <br> を削除（リスト項目間）
+    html = html.replace(/<\/li><br>/g, '</li>');
+
+    return html;
+  }
+
+  /**
+   * アコーディオン開閉の共通メソッド
+   * @param {string} contentId - コンテンツ要素ID
+   */
+  toggleAccordionCommon(contentId) {
+    const content = document.getElementById(contentId);
+    if (!content) return;
+
+    const header = content.previousElementSibling;
+    if (!header) return;
+
+    const icon = header.querySelector('.advisor-accordion-icon');
+    const isOpen = content.style.maxHeight && content.style.maxHeight !== '0px';
+
+    if (isOpen) {
+      content.style.maxHeight = '0px';
+      content.style.opacity = '0';
+      content.style.overflow = 'hidden';
+      if (icon) icon.textContent = '▶';
+    } else {
+      content.style.maxHeight = content.scrollHeight + 'px';
+      content.style.opacity = '1';
+      content.style.overflow = 'visible';
+      if (icon) icon.textContent = '▼';
+    }
+  }
+
+  /**
+   * CSVエクスポートボタンを表示する共通メソッド
+   * @param {string} containerId - ボタン配置先のコンテナID
+   * @param {Function} onCsvExport - CSVエクスポート時のコールバック
+   * @param {Function} onHtmlExport - HTMLエクスポート時のコールバック
+   */
+  showExportButtonsCommon(containerId, onCsvExport, onHtmlExport) {
+    const exportContainer = document.getElementById(containerId);
+    if (!exportContainer) return;
+
+    exportContainer.innerHTML = `
+      <button type="button" class="advisor-export-btn advisor-export-csv-btn" aria-label="AI分析結果をCSV形式でエクスポート">CSVでエクスポート</button>
+      <button type="button" class="advisor-export-btn advisor-export-pdf-btn" aria-label="AI分析結果をHTMLでエクスポート（ブラウザの印刷機能でPDF化）">HTMLをPDF化</button>
+    `;
+
+    const csvBtn = exportContainer.querySelector('.advisor-export-csv-btn');
+    const pdfBtn = exportContainer.querySelector('.advisor-export-pdf-btn');
+
+    if (csvBtn && onCsvExport) csvBtn.addEventListener('click', onCsvExport);
+    if (pdfBtn && onHtmlExport) pdfBtn.addEventListener('click', onHtmlExport);
+  }
+
+  /**
+   * ファイルをダウンロードする共通メソッド
+   * @param {Blob} blob - ダウンロードするBlob
+   * @param {string} filename - ファイル名
+   */
+  downloadFile(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  /**
+   * CSV用に値をエスケープする共通メソッド
+   * @param {*} value - エスケープする値
+   * @returns {string} エスケープされた値
+   */
+  escapeCsvValue(value) {
+    const escaped = String(value).replace(/"/g, '""');
+    return `"${escaped}"`;
+  }
+
+  /**
+   * HTMLテキストをクリーンアップする共通メソッド
+   * @param {string} text - テキスト
+   * @returns {string} クリーンなテキスト
+   */
+  cleanHtmlText(text) {
+    return text
+      .replace(/<[^>]*>/g, '')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/\t+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
 }
 
 // Node.js用のテストエクスポート（ブラウザ実行には影響なし）
