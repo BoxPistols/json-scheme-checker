@@ -381,6 +381,26 @@ class WebAdvisorManager extends BaseAdvisorManager {
     this.isStreaming = true;
     setAnalysisActive('web-advisor'); // グローバルにアクティブ化
 
+    // タイムアウト処理（180秒）
+    const timeoutId = setTimeout(() => {
+      if (this.isStreaming) {
+        console.warn('[WebAdvisor] Analysis timeout - forcing completion');
+        this.isStreaming = false;
+        if (this.eventSource) {
+          try {
+            this.eventSource.close();
+          } catch (_) {}
+          this.eventSource = null;
+        }
+        this.updateProgress(100, '完了');
+        const progressContainer = document.getElementById('webAdvisorProgressContainer');
+        if (progressContainer) {
+          progressContainer.style.display = 'none';
+        }
+        alert('分析がタイムアウトしました。取得できた範囲で結果を表示しています。');
+      }
+    }, 180000); // 180秒
+
     const isVercel = window.location.hostname.includes('vercel.app');
     const base = isVercel ? '' : 'http://127.0.0.1:3333';
 
@@ -553,6 +573,9 @@ class WebAdvisorManager extends BaseAdvisorManager {
       if (md) {
         md.innerHTML = `<div class="advisor-error"><p>${this.escapeHtml(err.message || '分析開始に失敗しました')}</p></div>`;
       }
+    } finally {
+      // タイムアウトタイマーをクリア
+      clearTimeout(timeoutId);
     }
   }
 
@@ -667,7 +690,9 @@ class WebAdvisorManager extends BaseAdvisorManager {
       const analysisContent = document.querySelector('.advisor-markdown');
 
       // メタデータ抽出（HTMLタグ除去）
-      const metadataText = metadataContent ? this.cleanHtmlText(metadataContent.innerText) : '情報なし';
+      const metadataText = metadataContent
+        ? this.cleanHtmlText(metadataContent.innerText)
+        : '情報なし';
       const analysisText = analysisContent ? analysisContent.innerText : '情報なし';
 
       // CSVを項目,値の形式で整形（BOM付きUTF-8対応）

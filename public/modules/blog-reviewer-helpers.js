@@ -169,6 +169,7 @@ window.BlogReviewerHelpers = {
       ? new Date(article.dateModified).toLocaleDateString('ja-JP')
       : '不明';
     const description = article.description || article.abstract || '説明なし';
+    const image = article.image;
 
     const MAX_BODY_LENGTH = window.ADVISOR_CONST.ARTICLE.MAX_BODY_LENGTH;
     let articleBody = article.articleBody || '本文なし';
@@ -179,6 +180,24 @@ window.BlogReviewerHelpers = {
     }
 
     return `
+      ${
+        image
+          ? `
+      <div class="job-field">
+        <label>OGP画像</label>
+        <div class="job-value" style="text-align: center;">
+          <img
+            src="${escapeHtml(image)}"
+            alt="OGP"
+            loading="lazy"
+            onerror="this.parentElement.parentElement.style.display='none'"
+            style="max-width: 100%; max-height: 300px; border-radius: 4px; border: 1px solid var(--border-color); display: block;"
+          >
+        </div>
+      </div>
+      `
+          : ''
+      }
       <div class="job-field">
         <label>タイトル</label>
         <div class="job-value">${escapeHtml(headline)}</div>

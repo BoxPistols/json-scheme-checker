@@ -76,6 +76,12 @@ class BlogReviewerManager extends BaseAdvisorManager {
     try {
       const parser = new DOMParser();
       this.remoteDoc = parser.parseFromString(html, 'text/html');
+
+      // デバッグ: og:image メタタグの有無を確認
+      const ogImageMeta = this.remoteDoc.querySelector('meta[property="og:image"]');
+      const ogImageUrl = ogImageMeta?.content;
+      console.log('[BlogReviewer] setRemoteHtml - og:image meta tag found:', !!ogImageMeta);
+      console.log('[BlogReviewer] setRemoteHtml - og:image URL:', ogImageUrl);
     } catch (e) {
       console.warn('[BlogReviewer] Remote HTMLのパースに失敗:', e);
       this.remoteDoc = null;
@@ -137,6 +143,10 @@ class BlogReviewerManager extends BaseAdvisorManager {
   enrichArticleData(article) {
     const enriched = { ...article };
 
+    console.log('[BlogReviewerManager] enrichArticleData called');
+    console.log('[BlogReviewerManager] remoteDoc available:', !!this.remoteDoc);
+    console.log('[BlogReviewerManager] article.image:', article.image);
+
     // description が欠けている場合、メタタグから取得
     if (!enriched.description && !enriched.abstract) {
       const root = this.remoteDoc || document;
@@ -148,6 +158,82 @@ class BlogReviewerManager extends BaseAdvisorManager {
         enriched.description = metaDescription;
         console.log('[BlogReviewerManager] Added description from meta tag:', metaDescription);
       }
+    }
+
+    // image プロパティを正規化（文字列化）
+    if (enriched.image) {
+      let imageUrl = '';
+
+      // オブジェクトの場合は url プロパティを取得
+      if (typeof enriched.image === 'object') {
+        if (Array.isArray(enriched.image)) {
+          // 配列の場合は最初の要素
+          const firstImage = enriched.image[0];
+          imageUrl = typeof firstImage === 'string' ? firstImage : firstImage?.url || '';
+        } else if (enriched.image.url) {
+          // ImageObject の場合
+          imageUrl = enriched.image.url;
+        }
+      } else if (typeof enriched.image === 'string') {
+        // 文字列の場合はそのまま使用
+        imageUrl = enriched.image;
+      }
+
+      if (imageUrl) {
+        enriched.image = imageUrl;
+        console.log('[BlogReviewerManager] image normalized to string:', imageUrl);
+      } else {
+        enriched.image = undefined;
+        console.log('[BlogReviewerManager] image is empty object, will search OGP');
+      }
+    }
+
+    // OGP画像を取得（image プロパティがない場合）
+    if (!enriched.image) {
+      const root = this.remoteDoc || document;
+      console.log('[BlogReviewerManager] Searching for OGP image...');
+
+      // デバッグ: すべてのメタタグを確認
+      const allMetas = root.querySelectorAll('meta[property]');
+      console.log('[BlogReviewerManager] Total meta tags with property:', allMetas.length);
+
+      const ogImage =
+        root.querySelector('meta[property="og:image"]')?.content ||
+        root.querySelector('meta[property="og:image:url"]')?.content;
+
+      console.log('[BlogReviewerManager] og:image found:', ogImage);
+
+      if (ogImage) {
+        // 相対URLの場合は絶対URLに変換
+        let absoluteImageUrl = ogImage;
+        try {
+          if (typeof ogImage === 'string') {
+            if (ogImage.startsWith('/')) {
+              // サーバー相対パス
+              const urlObj = new URL(window.location.href);
+              absoluteImageUrl = urlObj.origin + ogImage;
+            } else if (!ogImage.startsWith('http')) {
+              // 相対パス
+              const urlObj = new URL(window.location.href);
+              const basePath = urlObj.pathname.substring(0, urlObj.pathname.lastIndexOf('/') + 1);
+              absoluteImageUrl = urlObj.origin + basePath + ogImage;
+            }
+          }
+        } catch (e) {
+          console.warn('[BlogReviewerManager] Error normalizing URL:', e);
+        }
+        enriched.image = absoluteImageUrl;
+        console.log(
+          '[BlogReviewerManager] Added OGP image:',
+          ogImage,
+          '→ absolute:',
+          absoluteImageUrl
+        );
+      } else {
+        console.log('[BlogReviewerManager] No og:image found');
+      }
+    } else {
+      console.log('[BlogReviewerManager] image already exists in article:', enriched.image);
     }
 
     // articleBody が欠けている場合、HTMLから抽出
@@ -521,6 +607,9 @@ class BlogReviewerManager extends BaseAdvisorManager {
       ? new Date(article.dateModified).toLocaleDateString('ja-JP')
       : '不明';
     const description = article.description || article.abstract || '説明なし';
+    const image = article.image;
+
+    console.log('[BlogReviewer] formatArticle called - image available:', !!image);
 
     // 記事本文を取得（最大1000文字で省略）
     const MAX_BODY_LENGTH = 1000;
@@ -533,6 +622,24 @@ class BlogReviewerManager extends BaseAdvisorManager {
     }
 
     return `
+      ${
+        image
+          ? `
+      <div class="job-field">
+        <label>OGP画像</label>
+        <div class="job-value" style="text-align: center;">
+          <img
+            src="${this.escapeHtml(image)}"
+            alt="OGP"
+            loading="lazy"
+            onerror="this.parentElement.parentElement.style.display='none'"
+            style="max-width: 100%; max-height: 300px; border-radius: 4px; border: 1px solid var(--border-color); display: block;"
+          >
+        </div>
+      </div>
+      `
+          : ''
+      }
       <div class="job-field">
         <label>タイトル</label>
         <div class="job-value">${this.escapeHtml(headline)}</div>
@@ -587,6 +694,21 @@ class BlogReviewerManager extends BaseAdvisorManager {
     // AbortControllerを作成してグローバルに保存
     const abortController = new AbortController();
     window.ANALYSIS_STATE.abortControllers['blog-reviewer'] = abortController;
+
+    // タイムアウト処理（180秒）
+    const timeoutId = setTimeout(() => {
+      if (this.isStreaming) {
+        console.warn('[BlogReviewer] Analysis timeout - forcing completion');
+        this.isStreaming = false;
+        abortController.abort();
+        this.updateProgress(100, '完了');
+        const progressContainer = document.getElementById('blogReviewerProgressContainer');
+        if (progressContainer) {
+          progressContainer.style.display = 'none';
+        }
+        alert('分析がタイムアウトしました。取得できた範囲で結果を表示しています。');
+      }
+    }, 180000); // 180秒
 
     try {
       const isVercel = window.location.hostname.includes('vercel.app');
@@ -752,6 +874,9 @@ class BlogReviewerManager extends BaseAdvisorManager {
         </div>
       `;
       }
+    } finally {
+      // タイムアウトタイマーをクリア
+      clearTimeout(timeoutId);
     }
   }
 
@@ -964,7 +1089,9 @@ class BlogReviewerManager extends BaseAdvisorManager {
       const reviewContent = document.querySelector('.advisor-markdown');
 
       // メタデータ抽出（HTMLタグ除去）
-      const articleText = articleContent ? this.cleanHtmlText(articleContent.innerText) : '情報なし';
+      const articleText = articleContent
+        ? this.cleanHtmlText(articleContent.innerText)
+        : '情報なし';
       const reviewText = reviewContent ? reviewContent.innerText : '情報なし';
 
       // CSVを項目,値の形式で整形（BOM付きUTF-8対応）

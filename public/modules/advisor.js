@@ -227,6 +227,21 @@ class AdvisorManager extends BaseAdvisorManager {
     const abortController = new AbortController();
     window.ANALYSIS_STATE.abortControllers['advisor'] = abortController;
 
+    // タイムアウト処理（180秒）
+    const timeoutId = setTimeout(() => {
+      if (this.isStreaming) {
+        console.warn('[Advisor] Analysis timeout - forcing completion');
+        this.isStreaming = false;
+        abortController.abort();
+        this.updateProgress(100, '完了');
+        const progressContainer = document.getElementById('advisorProgressContainer');
+        if (progressContainer) {
+          progressContainer.style.display = 'none';
+        }
+        alert('分析がタイムアウトしました。取得できた範囲で結果を表示しています。');
+      }
+    }, 180000); // 180秒
+
     try {
       const apiUrl = window.location.hostname.includes('vercel.app')
         ? '/api/advisor'
@@ -346,6 +361,8 @@ class AdvisorManager extends BaseAdvisorManager {
         }
       }
     } finally {
+      // タイムアウトタイマーをクリア
+      clearTimeout(timeoutId);
       // 必ずクリーンアップ
       this.isStreaming = false;
       setAnalysisInactive('advisor');
