@@ -88,7 +88,7 @@ class BaseAdvisorManager {
    */
   initEventListeners() {
     document.addEventListener('click', event => {
-      const target = event.target.closest('button[data-action]');
+      const target = event.target.closest('button[data-action], [data-action]');
       if (!target) return;
 
       const action = target.dataset.action;

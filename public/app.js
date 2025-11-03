@@ -1275,11 +1275,14 @@ function displaySchemas(schemas, url) {
     webAdvisorManager.hideAnalysisButton();
   }
 
-  // AI分析: すべての該当する分析ボタンを表示（並行表示）
+  // AI分析: 専用アドバイザーを優先表示
+  let hasSpecializedAdvisor = false;
+
   // 1. JobPosting検出
   if (typeof advisorManager !== 'undefined') {
     if (advisorManager.detectJobPosting(schemas)) {
       console.log('[App] JobPosting検出 → Advisor');
+      hasSpecializedAdvisor = true;
     }
   }
 
@@ -1287,11 +1290,12 @@ function displaySchemas(schemas, url) {
   if (typeof blogReviewerManager !== 'undefined') {
     if (blogReviewerManager.detectBlogPost(schemas)) {
       console.log('[App] BlogPost検出 → BlogReviewer');
+      hasSpecializedAdvisor = true;
     }
   }
 
-  // 3. Web分析（すべてのページで表示）
-  if (typeof webAdvisorManager !== 'undefined') {
+  // 3. Web分析（専用アドバイザーがない場合のみ表示）
+  if (!hasSpecializedAdvisor && typeof webAdvisorManager !== 'undefined') {
     if (webAdvisorManager.detectNoSchemaOrWebPageOnly(schemas, url)) {
       console.log('[App] 一般的なWebページ → WebAdvisor');
     }
