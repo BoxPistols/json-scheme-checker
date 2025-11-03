@@ -665,6 +665,84 @@ class BaseAdvisorManager {
       </div>
     `;
   }
+
+  /**
+   * 分析結果表示用の共通HTML構造を生成
+   * @param {string} prefixId - 要素ID の接頭辞 ('advisor', 'blogReviewer', 'webAdvisor')
+   * @returns {string} HTML マークアップ
+   */
+  createAnalysisResultsContainer(prefixId) {
+    return `
+      <div class="advisor-progress-container" id="${prefixId}ProgressContainer">
+        <div class="advisor-progress-bar">
+          <div class="advisor-progress-fill" id="${prefixId}ProgressFill"></div>
+        </div>
+        <div class="advisor-progress-text" id="${prefixId}ProgressText">準備中...</div>
+      </div>
+      <div class="advisor-skeleton-loader" id="${prefixId}SkeletonLoader">
+        <div class="advisor-skeleton-item large"></div>
+        <div class="advisor-skeleton-item medium"></div>
+        <div class="advisor-skeleton-item medium"></div>
+        <div class="advisor-skeleton-item small"></div>
+        <div style="height: 8px;"></div>
+        <div class="advisor-skeleton-item large"></div>
+        <div class="advisor-skeleton-item medium"></div>
+        <div class="advisor-skeleton-item medium"></div>
+        <div class="advisor-skeleton-item small"></div>
+      </div>
+      <div class="advisor-markdown" id="${prefixId}Markdown"></div>
+    `;
+  }
+
+  /**
+   * プログレスバーを更新する共通メソッド
+   * @param {string} prefixId - 要素ID の接頭辞
+   * @param {number} percentage - 進捗率（0-100）
+   * @param {string} text - 進捗テキスト
+   */
+  updateProgressCommon(prefixId, percentage, text) {
+    const fill = document.getElementById(`${prefixId}ProgressFill`);
+    const textEl = document.getElementById(`${prefixId}ProgressText`);
+
+    if (fill) {
+      fill.style.width = Math.min(percentage, 100) + '%';
+    }
+
+    if (textEl) {
+      textEl.textContent = text;
+    }
+  }
+
+  /**
+   * スケルトンローダーを非表示にする共通メソッド
+   * @param {string} prefixId - 要素ID の接頭辞
+   */
+  hideSkeletonLoader(prefixId) {
+    const skeletonLoader = document.getElementById(`${prefixId}SkeletonLoader`);
+    if (skeletonLoader) {
+      skeletonLoader.style.display = 'none';
+    }
+  }
+
+  /**
+   * プログレスコンテナを非表示にする共通メソッド
+   * @param {string} prefixId - 要素ID の接頭辞
+   */
+  hideProgressContainer(prefixId) {
+    const progressContainer = document.getElementById(`${prefixId}ProgressContainer`);
+    if (progressContainer) {
+      progressContainer.style.display = 'none';
+    }
+  }
+
+  /**
+   * 分析結果マークダウン要素を取得する共通メソッド
+   * @param {string} prefixId - 要素ID の接頭辞
+   * @returns {HTMLElement|null} マークダウン要素
+   */
+  getMarkdownElement(prefixId) {
+    return document.getElementById(`${prefixId}Markdown`);
+  }
 }
 
 // Node.js用のテストエクスポート（ブラウザ実行には影響なし）
