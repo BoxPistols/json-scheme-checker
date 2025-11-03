@@ -669,7 +669,7 @@ class BaseAdvisorManager {
     const totalCostJPY = totalCost * USD_TO_JPY_RATE;
 
     return `
-      <div class="advisor-usage-panel" style="margin-top: 20px; padding: 16px; background: var(--secondary-bg-color); border: 1px solid var(--border-color); border-radius: 8px;">
+      <div class="advisor-usage-panel">
         <h4 style="margin: 0 0 12px 0; font-size: 0.9rem; color: var(--secondary-text-color);">API使用量 (モデル: ${model})</h4>
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; font-size: 0.85rem;">
           <div>
