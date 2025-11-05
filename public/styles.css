@@ -4248,8 +4248,8 @@ html[data-theme='dark'] .score-breakdown > div {
   position: absolute;
   top: 16px;
   right: 16px;
-  background: var(--secondary-bg-color);
-  border: 2px solid var(--border-color);
+  background: rgba(0, 0, 0, 0.06);
+  border: 2px solid rgba(0, 0, 0, 0.3);
   font-size: 24px;
   color: var(--text-color);
   cursor: pointer;
@@ -4262,6 +4262,7 @@ html[data-theme='dark'] .score-breakdown > div {
   transition: all 0.2s;
   font-weight: 300;
   line-height: 1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .advisor-modal-close-btn:hover {
@@ -4273,6 +4274,17 @@ html[data-theme='dark'] .score-breakdown > div {
 
 .advisor-modal-close-btn:active {
   transform: scale(0.95);
+}
+
+/* ダークモード専用スタイル */
+html[data-theme='dark'] .advisor-modal-close-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+html[data-theme='dark'] .advisor-modal-close-btn:hover {
+  background: var(--accent-hover-bg-color);
+  border-color: var(--primary-color);
 }
 
 /* ドラッグハンドル */
