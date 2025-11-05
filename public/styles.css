@@ -4266,11 +4266,15 @@ html[data-theme='dark'] .score-breakdown > div {
 }
 
 .advisor-modal-close-btn svg {
+  display: block;
+  width: 24px;
+  height: 24px;
   color: #2c3e50;
 }
 
 .advisor-modal-close-btn svg path {
   stroke: #2c3e50;
+  stroke-width: 2;
 }
 
 .advisor-modal-close-btn:hover {
@@ -4296,11 +4300,15 @@ html[data-theme='dark'] .advisor-modal-close-btn {
 }
 
 html[data-theme='dark'] .advisor-modal-close-btn svg {
+  display: block;
+  width: 24px;
+  height: 24px;
   color: #d1d5db;
 }
 
 html[data-theme='dark'] .advisor-modal-close-btn svg path {
   stroke: #d1d5db;
+  stroke-width: 2;
 }
 
 html[data-theme='dark'] .advisor-modal-close-btn:hover {
