@@ -680,6 +680,13 @@ class BlogReviewerManager extends BaseAdvisorManager {
    * AIレビューを取得（ストリーミング）
    */
   async fetchReview() {
+    // デバッグモードチェック
+    if (window.isDebugMode && window.isDebugMode()) {
+      console.log('[BlogReviewer] Debug mode enabled - using mock data');
+      this.renderMockReview();
+      return;
+    }
+
     // グローバルな分析実行状態をチェック（複数の分析の同時実行を防ぐ）
     if (!canStartAnalysis('blog-reviewer')) {
       alert('別の分析が実行中です。しばらくお待ちください。');
@@ -1273,6 +1280,94 @@ class BlogReviewerManager extends BaseAdvisorManager {
     };
 
     this.renderFloatingChatButton('blogReviewerChatContainer', chatConfig);
+  }
+
+  renderMockReview() {
+    console.log('[BlogReviewer] Rendering mock review');
+
+    const reviewContent = document.getElementById('blogReviewerReviewContent');
+    const progressContainer = document.getElementById('blogReviewerProgressContainer');
+    const skeletonLoader = document.getElementById('blogReviewerSkeletonLoader');
+    const md = document.getElementById('blogReviewerMarkdown');
+
+    if (!reviewContent || !md) {
+      console.error('[BlogReviewer] Required elements not found');
+      return;
+    }
+
+    // プログレスバーとスケルトンローダーを表示
+    if (progressContainer) {
+      progressContainer.style.display = 'block';
+    }
+    if (skeletonLoader) {
+      skeletonLoader.style.display = 'block';
+    }
+
+    // モックデータを取得
+    const mockData = window.DEBUG_MOCK_DATA?.blog?.sample1;
+    if (!mockData) {
+      console.error('[BlogReviewer] Mock data not found');
+      md.innerHTML = '<p>デバッグデータが見つかりません</p>';
+      return;
+    }
+
+    const mockAnalysis = mockData.mockAnalysis;
+    if (!mockAnalysis) {
+      console.error('[BlogReviewer] Mock analysis not found');
+      md.innerHTML = '<p>デバッグデータが見つかりません</p>';
+      return;
+    }
+
+    // ストリーミングをシミュレート
+    this.updateProgress(0, '初期化中...');
+
+    setTimeout(() => {
+      // スケルトンローダーを非表示
+      if (skeletonLoader) {
+        skeletonLoader.style.display = 'none';
+      }
+      this.updateProgress(30, '分析中...');
+
+      setTimeout(() => {
+        this.updateProgress(60, '分析中...');
+
+        setTimeout(() => {
+          this.updateProgress(90, '完了間近...');
+
+          setTimeout(() => {
+            // レビュー結果を表示
+            md.innerHTML = this.renderMarkdownCommon(mockAnalysis);
+            this.currentReviewContent = mockAnalysis;
+
+            this.updateProgress(100, '完了');
+
+            // プログレスバーを非表示
+            if (progressContainer) {
+              progressContainer.style.display = 'none';
+            }
+
+            // モックの使用量データ
+            this.currentUsage = {
+              prompt_tokens: 1200,
+              completion_tokens: 600,
+              total_tokens: 1800,
+            };
+            this.currentModel = 'gpt-4o (mock)';
+
+            // 使用量を表示
+            this.displayUsage();
+
+            // エクスポートボタンを表示
+            this.showExportButtons();
+
+            // チャットボックスを表示
+            this.initChatBox();
+
+            console.log('[BlogReviewer] Mock review rendering completed');
+          }, 500);
+        }, 500);
+      }, 500);
+    }, 500);
   }
 }
 

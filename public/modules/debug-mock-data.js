@@ -3,7 +3,7 @@
  * AIアドバイスを毎回呼び出さなくても、アドバイザー画面の動作確認ができる
  */
 
-export const DEBUG_MOCK_DATA = {
+const DEBUG_MOCK_DATA = {
   // JobPosting Advisor用モックデータ
   jobPosting: {
     sample1: {
@@ -348,20 +348,26 @@ export const DEBUG_MOCK_DATA = {
 };
 
 // デバッグモードが有効かどうかを判定
-export function isDebugMode() {
+function isDebugMode() {
   return localStorage.getItem('advisor_debug_mode') === 'true';
 }
 
 // デバッグモードの切り替え
-export function toggleDebugMode() {
+function toggleDebugMode() {
   const current = isDebugMode();
   localStorage.setItem('advisor_debug_mode', (!current).toString());
   return !current;
 }
 
 // デバッグ用のログ出力
-export function debugLog(...args) {
+function debugLog(...args) {
   if (isDebugMode()) {
     console.log('[DEBUG]', ...args);
   }
 }
+
+// グローバルに公開
+window.DEBUG_MOCK_DATA = DEBUG_MOCK_DATA;
+window.isDebugMode = isDebugMode;
+window.toggleDebugMode = toggleDebugMode;
+window.debugLog = debugLog;

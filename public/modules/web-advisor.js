@@ -362,6 +362,13 @@ class WebAdvisorManager extends BaseAdvisorManager {
 
   /** SSEで分析を取得 */
   async fetchAnalysis() {
+    // デバッグモードチェック
+    if (window.isDebugMode && window.isDebugMode()) {
+      console.log('[WebAdvisor] Debug mode enabled - using mock data');
+      this.renderMockAnalysis();
+      return;
+    }
+
     // グローバルな分析実行状態をチェック（複数の分析の同時実行を防ぐ）
     if (!canStartAnalysis('web-advisor')) {
       alert('別の分析が実行中です。しばらくお待ちください。');
@@ -872,6 +879,94 @@ class WebAdvisorManager extends BaseAdvisorManager {
     };
 
     this.renderFloatingChatButton('webAdvisorChatContainer', chatConfig);
+  }
+
+  renderMockAnalysis() {
+    console.log('[WebAdvisor] Rendering mock analysis');
+
+    const content = document.getElementById('webAdvisorContent');
+    const progressContainer = document.getElementById('webAdvisorProgressContainer');
+    const skeletonLoader = document.getElementById('webAdvisorSkeletonLoader');
+    const md = document.getElementById('webAdvisorMarkdown');
+
+    if (!content || !md) {
+      console.error('[WebAdvisor] Required elements not found');
+      return;
+    }
+
+    // プログレスバーとスケルトンローダーを表示
+    if (progressContainer) {
+      progressContainer.style.display = 'block';
+    }
+    if (skeletonLoader) {
+      skeletonLoader.style.display = 'block';
+    }
+
+    // モックデータを取得
+    const mockData = window.DEBUG_MOCK_DATA?.web?.sample1;
+    if (!mockData) {
+      console.error('[WebAdvisor] Mock data not found');
+      md.innerHTML = '<p>デバッグデータが見つかりません</p>';
+      return;
+    }
+
+    const mockAnalysis = mockData.mockAnalysis;
+    if (!mockAnalysis) {
+      console.error('[WebAdvisor] Mock analysis not found');
+      md.innerHTML = '<p>デバッグデータが見つかりません</p>';
+      return;
+    }
+
+    // ストリーミングをシミュレート
+    this.updateProgress(0, '初期化中...');
+
+    setTimeout(() => {
+      // スケルトンローダーを非表示
+      if (skeletonLoader) {
+        skeletonLoader.style.display = 'none';
+      }
+      this.updateProgress(30, '分析中...');
+
+      setTimeout(() => {
+        this.updateProgress(60, '分析中...');
+
+        setTimeout(() => {
+          this.updateProgress(90, '完了間近...');
+
+          setTimeout(() => {
+            // 分析結果を表示
+            md.innerHTML = this.renderMarkdownCommon(mockAnalysis);
+            this.currentAnalysisContent = mockAnalysis;
+
+            this.updateProgress(100, '完了');
+
+            // プログレスバーを非表示
+            if (progressContainer) {
+              progressContainer.style.display = 'none';
+            }
+
+            // モックの使用量データ
+            this.currentUsage = {
+              prompt_tokens: 1800,
+              completion_tokens: 1000,
+              total_tokens: 2800,
+            };
+            this.currentModel = 'gpt-4o (mock)';
+
+            // 使用量を表示
+            this.displayUsage();
+
+            // エクスポートボタンを表示
+            this.showExportButtons();
+
+            // チャットボックスを表示
+            this.initChatBox();
+
+            console.log('[WebAdvisor] Mock analysis rendering completed');
+          }, 500);
+        }, 500);
+      }, 500);
+    }, 500);
   }
 }
 

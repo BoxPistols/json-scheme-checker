@@ -1126,6 +1126,11 @@ async function checkServerStatus() {
 checkServerStatus();
 loadStoredAuth();
 
+// デバッグモードの初期化
+if (window.isDebugMode) {
+  updateDebugModeUI(window.isDebugMode());
+}
+
 // URLに基づいて認証情報を自動入力
 function autoFillAuthForUrl(url) {
   try {
@@ -1987,6 +1992,34 @@ const STORAGE_KEY_DEVELOPER = 'jsonld_developer_settings';
 document.getElementById('btnMyApi')?.addEventListener('click', () => {
   openDeveloperSettingsModal();
 });
+
+// デバッグモード切り替え
+document.getElementById('btnDebugMode')?.addEventListener('click', () => {
+  if (window.toggleDebugMode) {
+    const isDebug = window.toggleDebugMode();
+    updateDebugModeUI(isDebug);
+    const message = isDebug ? 'デバッグモードを有効にしました' : 'デバッグモードを無効にしました';
+    showSnackbar(message);
+  }
+});
+
+// デバッグモードのUI更新
+function updateDebugModeUI(isDebug) {
+  const btn = document.getElementById('btnDebugMode');
+  if (!btn) return;
+
+  if (isDebug) {
+    btn.classList.add('btn-debug-mode--active');
+    btn.textContent = 'Debug ON';
+    btn.style.background = '#ff6b6b';
+    btn.style.color = 'white';
+  } else {
+    btn.classList.remove('btn-debug-mode--active');
+    btn.textContent = 'Debug';
+    btn.style.background = '';
+    btn.style.color = '';
+  }
+}
 
 // モーダルを開く
 function openDeveloperSettingsModal() {

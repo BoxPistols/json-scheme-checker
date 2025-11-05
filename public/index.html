@@ -73,6 +73,9 @@
                 <button type="button" class="btn-my-api" id="btnMyApi" title="API設定">
                     My API
                 </button>
+                <button type="button" class="btn-debug-mode" id="btnDebugMode" title="デバッグモード">
+                    Debug
+                </button>
                 <span class="api-status-chip" id="apiModelChip" title="現在のモデル">
                     <span class="api-status-label">Model:</span>
                     <span id="apiModelName">gpt-5-nano</span>
@@ -1018,6 +1021,7 @@ export default function Home() {
 
         <!-- developerSettingsModal は app.js で動的に生成 -->
 
+        <script src="/modules/debug-mock-data.js"></script>
         <script src="/modules/base-advisor.js"></script>
         <script src="/modules/advisor.js"></script>
         <script src="/modules/blog-reviewer.js"></script>
