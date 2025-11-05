@@ -1107,7 +1107,7 @@ class BaseAdvisorManager {
         </div>
         <div class="advisor-chat-messages" id="${config.chatMessagesId}">
           <div class="advisor-chat-welcome">
-            <p>さらに詳しく知りたい内容がありますか？ご質問ください。</p>
+            <p>ご質問をどうぞ</p>
           </div>
         </div>
         <div class="advisor-chat-input-wrapper">
@@ -1115,10 +1115,10 @@ class BaseAdvisorManager {
             id="${config.chatInputId}"
             class="advisor-chat-input"
             placeholder="質問を入力してください... (Enterで送信、Shift+Enterで改行)"
-            rows="3"
+            rows="4"
             maxlength="1000"
             data-composition="false"
-            style="resize: vertical; min-height: 60px; max-height: 200px;"
+            style="resize: vertical; min-height: 80px; max-height: 300px;"
           ></textarea>
           <button
             type="button"
@@ -1332,11 +1332,13 @@ class BaseAdvisorManager {
         const width = startWidth + (e.clientX - startX);
         const height = startHeight + (e.clientY - startY);
 
-        // 最小サイズを設定
-        const minWidth = 300;
-        const minHeight = 400;
-        const newWidth = Math.max(minWidth, width);
-        const newHeight = Math.max(minHeight, height);
+        // 最小サイズと最大サイズを設定
+        const minWidth = 320;
+        const minHeight = 450;
+        const maxWidth = Math.min(window.innerWidth - 40, 900);
+        const maxHeight = Math.min(window.innerHeight - 40, 800);
+        const newWidth = Math.max(minWidth, Math.min(maxWidth, width));
+        const newHeight = Math.max(minHeight, Math.min(maxHeight, height));
 
         chatBox.style.width = `${newWidth}px`;
         chatBox.style.height = `${newHeight}px`;
