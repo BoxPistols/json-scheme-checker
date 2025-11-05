@@ -158,7 +158,9 @@ module.exports = async (req, res) => {
     if (!type || !CHAT_SYSTEM_PROMPTS[type]) {
       return res
         .status(400)
-        .json({ error: 'type は "advisor", "blog-reviewer", または "web-advisor" である必要があります' });
+        .json({
+          error: 'type は "advisor", "blog-reviewer", または "web-advisor" である必要があります',
+        });
     }
 
     // 入力検証: questioner ID
@@ -189,14 +191,18 @@ module.exports = async (req, res) => {
     // 入力検証: 各メッセージの検証
     for (const msg of messages) {
       if (!msg.role || !['user', 'assistant'].includes(msg.role)) {
-        return res.status(400).json({ error: 'メッセージのroleは "user" または "assistant" である必要があります' });
+        return res
+          .status(400)
+          .json({ error: 'メッセージのroleは "user" または "assistant" である必要があります' });
       }
       if (!msg.content || typeof msg.content !== 'string') {
         return res.status(400).json({ error: 'メッセージのcontentは文字列である必要があります' });
       }
       // XSS対策: contentの長さ制限（10KB/メッセージ）
       if (msg.content.length > 10000) {
-        return res.status(400).json({ error: 'メッセージが長すぎます（最大10,000文字/メッセージ）' });
+        return res
+          .status(400)
+          .json({ error: 'メッセージが長すぎます（最大10,000文字/メッセージ）' });
       }
     }
 
@@ -227,10 +233,7 @@ module.exports = async (req, res) => {
 
     const requestParams = {
       model: selectedModel,
-      messages: [
-        { role: 'system', content: systemPrompt + contextSummary },
-        ...messages,
-      ],
+      messages: [{ role: 'system', content: systemPrompt + contextSummary }, ...messages],
       stream: true,
       stream_options: { include_usage: true },
     };
