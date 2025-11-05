@@ -901,6 +901,25 @@ class BaseAdvisorManager {
   }
 
   /**
+   * HTMLテキストをクリーンアップ（改行保持版）
+   * チャット履歴エクスポートなど、改行を保持する必要がある場合に使用
+   * @param {string} text - テキスト
+   * @returns {string} クリーンなテキスト（改行保持）
+   */
+  cleanHtmlTextPreserveLineBreaks(text) {
+    return text
+      .replace(/<br\s*\/?>/gi, '\n') // <br>を改行に変換
+      .replace(/<\/p>/gi, '\n\n') // </p>を2つの改行に変換
+      .replace(/<\/div>/gi, '\n') // </div>を改行に変換
+      .replace(/<[^>]*>/g, '') // その他のHTMLタグ除去
+      .replace(/&nbsp;/g, ' ') // &nbsp;をスペースに
+      .replace(/\t+/g, ' ') // タブをスペースに
+      .replace(/ +/g, ' ') // 連続する半角スペースを単一スペースに
+      .replace(/\n\n\n+/g, '\n\n') // 3つ以上の連続改行を2つに
+      .trim();
+  }
+
+  /**
    * チャット機能専用のレート制限をチェック
    * @returns {object} レート制限状態
    */
@@ -1694,12 +1713,17 @@ class BaseAdvisorManager {
     messages.forEach((msg, index) => {
       const isUser = msg.classList.contains('advisor-chat-message-user');
       const role = isUser ? 'あなた' : 'AI';
-      const text = this.cleanHtmlText(msg.textContent || '');
+      // 改行保持版のクリーニングメソッドを使用
+      const messageContent = msg.querySelector('.advisor-chat-message-content');
+      const text = messageContent
+        ? this.cleanHtmlTextPreserveLineBreaks(messageContent.innerHTML)
+        : this.cleanHtmlTextPreserveLineBreaks(msg.innerHTML);
       content += `## ${index + 1}. ${role}\n\n${text}\n\n`;
     });
 
-    // Blobを作成してダウンロード
-    const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
+    // BOM付きUTF-8でエンコード（Windows/Mac両方で文字化けしない）
+    const contentWithBom = '\ufeff' + content;
+    const blob = new Blob([contentWithBom], { type: 'text/markdown;charset=utf-8' });
     const timestamp = new Date().toISOString().replace(/:/g, '-').split('.')[0];
     const filename = `chat-history-${config.type}-${timestamp}.md`;
 

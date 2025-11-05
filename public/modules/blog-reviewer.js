@@ -1256,7 +1256,9 @@ class BlogReviewerManager extends BaseAdvisorManager {
 </html>
       `;
 
-      const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8;' });
+      // BOM付きUTF-8でエンコード（Windows/Mac両方で文字化けしない）
+      const htmlWithBom = '\ufeff' + htmlContent;
+      const blob = new Blob([htmlWithBom], { type: 'text/html;charset=utf-8;' });
       const dateStr = new Date().toISOString().split('T')[0];
       const filename = `blog_review_${dateStr}.html`;
 
