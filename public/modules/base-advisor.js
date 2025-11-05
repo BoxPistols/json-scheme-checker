@@ -965,8 +965,11 @@ class BaseAdvisorManager {
       return;
     }
 
+    // ユニークなIDを生成
+    const uniqueId = `advisorFloatingChatBtn-${config.type}-${Date.now()}`;
+
     container.innerHTML = `
-      <button type="button" class="advisor-floating-chat-btn" id="advisorFloatingChatBtn" aria-label="チャットを開く" title="AI チャット">
+      <button type="button" class="advisor-floating-chat-btn" id="${uniqueId}" aria-label="チャットを開く" title="AI チャット">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
@@ -974,12 +977,18 @@ class BaseAdvisorManager {
       </button>
     `;
 
-    const btn = document.getElementById('advisorFloatingChatBtn');
+    const btn = document.getElementById(uniqueId);
     if (btn) {
-      btn.addEventListener('click', () => {
+      console.log('[BaseAdvisor] Floating chat button created:', uniqueId);
+      btn.addEventListener('click', e => {
+        console.log('[BaseAdvisor] Floating chat button clicked');
+        e.preventDefault();
+        e.stopPropagation();
         // 質問者選択モーダルを表示
         this.showQuestionerModal(config);
       });
+    } else {
+      console.error('[BaseAdvisor] Floating chat button not found:', uniqueId);
     }
   }
 
@@ -988,7 +997,9 @@ class BaseAdvisorManager {
    * @param {object} config - チャット設定
    */
   showQuestionerModal(config) {
+    console.log('[BaseAdvisor] showQuestionerModal called with config:', config);
     const questioners = this.getQuestionerPersonas(config.type);
+    console.log('[BaseAdvisor] Questioner personas:', questioners);
 
     const modal = document.createElement('div');
     modal.className = 'advisor-modal-overlay';
@@ -1077,10 +1088,14 @@ class BaseAdvisorManager {
       return;
     }
 
-    // フローティングチャットボタンを非表示
-    const floatingBtn = document.getElementById('advisorFloatingChatBtn');
+    console.log('[BaseAdvisor] renderChatBoxCommon called for:', containerId);
+
+    // フローティングチャットボタンのHTMLを保存
+    const floatingBtn = container.querySelector('.advisor-floating-chat-btn');
+    let floatingBtnHtml = '';
     if (floatingBtn) {
-      floatingBtn.style.display = 'none';
+      console.log('[BaseAdvisor] Saving floating chat button HTML');
+      floatingBtnHtml = floatingBtn.outerHTML.replace('display: flex', 'display: none');
     }
 
     const rateLimit = this.checkChatRateLimit();
@@ -1089,6 +1104,7 @@ class BaseAdvisorManager {
       : `残り ${rateLimit.remaining}/${rateLimit.maxRequests} 回`;
 
     container.innerHTML = `
+      ${floatingBtnHtml}
       <div class="advisor-chat-box advisor-chat-expanded advisor-chat-right" id="advisorChatBox">
         <div class="advisor-chat-header advisor-chat-drag-handle" id="advisorChatDragHandle">
           <div class="advisor-chat-header-left">
@@ -1221,10 +1237,12 @@ class BaseAdvisorManager {
     // 閉じるボタン
     if (closeBtn) {
       closeBtn.addEventListener('click', () => {
-        // チャットボックスを非表示にしてコンテナをクリア
-        container.innerHTML = '';
+        // チャットボックスを削除
+        if (chatBox) {
+          chatBox.remove();
+        }
         // フローティングチャットボタンを再表示
-        const floatingBtn = document.getElementById('advisorFloatingChatBtn');
+        const floatingBtn = container.querySelector('.advisor-floating-chat-btn');
         if (floatingBtn) {
           floatingBtn.style.display = 'flex';
         }

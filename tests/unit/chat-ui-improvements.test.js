@@ -37,7 +37,7 @@ describe('チャットUI改善: フローティングボタン', () => {
 
     mgr.renderFloatingChatButton('testChatContainer', chatConfig);
 
-    const floatingBtn = document.getElementById('advisorFloatingChatBtn');
+    const floatingBtn = container.querySelector('.advisor-floating-chat-btn');
     expect(floatingBtn).toBeTruthy();
     expect(floatingBtn.classList.contains('advisor-floating-chat-btn')).toBe(true);
   });
@@ -54,7 +54,7 @@ describe('チャットUI改善: フローティングボタン', () => {
 
     mgr.renderFloatingChatButton('testChatContainer', chatConfig);
 
-    const floatingBtn = document.getElementById('advisorFloatingChatBtn');
+    const floatingBtn = container.querySelector('.advisor-floating-chat-btn');
     const svg = floatingBtn.querySelector('svg');
     expect(svg).toBeTruthy();
   });
@@ -255,11 +255,11 @@ describe('チャットUI改善: UI制御機能', () => {
     container.id = 'testChatContainer';
     document.body.appendChild(container);
 
-    // モック用のフローティングボタンを追加
+    // モック用のフローティングボタンをコンテナ内に追加
     const floatingBtn = document.createElement('button');
-    floatingBtn.id = 'advisorFloatingChatBtn';
+    floatingBtn.className = 'advisor-floating-chat-btn';
     floatingBtn.style.display = 'none';
-    document.body.appendChild(floatingBtn);
+    container.appendChild(floatingBtn);
   });
 
   afterEach(() => {
@@ -281,7 +281,10 @@ describe('チャットUI改善: UI制御機能', () => {
     const closeBtn = container.querySelector('.advisor-chat-close-btn');
     closeBtn.click();
 
-    expect(container.innerHTML).toBe('');
+    // チャットボックスが削除されたことを確認
+    expect(container.querySelector('.advisor-chat-box')).toBe(null);
+    // フローティングボタンはまだ存在することを確認
+    expect(container.querySelector('.advisor-floating-chat-btn')).toBeTruthy();
   });
 
   it('閉じるボタンをクリックするとフローティングボタンが再表示される', () => {
@@ -296,7 +299,7 @@ describe('チャットUI改善: UI制御機能', () => {
 
     mgr.renderChatBoxCommon('testChatContainer', chatConfig);
 
-    const floatingBtn = document.getElementById('advisorFloatingChatBtn');
+    const floatingBtn = container.querySelector('.advisor-floating-chat-btn');
     floatingBtn.style.display = 'none';
 
     const closeBtn = container.querySelector('.advisor-chat-close-btn');
