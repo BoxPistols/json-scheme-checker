@@ -4251,7 +4251,7 @@ html[data-theme='dark'] .score-breakdown > div {
   background: rgba(0, 0, 0, 0.06);
   border: 2px solid rgba(0, 0, 0, 0.3);
   font-size: 24px;
-  color: var(--text-color);
+  color: #2c3e50;
   cursor: pointer;
   width: 36px;
   height: 36px;
@@ -4265,11 +4265,23 @@ html[data-theme='dark'] .score-breakdown > div {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+.advisor-modal-close-btn svg {
+  color: #2c3e50;
+}
+
+.advisor-modal-close-btn svg path {
+  stroke: #2c3e50;
+}
+
 .advisor-modal-close-btn:hover {
   background: var(--accent-hover-bg-color);
   border-color: var(--primary-color);
   color: var(--primary-color);
   transform: scale(1.05);
+}
+
+.advisor-modal-close-btn:hover svg path {
+  stroke: var(--primary-color);
 }
 
 .advisor-modal-close-btn:active {
@@ -4280,11 +4292,24 @@ html[data-theme='dark'] .score-breakdown > div {
 html[data-theme='dark'] .advisor-modal-close-btn {
   background: rgba(255, 255, 255, 0.1);
   border: 2px solid rgba(255, 255, 255, 0.3);
+  color: #d1d5db;
+}
+
+html[data-theme='dark'] .advisor-modal-close-btn svg {
+  color: #d1d5db;
+}
+
+html[data-theme='dark'] .advisor-modal-close-btn svg path {
+  stroke: #d1d5db;
 }
 
 html[data-theme='dark'] .advisor-modal-close-btn:hover {
   background: var(--accent-hover-bg-color);
   border-color: var(--primary-color);
+}
+
+html[data-theme='dark'] .advisor-modal-close-btn:hover svg path {
+  stroke: var(--primary-color);
 }
 
 /* ドラッグハンドル */
