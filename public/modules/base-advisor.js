@@ -1117,6 +1117,19 @@ class BaseAdvisorManager {
           </div>
           <div class="advisor-chat-header-right">
             <span class="advisor-chat-rate-limit">${rateLimitText}</span>
+            <button type="button" class="advisor-chat-reset-btn" aria-label="位置とサイズをリセット" title="位置とサイズをリセット">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M3 3v5h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <button type="button" class="advisor-chat-export-btn" aria-label="チャット履歴をエクスポート" title="履歴をエクスポート">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
             <button type="button" class="advisor-chat-collapse-btn" aria-label="チャットを折りたたむ" title="折りたたむ">−</button>
             <button type="button" class="advisor-chat-close-btn" aria-label="チャットを閉じる" title="閉じる">×</button>
           </div>
@@ -1223,8 +1236,38 @@ class BaseAdvisorManager {
     const chatBox = container.querySelector('.advisor-chat-box');
     const collapseBtn = container.querySelector('.advisor-chat-collapse-btn');
     const closeBtn = container.querySelector('.advisor-chat-close-btn');
+    const resetBtn = container.querySelector('.advisor-chat-reset-btn');
+    const exportBtn = container.querySelector('.advisor-chat-export-btn');
     const dragHandle = container.querySelector('.advisor-chat-drag-handle');
     const resizeHandle = container.querySelector('.advisor-chat-resize-handle');
+
+    // リセットボタン
+    if (resetBtn && chatBox) {
+      resetBtn.addEventListener('click', () => {
+        // 位置とサイズをリセット
+        chatBox.style.left = '';
+        chatBox.style.top = '';
+        chatBox.style.right = '';
+        chatBox.style.bottom = '';
+        chatBox.style.width = '';
+        chatBox.style.height = '';
+        chatBox.style.position = '';
+        chatBox.style.transform = '';
+        // LocalStorageもクリア
+        const storageKey = `advisor_chat_position_${config.type}`;
+        const sizeKey = `advisor_chat_size_${config.type}`;
+        localStorage.removeItem(storageKey);
+        localStorage.removeItem(sizeKey);
+        console.log('[BaseAdvisor] Chat position and size reset');
+      });
+    }
+
+    // エクスポートボタン
+    if (exportBtn) {
+      exportBtn.addEventListener('click', () => {
+        this.exportChatHistory(config);
+      });
+    }
 
     // 折りたたみボタン
     if (collapseBtn) {
@@ -1241,11 +1284,8 @@ class BaseAdvisorManager {
         if (chatBox) {
           chatBox.remove();
         }
-        // フローティングチャットボタンを再表示
-        const floatingBtn = container.querySelector('.advisor-floating-chat-btn');
-        if (floatingBtn) {
-          floatingBtn.style.display = 'flex';
-        }
+        // フローティングチャットボタンを再作成（イベントリスナー付き）
+        this.renderFloatingChatButton(containerId, config);
       });
     }
 
@@ -1620,6 +1660,49 @@ class BaseAdvisorManager {
       : `残り ${rateLimit.remaining}/${rateLimit.maxRequests} 回`;
 
     rateLimitEl.textContent = rateLimitText;
+  }
+
+  /**
+   * チャット履歴をエクスポート
+   * @param {object} config - チャット設定
+   */
+  exportChatHistory(config) {
+    const messagesContainer = document.getElementById(config.chatMessagesId);
+    if (!messagesContainer) {
+      console.error('[BaseAdvisor] Messages container not found:', config.chatMessagesId);
+      return;
+    }
+
+    // メッセージを収集
+    const messages = messagesContainer.querySelectorAll('.advisor-chat-message');
+    if (messages.length === 0) {
+      alert('エクスポートするメッセージがありません。');
+      return;
+    }
+
+    // Markdown形式で出力
+    let content = `# AI チャット履歴\n\n`;
+    content += `**日時**: ${new Date().toLocaleString('ja-JP')}\n`;
+    content += `**Advisor**: ${config.type}\n`;
+    if (config.questionerLabel) {
+      content += `**質問者**: ${config.questionerLabel}\n`;
+    }
+    content += `\n---\n\n`;
+
+    messages.forEach((msg, index) => {
+      const isUser = msg.classList.contains('advisor-chat-message-user');
+      const role = isUser ? 'あなた' : 'AI';
+      const text = this.cleanHtmlText(msg.textContent || '');
+      content += `## ${index + 1}. ${role}\n\n${text}\n\n`;
+    });
+
+    // Blobを作成してダウンロード
+    const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
+    const timestamp = new Date().toISOString().replace(/:/g, '-').split('.')[0];
+    const filename = `chat-history-${config.type}-${timestamp}.md`;
+
+    this.downloadFile(blob, filename);
+    console.log('[BaseAdvisor] Chat history exported:', filename);
   }
 }
 

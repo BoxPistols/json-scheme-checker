@@ -3959,12 +3959,12 @@ html[data-theme='dark'] .score-breakdown > div {
 .advisor-chat-input {
   flex: 1;
   padding: 10px 12px;
-  border: 2px solid rgba(0, 0, 0, 0.15);
+  border: 2px solid var(--border-color);
   border-radius: 8px;
   font-size: 0.9rem;
   font-family: inherit;
   resize: vertical;
-  background: #ffffff;
+  background: var(--card-bg-color);
   color: var(--text-color);
   min-height: 48px;
   max-height: 120px;
@@ -3978,7 +3978,9 @@ html[data-theme='dark'] .score-breakdown > div {
 }
 
 .advisor-chat-position-toggle,
-.advisor-chat-collapse-btn {
+.advisor-chat-collapse-btn,
+.advisor-chat-reset-btn,
+.advisor-chat-export-btn {
   width: 32px;
   height: 32px;
   padding: 0;
@@ -3995,14 +3997,18 @@ html[data-theme='dark'] .score-breakdown > div {
 }
 
 .advisor-chat-position-toggle:hover,
-.advisor-chat-collapse-btn:hover {
+.advisor-chat-collapse-btn:hover,
+.advisor-chat-reset-btn:hover,
+.advisor-chat-export-btn:hover {
   background: var(--accent-hover-bg-color);
   border-color: var(--primary-color);
   color: var(--primary-color);
 }
 
 .advisor-chat-position-toggle:active,
-.advisor-chat-collapse-btn:active {
+.advisor-chat-collapse-btn:active,
+.advisor-chat-reset-btn:active,
+.advisor-chat-export-btn:active {
   transform: scale(0.9);
 }
 
@@ -4242,10 +4248,10 @@ html[data-theme='dark'] .score-breakdown > div {
   position: absolute;
   top: 16px;
   right: 16px;
-  background: none;
-  border: none;
+  background: transparent;
+  border: 1px solid var(--border-color);
   font-size: 24px;
-  color: var(--secondary-text-color);
+  color: var(--text-color);
   cursor: pointer;
   width: 32px;
   height: 32px;
@@ -4258,7 +4264,8 @@ html[data-theme='dark'] .score-breakdown > div {
 
 .advisor-modal-close-btn:hover {
   background: var(--accent-hover-bg-color);
-  color: var(--text-color);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
 }
 
 /* ドラッグハンドル */
