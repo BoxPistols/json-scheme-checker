@@ -962,6 +962,7 @@ class BaseAdvisorManager {
    * @param {string} config.chatMessagesId - メッセージ履歴を表示する要素ID
    * @param {string} config.chatInputId - 入力フォームの要素ID
    * @param {string} config.chatSendBtnId - 送信ボタンの要素ID
+   * @param {string} [config.questionerLabel] - 質問者ラベル
    */
   renderChatBoxCommon(containerId, config) {
     const container = document.getElementById(containerId);
@@ -975,24 +976,38 @@ class BaseAdvisorManager {
       ? '無制限（MyAPI使用中）'
       : `残り ${rateLimit.remaining}/${rateLimit.maxRequests} 回`;
 
+    // 質問者ペルソナの選択モードを先に表示
+    if (!config.questionerSelected) {
+      this.renderQuestionerSelection(container, config);
+      return;
+    }
+
     container.innerHTML = `
-      <div class="advisor-chat-box">
+      <div class="advisor-chat-box advisor-chat-expanded">
         <div class="advisor-chat-header">
-          <h3 class="advisor-chat-title">AI チャット</h3>
-          <span class="advisor-chat-rate-limit">${rateLimitText}</span>
+          <div class="advisor-chat-header-left">
+            <h3 style="margin: 0; font-size: 1rem;">AI チャット</h3>
+            ${config.questionerLabel ? `<span class="advisor-chat-questioner-badge">${config.questionerLabel}</span>` : ''}
+          </div>
+          <div class="advisor-chat-header-right">
+            <span class="advisor-chat-rate-limit">${rateLimitText}</span>
+            <button type="button" class="advisor-chat-position-toggle" aria-label="チャット位置を切り替え" title="右下 / 左下">⟲</button>
+            <button type="button" class="advisor-chat-collapse-btn" aria-label="チャットを折りたたむ" title="折りたたむ">−</button>
+          </div>
         </div>
         <div class="advisor-chat-messages" id="${config.chatMessagesId}">
           <div class="advisor-chat-welcome">
-            <p>分析結果について質問してください。AI がアドバイス内容に基づいて回答します。</p>
+            <p>さらに詳しく知りたい内容がありますか？ご質問ください。</p>
           </div>
         </div>
         <div class="advisor-chat-input-wrapper">
           <textarea
             id="${config.chatInputId}"
             class="advisor-chat-input"
-            placeholder="質問を入力してください..."
+            placeholder="質問を入力してください... (Enterで送信、Shift+Enterで改行)"
             rows="2"
             maxlength="1000"
+            data-composition="false"
           ></textarea>
           <button
             type="button"
@@ -1010,6 +1025,143 @@ class BaseAdvisorManager {
 
     // イベントリスナーを設定
     this.initChatEventListeners(config);
+    this.initChatUIControls(containerId, config);
+  }
+
+  /**
+   * 質問者選択UIを表示
+   * @param {HTMLElement} container - コンテナ要素
+   * @param {object} config - チャット設定
+   */
+  renderQuestionerSelection(container, config) {
+    const questioners = this.getQuestionerPersonas(config.type);
+
+    const html = `
+      <div class="advisor-chat-questioner-selection">
+        <div class="advisor-chat-questioner-title">
+          <h3>チャットの質問者を選択してください</h3>
+          <p>より適切なアドバイスを提供するために、あなたのペルソナを教えてください。</p>
+        </div>
+        <div class="advisor-chat-questioner-list">
+          ${questioners.map((q, idx) => `
+            <button
+              type="button"
+              class="advisor-chat-questioner-btn"
+              data-questioner-idx="${idx}"
+              data-questioner-id="${q.id}"
+            >
+              <div class="advisor-chat-questioner-name">${q.name}</div>
+              <div class="advisor-chat-questioner-desc">${q.description}</div>
+            </button>
+          `).join('')}
+        </div>
+      </div>
+    `;
+
+    container.innerHTML = html;
+
+    // 質問者選択イベント
+    container.querySelectorAll('.advisor-chat-questioner-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        const idx = parseInt(e.currentTarget.dataset.questionerIdx, 10);
+        const questioner = questioners[idx];
+        config.questioner = questioner;
+        config.questionerSelected = true;
+        this.renderChatBoxCommon(container.id, config);
+      });
+    });
+  }
+
+  /**
+   * 質問者ペルソナを取得
+   * @param {string} type - Advisorタイプ
+   * @returns {Array} 質問者ペルソナリスト
+   */
+  getQuestionerPersonas(type) {
+    const personas = {
+      advisor: [
+        {
+          id: 'employer',
+          name: '採用側（企業担当者）',
+          description: '採用成功を目指す採用担当者や経営者。求人内容の最適化、人材マッチング率向上を重視。',
+        },
+        {
+          id: 'applicant',
+          name: '応募者側',
+          description: '求職者。職務経歴書の作成、面接対策、アピールポイント強化を必要とする。',
+        },
+        {
+          id: 'agent',
+          name: 'エージェント',
+          description: '人材紹介エージェント。マッチング率向上、営業戦略、市場分析が重点。',
+        },
+      ],
+      'blog-reviewer': [
+        {
+          id: 'writer',
+          name: 'ブログライター',
+          description: '記事執筆者。記事品質向上、SEO対策、リーダーシップ改善に注力。',
+        },
+        {
+          id: 'editor',
+          name: '編集者',
+          description: '編集・監修者。記事全体の品質管理、戦略的なコンテンツ企画を担当。',
+        },
+      ],
+      'web-advisor': [
+        {
+          id: 'owner',
+          name: 'Webサイト責任者',
+          description: 'サイト管理者。ページ最適化、ユーザー体験向上、ビジネス目標達成を重視。',
+        },
+        {
+          id: 'marketer',
+          name: 'マーケター',
+          description: 'マーケティング担当。流入増加、コンバージョン改善、SEO戦略実行を必要とする。',
+        },
+      ],
+    };
+
+    return personas[type] || [];
+  }
+
+  /**
+   * チャットUI制御を初期化
+   * @param {string} containerId - コンテナID
+   * @param {object} config - チャット設定
+   */
+  initChatUIControls(containerId, config) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    const chatBox = container.querySelector('.advisor-chat-box');
+    const collapseBtn = container.querySelector('.advisor-chat-collapse-btn');
+    const positionToggle = container.querySelector('.advisor-chat-position-toggle');
+
+    // 折りたたみボタン
+    if (collapseBtn) {
+      collapseBtn.addEventListener('click', () => {
+        chatBox.classList.toggle('advisor-chat-collapsed');
+        collapseBtn.textContent = chatBox.classList.contains('advisor-chat-collapsed') ? '+' : '−';
+      });
+    }
+
+    // 位置切り替えボタン
+    if (positionToggle) {
+      // ローカルストレージから位置情報を読み込み
+      const savedPosition = localStorage.getItem('advisor-chat-position') || 'right';
+      chatBox.classList.add(`advisor-chat-${savedPosition}`);
+
+      positionToggle.addEventListener('click', () => {
+        const currentPosition = chatBox.classList.contains('advisor-chat-right') ? 'right' : 'left';
+        const newPosition = currentPosition === 'right' ? 'left' : 'right';
+
+        chatBox.classList.remove(`advisor-chat-${currentPosition}`);
+        chatBox.classList.add(`advisor-chat-${newPosition}`);
+
+        localStorage.setItem('advisor-chat-position', newPosition);
+      });
+    }
   }
 
   /**
@@ -1030,17 +1182,38 @@ class BaseAdvisorManager {
       this.chatMessages = [];
     }
 
+    // 日本語入力対応：IME確定前の送信を防止
+    let isComposing = false;
+
+    inputEl.addEventListener('compositionstart', () => {
+      isComposing = true;
+      inputEl.dataset.composition = 'true';
+    });
+
+    inputEl.addEventListener('compositionend', () => {
+      isComposing = false;
+      inputEl.dataset.composition = 'false';
+    });
+
     // 送信ボタンのクリックイベント
     sendBtn.addEventListener('click', () => {
+      if (isComposing) return; // IME確定中なら送信しない
+
       const message = inputEl.value.trim();
       if (!message) return;
 
       this.sendChatMessageCommon(message, config);
       inputEl.value = '';
+      inputEl.focus();
     });
 
     // Enterキーで送信（Shift+Enterで改行）
     inputEl.addEventListener('keydown', e => {
+      // IME確定中なら処理しない
+      if (isComposing) {
+        return;
+      }
+
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         const message = inputEl.value.trim();
@@ -1050,6 +1223,9 @@ class BaseAdvisorManager {
         inputEl.value = '';
       }
     });
+
+    // 初期フォーカス
+    inputEl.focus();
   }
 
   /**
@@ -1113,6 +1289,7 @@ class BaseAdvisorManager {
           userApiKey,
           baseUrl,
           model,
+          questioner: config.questioner || { id: 'default' },
         }),
       });
 
