@@ -1244,21 +1244,23 @@ class BaseAdvisorManager {
     // リセットボタン
     if (resetBtn && chatBox) {
       resetBtn.addEventListener('click', () => {
-        // 位置とサイズをリセット
+        // 位置とサイズをリセット（デフォルト位置に戻す）
+        chatBox.style.position = 'fixed';
+        chatBox.style.right = '24px';
+        chatBox.style.bottom = '24px';
         chatBox.style.left = '';
         chatBox.style.top = '';
-        chatBox.style.right = '';
-        chatBox.style.bottom = '';
         chatBox.style.width = '';
         chatBox.style.height = '';
-        chatBox.style.position = '';
         chatBox.style.transform = '';
         // LocalStorageもクリア
         const storageKey = `advisor_chat_position_${config.type}`;
         const sizeKey = `advisor_chat_size_${config.type}`;
         localStorage.removeItem(storageKey);
         localStorage.removeItem(sizeKey);
-        console.log('[BaseAdvisor] Chat position and size reset');
+        console.log(
+          '[BaseAdvisor] Chat position and size reset to default (right: 24px, bottom: 24px)'
+        );
       });
     }
 

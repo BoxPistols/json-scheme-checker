@@ -4248,24 +4248,31 @@ html[data-theme='dark'] .score-breakdown > div {
   position: absolute;
   top: 16px;
   right: 16px;
-  background: transparent;
-  border: 1px solid var(--border-color);
+  background: var(--secondary-bg-color);
+  border: 2px solid var(--border-color);
   font-size: 24px;
   color: var(--text-color);
   cursor: pointer;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
+  border-radius: 6px;
   transition: all 0.2s;
+  font-weight: 300;
+  line-height: 1;
 }
 
 .advisor-modal-close-btn:hover {
   background: var(--accent-hover-bg-color);
   border-color: var(--primary-color);
   color: var(--primary-color);
+  transform: scale(1.05);
+}
+
+.advisor-modal-close-btn:active {
+  transform: scale(0.95);
 }
 
 /* ドラッグハンドル */
