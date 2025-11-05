@@ -978,7 +978,7 @@ class BaseAdvisorManager {
     container.innerHTML = `
       <div class="advisor-chat-box">
         <div class="advisor-chat-header">
-          <h3 style="margin: 0; font-size: 1rem;">AI チャット</h3>
+          <h3 class="advisor-chat-title">AI チャット</h3>
           <span class="advisor-chat-rate-limit">${rateLimitText}</span>
         </div>
         <div class="advisor-chat-messages" id="${config.chatMessagesId}">
