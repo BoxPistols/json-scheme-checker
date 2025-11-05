@@ -287,6 +287,38 @@ function closeOpenGraphModal() {
 
 // Modalの背景クリックで閉じる
 document.addEventListener('DOMContentLoaded', () => {
+  // デバッグモードの表示
+  if (window.isDebugMode && window.isDebugMode()) {
+    console.log('[DEBUG] Debug mode enabled - Mock data will be used instead of AI API calls');
+    console.log('[DEBUG] Current pathname:', window.location.pathname);
+    console.log('[DEBUG] Current hostname:', window.location.hostname);
+
+    const header = document.querySelector('header');
+    if (header) {
+      const debugBadge = document.createElement('div');
+      debugBadge.className = 'debug-mode-badge';
+      debugBadge.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Debug Mode
+      `;
+      header.appendChild(debugBadge);
+      console.log('[DEBUG] Debug badge added to header');
+    } else {
+      console.warn('[DEBUG] Header element not found');
+    }
+
+    // サブタイトルにデバッグ表示を追加
+    const subtitle = document.querySelector('.subtitle');
+    if (subtitle) {
+      subtitle.style.color = '#ff6b6b';
+      subtitle.textContent += ' [デバッグモード: モックデータを使用]';
+    }
+  }
+
   // モーダル関連のイベントリスナー
   const securityModal = document.getElementById('securityModal');
   if (securityModal) {

@@ -174,6 +174,7 @@ class AdvisorManager extends BaseAdvisorManager {
           </div>
           <div id="advisorExportButtons" class="advisor-export-buttons"></div>
         </div>
+        <div id="advisorChatContainer" class="advisor-chat-container"></div>
       </div>
     `
     );
@@ -189,6 +190,10 @@ class AdvisorManager extends BaseAdvisorManager {
     // グローバルな分析状態をクリア
     setAnalysisInactive('advisor');
     cancelAnalysis('advisor');
+
+    // モーダルオーバーレイを削除
+    const modals = document.querySelectorAll('.advisor-modal-overlay');
+    modals.forEach(modal => modal.remove());
 
     this.closeModal('View');
     const container = document.querySelector('.container');
@@ -210,6 +215,13 @@ class AdvisorManager extends BaseAdvisorManager {
   }
 
   async fetchAdvice(mode) {
+    // デバッグモードチェック
+    if (window.isDebugMode && window.isDebugMode()) {
+      console.log('[Advisor] Debug mode enabled - using mock data');
+      this.renderMockAnalysis(mode);
+      return;
+    }
+
     // グローバルな分析実行状態をチェック（複数の分析の同時実行を防ぐ）
     if (!canStartAnalysis('advisor')) {
       alert('別の分析が実行中です。しばらくお待ちください。');
@@ -304,6 +316,8 @@ class AdvisorManager extends BaseAdvisorManager {
             };
             // エクスポートボタンを表示
             this.showExportButtons();
+            // チャットボックスを表示
+            this.initChatBox();
             break;
           }
           try {
@@ -755,7 +769,9 @@ class AdvisorManager extends BaseAdvisorManager {
 </html>
       `;
 
-      const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8;' });
+      // BOM付きUTF-8でエンコード（Windows/Mac両方で文字化けしない）
+      const htmlWithBom = '\ufeff' + htmlContent;
+      const blob = new Blob([htmlWithBom], { type: 'text/html;charset=utf-8;' });
       const dateStr = new Date().toISOString().split('T')[0];
       const filename = `advice_${this.currentMode}_${dateStr}.html`;
 
@@ -814,6 +830,120 @@ class AdvisorManager extends BaseAdvisorManager {
   clearSelectedUserMode() {
     localStorage.removeItem('jsonld_advisor_selected_user_mode');
     console.log('[Advisor] 選択ユーザータイプをクリア');
+  }
+
+  /**
+   * チャットボックスを初期化
+   */
+  initChatBox() {
+    const chatConfig = {
+      type: 'advisor',
+      containerId: 'advisorChatContainer',
+      context: {
+        jobPosting: this.currentJobPosting,
+        mode: this.currentMode,
+        analysis: this.perspectiveCache[this.currentMode]?.content || '',
+      },
+      chatMessagesId: 'advisorChatMessages',
+      chatInputId: 'advisorChatInput',
+      chatSendBtnId: 'advisorChatSendBtn',
+    };
+
+    this.renderFloatingChatButton('advisorChatContainer', chatConfig);
+  }
+
+  renderMockAnalysis(mode) {
+    console.log('[Advisor] Rendering mock analysis for mode:', mode);
+
+    const adviceContent = document.getElementById('advisorAdviceContent');
+    const progressContainer = document.getElementById('advisorProgressContainer');
+    const skeletonLoader = document.getElementById('advisorSkeletonLoader');
+    const md = document.getElementById('advisorMarkdown');
+
+    if (!adviceContent || !md) {
+      console.error('[Advisor] Required elements not found');
+      return;
+    }
+
+    // プログレスバーとスケルトンローダーを表示
+    if (progressContainer) {
+      progressContainer.style.display = 'block';
+    }
+    if (skeletonLoader) {
+      skeletonLoader.style.display = 'block';
+    }
+
+    // モックデータを取得
+    const mockData = window.DEBUG_MOCK_DATA?.jobPosting?.sample1;
+    if (!mockData) {
+      console.error('[Advisor] Mock data not found');
+      md.innerHTML = '<p>デバッグデータが見つかりません</p>';
+      return;
+    }
+
+    const mockAnalysis = mockData.mockAnalysis[mode];
+    if (!mockAnalysis) {
+      console.error('[Advisor] Mock analysis not found for mode:', mode);
+      md.innerHTML = '<p>デバッグデータが見つかりません</p>';
+      return;
+    }
+
+    // ストリーミングをシミュレート
+    this.updateProgress(0, '初期化中...');
+
+    setTimeout(() => {
+      // スケルトンローダーを非表示
+      if (skeletonLoader) {
+        skeletonLoader.style.display = 'none';
+      }
+      this.updateProgress(30, '分析中...');
+
+      setTimeout(() => {
+        this.updateProgress(60, '分析中...');
+
+        setTimeout(() => {
+          this.updateProgress(90, '完了間近...');
+
+          setTimeout(() => {
+            // 分析結果を表示
+            md.innerHTML = this.renderMarkdownCommon(mockAnalysis);
+
+            this.updateProgress(100, '完了');
+
+            // プログレスバーを非表示
+            if (progressContainer) {
+              progressContainer.style.display = 'none';
+            }
+
+            // モックの使用量データ
+            this.currentUsage = {
+              prompt_tokens: 1500,
+              completion_tokens: 800,
+              total_tokens: 2300,
+            };
+            this.currentModel = 'gpt-4o (mock)';
+
+            // キャッシュに保存
+            this.perspectiveCache[mode] = {
+              content: mockAnalysis,
+              usage: this.currentUsage,
+              model: this.currentModel,
+            };
+
+            // 使用量を表示
+            this.displayUsage();
+
+            // エクスポートボタンを表示
+            this.showExportButtons();
+
+            // チャットボックスを表示
+            this.initChatBox();
+
+            console.log('[Advisor] Mock analysis rendering completed');
+          }, 500);
+        }, 500);
+      }, 500);
+    }, 500);
   }
 }
 
