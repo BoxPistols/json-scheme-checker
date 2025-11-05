@@ -513,6 +513,7 @@ class WebAdvisorManager extends BaseAdvisorManager {
               this.currentModel = data.model || 'gpt-5-nano';
               this.displayUsage();
               this.showExportButtons();
+              this.currentAnalysisContent = full;
               this.initChatBox();
               break;
             case 'done':
