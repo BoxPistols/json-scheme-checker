@@ -4189,6 +4189,55 @@ html[data-theme='dark'] .score-breakdown > div {
   font-size: 0.9rem;
 }
 
+.advisor-questioner-modal-body {
+  width: 100%;
+}
+
+.advisor-questioner-modal-desc {
+  margin: 0 0 20px 0;
+  color: var(--secondary-text-color);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.advisor-questioner-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.advisor-questioner-btn {
+  background: var(--card-bg-color);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.advisor-questioner-btn:hover {
+  border-color: var(--primary-color);
+  background: var(--hover-bg-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.advisor-questioner-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 8px;
+}
+
+.advisor-questioner-desc {
+  font-size: 0.875rem;
+  color: var(--secondary-text-color);
+  line-height: 1.4;
+}
+
 .advisor-modal-close-btn {
   position: absolute;
   top: 16px;
