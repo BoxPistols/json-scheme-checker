@@ -813,6 +813,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
                   this.currentUsage = parsed.usage;
                   this.displayUsage();
                   this.showExportButtons();
+                  this.currentReviewContent = fullText;
                   this.initChatBox();
                   this.addToAccumulatedUsage(parsed.usage);
                 } else if (parsed.error) {
