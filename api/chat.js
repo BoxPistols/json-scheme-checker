@@ -156,11 +156,9 @@ module.exports = async (req, res) => {
 
     // 入力検証: type
     if (!type || !CHAT_SYSTEM_PROMPTS[type]) {
-      return res
-        .status(400)
-        .json({
-          error: 'type は "advisor", "blog-reviewer", または "web-advisor" である必要があります',
-        });
+      return res.status(400).json({
+        error: 'type は "advisor", "blog-reviewer", または "web-advisor" である必要があります',
+      });
     }
 
     // 入力検証: questioner ID

@@ -1262,6 +1262,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
   initChatBox() {
     const chatConfig = {
       type: 'blog-reviewer',
+      containerId: 'blogReviewerChatContainer',
       context: {
         article: this.currentArticle,
         analysis: this.currentReviewContent || '',
@@ -1271,7 +1272,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
       chatSendBtnId: 'blogReviewerChatSendBtn',
     };
 
-    this.renderChatBoxCommon('blogReviewerChatContainer', chatConfig);
+    this.renderFloatingChatButton('blogReviewerChatContainer', chatConfig);
   }
 }
 

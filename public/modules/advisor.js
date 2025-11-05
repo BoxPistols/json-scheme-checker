@@ -825,6 +825,7 @@ class AdvisorManager extends BaseAdvisorManager {
   initChatBox() {
     const chatConfig = {
       type: 'advisor',
+      containerId: 'advisorChatContainer',
       context: {
         jobPosting: this.currentJobPosting,
         mode: this.currentMode,
@@ -835,7 +836,7 @@ class AdvisorManager extends BaseAdvisorManager {
       chatSendBtnId: 'advisorChatSendBtn',
     };
 
-    this.renderChatBoxCommon('advisorChatContainer', chatConfig);
+    this.renderFloatingChatButton('advisorChatContainer', chatConfig);
   }
 }
 

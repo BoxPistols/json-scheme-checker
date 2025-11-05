@@ -860,6 +860,7 @@ class WebAdvisorManager extends BaseAdvisorManager {
   initChatBox() {
     const chatConfig = {
       type: 'web-advisor',
+      containerId: 'webAdvisorChatContainer',
       context: {
         url: this.currentUrl,
         metadata: this.currentMetadata,
@@ -870,7 +871,7 @@ class WebAdvisorManager extends BaseAdvisorManager {
       chatSendBtnId: 'webAdvisorChatSendBtn',
     };
 
-    this.renderChatBoxCommon('webAdvisorChatContainer', chatConfig);
+    this.renderFloatingChatButton('webAdvisorChatContainer', chatConfig);
   }
 }
 

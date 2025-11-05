@@ -954,6 +954,112 @@ class BaseAdvisorManager {
   }
 
   /**
+   * フローティングチャットボタンを表示
+   * @param {string} containerId - ボタンを配置するコンテナID
+   * @param {object} config - チャット設定
+   */
+  renderFloatingChatButton(containerId, config) {
+    const container = document.getElementById(containerId);
+    if (!container) {
+      console.error('[BaseAdvisor] Chat container not found:', containerId);
+      return;
+    }
+
+    container.innerHTML = `
+      <button type="button" class="advisor-floating-chat-btn" id="advisorFloatingChatBtn" aria-label="チャットを開く" title="AI チャット">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="advisor-chat-badge" id="advisorChatBadge" style="display: none;"></span>
+      </button>
+    `;
+
+    const btn = document.getElementById('advisorFloatingChatBtn');
+    if (btn) {
+      btn.addEventListener('click', () => {
+        // 質問者選択モーダルを表示
+        this.showQuestionerModal(config);
+      });
+    }
+  }
+
+  /**
+   * 質問者選択モーダルを表示
+   * @param {object} config - チャット設定
+   */
+  showQuestionerModal(config) {
+    const questioners = this.getQuestionerPersonas(config.type);
+
+    const modal = document.createElement('div');
+    modal.className = 'advisor-modal-overlay';
+    modal.innerHTML = `
+      <div class="advisor-questioner-modal">
+        <div class="advisor-questioner-modal-header">
+          <h3>チャットの質問者を選択してください</h3>
+          <button type="button" class="advisor-modal-close-btn" aria-label="閉じる">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+        <div class="advisor-questioner-modal-body">
+          <p class="advisor-questioner-modal-desc">より適切なアドバイスを提供するために、あなたのペルソナを教えてください。</p>
+          <div class="advisor-questioner-list">
+            ${questioners
+              .map(
+                (q, idx) => `
+              <button type="button" class="advisor-questioner-btn" data-questioner-idx="${idx}" data-questioner-id="${q.id}">
+                <div class="advisor-questioner-name">${q.name}</div>
+                <div class="advisor-questioner-desc">${q.description}</div>
+              </button>
+            `
+              )
+              .join('')}
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // 閉じるボタン
+    modal.querySelector('.advisor-modal-close-btn').addEventListener('click', () => {
+      modal.remove();
+    });
+
+    // オーバーレイクリックで閉じる
+    modal.addEventListener('click', e => {
+      if (e.target === modal) {
+        modal.remove();
+      }
+    });
+
+    // Escキーで閉じる
+    const handleEscape = e => {
+      if (e.key === 'Escape') {
+        modal.remove();
+        document.removeEventListener('keydown', handleEscape);
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+
+    // 質問者選択
+    modal.querySelectorAll('.advisor-questioner-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        const idx = parseInt(e.currentTarget.dataset.questionerIdx, 10);
+        const questioner = questioners[idx];
+        config.questioner = questioner;
+        config.questionerLabel = questioner.name;
+        config.questionerSelected = true;
+        modal.remove();
+
+        // チャットボックスを表示
+        this.renderChatBoxCommon(config.containerId, config);
+      });
+    });
+  }
+
+  /**
    * チャットボックスUIを生成する共通メソッド
    * @param {string} containerId - チャットボックスを配置するコンテナID
    * @param {object} config - チャット設定
@@ -971,28 +1077,32 @@ class BaseAdvisorManager {
       return;
     }
 
+    // フローティングチャットボタンを非表示
+    const floatingBtn = document.getElementById('advisorFloatingChatBtn');
+    if (floatingBtn) {
+      floatingBtn.style.display = 'none';
+    }
+
     const rateLimit = this.checkChatRateLimit();
     const rateLimitText = rateLimit.usingUserKey
       ? '無制限（MyAPI使用中）'
       : `残り ${rateLimit.remaining}/${rateLimit.maxRequests} 回`;
 
-    // 質問者ペルソナの選択モードを先に表示
-    if (!config.questionerSelected) {
-      this.renderQuestionerSelection(container, config);
-      return;
-    }
-
     container.innerHTML = `
-      <div class="advisor-chat-box advisor-chat-expanded">
-        <div class="advisor-chat-header">
+      <div class="advisor-chat-box advisor-chat-expanded advisor-chat-right" id="advisorChatBox">
+        <div class="advisor-chat-header advisor-chat-drag-handle" id="advisorChatDragHandle">
           <div class="advisor-chat-header-left">
+            <svg class="advisor-chat-drag-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="9" cy="5" r="1.5" fill="currentColor"/><circle cx="9" cy="12" r="1.5" fill="currentColor"/><circle cx="9" cy="19" r="1.5" fill="currentColor"/>
+              <circle cx="15" cy="5" r="1.5" fill="currentColor"/><circle cx="15" cy="12" r="1.5" fill="currentColor"/><circle cx="15" cy="19" r="1.5" fill="currentColor"/>
+            </svg>
             <h3 style="margin: 0; font-size: 1rem;">AI チャット</h3>
             ${config.questionerLabel ? `<span class="advisor-chat-questioner-badge">${config.questionerLabel}</span>` : ''}
           </div>
           <div class="advisor-chat-header-right">
             <span class="advisor-chat-rate-limit">${rateLimitText}</span>
-            <button type="button" class="advisor-chat-position-toggle" aria-label="チャット位置を切り替え" title="右下 / 左下">⟲</button>
             <button type="button" class="advisor-chat-collapse-btn" aria-label="チャットを折りたたむ" title="折りたたむ">−</button>
+            <button type="button" class="advisor-chat-close-btn" aria-label="チャットを閉じる" title="閉じる">×</button>
           </div>
         </div>
         <div class="advisor-chat-messages" id="${config.chatMessagesId}">
@@ -1005,9 +1115,10 @@ class BaseAdvisorManager {
             id="${config.chatInputId}"
             class="advisor-chat-input"
             placeholder="質問を入力してください... (Enterで送信、Shift+Enterで改行)"
-            rows="2"
+            rows="3"
             maxlength="1000"
             data-composition="false"
+            style="resize: vertical; min-height: 60px; max-height: 200px;"
           ></textarea>
           <button
             type="button"
@@ -1020,56 +1131,13 @@ class BaseAdvisorManager {
             </svg>
           </button>
         </div>
+        <div class="advisor-chat-resize-handle" id="advisorChatResizeHandle" title="ドラッグしてリサイズ"></div>
       </div>
     `;
 
     // イベントリスナーを設定
     this.initChatEventListeners(config);
     this.initChatUIControls(containerId, config);
-  }
-
-  /**
-   * 質問者選択UIを表示
-   * @param {HTMLElement} container - コンテナ要素
-   * @param {object} config - チャット設定
-   */
-  renderQuestionerSelection(container, config) {
-    const questioners = this.getQuestionerPersonas(config.type);
-
-    const html = `
-      <div class="advisor-chat-questioner-selection">
-        <div class="advisor-chat-questioner-title">
-          <h3>チャットの質問者を選択してください</h3>
-          <p>より適切なアドバイスを提供するために、あなたのペルソナを教えてください。</p>
-        </div>
-        <div class="advisor-chat-questioner-list">
-          ${questioners.map((q, idx) => `
-            <button
-              type="button"
-              class="advisor-chat-questioner-btn"
-              data-questioner-idx="${idx}"
-              data-questioner-id="${q.id}"
-            >
-              <div class="advisor-chat-questioner-name">${q.name}</div>
-              <div class="advisor-chat-questioner-desc">${q.description}</div>
-            </button>
-          `).join('')}
-        </div>
-      </div>
-    `;
-
-    container.innerHTML = html;
-
-    // 質問者選択イベント
-    container.querySelectorAll('.advisor-chat-questioner-btn').forEach(btn => {
-      btn.addEventListener('click', e => {
-        const idx = parseInt(e.currentTarget.dataset.questionerIdx, 10);
-        const questioner = questioners[idx];
-        config.questioner = questioner;
-        config.questionerSelected = true;
-        this.renderChatBoxCommon(container.id, config);
-      });
-    });
   }
 
   /**
@@ -1083,7 +1151,8 @@ class BaseAdvisorManager {
         {
           id: 'employer',
           name: '採用側（企業担当者）',
-          description: '採用成功を目指す採用担当者や経営者。求人内容の最適化、人材マッチング率向上を重視。',
+          description:
+            '採用成功を目指す採用担当者や経営者。求人内容の最適化、人材マッチング率向上を重視。',
         },
         {
           id: 'applicant',
@@ -1117,7 +1186,8 @@ class BaseAdvisorManager {
         {
           id: 'marketer',
           name: 'マーケター',
-          description: 'マーケティング担当。流入増加、コンバージョン改善、SEO戦略実行を必要とする。',
+          description:
+            'マーケティング担当。流入増加、コンバージョン改善、SEO戦略実行を必要とする。',
         },
       ],
     };
@@ -1136,7 +1206,9 @@ class BaseAdvisorManager {
 
     const chatBox = container.querySelector('.advisor-chat-box');
     const collapseBtn = container.querySelector('.advisor-chat-collapse-btn');
-    const positionToggle = container.querySelector('.advisor-chat-position-toggle');
+    const closeBtn = container.querySelector('.advisor-chat-close-btn');
+    const dragHandle = container.querySelector('.advisor-chat-drag-handle');
+    const resizeHandle = container.querySelector('.advisor-chat-resize-handle');
 
     // 折りたたみボタン
     if (collapseBtn) {
@@ -1146,21 +1218,149 @@ class BaseAdvisorManager {
       });
     }
 
-    // 位置切り替えボタン
-    if (positionToggle) {
-      // ローカルストレージから位置情報を読み込み
-      const savedPosition = localStorage.getItem('advisor-chat-position') || 'right';
-      chatBox.classList.add(`advisor-chat-${savedPosition}`);
-
-      positionToggle.addEventListener('click', () => {
-        const currentPosition = chatBox.classList.contains('advisor-chat-right') ? 'right' : 'left';
-        const newPosition = currentPosition === 'right' ? 'left' : 'right';
-
-        chatBox.classList.remove(`advisor-chat-${currentPosition}`);
-        chatBox.classList.add(`advisor-chat-${newPosition}`);
-
-        localStorage.setItem('advisor-chat-position', newPosition);
+    // 閉じるボタン
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        // チャットボックスを非表示にしてコンテナをクリア
+        container.innerHTML = '';
+        // フローティングチャットボタンを再表示
+        const floatingBtn = document.getElementById('advisorFloatingChatBtn');
+        if (floatingBtn) {
+          floatingBtn.style.display = 'flex';
+        }
       });
+    }
+
+    // ドラッグ機能
+    if (dragHandle && chatBox) {
+      let isDragging = false;
+      let currentX = 0;
+      let currentY = 0;
+      let initialX = 0;
+      let initialY = 0;
+
+      const onMouseDown = e => {
+        // ボタンクリック時はドラッグしない
+        if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+          return;
+        }
+
+        isDragging = true;
+        initialX = e.clientX - currentX;
+        initialY = e.clientY - currentY;
+
+        // 位置クラスを削除してabsolute positioningに切り替え
+        chatBox.classList.remove('advisor-chat-right', 'advisor-chat-left');
+        chatBox.style.position = 'fixed';
+        chatBox.style.left = `${chatBox.offsetLeft}px`;
+        chatBox.style.top = `${chatBox.offsetTop}px`;
+        chatBox.style.right = 'auto';
+        chatBox.style.bottom = 'auto';
+
+        dragHandle.style.cursor = 'grabbing';
+      };
+
+      const onMouseMove = e => {
+        if (!isDragging) return;
+
+        e.preventDefault();
+        currentX = e.clientX - initialX;
+        currentY = e.clientY - initialY;
+
+        // ビューポート内に制限
+        const maxX = window.innerWidth - chatBox.offsetWidth;
+        const maxY = window.innerHeight - chatBox.offsetHeight;
+        currentX = Math.max(0, Math.min(currentX, maxX));
+        currentY = Math.max(0, Math.min(currentY, maxY));
+
+        chatBox.style.left = `${currentX}px`;
+        chatBox.style.top = `${currentY}px`;
+      };
+
+      const onMouseUp = () => {
+        if (!isDragging) return;
+        isDragging = false;
+        dragHandle.style.cursor = 'grab';
+
+        // 位置をローカルストレージに保存
+        localStorage.setItem('advisor-chat-position-x', currentX);
+        localStorage.setItem('advisor-chat-position-y', currentY);
+      };
+
+      dragHandle.addEventListener('mousedown', onMouseDown);
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+
+      // 保存された位置を復元
+      const savedX = localStorage.getItem('advisor-chat-position-x');
+      const savedY = localStorage.getItem('advisor-chat-position-y');
+      if (savedX !== null && savedY !== null) {
+        currentX = parseInt(savedX, 10);
+        currentY = parseInt(savedY, 10);
+        chatBox.classList.remove('advisor-chat-right', 'advisor-chat-left');
+        chatBox.style.position = 'fixed';
+        chatBox.style.left = `${currentX}px`;
+        chatBox.style.top = `${currentY}px`;
+        chatBox.style.right = 'auto';
+        chatBox.style.bottom = 'auto';
+      }
+    }
+
+    // リサイズ機能
+    if (resizeHandle && chatBox) {
+      let isResizing = false;
+      let startWidth = 0;
+      let startHeight = 0;
+      let startX = 0;
+      let startY = 0;
+
+      const onMouseDown = e => {
+        isResizing = true;
+        startWidth = chatBox.offsetWidth;
+        startHeight = chatBox.offsetHeight;
+        startX = e.clientX;
+        startY = e.clientY;
+
+        e.preventDefault();
+        resizeHandle.style.cursor = 'nwse-resizing';
+      };
+
+      const onMouseMove = e => {
+        if (!isResizing) return;
+
+        e.preventDefault();
+        const width = startWidth + (e.clientX - startX);
+        const height = startHeight + (e.clientY - startY);
+
+        // 最小サイズを設定
+        const minWidth = 300;
+        const minHeight = 400;
+        const newWidth = Math.max(minWidth, width);
+        const newHeight = Math.max(minHeight, height);
+
+        chatBox.style.width = `${newWidth}px`;
+        chatBox.style.height = `${newHeight}px`;
+      };
+
+      const onMouseUp = () => {
+        if (!isResizing) return;
+        isResizing = false;
+        resizeHandle.style.cursor = 'nwse-resize';
+
+        // サイズをローカルストレージに保存
+        localStorage.setItem('advisor-chat-width', chatBox.style.width);
+        localStorage.setItem('advisor-chat-height', chatBox.style.height);
+      };
+
+      resizeHandle.addEventListener('mousedown', onMouseDown);
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+
+      // 保存されたサイズを復元
+      const savedWidth = localStorage.getItem('advisor-chat-width');
+      const savedHeight = localStorage.getItem('advisor-chat-height');
+      if (savedWidth) chatBox.style.width = savedWidth;
+      if (savedHeight) chatBox.style.height = savedHeight;
     }
   }
 
@@ -1240,7 +1440,9 @@ class BaseAdvisorManager {
       const resetTime = rateLimit.resetTime
         ? new Date(rateLimit.resetTime).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })
         : '不明';
-      alert(`チャット回数の上限に達しました。リセット時刻: ${resetTime}\n\nまたは、MyAPIを使用してください（設定から）。`);
+      alert(
+        `チャット回数の上限に達しました。リセット時刻: ${resetTime}\n\nまたは、MyAPIを使用してください（設定から）。`
+      );
       return;
     }
 
@@ -1373,7 +1575,8 @@ class BaseAdvisorManager {
     messageDiv.className = `advisor-chat-message advisor-chat-message-${role}`;
 
     const label = role === 'user' ? 'あなた' : 'AI';
-    const renderedContent = role === 'assistant' ? this.renderMarkdownCommon(content) : this.escapeHtml(content);
+    const renderedContent =
+      role === 'assistant' ? this.renderMarkdownCommon(content) : this.escapeHtml(content);
 
     messageDiv.innerHTML = `
       <div class="advisor-chat-message-label">${label}</div>
