@@ -3939,7 +3939,8 @@ html[data-theme='dark'] .score-breakdown > div {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -4248,10 +4249,11 @@ html[data-theme='dark'] .score-breakdown > div {
   position: absolute;
   top: 16px;
   right: 16px;
-  background: transparent;
-  border: 1px solid var(--border-color);
+  /* フォールバックを追加してテーマ変数が未定義でも見えるようにする */
+  background: var(--modal-close-bg, transparent);
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.12));
   font-size: 24px;
-  color: var(--text-color);
+  color: var(--text-color, #000);
   cursor: pointer;
   width: 32px;
   height: 32px;
@@ -4259,6 +4261,11 @@ html[data-theme='dark'] .score-breakdown > div {
   align-items: center;
   justify-content: center;
   border-radius: 4px;
+  box-sizing: border-box;
+  line-height: 1;
+  padding: 0;
+  z-index: 10010; /* モーダル内で確実に上に出す */
+  pointer-events: auto;
   transition: all 0.2s;
 }
 
