@@ -174,6 +174,7 @@ class AdvisorManager extends BaseAdvisorManager {
           </div>
           <div id="advisorExportButtons" class="advisor-export-buttons"></div>
         </div>
+        <div id="advisorChatContainer" class="advisor-chat-container"></div>
       </div>
     `
     );
@@ -304,6 +305,8 @@ class AdvisorManager extends BaseAdvisorManager {
             };
             // エクスポートボタンを表示
             this.showExportButtons();
+            // チャットボックスを表示
+            this.initChatBox();
             break;
           }
           try {
@@ -814,6 +817,25 @@ class AdvisorManager extends BaseAdvisorManager {
   clearSelectedUserMode() {
     localStorage.removeItem('jsonld_advisor_selected_user_mode');
     console.log('[Advisor] 選択ユーザータイプをクリア');
+  }
+
+  /**
+   * チャットボックスを初期化
+   */
+  initChatBox() {
+    const chatConfig = {
+      type: 'advisor',
+      context: {
+        jobPosting: this.currentJobPosting,
+        mode: this.currentMode,
+        analysis: this.perspectiveCache[this.currentMode]?.content || '',
+      },
+      chatMessagesId: 'advisorChatMessages',
+      chatInputId: 'advisorChatInput',
+      chatSendBtnId: 'advisorChatSendBtn',
+    };
+
+    this.renderChatBoxCommon('advisorChatContainer', chatConfig);
   }
 }
 

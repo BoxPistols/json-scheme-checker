@@ -572,6 +572,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
           </div>
           <div id="blogReviewerExportButtons" class="advisor-export-buttons"></div>
         </div>
+        <div id="blogReviewerChatContainer" class="advisor-chat-container"></div>
       </div>
     `;
 
@@ -812,6 +813,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
                   this.currentUsage = parsed.usage;
                   this.displayUsage();
                   this.showExportButtons();
+                  this.initChatBox();
                   this.addToAccumulatedUsage(parsed.usage);
                 } else if (parsed.error) {
                   throw new Error(parsed.error);
@@ -1251,6 +1253,24 @@ class BlogReviewerManager extends BaseAdvisorManager {
       console.error('[BlogReviewer] PDF export failed:', error);
       alert('PDFエクスポートに失敗しました。');
     }
+  }
+
+  /**
+   * チャットボックスを初期化
+   */
+  initChatBox() {
+    const chatConfig = {
+      type: 'blog-reviewer',
+      context: {
+        article: this.currentArticle,
+        analysis: this.currentReviewContent || '',
+      },
+      chatMessagesId: 'blogReviewerChatMessages',
+      chatInputId: 'blogReviewerChatInput',
+      chatSendBtnId: 'blogReviewerChatSendBtn',
+    };
+
+    this.renderChatBoxCommon('blogReviewerChatContainer', chatConfig);
   }
 }
 

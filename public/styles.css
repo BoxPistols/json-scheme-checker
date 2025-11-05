@@ -3670,3 +3670,224 @@ html[data-theme='dark'] .score-breakdown > div {
     width: 100%;
   }
 }
+
+/* チャット機能スタイル */
+.advisor-chat-box {
+  margin-top: 24px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--card-bg-color);
+  overflow: hidden;
+}
+
+.advisor-chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--secondary-bg-color);
+}
+
+.advisor-chat-rate-limit {
+  font-size: 0.85rem;
+  color: var(--secondary-text-color);
+  padding: 4px 12px;
+  background: var(--card-bg-color);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.advisor-chat-messages {
+  max-height: 500px;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.advisor-chat-welcome {
+  text-align: center;
+  padding: 24px;
+  color: var(--secondary-text-color);
+  font-size: 0.9rem;
+}
+
+.advisor-chat-message {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  animation: fadeInUp 0.3s ease;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.advisor-chat-message-user {
+  align-items: flex-end;
+}
+
+.advisor-chat-message-assistant {
+  align-items: flex-start;
+}
+
+.advisor-chat-message-label {
+  font-size: 0.75rem;
+  color: var(--secondary-text-color);
+  font-weight: 600;
+  padding: 0 4px;
+}
+
+.advisor-chat-message-content {
+  padding: 12px 16px;
+  border-radius: 12px;
+  max-width: 85%;
+  word-wrap: break-word;
+  line-height: 1.6;
+}
+
+.advisor-chat-message-user .advisor-chat-message-content {
+  background: var(--primary-color);
+  color: var(--primary-text-color);
+  border-bottom-right-radius: 4px;
+}
+
+.advisor-chat-message-assistant .advisor-chat-message-content {
+  background: var(--secondary-bg-color);
+  color: var(--text-color);
+  border-bottom-left-radius: 4px;
+  border: 1px solid var(--border-color);
+}
+
+.advisor-chat-typing {
+  display: inline-block;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.advisor-chat-input-wrapper {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid var(--border-color);
+  background: var(--secondary-bg-color);
+}
+
+.advisor-chat-input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  resize: vertical;
+  background: var(--card-bg-color);
+  color: var(--text-color);
+  min-height: 48px;
+  max-height: 120px;
+}
+
+.advisor-chat-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px var(--primary-shadow-color);
+}
+
+.advisor-chat-send-btn {
+  padding: 10px 16px;
+  background: var(--primary-color);
+  color: var(--primary-text-color);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.advisor-chat-send-btn:hover {
+  background: var(--primary-hover-color);
+}
+
+.advisor-chat-send-btn:active {
+  transform: scale(0.95);
+}
+
+.advisor-chat-send-btn:disabled {
+  background: var(--secondary-text-color);
+  cursor: not-allowed;
+}
+
+/* チャットメッセージ内のMarkdown スタイル */
+.advisor-chat-message-content h1,
+.advisor-chat-message-content h2,
+.advisor-chat-message-content h3 {
+  margin-top: 8px;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.advisor-chat-message-content h1 {
+  font-size: 1.1rem;
+}
+
+.advisor-chat-message-content h2 {
+  font-size: 1rem;
+}
+
+.advisor-chat-message-content h3 {
+  font-size: 0.9rem;
+}
+
+.advisor-chat-message-content ul {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.advisor-chat-message-content li {
+  margin: 4px 0;
+}
+
+.advisor-chat-message-content strong {
+  font-weight: 600;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .advisor-chat-messages {
+    max-height: 400px;
+  }
+
+  .advisor-chat-message-content {
+    max-width: 90%;
+  }
+
+  .advisor-chat-header {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .advisor-chat-rate-limit {
+    font-size: 0.75rem;
+    padding: 3px 10px;
+  }
+}

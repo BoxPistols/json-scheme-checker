@@ -899,6 +899,328 @@ class BaseAdvisorManager {
       .replace(/\s+/g, ' ')
       .trim();
   }
+
+  /**
+   * チャット機能専用のレート制限をチェック
+   * @returns {object} レート制限状態
+   */
+  checkChatRateLimit() {
+    const userApiKey = this.getUserApiKey();
+    if (userApiKey) {
+      return {
+        allowed: true,
+        remaining: Infinity,
+        resetTime: null,
+        usingUserKey: true,
+        mode: 'developer',
+      };
+    }
+
+    const now = Date.now();
+    const oneDayMs = 24 * 60 * 60 * 1000;
+    const chatUsageKey = 'jsonld_chat_rate_limit';
+    const usageData = JSON.parse(localStorage.getItem(chatUsageKey) || '[]');
+    const recentRequests = usageData.filter(timestamp => now - timestamp < oneDayMs);
+
+    const maxRequests = 50; // チャット専用の制限
+    const remaining = maxRequests - recentRequests.length;
+    const allowed = remaining > 0;
+
+    const resetTime = recentRequests.length > 0 ? new Date(recentRequests[0] + oneDayMs) : null;
+
+    return {
+      allowed,
+      remaining,
+      resetTime,
+      usingUserKey: false,
+      mode: 'free',
+      maxRequests,
+    };
+  }
+
+  /**
+   * チャット使用履歴を記録
+   */
+  recordChatUsage() {
+    if (this.getUserApiKey()) return; // MyAPIモードでは記録しない
+
+    const now = Date.now();
+    const oneDayMs = 24 * 60 * 60 * 1000;
+    const chatUsageKey = 'jsonld_chat_rate_limit';
+    const usageData = JSON.parse(localStorage.getItem(chatUsageKey) || '[]');
+    const recentRequests = usageData.filter(timestamp => now - timestamp < oneDayMs);
+    recentRequests.push(now);
+    localStorage.setItem(chatUsageKey, JSON.stringify(recentRequests));
+  }
+
+  /**
+   * チャットボックスUIを生成する共通メソッド
+   * @param {string} containerId - チャットボックスを配置するコンテナID
+   * @param {object} config - チャット設定
+   * @param {string} config.type - Advisorタイプ ('advisor', 'blog-reviewer', 'web-advisor')
+   * @param {object} config.context - 分析コンテキスト
+   * @param {string} config.chatMessagesId - メッセージ履歴を表示する要素ID
+   * @param {string} config.chatInputId - 入力フォームの要素ID
+   * @param {string} config.chatSendBtnId - 送信ボタンの要素ID
+   */
+  renderChatBoxCommon(containerId, config) {
+    const container = document.getElementById(containerId);
+    if (!container) {
+      console.error('[BaseAdvisor] Chat container not found:', containerId);
+      return;
+    }
+
+    const rateLimit = this.checkChatRateLimit();
+    const rateLimitText = rateLimit.usingUserKey
+      ? '無制限（MyAPI使用中）'
+      : `残り ${rateLimit.remaining}/${rateLimit.maxRequests} 回`;
+
+    container.innerHTML = `
+      <div class="advisor-chat-box">
+        <div class="advisor-chat-header">
+          <h3 style="margin: 0; font-size: 1rem;">AI チャット</h3>
+          <span class="advisor-chat-rate-limit">${rateLimitText}</span>
+        </div>
+        <div class="advisor-chat-messages" id="${config.chatMessagesId}">
+          <div class="advisor-chat-welcome">
+            <p>分析結果について質問してください。AI がアドバイス内容に基づいて回答します。</p>
+          </div>
+        </div>
+        <div class="advisor-chat-input-wrapper">
+          <textarea
+            id="${config.chatInputId}"
+            class="advisor-chat-input"
+            placeholder="質問を入力してください..."
+            rows="2"
+            maxlength="1000"
+          ></textarea>
+          <button
+            type="button"
+            id="${config.chatSendBtnId}"
+            class="advisor-chat-send-btn"
+            aria-label="メッセージを送信"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    `;
+
+    // イベントリスナーを設定
+    this.initChatEventListeners(config);
+  }
+
+  /**
+   * チャットイベントリスナーを初期化
+   * @param {object} config - チャット設定
+   */
+  initChatEventListeners(config) {
+    const inputEl = document.getElementById(config.chatInputId);
+    const sendBtn = document.getElementById(config.chatSendBtnId);
+
+    if (!inputEl || !sendBtn) {
+      console.error('[BaseAdvisor] Chat input or send button not found');
+      return;
+    }
+
+    // メッセージ履歴を保持（インスタンスプロパティ）
+    if (!this.chatMessages) {
+      this.chatMessages = [];
+    }
+
+    // 送信ボタンのクリックイベント
+    sendBtn.addEventListener('click', () => {
+      const message = inputEl.value.trim();
+      if (!message) return;
+
+      this.sendChatMessageCommon(message, config);
+      inputEl.value = '';
+    });
+
+    // Enterキーで送信（Shift+Enterで改行）
+    inputEl.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        const message = inputEl.value.trim();
+        if (!message) return;
+
+        this.sendChatMessageCommon(message, config);
+        inputEl.value = '';
+      }
+    });
+  }
+
+  /**
+   * チャットメッセージを送信する共通メソッド
+   * @param {string} message - ユーザーメッセージ
+   * @param {object} config - チャット設定
+   */
+  async sendChatMessageCommon(message, config) {
+    // レート制限チェック
+    const rateLimit = this.checkChatRateLimit();
+    if (!rateLimit.allowed) {
+      const resetTime = rateLimit.resetTime
+        ? new Date(rateLimit.resetTime).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' })
+        : '不明';
+      alert(`チャット回数の上限に達しました。リセット時刻: ${resetTime}\n\nまたは、MyAPIを使用してください（設定から）。`);
+      return;
+    }
+
+    // ユーザーメッセージを表示
+    this.renderChatMessageCommon('user', message, config.chatMessagesId);
+
+    // メッセージ履歴に追加
+    if (!this.chatMessages) {
+      this.chatMessages = [];
+    }
+    this.chatMessages.push({ role: 'user', content: message });
+
+    // AIメッセージのプレースホルダーを作成
+    const messagesContainer = document.getElementById(config.chatMessagesId);
+    if (!messagesContainer) return;
+
+    const aiMessageDiv = document.createElement('div');
+    aiMessageDiv.className = 'advisor-chat-message advisor-chat-message-assistant';
+    aiMessageDiv.innerHTML = `
+      <div class="advisor-chat-message-label">AI</div>
+      <div class="advisor-chat-message-content">
+        <span class="advisor-chat-typing">回答を生成中...</span>
+      </div>
+    `;
+    messagesContainer.appendChild(aiMessageDiv);
+
+    // 自動スクロール
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+    try {
+      // APIリクエスト
+      const isVercel = window.location.hostname.includes('vercel.app');
+      const apiUrl = isVercel ? '/api/chat' : 'http://127.0.0.1:3333/api/chat';
+
+      const userApiKey = this.getUserApiKey();
+      const baseUrl = this.getUserApiBaseUrl();
+      const model = this.getUserApiModel() || 'gpt-5-nano';
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: config.type,
+          context: config.context,
+          messages: this.chatMessages,
+          userApiKey,
+          baseUrl,
+          model,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      // ストリーミングレスポンスを処理
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let fullText = '';
+
+      const contentDiv = aiMessageDiv.querySelector('.advisor-chat-message-content');
+      contentDiv.innerHTML = ''; // タイピング表示を削除
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6);
+            if (data === '[DONE]') break;
+
+            try {
+              const parsed = JSON.parse(data);
+              if (parsed.content) {
+                fullText += parsed.content;
+                contentDiv.innerHTML = this.renderMarkdownCommon(fullText);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+              }
+              if (parsed.error) {
+                throw new Error(parsed.error);
+              }
+            } catch (e) {
+              if (e.message !== 'Unexpected end of JSON input') {
+                console.error('[BaseAdvisor] Chat stream parse error:', e);
+              }
+            }
+          }
+        }
+      }
+
+      // メッセージ履歴に追加
+      this.chatMessages.push({ role: 'assistant', content: fullText });
+
+      // 使用履歴を記録
+      this.recordChatUsage();
+
+      // レート制限表示を更新
+      this.updateChatRateLimitDisplay();
+    } catch (error) {
+      console.error('[BaseAdvisor] Chat error:', error);
+      const contentDiv = aiMessageDiv.querySelector('.advisor-chat-message-content');
+      contentDiv.innerHTML = `<span style="color: var(--error-color);">エラー: ${this.escapeHtml(error.message)}</span>`;
+    }
+  }
+
+  /**
+   * チャットメッセージを表示する共通メソッド
+   * @param {string} role - メッセージの役割 ('user' | 'assistant')
+   * @param {string} content - メッセージ内容
+   * @param {string} messagesContainerId - メッセージを表示するコンテナID
+   */
+  renderChatMessageCommon(role, content, messagesContainerId) {
+    const messagesContainer = document.getElementById(messagesContainerId);
+    if (!messagesContainer) return;
+
+    // 初回メッセージの場合、ウェルカムメッセージを削除
+    const welcomeMsg = messagesContainer.querySelector('.advisor-chat-welcome');
+    if (welcomeMsg) {
+      welcomeMsg.remove();
+    }
+
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `advisor-chat-message advisor-chat-message-${role}`;
+
+    const label = role === 'user' ? 'あなた' : 'AI';
+    const renderedContent = role === 'assistant' ? this.renderMarkdownCommon(content) : this.escapeHtml(content);
+
+    messageDiv.innerHTML = `
+      <div class="advisor-chat-message-label">${label}</div>
+      <div class="advisor-chat-message-content">${renderedContent}</div>
+    `;
+
+    messagesContainer.appendChild(messageDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
+
+  /**
+   * チャットレート制限表示を更新
+   */
+  updateChatRateLimitDisplay() {
+    const rateLimitEl = document.querySelector('.advisor-chat-rate-limit');
+    if (!rateLimitEl) return;
+
+    const rateLimit = this.checkChatRateLimit();
+    const rateLimitText = rateLimit.usingUserKey
+      ? '無制限（MyAPI使用中）'
+      : `残り ${rateLimit.remaining}/${rateLimit.maxRequests} 回`;
+
+    rateLimitEl.textContent = rateLimitText;
+  }
 }
 
 // Node.js用のテストエクスポート（ブラウザ実行には影響なし）

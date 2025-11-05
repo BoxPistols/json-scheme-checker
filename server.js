@@ -282,6 +282,19 @@ app.post('/api/web-advisor/session', express.json(), async (req, res) => {
   }
 });
 
+// Chat APIエンドポイント（ローカル開発用）
+app.post('/api/chat', async (req, res) => {
+  try {
+    const chatHandler = require('./api/chat');
+    await chatHandler(req, res);
+  } catch (error) {
+    console.error('Chat API error:', error);
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Internal server error', details: error.message });
+    }
+  }
+});
+
 // MyAPI 接続テスト（ローカル開発用）
 app.post('/api/test-connection', async (req, res) => {
   try {

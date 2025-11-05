@@ -228,6 +228,7 @@ class WebAdvisorManager extends BaseAdvisorManager {
           </div>
           <div id="webAdvisorExportButtons" class="advisor-export-buttons"></div>
         </div>
+        <div id="webAdvisorChatContainer" class="advisor-chat-container"></div>
       </div>
     `;
 
@@ -512,6 +513,7 @@ class WebAdvisorManager extends BaseAdvisorManager {
               this.currentModel = data.model || 'gpt-5-nano';
               this.displayUsage();
               this.showExportButtons();
+              this.initChatBox();
               break;
             case 'done':
               console.log('[WebAdvisor-SSE-onmessage] Analysis complete');
@@ -849,6 +851,25 @@ class WebAdvisorManager extends BaseAdvisorManager {
       console.error('[WebAdvisor] PDF export failed:', error);
       alert('PDFエクスポートに失敗しました。');
     }
+  }
+
+  /**
+   * チャットボックスを初期化
+   */
+  initChatBox() {
+    const chatConfig = {
+      type: 'web-advisor',
+      context: {
+        url: this.currentUrl,
+        metadata: this.currentMetadata,
+        analysis: this.currentAnalysisContent || '',
+      },
+      chatMessagesId: 'webAdvisorChatMessages',
+      chatInputId: 'webAdvisorChatInput',
+      chatSendBtnId: 'webAdvisorChatSendBtn',
+    };
+
+    this.renderChatBoxCommon('webAdvisorChatContainer', chatConfig);
   }
 }
 
