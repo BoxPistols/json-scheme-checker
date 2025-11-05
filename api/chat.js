@@ -48,7 +48,7 @@ module.exports = async (req, res) => {
     const { type, context, messages, userApiKey, baseUrl, model } = req.body;
 
     // 入力検証: type
-    if (!type || !['advisor', 'blog-reviewer', 'web-advisor'].includes(type)) {
+    if (!type || !CHAT_SYSTEM_PROMPTS[type]) {
       return res
         .status(400)
         .json({ error: 'type は "advisor", "blog-reviewer", または "web-advisor" である必要があります' });
