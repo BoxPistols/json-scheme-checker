@@ -307,6 +307,11 @@ app.post('/api/test-connection', async (req, res) => {
 });
 
 // ネットワークIPアドレスを取得
+// デバッグモード用のルート
+app.get('/debug', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 const os = require('os');
 const networkInterfaces = os.networkInterfaces();
 let localIP = 'localhost';

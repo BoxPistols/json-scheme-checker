@@ -1051,6 +1051,11 @@ class BlogReviewerManager extends BaseAdvisorManager {
    */
   closeReviewView() {
     this.isStreaming = false;
+
+    // モーダルオーバーレイを削除
+    const modals = document.querySelectorAll('.advisor-modal-overlay');
+    modals.forEach(modal => modal.remove());
+
     const view = document.getElementById('blogReviewerView');
     if (view) {
       view.classList.remove('active');

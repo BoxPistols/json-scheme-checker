@@ -1126,9 +1126,23 @@ async function checkServerStatus() {
 checkServerStatus();
 loadStoredAuth();
 
-// デバッグモードの初期化
-if (window.isDebugMode) {
-  updateDebugModeUI(window.isDebugMode());
+// デバッグモードの表示
+if (window.isDebugMode && window.isDebugMode()) {
+  const header = document.querySelector('header');
+  if (header) {
+    const debugBadge = document.createElement('div');
+    debugBadge.className = 'debug-mode-badge';
+    debugBadge.innerHTML = `
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Debug Mode
+    `;
+    header.appendChild(debugBadge);
+  }
+  console.log('[DEBUG] Debug mode enabled - Mock data will be used instead of AI API calls');
 }
 
 // URLに基づいて認証情報を自動入力
@@ -1992,34 +2006,6 @@ const STORAGE_KEY_DEVELOPER = 'jsonld_developer_settings';
 document.getElementById('btnMyApi')?.addEventListener('click', () => {
   openDeveloperSettingsModal();
 });
-
-// デバッグモード切り替え
-document.getElementById('btnDebugMode')?.addEventListener('click', () => {
-  if (window.toggleDebugMode) {
-    const isDebug = window.toggleDebugMode();
-    updateDebugModeUI(isDebug);
-    const message = isDebug ? 'デバッグモードを有効にしました' : 'デバッグモードを無効にしました';
-    showSnackbar(message);
-  }
-});
-
-// デバッグモードのUI更新
-function updateDebugModeUI(isDebug) {
-  const btn = document.getElementById('btnDebugMode');
-  if (!btn) return;
-
-  if (isDebug) {
-    btn.classList.add('btn-debug-mode--active');
-    btn.textContent = 'Debug ON';
-    btn.style.background = '#ff6b6b';
-    btn.style.color = 'white';
-  } else {
-    btn.classList.remove('btn-debug-mode--active');
-    btn.textContent = 'Debug';
-    btn.style.background = '';
-    btn.style.color = '';
-  }
-}
 
 // モーダルを開く
 function openDeveloperSettingsModal() {

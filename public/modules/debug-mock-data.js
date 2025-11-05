@@ -349,14 +349,11 @@ const DEBUG_MOCK_DATA = {
 
 // デバッグモードが有効かどうかを判定
 function isDebugMode() {
-  return localStorage.getItem('advisor_debug_mode') === 'true';
-}
-
-// デバッグモードの切り替え
-function toggleDebugMode() {
-  const current = isDebugMode();
-  localStorage.setItem('advisor_debug_mode', (!current).toString());
-  return !current;
+  // localhost環境で /debug パスにアクセスした場合のみデバッグモードを有効化
+  const isLocalhost =
+    window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  const isDebugPath = window.location.pathname === '/debug';
+  return isLocalhost && isDebugPath;
 }
 
 // デバッグ用のログ出力
@@ -369,5 +366,4 @@ function debugLog(...args) {
 // グローバルに公開
 window.DEBUG_MOCK_DATA = DEBUG_MOCK_DATA;
 window.isDebugMode = isDebugMode;
-window.toggleDebugMode = toggleDebugMode;
 window.debugLog = debugLog;

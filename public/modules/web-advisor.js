@@ -599,6 +599,10 @@ class WebAdvisorManager extends BaseAdvisorManager {
       this.eventSource = null;
     }
 
+    // モーダルオーバーレイを削除
+    const modals = document.querySelectorAll('.advisor-modal-overlay');
+    modals.forEach(modal => modal.remove());
+
     // グローバルな分析状態をクリア
     setAnalysisInactive('web-advisor');
     const view = document.getElementById('webAdvisorView');

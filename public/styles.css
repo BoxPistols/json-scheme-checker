@@ -187,38 +187,37 @@ h1 {
   border: 1px solid var(--error-color);
 }
 
-/* デバッグモードボタン */
-.btn-debug-mode {
-  display: inline-block;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  background: var(--card-bg-color);
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
-  cursor: pointer;
-  transition:
-    all 0.2s ease,
-    transform 0.1s ease;
-}
-
-.btn-debug-mode:hover {
-  background: var(--hover-bg-color);
-  border-color: var(--primary-color);
-  transform: translateY(-1px);
-}
-
-.btn-debug-mode--active {
+/* デバッグモードバッジ */
+.debug-mode-badge {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
   background: #ff6b6b;
   color: white;
-  border-color: #ff6b6b;
+  border-radius: 8px;
+  font-size: 14px;
   font-weight: 600;
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+  z-index: 10001;
+  animation: pulse 2s ease-in-out infinite;
 }
 
-.btn-debug-mode--active:hover {
-  background: #ff5252;
-  border-color: #ff5252;
+.debug-mode-badge svg {
+  stroke: white;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(255, 107, 107, 0.6);
+  }
 }
 
 /*
@@ -4135,7 +4134,7 @@ html[data-theme='dark'] .score-breakdown > div {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1001;
+  z-index: 10000;
   animation: fadeIn 0.2s ease;
 }
 

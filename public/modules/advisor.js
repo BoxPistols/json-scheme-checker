@@ -191,6 +191,10 @@ class AdvisorManager extends BaseAdvisorManager {
     setAnalysisInactive('advisor');
     cancelAnalysis('advisor');
 
+    // モーダルオーバーレイを削除
+    const modals = document.querySelectorAll('.advisor-modal-overlay');
+    modals.forEach(modal => modal.remove());
+
     this.closeModal('View');
     const container = document.querySelector('.container');
     if (container) container.style.display = '';
