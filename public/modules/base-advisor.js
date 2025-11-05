@@ -1107,7 +1107,7 @@ class BaseAdvisorManager {
         </div>
         <div class="advisor-chat-messages" id="${config.chatMessagesId}">
           <div class="advisor-chat-welcome">
-            <p>ご質問をどうぞ</p>
+            <p>フォローアップが必要ですか？</p>
           </div>
         </div>
         <div class="advisor-chat-input-wrapper">

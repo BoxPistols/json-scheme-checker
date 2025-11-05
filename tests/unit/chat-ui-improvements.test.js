@@ -202,7 +202,7 @@ describe('チャットUI改善: チャットボックスレンダリング', () 
 
     const welcome = container.querySelector('.advisor-chat-welcome p');
     expect(welcome).toBeTruthy();
-    expect(welcome.textContent).toBe('ご質問をどうぞ');
+    expect(welcome.textContent).toBe('フォローアップが必要ですか？');
   });
 
   it('入力エリアのサイズが適切に設定されている', () => {
