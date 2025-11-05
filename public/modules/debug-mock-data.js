@@ -350,9 +350,22 @@ const DEBUG_MOCK_DATA = {
 // デバッグモードが有効かどうかを判定
 function isDebugMode() {
   // localhost環境で /debug パスにアクセスした場合のみデバッグモードを有効化
-  const isLocalhost =
-    window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-  const isDebugPath = window.location.pathname === '/debug';
+  const hostname = window.location.hostname;
+  const pathname = window.location.pathname;
+  const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+  const isDebugPath = pathname === '/debug' || pathname === '/debug/';
+
+  // 初回読み込み時にログ出力
+  if (!window._debugModeChecked) {
+    console.log('[DEBUG-MOCK-DATA] Checking debug mode...');
+    console.log('[DEBUG-MOCK-DATA] hostname:', hostname);
+    console.log('[DEBUG-MOCK-DATA] pathname:', pathname);
+    console.log('[DEBUG-MOCK-DATA] isLocalhost:', isLocalhost);
+    console.log('[DEBUG-MOCK-DATA] isDebugPath:', isDebugPath);
+    console.log('[DEBUG-MOCK-DATA] Debug mode:', isLocalhost && isDebugPath);
+    window._debugModeChecked = true;
+  }
+
   return isLocalhost && isDebugPath;
 }
 
@@ -367,3 +380,7 @@ function debugLog(...args) {
 window.DEBUG_MOCK_DATA = DEBUG_MOCK_DATA;
 window.isDebugMode = isDebugMode;
 window.debugLog = debugLog;
+
+// 即座に判定を実行
+console.log('[DEBUG-MOCK-DATA] Module loaded');
+isDebugMode();
