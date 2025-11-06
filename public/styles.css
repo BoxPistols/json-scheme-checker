@@ -4270,11 +4270,13 @@ html[data-theme='dark'] .score-breakdown > div {
   width: 24px;
   height: 24px;
   color: #2c3e50;
+  flex-shrink: 0;
 }
 
 .advisor-modal-close-btn svg path {
-  stroke: #2c3e50;
-  stroke-width: 2;
+  stroke: #2c3e50 !important;
+  stroke-width: 2.5;
+  fill: none;
 }
 
 .advisor-modal-close-btn:hover {
@@ -4304,11 +4306,13 @@ html[data-theme='dark'] .advisor-modal-close-btn svg {
   width: 24px;
   height: 24px;
   color: #d1d5db;
+  flex-shrink: 0;
 }
 
 html[data-theme='dark'] .advisor-modal-close-btn svg path {
-  stroke: #d1d5db;
-  stroke-width: 2;
+  stroke: #d1d5db !important;
+  stroke-width: 2.5;
+  fill: none;
 }
 
 html[data-theme='dark'] .advisor-modal-close-btn:hover {

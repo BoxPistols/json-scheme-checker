@@ -911,6 +911,12 @@ class BaseAdvisorManager {
       .replace(/<br\s*\/?>/gi, '\n') // <br>を改行に変換
       .replace(/<\/p>/gi, '\n\n') // </p>を2つの改行に変換
       .replace(/<\/div>/gi, '\n') // </div>を改行に変換
+      .replace(/<\/(h[1-6])>/gi, '\n\n') // 見出しの後に2つの改行
+      .replace(/<\/li>/gi, '\n') // リスト項目の後に改行
+      .replace(/<\/ul>/gi, '\n\n') // リストの後に2つの改行
+      .replace(/<\/ol>/gi, '\n\n') // 順序リストの後に2つの改行
+      .replace(/<ul>/gi, '\n') // リストの前に改行
+      .replace(/<ol>/gi, '\n') // 順序リストの前に改行
       .replace(/<[^>]*>/g, '') // その他のHTMLタグ除去
       .replace(/&nbsp;/g, ' ') // &nbsp;をスペースに
       .replace(/\t+/g, ' ') // タブをスペースに
