@@ -1341,6 +1341,7 @@ class BaseAdvisorManager {
         chatBox.style.top = `${chatBox.offsetTop}px`;
         chatBox.style.right = 'auto';
         chatBox.style.bottom = 'auto';
+        chatBox.style.zIndex = '1000';
 
         dragHandle.style.cursor = 'grabbing';
       };
@@ -1382,12 +1383,26 @@ class BaseAdvisorManager {
       if (savedX !== null && savedY !== null) {
         currentX = parseInt(savedX, 10);
         currentY = parseInt(savedY, 10);
+
+        // ビューポート内に収まるか確認
+        const maxX = window.innerWidth - chatBox.offsetWidth;
+        const maxY = window.innerHeight - chatBox.offsetHeight;
+
+        // 画面外の場合はデフォルト位置を使用
+        if (currentX < 0 || currentX > maxX || currentY < 0 || currentY > maxY) {
+          console.log('[BaseAdvisor] Saved position is out of viewport, using default position');
+          localStorage.removeItem('advisor-chat-position-x');
+          localStorage.removeItem('advisor-chat-position-y');
+          return;
+        }
+
         chatBox.classList.remove('advisor-chat-right', 'advisor-chat-left');
         chatBox.style.position = 'fixed';
         chatBox.style.left = `${currentX}px`;
         chatBox.style.top = `${currentY}px`;
         chatBox.style.right = 'auto';
         chatBox.style.bottom = 'auto';
+        chatBox.style.zIndex = '1000';
       }
     }
 
