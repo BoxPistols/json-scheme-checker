@@ -4404,3 +4404,93 @@ html[data-theme='dark'] .advisor-modal-close-btn:hover svg path {
     transparent 70%
   );
 }
+
+/* モバイルデバイス向けチャット最適化 */
+@media (max-width: 768px) {
+  /* ページ全体のスクロールを確保 */
+  body {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* チャットボックスのサイズと位置を調整 */
+  .advisor-chat-box.advisor-chat-right,
+  .advisor-chat-box.advisor-chat-left {
+    width: calc(100vw - 20px) !important;
+    max-width: calc(100vw - 20px) !important;
+    right: 10px !important;
+    bottom: 10px !important;
+    left: 10px !important;
+    /* 高さを制限してコンテンツが見えるように */
+    height: 60vh !important;
+    max-height: 60vh !important;
+  }
+
+  /* 展開時のチャットボックス */
+  .advisor-chat-box.advisor-chat-expanded {
+    height: 60vh !important;
+    max-height: 60vh !important;
+  }
+
+  /* 入力フィールドのフォントサイズを16px以上にしてiOSのズームを防止 */
+  .advisor-chat-input {
+    font-size: 16px !important;
+    min-height: 44px !important;
+  }
+
+  /* チャットメッセージエリアのスクロールを確保 */
+  .advisor-chat-messages {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* 送信ボタンのタップ領域を確保 */
+  .advisor-chat-send-btn {
+    min-width: 60px;
+    padding: 12px 16px;
+  }
+
+  /* AI分析結果エリアのスクロールを確保（チャットと共存） */
+  .advisor-view-content {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    /* チャットボックスの高さ分、下にパディングを追加 */
+    padding-bottom: calc(60vh + 20px) !important;
+  }
+
+  .advisor-job-content,
+  .advisor-advice-content {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* 小型モバイルデバイス向け */
+@media (max-width: 480px) {
+  .advisor-chat-box.advisor-chat-right,
+  .advisor-chat-box.advisor-chat-left {
+    /* より小さな画面では高さをさらに制限 */
+    height: 50vh !important;
+    max-height: 50vh !important;
+  }
+
+  .advisor-chat-box.advisor-chat-expanded {
+    height: 50vh !important;
+    max-height: 50vh !important;
+  }
+
+  /* ヘッダーのパディングを削減 */
+  .advisor-chat-header {
+    padding: 8px 12px;
+  }
+
+  /* 入力エリアのパディングを削減 */
+  .advisor-chat-input-wrapper {
+    padding: 8px;
+  }
+
+  /* AI分析結果エリアのパディングを調整 */
+  .advisor-view-content {
+    padding-bottom: calc(50vh + 20px) !important;
+  }
+}
