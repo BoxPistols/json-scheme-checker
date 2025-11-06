@@ -669,29 +669,29 @@ class BaseAdvisorManager {
     const totalCostJPY = totalCost * USD_TO_JPY_RATE;
 
     return `
-      <div class="advisor-usage-panel">
-        <h4 style="margin: 0 0 12px 0; font-size: 0.9rem; color: var(--secondary-text-color);">API使用量 (モデル: ${model})</h4>
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; font-size: 0.85rem;">
-          <div>
-            <div style="color: var(--secondary-text-color); margin-bottom: 4px;">入力トークン</div>
-            <div style="font-weight: 600;">${prompt_tokens.toLocaleString()} tokens</div>
+      <div class="advisor-usage-panel" style="container-type: inline-size; container-name: usage-panel;">
+        <h4 class="advisor-usage-panel-title">API使用量 (モデル: ${model})</h4>
+        <div class="advisor-usage-panel-grid">
+          <div class="advisor-usage-panel-item">
+            <div class="advisor-usage-panel-label">入力トークン</div>
+            <div class="advisor-usage-panel-value">${prompt_tokens.toLocaleString()} tokens</div>
           </div>
-          <div>
-            <div style="color: var(--secondary-text-color); margin-bottom: 4px;">出力トークン</div>
-            <div style="font-weight: 600;">${completion_tokens.toLocaleString()} tokens</div>
+          <div class="advisor-usage-panel-item">
+            <div class="advisor-usage-panel-label">出力トークン</div>
+            <div class="advisor-usage-panel-value">${completion_tokens.toLocaleString()} tokens</div>
           </div>
-          <div>
-            <div style="color: var(--secondary-text-color); margin-bottom: 4px;">合計トークン</div>
-            <div style="font-weight: 600;">${total_tokens.toLocaleString()} tokens</div>
+          <div class="advisor-usage-panel-item">
+            <div class="advisor-usage-panel-label">合計トークン</div>
+            <div class="advisor-usage-panel-value">${total_tokens.toLocaleString()} tokens</div>
           </div>
-          <div>
-            <div style="color: var(--secondary-text-color); margin-bottom: 4px;">推定料金<sup style="font-size: 0.7rem;">*</sup></div>
-            <div style="font-weight: 600;">
+          <div class="advisor-usage-panel-item">
+            <div class="advisor-usage-panel-label">推定料金<sup style="font-size: 0.7rem;">*</sup></div>
+            <div class="advisor-usage-panel-value">
               $${totalCost.toFixed(6)} (約 ¥${totalCostJPY.toFixed(2)})
             </div>
           </div>
         </div>
-        <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-color); font-size: 0.75rem; color: var(--secondary-text-color);">
+        <div class="advisor-usage-panel-footer">
           <sup>*</sup> ${model}の価格で計算（入力: $${prices.input}/1K tokens, 出力: $${prices.output}/1K tokens, 1USD=${USD_TO_JPY_RATE}JPY換算）
         </div>
       </div>

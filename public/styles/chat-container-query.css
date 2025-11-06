@@ -1,0 +1,258 @@
+/**
+ * Chat UI - Container Query & Grid CSS版
+ * 既存のメディアクエリをContainer Queryに置き換え、Grid CSSを活用
+ */
+
+/* ========================================
+   Container定義
+   ======================================== */
+.advisor-chat-box {
+  container-type: inline-size;
+  container-name: chat-box;
+}
+
+/* ========================================
+   Grid CSS適用: チャットヘッダー
+   ======================================== */
+.advisor-chat-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-md, 12px);
+  padding: var(--space-md, 12px) var(--space-lg, 16px);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.04));
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.advisor-chat-header-left {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: var(--space-sm, 8px);
+  align-items: center;
+  min-width: 0;
+}
+
+.advisor-chat-header-left h3 {
+  margin: 0;
+  font-size: var(--font-size-base, 0.95rem);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.advisor-chat-questioner-badge {
+  font-size: var(--font-size-sm, 0.75rem);
+  padding: 2px var(--space-sm, 8px);
+  background: var(--primary-color);
+  color: var(--primary-text-color);
+  border-radius: var(--radius-sm, 4px);
+  white-space: nowrap;
+}
+
+.advisor-chat-header-right {
+  display: grid;
+  grid-template-columns: auto repeat(4, auto);
+  gap: var(--space-sm, 8px);
+  align-items: center;
+}
+
+.advisor-chat-rate-limit {
+  font-size: var(--font-size-md, 0.85rem);
+  color: var(--secondary-text-color);
+  padding: 4px var(--space-md, 12px);
+  background: var(--card-bg-color);
+  border-radius: var(--radius-xl, 12px);
+  border: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+/* ========================================
+   Container Query: 400px以下
+   ======================================== */
+@container chat-box (max-width: 400px) {
+  .advisor-chat-header {
+    padding: 10px 12px;
+    gap: var(--space-sm, 8px);
+  }
+
+  .advisor-chat-header-left {
+    gap: 6px;
+    grid-template-columns: auto 1fr;
+  }
+
+  .advisor-chat-header-left h3 {
+    font-size: var(--font-size-md, 0.85rem);
+  }
+
+  .advisor-chat-questioner-badge {
+    font-size: var(--font-size-xs, 0.7rem);
+    padding: 2px 6px;
+    /* 2行目に移動 */
+    grid-column: 1 / -1;
+  }
+
+  .advisor-chat-header-right {
+    gap: 6px;
+    grid-template-columns: 1fr repeat(4, auto);
+  }
+
+  .advisor-chat-rate-limit {
+    font-size: var(--font-size-xs, 0.7rem);
+    padding: 2px var(--space-sm, 8px);
+  }
+
+  .advisor-chat-reset-btn,
+  .advisor-chat-export-btn {
+    width: var(--button-size-sm, 28px);
+    height: var(--button-size-sm, 28px);
+  }
+
+  .advisor-chat-reset-btn svg,
+  .advisor-chat-export-btn svg {
+    width: var(--icon-size-sm, 14px);
+    height: var(--icon-size-sm, 14px);
+  }
+
+  .advisor-chat-collapse-btn,
+  .advisor-chat-close-btn {
+    width: var(--button-size-sm, 28px);
+    height: var(--button-size-sm, 28px);
+    font-size: 18px;
+  }
+}
+
+/* ========================================
+   Container Query: 320px以下（超小型）
+   ======================================== */
+@container chat-box (max-width: 320px) {
+  .advisor-chat-header {
+    grid-template-columns: 1fr;
+    padding: var(--space-sm, 8px) 10px;
+    gap: var(--space-sm, 8px);
+  }
+
+  .advisor-chat-header-left {
+    width: 100%;
+  }
+
+  .advisor-chat-header-right {
+    width: 100%;
+    grid-template-columns: 1fr repeat(4, auto);
+    justify-content: space-between;
+  }
+
+  .advisor-chat-drag-icon {
+    display: none;
+  }
+
+  .advisor-chat-rate-limit {
+    font-size: var(--font-size-xs, 0.65rem);
+    padding: 2px 6px;
+    flex-grow: 1;
+  }
+}
+
+/* ========================================
+   Grid CSS: API使用量パネル（改善）
+   ======================================== */
+.advisor-usage-panel {
+  display: grid;
+  grid-template-columns: var(--grid-columns-auto-sm, repeat(auto-fit, minmax(150px, 1fr)));
+  gap: var(--grid-gap-md, 12px);
+  font-size: var(--font-size-md, 0.85rem);
+}
+
+@container (max-width: 400px) {
+  .advisor-usage-panel {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ========================================
+   ブラウザ互換性フォールバック
+   ======================================== */
+@supports not (container-type: inline-size) {
+  /* Container Query非対応ブラウザ用のMedia Query */
+  @media (max-width: 480px) {
+    .advisor-chat-box {
+      width: calc(100vw - 20px) !important;
+      max-width: calc(100vw - 20px) !important;
+      right: 10px !important;
+      bottom: 10px !important;
+      left: auto !important;
+    }
+
+    .advisor-chat-header {
+      padding: 8px 10px;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .advisor-chat-header-left {
+      width: 100%;
+    }
+
+    .advisor-chat-header-right {
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    .advisor-chat-drag-icon {
+      display: none;
+    }
+
+    .advisor-chat-rate-limit {
+      font-size: 0.65rem;
+      padding: 2px 6px;
+      flex-grow: 1;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .advisor-chat-header {
+      padding: 10px 12px;
+    }
+
+    .advisor-chat-header-left {
+      gap: 6px;
+    }
+
+    .advisor-chat-header-left h3 {
+      font-size: 0.85rem;
+    }
+
+    .advisor-chat-questioner-badge {
+      font-size: 0.7rem;
+      padding: 2px 6px;
+    }
+
+    .advisor-chat-header-right {
+      gap: 6px;
+    }
+
+    .advisor-chat-rate-limit {
+      font-size: 0.7rem;
+      padding: 2px 8px;
+    }
+
+    .advisor-chat-reset-btn,
+    .advisor-chat-export-btn {
+      width: 28px;
+      height: 28px;
+    }
+
+    .advisor-chat-reset-btn svg,
+    .advisor-chat-export-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .advisor-chat-collapse-btn,
+    .advisor-chat-close-btn {
+      width: 28px;
+      height: 28px;
+      font-size: 18px;
+    }
+  }
+}

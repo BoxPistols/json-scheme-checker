@@ -1,0 +1,113 @@
+/**
+ * Design Tokens
+ * プロジェクト全体で使用する設計値を定義
+ */
+
+:root {
+  /* ========================================
+     Container Sizes (Container Query用)
+     ======================================== */
+  --container-xs: 320px;
+  --container-sm: 400px;
+  --container-md: 600px;
+  --container-lg: 800px;
+  --container-xl: 1200px;
+
+  /* ========================================
+     Grid Layouts
+     ======================================== */
+  --grid-columns-auto-sm: repeat(auto-fit, minmax(150px, 1fr));
+  --grid-columns-auto-md: repeat(auto-fit, minmax(200px, 1fr));
+  --grid-columns-auto-lg: repeat(auto-fit, minmax(250px, 1fr));
+
+  --grid-gap-xs: 4px;
+  --grid-gap-sm: 8px;
+  --grid-gap-md: 12px;
+  --grid-gap-lg: 16px;
+  --grid-gap-xl: 24px;
+
+  /* ========================================
+     Component Sizes
+     ======================================== */
+
+  /* Chat */
+  --chat-width-default: 400px;
+  --chat-width-min: 320px;
+  --chat-width-max: 600px;
+  --chat-height-default: 550px;
+  --chat-height-min: 450px;
+  --chat-height-max: 800px;
+
+  /* Modal */
+  --modal-width-sm: 400px;
+  --modal-width-md: 600px;
+  --modal-width-lg: 800px;
+  --modal-max-width: 90vw;
+
+  /* Button */
+  --button-size-sm: 28px;
+  --button-size-md: 36px;
+  --button-size-lg: 44px;
+
+  /* Icon */
+  --icon-size-xs: 12px;
+  --icon-size-sm: 14px;
+  --icon-size-md: 16px;
+  --icon-size-lg: 20px;
+  --icon-size-xl: 24px;
+
+  /* ========================================
+     Spacing Scale
+     ======================================== */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+  --space-2xl: 32px;
+
+  /* ========================================
+     Typography Scale
+     ======================================== */
+  --font-size-xs: 0.65rem;
+  --font-size-sm: 0.75rem;
+  --font-size-md: 0.85rem;
+  --font-size-base: 0.95rem;
+  --font-size-lg: 1rem;
+  --font-size-xl: 1.2rem;
+
+  /* ========================================
+     Border Radius
+     ======================================== */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+
+  /* ========================================
+     Z-Index Scale
+     ======================================== */
+  --z-base: 1;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-modal: 1000;
+  --z-chat: 1000;
+  --z-tooltip: 2000;
+  --z-notification: 3000;
+
+  /* ========================================
+     Transition
+     ======================================== */
+  --transition-fast: 0.15s ease;
+  --transition-base: 0.2s ease;
+  --transition-slow: 0.3s ease;
+
+  /* ========================================
+     Breakpoints (Fallback用)
+     ======================================== */
+  --breakpoint-xs: 320px;
+  --breakpoint-sm: 480px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+}
