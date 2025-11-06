@@ -1,0 +1,97 @@
+/**
+ * API使用量パネル - Container Query & Grid CSS版
+ */
+
+/* ========================================
+   Grid CSS: API使用量パネル
+   ======================================== */
+.advisor-usage-panel-title {
+  margin: 0 0 var(--space-md, 12px) 0;
+  font-size: var(--font-size-md, 0.9rem);
+  color: var(--secondary-text-color);
+}
+
+.advisor-usage-panel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--grid-gap-md, 12px);
+  font-size: var(--font-size-md, 0.85rem);
+}
+
+.advisor-usage-panel-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.advisor-usage-panel-label {
+  color: var(--secondary-text-color);
+  font-size: var(--font-size-sm, 0.75rem);
+}
+
+.advisor-usage-panel-value {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.advisor-usage-panel-footer {
+  margin-top: var(--space-sm, 8px);
+  padding-top: var(--space-sm, 8px);
+  border-top: 1px solid var(--border-color);
+  font-size: var(--font-size-sm, 0.75rem);
+  color: var(--secondary-text-color);
+}
+
+/* ========================================
+   Container Query: 400px以下
+   ======================================== */
+@container usage-panel (max-width: 400px) {
+  .advisor-usage-panel-grid {
+    grid-template-columns: 1fr;
+    gap: var(--grid-gap-sm, 8px);
+  }
+
+  .advisor-usage-panel-title {
+    font-size: var(--font-size-md, 0.85rem);
+  }
+
+  .advisor-usage-panel-label {
+    font-size: var(--font-size-xs, 0.65rem);
+  }
+
+  .advisor-usage-panel-value {
+    font-size: var(--font-size-sm, 0.75rem);
+  }
+}
+
+/* ========================================
+   Container Query: 300px以下（超小型）
+   ======================================== */
+@container usage-panel (max-width: 300px) {
+  .advisor-usage-panel-grid {
+    gap: var(--grid-gap-xs, 4px);
+  }
+
+  .advisor-usage-panel-item {
+    padding: var(--space-xs, 4px);
+    background: var(--secondary-bg-color);
+    border-radius: var(--radius-sm, 4px);
+  }
+}
+
+/* ========================================
+   ブラウザ互換性フォールバック
+   ======================================== */
+@supports not (container-type: inline-size) {
+  @media (max-width: 480px) {
+    .advisor-usage-panel-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .advisor-usage-panel-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+}

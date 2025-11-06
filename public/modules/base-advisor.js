@@ -669,29 +669,29 @@ class BaseAdvisorManager {
     const totalCostJPY = totalCost * USD_TO_JPY_RATE;
 
     return `
-      <div class="advisor-usage-panel">
-        <h4 style="margin: 0 0 12px 0; font-size: 0.9rem; color: var(--secondary-text-color);">API使用量 (モデル: ${model})</h4>
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; font-size: 0.85rem;">
-          <div>
-            <div style="color: var(--secondary-text-color); margin-bottom: 4px;">入力トークン</div>
-            <div style="font-weight: 600;">${prompt_tokens.toLocaleString()} tokens</div>
+      <div class="advisor-usage-panel" style="container-type: inline-size; container-name: usage-panel;">
+        <h4 class="advisor-usage-panel-title">API使用量 (モデル: ${model})</h4>
+        <div class="advisor-usage-panel-grid">
+          <div class="advisor-usage-panel-item">
+            <div class="advisor-usage-panel-label">入力トークン</div>
+            <div class="advisor-usage-panel-value">${prompt_tokens.toLocaleString()} tokens</div>
           </div>
-          <div>
-            <div style="color: var(--secondary-text-color); margin-bottom: 4px;">出力トークン</div>
-            <div style="font-weight: 600;">${completion_tokens.toLocaleString()} tokens</div>
+          <div class="advisor-usage-panel-item">
+            <div class="advisor-usage-panel-label">出力トークン</div>
+            <div class="advisor-usage-panel-value">${completion_tokens.toLocaleString()} tokens</div>
           </div>
-          <div>
-            <div style="color: var(--secondary-text-color); margin-bottom: 4px;">合計トークン</div>
-            <div style="font-weight: 600;">${total_tokens.toLocaleString()} tokens</div>
+          <div class="advisor-usage-panel-item">
+            <div class="advisor-usage-panel-label">合計トークン</div>
+            <div class="advisor-usage-panel-value">${total_tokens.toLocaleString()} tokens</div>
           </div>
-          <div>
-            <div style="color: var(--secondary-text-color); margin-bottom: 4px;">推定料金<sup style="font-size: 0.7rem;">*</sup></div>
-            <div style="font-weight: 600;">
+          <div class="advisor-usage-panel-item">
+            <div class="advisor-usage-panel-label">推定料金<sup style="font-size: 0.7rem;">*</sup></div>
+            <div class="advisor-usage-panel-value">
               $${totalCost.toFixed(6)} (約 ¥${totalCostJPY.toFixed(2)})
             </div>
           </div>
         </div>
-        <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-color); font-size: 0.75rem; color: var(--secondary-text-color);">
+        <div class="advisor-usage-panel-footer">
           <sup>*</sup> ${model}の価格で計算（入力: $${prices.input}/1K tokens, 出力: $${prices.output}/1K tokens, 1USD=${USD_TO_JPY_RATE}JPY換算）
         </div>
       </div>
@@ -911,6 +911,12 @@ class BaseAdvisorManager {
       .replace(/<br\s*\/?>/gi, '\n') // <br>を改行に変換
       .replace(/<\/p>/gi, '\n\n') // </p>を2つの改行に変換
       .replace(/<\/div>/gi, '\n') // </div>を改行に変換
+      .replace(/<\/(h[1-6])>/gi, '\n\n') // 見出しの後に2つの改行
+      .replace(/<\/li>/gi, '\n') // リスト項目の後に改行
+      .replace(/<\/ul>/gi, '\n\n') // リストの後に2つの改行
+      .replace(/<\/ol>/gi, '\n\n') // 順序リストの後に2つの改行
+      .replace(/<ul>/gi, '\n') // リストの前に改行
+      .replace(/<ol>/gi, '\n') // 順序リストの前に改行
       .replace(/<[^>]*>/g, '') // その他のHTMLタグ除去
       .replace(/&nbsp;/g, ' ') // &nbsp;をスペースに
       .replace(/\t+/g, ' ') // タブをスペースに
@@ -1027,7 +1033,7 @@ class BaseAdvisorManager {
         <div class="advisor-questioner-modal-header">
           <h3>チャットの質問者を選択してください</h3>
           <button type="button" class="advisor-modal-close-btn" aria-label="閉じる">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             </svg>
           </button>
@@ -1264,21 +1270,22 @@ class BaseAdvisorManager {
     if (resetBtn && chatBox) {
       resetBtn.addEventListener('click', () => {
         // 位置とサイズをリセット（デフォルト位置に戻す）
-        chatBox.style.position = 'fixed';
-        chatBox.style.right = '24px';
-        chatBox.style.bottom = '24px';
+        chatBox.classList.add('advisor-chat-right');
+        chatBox.classList.remove('advisor-chat-left');
+        chatBox.style.right = '';
+        chatBox.style.bottom = '';
         chatBox.style.left = '';
         chatBox.style.top = '';
         chatBox.style.width = '';
         chatBox.style.height = '';
         chatBox.style.transform = '';
         // LocalStorageもクリア
-        const storageKey = `advisor_chat_position_${config.type}`;
-        const sizeKey = `advisor_chat_size_${config.type}`;
-        localStorage.removeItem(storageKey);
-        localStorage.removeItem(sizeKey);
+        localStorage.removeItem('advisor-chat-position-x');
+        localStorage.removeItem('advisor-chat-position-y');
+        localStorage.removeItem('advisor-chat-width');
+        localStorage.removeItem('advisor-chat-height');
         console.log(
-          '[BaseAdvisor] Chat position and size reset to default (right: 24px, bottom: 24px)'
+          '[BaseAdvisor] Chat position and size reset to default (right: 20px, bottom: 20px)'
         );
       });
     }
@@ -1325,14 +1332,16 @@ class BaseAdvisorManager {
         }
 
         isDragging = true;
+
+        // 現在の位置を取得
+        currentX = chatBox.offsetLeft;
+        currentY = chatBox.offsetTop;
         initialX = e.clientX - currentX;
         initialY = e.clientY - currentY;
 
-        // 位置クラスを削除してabsolute positioningに切り替え
-        chatBox.classList.remove('advisor-chat-right', 'advisor-chat-left');
-        chatBox.style.position = 'fixed';
-        chatBox.style.left = `${chatBox.offsetLeft}px`;
-        chatBox.style.top = `${chatBox.offsetTop}px`;
+        // インラインスタイルで位置を固定
+        chatBox.style.left = `${currentX}px`;
+        chatBox.style.top = `${currentY}px`;
         chatBox.style.right = 'auto';
         chatBox.style.bottom = 'auto';
 
@@ -1376,8 +1385,19 @@ class BaseAdvisorManager {
       if (savedX !== null && savedY !== null) {
         currentX = parseInt(savedX, 10);
         currentY = parseInt(savedY, 10);
-        chatBox.classList.remove('advisor-chat-right', 'advisor-chat-left');
-        chatBox.style.position = 'fixed';
+
+        // ビューポート内に収まるか確認
+        const maxX = window.innerWidth - chatBox.offsetWidth;
+        const maxY = window.innerHeight - chatBox.offsetHeight;
+
+        // 画面外の場合はデフォルト位置を使用
+        if (currentX < 0 || currentX > maxX || currentY < 0 || currentY > maxY) {
+          console.log('[BaseAdvisor] Saved position is out of viewport, using default position');
+          localStorage.removeItem('advisor-chat-position-x');
+          localStorage.removeItem('advisor-chat-position-y');
+          return;
+        }
+
         chatBox.style.left = `${currentX}px`;
         chatBox.style.top = `${currentY}px`;
         chatBox.style.right = 'auto';

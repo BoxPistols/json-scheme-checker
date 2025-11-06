@@ -141,6 +141,12 @@ header {
   display: flex;
   align-items: center;
   gap: 16px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.header-row:hover {
+  opacity: 0.8;
 }
 .logo-xl {
   width: 48px;
@@ -3764,7 +3770,6 @@ html[data-theme='dark'] .score-breakdown > div {
 }
 
 .advisor-chat-box {
-  margin-top: 24px;
   border: 2px solid rgba(0, 0, 0, 0.2);
   border-radius: 12px;
   background: var(--card-bg-color);
@@ -3774,7 +3779,6 @@ html[data-theme='dark'] .score-breakdown > div {
   height: 550px;
   max-height: 80vh;
   transition: all 0.3s ease;
-  position: relative;
 }
 
 .advisor-chat-box.advisor-chat-expanded {
@@ -4073,27 +4077,7 @@ html[data-theme='dark'] .score-breakdown > div {
   font-weight: 600;
 }
 
-/* レスポンシブ対応 */
-@media (max-width: 768px) {
-  .advisor-chat-messages {
-    max-height: 400px;
-  }
-
-  .advisor-chat-message-content {
-    max-width: 90%;
-  }
-
-  .advisor-chat-header {
-    flex-direction: column;
-    gap: 8px;
-    align-items: flex-start;
-  }
-
-  .advisor-chat-rate-limit {
-    font-size: 0.75rem;
-    padding: 3px 10px;
-  }
-}
+/* レスポンシブ対応はchat-container-query.cssに移行 */
 
 /* フローティングチャットボタン */
 .advisor-floating-chat-btn {
@@ -4266,11 +4250,17 @@ html[data-theme='dark'] .score-breakdown > div {
 }
 
 .advisor-modal-close-btn svg {
+  display: block;
+  width: 24px;
+  height: 24px;
   color: #2c3e50;
+  flex-shrink: 0;
 }
 
 .advisor-modal-close-btn svg path {
-  stroke: #2c3e50;
+  stroke: #2c3e50 !important;
+  stroke-width: 2.5;
+  fill: none;
 }
 
 .advisor-modal-close-btn:hover {
@@ -4296,11 +4286,17 @@ html[data-theme='dark'] .advisor-modal-close-btn {
 }
 
 html[data-theme='dark'] .advisor-modal-close-btn svg {
+  display: block;
+  width: 24px;
+  height: 24px;
   color: #d1d5db;
+  flex-shrink: 0;
 }
 
 html[data-theme='dark'] .advisor-modal-close-btn svg path {
-  stroke: #d1d5db;
+  stroke: #d1d5db !important;
+  stroke-width: 2.5;
+  fill: none;
 }
 
 html[data-theme='dark'] .advisor-modal-close-btn:hover {

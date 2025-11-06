@@ -380,6 +380,14 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnCloseOpenGraphModal')?.addEventListener('click', closeOpenGraphModal);
   document.getElementById('btnHideError')?.addEventListener('click', hideError);
 
+  // ロゴとh1のクリックでページをリロード（初期化/トップリンク）
+  const headerRow = document.querySelector('.header-row');
+  if (headerRow) {
+    headerRow.addEventListener('click', () => {
+      window.location.href = '/';
+    });
+  }
+
   // 認証ストレージ方法変更のイベントリスナー
   document.querySelectorAll('input[name="authStorage"]').forEach(radio => {
     radio.addEventListener('change', handleStorageMethodChange);
