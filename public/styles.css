@@ -3779,8 +3779,6 @@ html[data-theme='dark'] .score-breakdown > div {
   height: 550px;
   max-height: 80vh;
   transition: all 0.3s ease;
-  position: fixed;
-  z-index: 1000;
 }
 
 .advisor-chat-box.advisor-chat-expanded {

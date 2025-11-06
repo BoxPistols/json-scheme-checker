@@ -1332,13 +1332,16 @@ class BaseAdvisorManager {
         }
 
         isDragging = true;
+
+        // 現在の位置を取得
+        currentX = chatBox.offsetLeft;
+        currentY = chatBox.offsetTop;
         initialX = e.clientX - currentX;
         initialY = e.clientY - currentY;
 
-        // 位置クラスを削除してabsolute positioningに切り替え
-        chatBox.classList.remove('advisor-chat-right', 'advisor-chat-left');
-        chatBox.style.left = `${chatBox.offsetLeft}px`;
-        chatBox.style.top = `${chatBox.offsetTop}px`;
+        // インラインスタイルで位置を固定
+        chatBox.style.left = `${currentX}px`;
+        chatBox.style.top = `${currentY}px`;
         chatBox.style.right = 'auto';
         chatBox.style.bottom = 'auto';
 
@@ -1395,7 +1398,6 @@ class BaseAdvisorManager {
           return;
         }
 
-        chatBox.classList.remove('advisor-chat-right', 'advisor-chat-left');
         chatBox.style.left = `${currentX}px`;
         chatBox.style.top = `${currentY}px`;
         chatBox.style.right = 'auto';
