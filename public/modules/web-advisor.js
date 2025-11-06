@@ -345,6 +345,21 @@ class WebAdvisorManager extends BaseAdvisorManager {
   }
 
   /**
+   * フッターまでスムーズスクロール
+   */
+  scrollToFooter() {
+    setTimeout(() => {
+      const footer = document.querySelector('footer');
+      if (footer) {
+        footer.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      } else {
+        // footerが見つからない場合はページ最下部までスクロール
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      }
+    }, 500); // 完了後少し待ってからスクロール
+  }
+
+  /**
    * プログレスバーを更新
    */
   updateProgress(percentage, text) {
@@ -531,6 +546,7 @@ class WebAdvisorManager extends BaseAdvisorManager {
               if (doneProgressContainer) doneProgressContainer.style.display = 'none';
               this.isStreaming = false;
               this.recordUsage();
+              this.scrollToFooter();
               setAnalysisInactive('web-advisor'); // グローバル状態をクリア
               es.close();
               break;

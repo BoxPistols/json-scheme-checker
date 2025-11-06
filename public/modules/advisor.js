@@ -318,6 +318,8 @@ class AdvisorManager extends BaseAdvisorManager {
             this.showExportButtons();
             // チャットボックスを表示
             this.initChatBox();
+            // フッターまでスムーズスクロール
+            this.scrollToFooter();
             break;
           }
           try {
@@ -335,9 +337,26 @@ class AdvisorManager extends BaseAdvisorManager {
                 if (skeletonLoader) {
                   skeletonLoader.style.display = 'none';
                 }
+                this.updateProgress(10, '分析開始...');
               }
 
-              this.updateProgress(50, '分析中...');
+              // テキスト長に基づいて進捗を更新（10%-90%）
+              const textLength = fullText.length;
+              let progressPercentage = 10;
+              let progressText = '分析中...';
+
+              if (textLength < 500) {
+                progressPercentage = 10 + Math.floor((textLength / 500) * 20); // 10-30%
+              } else if (textLength < 1500) {
+                progressPercentage = 30 + Math.floor(((textLength - 500) / 1000) * 30); // 30-60%
+              } else if (textLength < 3000) {
+                progressPercentage = 60 + Math.floor(((textLength - 1500) / 1500) * 20); // 60-80%
+              } else {
+                progressPercentage = 80 + Math.min(Math.floor((textLength - 3000) / 500), 10); // 80-90%
+                progressText = '完了間近...';
+              }
+
+              this.updateProgress(progressPercentage, progressText);
               md.innerHTML = this.renderMarkdown(fullText);
             } else if (parsed.usage) {
               this.currentUsage = parsed.usage;
@@ -390,6 +409,21 @@ class AdvisorManager extends BaseAdvisorManager {
    */
   renderMarkdown(markdown) {
     return this.renderMarkdownCommon(markdown);
+  }
+
+  /**
+   * フッターまでスムーズスクロール
+   */
+  scrollToFooter() {
+    setTimeout(() => {
+      const footer = document.querySelector('footer');
+      if (footer) {
+        footer.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      } else {
+        // footerが見つからない場合はページ最下部までスクロール
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      }
+    }, 500); // 完了後少し待ってからスクロール
   }
 
   /**
