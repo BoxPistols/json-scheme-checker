@@ -1270,21 +1270,22 @@ class BaseAdvisorManager {
     if (resetBtn && chatBox) {
       resetBtn.addEventListener('click', () => {
         // 位置とサイズをリセット（デフォルト位置に戻す）
-        chatBox.style.position = 'fixed';
-        chatBox.style.right = '24px';
-        chatBox.style.bottom = '24px';
+        chatBox.classList.add('advisor-chat-right');
+        chatBox.classList.remove('advisor-chat-left');
+        chatBox.style.right = '';
+        chatBox.style.bottom = '';
         chatBox.style.left = '';
         chatBox.style.top = '';
         chatBox.style.width = '';
         chatBox.style.height = '';
         chatBox.style.transform = '';
         // LocalStorageもクリア
-        const storageKey = `advisor_chat_position_${config.type}`;
-        const sizeKey = `advisor_chat_size_${config.type}`;
-        localStorage.removeItem(storageKey);
-        localStorage.removeItem(sizeKey);
+        localStorage.removeItem('advisor-chat-position-x');
+        localStorage.removeItem('advisor-chat-position-y');
+        localStorage.removeItem('advisor-chat-width');
+        localStorage.removeItem('advisor-chat-height');
         console.log(
-          '[BaseAdvisor] Chat position and size reset to default (right: 24px, bottom: 24px)'
+          '[BaseAdvisor] Chat position and size reset to default (right: 20px, bottom: 20px)'
         );
       });
     }
@@ -1336,12 +1337,10 @@ class BaseAdvisorManager {
 
         // 位置クラスを削除してabsolute positioningに切り替え
         chatBox.classList.remove('advisor-chat-right', 'advisor-chat-left');
-        chatBox.style.position = 'fixed';
         chatBox.style.left = `${chatBox.offsetLeft}px`;
         chatBox.style.top = `${chatBox.offsetTop}px`;
         chatBox.style.right = 'auto';
         chatBox.style.bottom = 'auto';
-        chatBox.style.zIndex = '1000';
 
         dragHandle.style.cursor = 'grabbing';
       };
@@ -1397,12 +1396,10 @@ class BaseAdvisorManager {
         }
 
         chatBox.classList.remove('advisor-chat-right', 'advisor-chat-left');
-        chatBox.style.position = 'fixed';
         chatBox.style.left = `${currentX}px`;
         chatBox.style.top = `${currentY}px`;
         chatBox.style.right = 'auto';
         chatBox.style.bottom = 'auto';
-        chatBox.style.zIndex = '1000';
       }
     }
 

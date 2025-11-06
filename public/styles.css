@@ -3770,7 +3770,6 @@ html[data-theme='dark'] .score-breakdown > div {
 }
 
 .advisor-chat-box {
-  margin-top: 24px;
   border: 2px solid rgba(0, 0, 0, 0.2);
   border-radius: 12px;
   background: var(--card-bg-color);
@@ -3780,7 +3779,8 @@ html[data-theme='dark'] .score-breakdown > div {
   height: 550px;
   max-height: 80vh;
   transition: all 0.3s ease;
-  position: relative;
+  position: fixed;
+  z-index: 1000;
 }
 
 .advisor-chat-box.advisor-chat-expanded {
