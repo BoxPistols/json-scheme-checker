@@ -141,6 +141,12 @@ header {
   display: flex;
   align-items: center;
   gap: 16px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.header-row:hover {
+  opacity: 0.8;
 }
 .logo-xl {
   width: 48px;
