@@ -1750,6 +1750,21 @@ class BaseAdvisorManager {
     this.downloadFile(blob, filename);
     console.log('[BaseAdvisor] Chat history exported:', filename);
   }
+
+  /**
+   * フッターまでスムーズスクロール（共通メソッド）
+   */
+  scrollToFooter() {
+    setTimeout(() => {
+      const footer = document.querySelector('footer');
+      if (footer) {
+        footer.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      } else {
+        // footerが見つからない場合はページ最下部までスクロール
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      }
+    }, 500); // 完了後少し待ってからスクロール
+  }
 }
 
 // Node.js用のテストエクスポート（ブラウザ実行には影響なし）
