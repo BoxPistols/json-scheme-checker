@@ -1271,6 +1271,29 @@ class BaseAdvisorManager {
     const dragHandle = container.querySelector('.advisor-chat-drag-handle');
     const resizeHandle = container.querySelector('.advisor-chat-resize-handle');
 
+    // 全画面表示切り替え共通関数
+    const toggleFullscreen = () => {
+      const isFullscreen = chatBox.classList.contains('advisor-chat-fullscreen');
+
+      if (isFullscreen) {
+        // 全画面モード解除
+        chatBox.classList.remove('advisor-chat-fullscreen');
+        if (expandBtn) {
+          expandBtn.setAttribute('title', '全画面表示');
+          expandBtn.setAttribute('aria-label', '全画面表示に切り替え');
+        }
+        console.log('[BaseAdvisor] Fullscreen mode disabled');
+      } else {
+        // 全画面モード有効化
+        chatBox.classList.add('advisor-chat-fullscreen');
+        if (expandBtn) {
+          expandBtn.setAttribute('title', '全画面解除');
+          expandBtn.setAttribute('aria-label', '全画面を解除');
+        }
+        console.log('[BaseAdvisor] Fullscreen mode enabled');
+      }
+    };
+
     // リセットボタン
     if (resetBtn && chatBox) {
       resetBtn.addEventListener('click', () => {
@@ -1314,21 +1337,7 @@ class BaseAdvisorManager {
     if (expandBtn && chatBox) {
       expandBtn.addEventListener('click', e => {
         e.stopPropagation(); // ドラッグイベントとの衝突を防ぐ
-        const isFullscreen = chatBox.classList.contains('advisor-chat-fullscreen');
-
-        if (isFullscreen) {
-          // 全画面モード解除
-          chatBox.classList.remove('advisor-chat-fullscreen');
-          expandBtn.setAttribute('title', '全画面表示');
-          expandBtn.setAttribute('aria-label', '全画面表示に切り替え');
-          console.log('[BaseAdvisor] Fullscreen mode disabled');
-        } else {
-          // 全画面モード有効化
-          chatBox.classList.add('advisor-chat-fullscreen');
-          expandBtn.setAttribute('title', '全画面解除');
-          expandBtn.setAttribute('aria-label', '全画面を解除');
-          console.log('[BaseAdvisor] Fullscreen mode enabled');
-        }
+        toggleFullscreen();
       });
     }
 
@@ -1336,20 +1345,6 @@ class BaseAdvisorManager {
     if (dragHandle && chatBox) {
       let lastTap = 0;
       const doubleTapDelay = 300; // 300ms以内のタップをダブルタップとみなす
-
-      const toggleFullscreen = () => {
-        const isFullscreen = chatBox.classList.contains('advisor-chat-fullscreen');
-
-        if (isFullscreen) {
-          // 全画面モード解除
-          chatBox.classList.remove('advisor-chat-fullscreen');
-          console.log('[BaseAdvisor] Fullscreen mode disabled');
-        } else {
-          // 全画面モード有効化
-          chatBox.classList.add('advisor-chat-fullscreen');
-          console.log('[BaseAdvisor] Fullscreen mode enabled');
-        }
-      };
 
       // ダブルタップイベント（タッチデバイス用）
       dragHandle.addEventListener('touchend', e => {
