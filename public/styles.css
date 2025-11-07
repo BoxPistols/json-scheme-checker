@@ -4058,6 +4058,11 @@ html[data-theme='dark'] .score-breakdown > div {
   transform: scale(0.9);
 }
 
+/* 全画面表示ボタン専用スタイル（ヘッダー左側セクション内で右端に配置） */
+.advisor-chat-expand-btn {
+  margin-left: auto;
+}
+
 .advisor-chat-send-btn {
   padding: 10px 16px;
   background: var(--primary-color);
