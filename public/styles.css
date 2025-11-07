@@ -3813,7 +3813,7 @@ html[data-theme='dark'] .score-breakdown > div {
   display: none;
 }
 
-/* 全画面モード（モバイル専用） */
+/* 全画面モード（デスクトップ用） */
 .advisor-chat-box.advisor-chat-fullscreen {
   height: calc(100vh - 20px) !important;
   max-height: calc(100vh - 20px) !important;
@@ -4463,15 +4463,17 @@ html[data-theme='dark'] .advisor-modal-close-btn:hover svg path {
     max-height: 50px !important;
   }
 
-  /* 全画面モード（最優先） */
+  /* 全画面モード（モバイル用 - safe area考慮） */
   .advisor-chat-box.advisor-chat-fullscreen {
-    height: calc(100vh - 20px) !important;
-    max-height: calc(100vh - 20px) !important;
-    top: 10px !important;
-    bottom: 10px !important;
+    /* iPhoneのブラウザUIを避けるため、safe area insetを考慮 */
+    top: max(10px, env(safe-area-inset-top)) !important;
+    bottom: max(10px, env(safe-area-inset-bottom)) !important;
     left: 10px !important;
     right: 10px !important;
     width: calc(100vw - 20px) !important;
+    /* 高さはtopとbottomで自動的に決まる */
+    height: auto !important;
+    max-height: none !important;
   }
 
   /* 展開時のチャットボックス */
@@ -4529,15 +4531,17 @@ html[data-theme='dark'] .advisor-modal-close-btn:hover svg path {
     max-height: 50px !important;
   }
 
-  /* 全画面モード（最優先） */
+  /* 全画面モード（小型モバイル用 - safe area考慮） */
   .advisor-chat-box.advisor-chat-fullscreen {
-    height: calc(100vh - 20px) !important;
-    max-height: calc(100vh - 20px) !important;
-    top: 10px !important;
-    bottom: 10px !important;
+    /* iPhoneのブラウザUIを避けるため、safe area insetを考慮 */
+    top: max(10px, env(safe-area-inset-top)) !important;
+    bottom: max(10px, env(safe-area-inset-bottom)) !important;
     left: 10px !important;
     right: 10px !important;
     width: calc(100vw - 20px) !important;
+    /* 高さはtopとbottomで自動的に決まる */
+    height: auto !important;
+    max-height: none !important;
   }
 
   .advisor-chat-box.advisor-chat-expanded {

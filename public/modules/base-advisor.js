@@ -1354,6 +1354,35 @@ class BaseAdvisorManager {
         }
         toggleFullscreen();
       });
+
+      // iOSのキーボード表示時のビューポート変更に対応
+      if ('visualViewport' in window) {
+        const handleViewportResize = () => {
+          // 全画面モード時のみ調整
+          if (chatBox.classList.contains('advisor-chat-fullscreen')) {
+            const viewport = window.visualViewport;
+            const scale = viewport.scale;
+
+            // キーボードが表示されているかをビューポートの高さで判定
+            const viewportHeight = viewport.height;
+            const windowHeight = window.innerHeight;
+
+            if (viewportHeight < windowHeight * 0.7) {
+              // キーボードが表示されている（ビューポートが70%以下に縮小）
+              console.log('[BaseAdvisor] Keyboard detected, viewport height:', viewportHeight);
+
+              // チャットボックスの高さを調整
+              chatBox.style.height = `${viewportHeight - 20}px`;
+            } else {
+              // キーボードが非表示
+              chatBox.style.height = '';
+            }
+          }
+        };
+
+        window.visualViewport.addEventListener('resize', handleViewportResize);
+        window.visualViewport.addEventListener('scroll', handleViewportResize);
+      }
     }
 
     // 閉じるボタン
@@ -1379,6 +1408,11 @@ class BaseAdvisorManager {
       const onMouseDown = e => {
         // ボタンクリック時はドラッグしない
         if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+          return;
+        }
+
+        // 全画面モード時はドラッグしない
+        if (chatBox.classList.contains('advisor-chat-fullscreen')) {
           return;
         }
 
@@ -1430,6 +1464,11 @@ class BaseAdvisorManager {
       const onTouchStart = e => {
         // ボタンタップ時はドラッグしない
         if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+          return;
+        }
+
+        // 全画面モード時はドラッグしない
+        if (chatBox.classList.contains('advisor-chat-fullscreen')) {
           return;
         }
 
