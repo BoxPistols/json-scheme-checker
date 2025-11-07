@@ -1139,9 +1139,11 @@ class BaseAdvisorManager {
             </svg>
             <h3 style="margin: 0; font-size: 1rem;">AI チャット</h3>
             ${config.questionerLabel ? `<span class="advisor-chat-questioner-badge">${config.questionerLabel}</span>` : ''}
-            <svg class="advisor-chat-expand-hint" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="opacity: 0.4; margin-left: auto;" title="ダブルタップで全画面表示">
-              <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+            <button type="button" class="advisor-chat-expand-btn" aria-label="全画面表示に切り替え" title="全画面表示">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
           </div>
           <div class="advisor-chat-header-right">
             <span class="advisor-chat-rate-limit">${rateLimitText}</span>
@@ -1265,6 +1267,7 @@ class BaseAdvisorManager {
     const closeBtn = container.querySelector('.advisor-chat-close-btn');
     const resetBtn = container.querySelector('.advisor-chat-reset-btn');
     const exportBtn = container.querySelector('.advisor-chat-export-btn');
+    const expandBtn = container.querySelector('.advisor-chat-expand-btn');
     const dragHandle = container.querySelector('.advisor-chat-drag-handle');
     const resizeHandle = container.querySelector('.advisor-chat-resize-handle');
 
@@ -1307,7 +1310,29 @@ class BaseAdvisorManager {
       });
     }
 
-    // ダブルタップで全画面切り替え（モバイル用）
+    // 全画面表示切り替えボタン
+    if (expandBtn && chatBox) {
+      expandBtn.addEventListener('click', e => {
+        e.stopPropagation(); // ドラッグイベントとの衝突を防ぐ
+        const isFullscreen = chatBox.classList.contains('advisor-chat-fullscreen');
+
+        if (isFullscreen) {
+          // 全画面モード解除
+          chatBox.classList.remove('advisor-chat-fullscreen');
+          expandBtn.setAttribute('title', '全画面表示');
+          expandBtn.setAttribute('aria-label', '全画面表示に切り替え');
+          console.log('[BaseAdvisor] Fullscreen mode disabled');
+        } else {
+          // 全画面モード有効化
+          chatBox.classList.add('advisor-chat-fullscreen');
+          expandBtn.setAttribute('title', '全画面解除');
+          expandBtn.setAttribute('aria-label', '全画面を解除');
+          console.log('[BaseAdvisor] Fullscreen mode enabled');
+        }
+      });
+    }
+
+    // ダブルタップで全画面切り替え（モバイル用、後方互換性のため残す）
     if (dragHandle && chatBox) {
       let lastTap = 0;
       const doubleTapDelay = 300; // 300ms以内のタップをダブルタップとみなす

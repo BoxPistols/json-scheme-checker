@@ -4020,7 +4020,8 @@ html[data-theme='dark'] .score-breakdown > div {
 .advisor-chat-position-toggle,
 .advisor-chat-collapse-btn,
 .advisor-chat-reset-btn,
-.advisor-chat-export-btn {
+.advisor-chat-export-btn,
+.advisor-chat-expand-btn {
   width: 32px;
   height: 32px;
   padding: 0;
@@ -4039,7 +4040,8 @@ html[data-theme='dark'] .score-breakdown > div {
 .advisor-chat-position-toggle:hover,
 .advisor-chat-collapse-btn:hover,
 .advisor-chat-reset-btn:hover,
-.advisor-chat-export-btn:hover {
+.advisor-chat-export-btn:hover,
+.advisor-chat-expand-btn:hover {
   background: var(--accent-hover-bg-color);
   border-color: var(--primary-color);
   color: var(--primary-color);
@@ -4048,7 +4050,8 @@ html[data-theme='dark'] .score-breakdown > div {
 .advisor-chat-position-toggle:active,
 .advisor-chat-collapse-btn:active,
 .advisor-chat-reset-btn:active,
-.advisor-chat-export-btn:active {
+.advisor-chat-export-btn:active,
+.advisor-chat-expand-btn:active {
   transform: scale(0.9);
 }
 
