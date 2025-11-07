@@ -1143,6 +1143,7 @@ class BaseAdvisorManager {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
+              <span class="advisor-chat-btn-label">拡大</span>
             </button>
           </div>
           <div class="advisor-chat-header-right">
@@ -1152,16 +1153,24 @@ class BaseAdvisorManager {
                 <polyline points="23 4 23 10 17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
+              <span class="advisor-chat-btn-label">リセット</span>
             </button>
             <button type="button" class="advisor-chat-export-btn" aria-label="チャット履歴をエクスポート" title="履歴をエクスポート">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 <polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
+              <span class="advisor-chat-btn-label">保存</span>
             </button>
-            <button type="button" class="advisor-chat-collapse-btn" aria-label="チャットを折りたたむ" title="折りたたむ">−</button>
-            <button type="button" class="advisor-chat-close-btn" aria-label="チャットを閉じる" title="閉じる">×</button>
+            <button type="button" class="advisor-chat-collapse-btn" aria-label="チャットを折りたたむ" title="折りたたむ">
+              <span style="font-size: 1.2rem;">−</span>
+              <span class="advisor-chat-btn-label">最小化</span>
+            </button>
+            <button type="button" class="advisor-chat-close-btn" aria-label="チャットを閉じる" title="閉じる">
+              <span style="font-size: 1.2rem;">×</span>
+              <span class="advisor-chat-btn-label">閉じる</span>
+            </button>
           </div>
         </div>
         <div class="advisor-chat-messages" id="${config.chatMessagesId}">
@@ -1298,9 +1307,11 @@ class BaseAdvisorManager {
     // リセットボタン
     if (resetBtn && chatBox) {
       resetBtn.addEventListener('click', () => {
-        // 位置とサイズをリセット（デフォルト位置に戻す）
+        // すべての状態をリセット（位置、サイズ、全画面モード、折りたたみモード）
         chatBox.classList.add('advisor-chat-right');
         chatBox.classList.remove('advisor-chat-left');
+        chatBox.classList.remove('advisor-chat-fullscreen');
+        chatBox.classList.remove('advisor-chat-collapsed');
         chatBox.style.right = '';
         chatBox.style.bottom = '';
         chatBox.style.left = '';
@@ -1308,13 +1319,26 @@ class BaseAdvisorManager {
         chatBox.style.width = '';
         chatBox.style.height = '';
         chatBox.style.transform = '';
+
+        // ボタンの状態も更新
+        if (expandBtn) {
+          expandBtn.setAttribute('title', '全画面表示');
+          expandBtn.setAttribute('aria-label', '全画面表示に切り替え');
+        }
+        if (collapseBtn) {
+          const icon = collapseBtn.querySelector('span:first-child');
+          if (icon) {
+            icon.textContent = '−';
+          }
+        }
+
         // LocalStorageもクリア
         localStorage.removeItem('advisor-chat-position-x');
         localStorage.removeItem('advisor-chat-position-y');
         localStorage.removeItem('advisor-chat-width');
         localStorage.removeItem('advisor-chat-height');
         console.log(
-          '[BaseAdvisor] Chat position and size reset to default (right: 20px, bottom: 20px)'
+          '[BaseAdvisor] Chat reset to default state (position, size, fullscreen, collapsed)'
         );
       });
     }
@@ -1330,7 +1354,10 @@ class BaseAdvisorManager {
     if (collapseBtn) {
       collapseBtn.addEventListener('click', () => {
         chatBox.classList.toggle('advisor-chat-collapsed');
-        collapseBtn.textContent = chatBox.classList.contains('advisor-chat-collapsed') ? '+' : '−';
+        const icon = collapseBtn.querySelector('span:first-child');
+        if (icon) {
+          icon.textContent = chatBox.classList.contains('advisor-chat-collapsed') ? '+' : '−';
+        }
       });
     }
 

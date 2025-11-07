@@ -4025,9 +4025,9 @@ html[data-theme='dark'] .score-breakdown > div {
 .advisor-chat-reset-btn,
 .advisor-chat-export-btn,
 .advisor-chat-expand-btn {
-  width: 32px;
-  height: 32px;
-  padding: 0;
+  min-width: 42px;
+  height: auto;
+  padding: 4px 2px;
   background: transparent;
   border: 1px solid var(--border-color);
   border-radius: 4px;
@@ -4035,8 +4035,10 @@ html[data-theme='dark'] .score-breakdown > div {
   color: var(--secondary-text-color);
   font-size: 1.2rem;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 2px;
   transition: all 0.2s;
 }
 
@@ -4061,6 +4063,15 @@ html[data-theme='dark'] .score-breakdown > div {
 /* 全画面表示ボタン専用スタイル（ヘッダー左側セクション内で右端に配置） */
 .advisor-chat-expand-btn {
   margin-left: auto;
+}
+
+/* ボタンラベル（アイコン下の小さなテキスト） */
+.advisor-chat-btn-label {
+  font-size: 9px;
+  line-height: 1;
+  color: var(--secondary-text-color);
+  white-space: nowrap;
+  user-select: none;
 }
 
 .advisor-chat-send-btn {
