@@ -1139,13 +1139,15 @@ class BaseAdvisorManager {
             </svg>
             <h3 style="margin: 0; font-size: 1rem;">AI チャット</h3>
             ${config.questionerLabel ? `<span class="advisor-chat-questioner-badge">${config.questionerLabel}</span>` : ''}
+            <svg class="advisor-chat-expand-hint" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="opacity: 0.4; margin-left: auto;" title="ダブルタップで全画面表示">
+              <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
           </div>
           <div class="advisor-chat-header-right">
             <span class="advisor-chat-rate-limit">${rateLimitText}</span>
             <button type="button" class="advisor-chat-reset-btn" aria-label="位置とサイズをリセット" title="位置とサイズをリセット">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M3 3v5h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M16 21h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </button>
             <button type="button" class="advisor-chat-export-btn" aria-label="チャット履歴をエクスポート" title="履歴をエクスポート">
@@ -1305,6 +1307,84 @@ class BaseAdvisorManager {
       });
     }
 
+    // ダブルタップで全画面切り替え（モバイル用）
+    if (dragHandle && chatBox) {
+      let lastTap = 0;
+      const doubleTapDelay = 300; // 300ms以内のタップをダブルタップとみなす
+
+      const toggleFullscreen = () => {
+        const isFullscreen = chatBox.classList.contains('advisor-chat-fullscreen');
+
+        if (isFullscreen) {
+          // 全画面モード解除
+          chatBox.classList.remove('advisor-chat-fullscreen');
+          console.log('[BaseAdvisor] Fullscreen mode disabled');
+        } else {
+          // 全画面モード有効化
+          chatBox.classList.add('advisor-chat-fullscreen');
+          console.log('[BaseAdvisor] Fullscreen mode enabled');
+        }
+      };
+
+      // ダブルタップイベント（タッチデバイス用）
+      dragHandle.addEventListener('touchend', e => {
+        // ボタンのタップは無視
+        if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+          return;
+        }
+
+        const currentTime = new Date().getTime();
+        const tapLength = currentTime - lastTap;
+
+        if (tapLength < doubleTapDelay && tapLength > 0) {
+          // ダブルタップ検出
+          e.preventDefault();
+          toggleFullscreen();
+          lastTap = 0; // リセット
+        } else {
+          lastTap = currentTime;
+        }
+      });
+
+      // ダブルクリックイベント（マウス用）
+      dragHandle.addEventListener('dblclick', e => {
+        // ボタンのクリックは無視
+        if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+          return;
+        }
+        toggleFullscreen();
+      });
+
+      // iOSのキーボード表示時のビューポート変更に対応
+      if ('visualViewport' in window) {
+        const handleViewportResize = () => {
+          // 全画面モード時のみ調整
+          if (chatBox.classList.contains('advisor-chat-fullscreen')) {
+            const viewport = window.visualViewport;
+            const scale = viewport.scale;
+
+            // キーボードが表示されているかをビューポートの高さで判定
+            const viewportHeight = viewport.height;
+            const windowHeight = window.innerHeight;
+
+            if (viewportHeight < windowHeight * 0.7) {
+              // キーボードが表示されている（ビューポートが70%以下に縮小）
+              console.log('[BaseAdvisor] Keyboard detected, viewport height:', viewportHeight);
+
+              // チャットボックスの高さを調整
+              chatBox.style.height = `${viewportHeight - 20}px`;
+            } else {
+              // キーボードが非表示
+              chatBox.style.height = '';
+            }
+          }
+        };
+
+        window.visualViewport.addEventListener('resize', handleViewportResize);
+        window.visualViewport.addEventListener('scroll', handleViewportResize);
+      }
+    }
+
     // 閉じるボタン
     if (closeBtn) {
       closeBtn.addEventListener('click', () => {
@@ -1328,6 +1408,11 @@ class BaseAdvisorManager {
       const onMouseDown = e => {
         // ボタンクリック時はドラッグしない
         if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+          return;
+        }
+
+        // 全画面モード時はドラッグしない
+        if (chatBox.classList.contains('advisor-chat-fullscreen')) {
           return;
         }
 
@@ -1375,9 +1460,70 @@ class BaseAdvisorManager {
         localStorage.setItem('advisor-chat-position-y', currentY);
       };
 
+      // タッチイベントハンドラー（iPhone/iPad用）
+      const onTouchStart = e => {
+        // ボタンタップ時はドラッグしない
+        if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+          return;
+        }
+
+        // 全画面モード時はドラッグしない
+        if (chatBox.classList.contains('advisor-chat-fullscreen')) {
+          return;
+        }
+
+        isDragging = true;
+        const touch = e.touches[0];
+
+        // 現在の位置を取得
+        currentX = chatBox.offsetLeft;
+        currentY = chatBox.offsetTop;
+        initialX = touch.clientX - currentX;
+        initialY = touch.clientY - currentY;
+
+        // インラインスタイルで位置を固定
+        chatBox.style.left = `${currentX}px`;
+        chatBox.style.top = `${currentY}px`;
+        chatBox.style.right = 'auto';
+        chatBox.style.bottom = 'auto';
+      };
+
+      const onTouchMove = e => {
+        if (!isDragging) return;
+
+        e.preventDefault();
+        const touch = e.touches[0];
+        currentX = touch.clientX - initialX;
+        currentY = touch.clientY - initialY;
+
+        // ビューポート内に制限
+        const maxX = window.innerWidth - chatBox.offsetWidth;
+        const maxY = window.innerHeight - chatBox.offsetHeight;
+        currentX = Math.max(0, Math.min(currentX, maxX));
+        currentY = Math.max(0, Math.min(currentY, maxY));
+
+        chatBox.style.left = `${currentX}px`;
+        chatBox.style.top = `${currentY}px`;
+      };
+
+      const onTouchEnd = () => {
+        if (!isDragging) return;
+        isDragging = false;
+
+        // 位置をローカルストレージに保存
+        localStorage.setItem('advisor-chat-position-x', currentX);
+        localStorage.setItem('advisor-chat-position-y', currentY);
+      };
+
+      // マウスイベント
       dragHandle.addEventListener('mousedown', onMouseDown);
       document.addEventListener('mousemove', onMouseMove);
       document.addEventListener('mouseup', onMouseUp);
+
+      // タッチイベント
+      dragHandle.addEventListener('touchstart', onTouchStart, { passive: false });
+      document.addEventListener('touchmove', onTouchMove, { passive: false });
+      document.addEventListener('touchend', onTouchEnd);
 
       // 保存された位置を復元
       const savedX = localStorage.getItem('advisor-chat-position-x');

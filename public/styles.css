@@ -104,6 +104,7 @@ body {
     'Hiragino Kaku Gothic ProN', 'BIZ UDPゴシック', 'Yu Gothic UI', Meiryo, sans-serif;
   background: var(--bg-color);
   min-height: 100vh;
+  min-height: calc(var(--vh, 1vh) * 100); /* モバイルブラウザ対応 */
   padding: 20px;
   color: var(--text-color);
   font-size: 1rem;
@@ -1390,6 +1391,7 @@ html[data-theme='dark'] .score-breakdown > div {
   border-radius: 8px;
   max-width: 900px;
   max-height: 85vh;
+  max-height: calc(var(--vh, 1vh) * 85); /* モバイルブラウザ対応 */
   overflow-y: auto;
   margin: 20px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
@@ -1398,6 +1400,7 @@ html[data-theme='dark'] .score-breakdown > div {
 .modal-container--narrow {
   max-width: 600px;
   max-height: 80vh;
+  max-height: calc(var(--vh, 1vh) * 80); /* モバイルブラウザ対応 */
 }
 
 .modal-header {
@@ -2966,6 +2969,7 @@ html[data-theme='dark'] .score-breakdown > div {
   grid-template-columns: 1fr 1fr;
   gap: 0;
   overflow: hidden;
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
 }
 
 .advisor-job-panel,
@@ -3021,6 +3025,7 @@ html[data-theme='dark'] .score-breakdown > div {
   overflow-y: auto;
   overflow-x: hidden;
   overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   transition:
     max-height 0.3s ease,
     padding 0.3s ease;
@@ -3277,13 +3282,20 @@ html[data-theme='dark'] .score-breakdown > div {
 
 /* Progress Bar */
 .advisor-progress-container {
-  margin-bottom: 16px;
+  position: sticky;
+  top: 0;
+  background: var(--card-bg-color);
+  z-index: 10;
+  padding: 12px 24px;
+  margin: -24px -24px 16px -24px;
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .advisor-progress-bar {
-  height: 4px;
+  height: 6px;
   background: var(--border-color);
-  border-radius: 2px;
+  border-radius: 3px;
   overflow: hidden;
   position: relative;
 }
@@ -3299,16 +3311,17 @@ html[data-theme='dark'] .score-breakdown > div {
   background-size: 200% 100%;
   width: 0%;
   transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 2px;
+  border-radius: 3px;
   animation: progress-shimmer 2s infinite;
 }
 
 .advisor-progress-text {
-  font-size: 11px;
-  color: var(--secondary-text-color);
-  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-color);
+  margin-top: 8px;
   text-align: center;
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 @keyframes progress-shimmer {
@@ -3418,6 +3431,8 @@ html[data-theme='dark'] .score-breakdown > div {
     grid-template-columns: 1fr;
     grid-template-rows: auto 1fr;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: max(40px, env(safe-area-inset-bottom));
   }
 
   .advisor-job-panel {
@@ -3466,13 +3481,16 @@ html[data-theme='dark'] .score-breakdown > div {
     padding-top: 0;
     padding-bottom: 0;
     overflow: hidden;
+    -webkit-overflow-scrolling: touch;
   }
 
   /* アコーディオンが展開状態の場合 */
   .advisor-accordion-content:not(.advisor-accordion-collapsed) {
-    max-height: 100vh;
+    max-height: none;
     padding-top: 16px;
     padding-bottom: 16px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   /* アコーディオンが閉じている状態 */
@@ -3481,6 +3499,12 @@ html[data-theme='dark'] .score-breakdown > div {
     padding-top: 0;
     padding-bottom: 0;
     overflow: hidden;
+  }
+
+  /* プログレスコンテナのモバイル調整 */
+  .advisor-progress-container {
+    margin: -16px -16px 16px -16px;
+    padding: 12px 16px;
   }
 
   /* アコーディオンヘッダーのアイコンロテーション */
@@ -3776,6 +3800,7 @@ html[data-theme='dark'] .score-breakdown > div {
   flex-direction: column;
   height: 550px;
   max-height: 80vh;
+  max-height: calc(var(--vh, 1vh) * 80); /* モバイルブラウザ対応 */
   transition: all 0.3s ease;
 }
 
@@ -3790,6 +3815,19 @@ html[data-theme='dark'] .score-breakdown > div {
 .advisor-chat-box.advisor-chat-collapsed .advisor-chat-messages,
 .advisor-chat-box.advisor-chat-collapsed .advisor-chat-input-wrapper {
   display: none;
+}
+
+/* 全画面モード（デスクトップ用） */
+.advisor-chat-box.advisor-chat-fullscreen {
+  height: calc(100vh - 20px) !important;
+  height: calc(var(--vh, 1vh) * 100 - 20px) !important; /* モバイルブラウザ対応 */
+  max-height: calc(100vh - 20px) !important;
+  max-height: calc(var(--vh, 1vh) * 100 - 20px) !important; /* モバイルブラウザ対応 */
+  top: 10px !important;
+  bottom: 10px !important;
+  left: 10px !important;
+  right: 10px !important;
+  width: calc(100vw - 20px) !important;
 }
 
 .advisor-chat-box.advisor-chat-right {
@@ -4424,6 +4462,26 @@ html[data-theme='dark'] .advisor-modal-close-btn:hover svg path {
     max-height: 60vh !important;
   }
 
+  /* 折りたたみ時は高さを小さく */
+  .advisor-chat-box.advisor-chat-collapsed.advisor-chat-right,
+  .advisor-chat-box.advisor-chat-collapsed.advisor-chat-left {
+    height: 50px !important;
+    max-height: 50px !important;
+  }
+
+  /* 全画面モード（モバイル用 - safe area考慮） */
+  .advisor-chat-box.advisor-chat-fullscreen {
+    /* iPhoneのブラウザUIを避けるため、safe area insetを考慮 */
+    top: max(10px, env(safe-area-inset-top)) !important;
+    bottom: max(10px, env(safe-area-inset-bottom)) !important;
+    left: 10px !important;
+    right: 10px !important;
+    width: calc(100vw - 20px) !important;
+    /* 高さはtopとbottomで自動的に決まる */
+    height: auto !important;
+    max-height: none !important;
+  }
+
   /* 展開時のチャットボックス */
   .advisor-chat-box.advisor-chat-expanded {
     height: 60vh !important;
@@ -4452,8 +4510,8 @@ html[data-theme='dark'] .advisor-modal-close-btn:hover svg path {
   .advisor-view-content {
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch;
-    /* チャットボックスの高さ分、下にパディングを追加 */
-    padding-bottom: calc(60vh + 20px) !important;
+    /* チャットボックスの高さ分、下にパディングを追加（safe area inset も考慮） */
+    padding-bottom: calc(60vh + 20px + max(20px, env(safe-area-inset-bottom))) !important;
   }
 
   .advisor-job-content,
@@ -4472,6 +4530,26 @@ html[data-theme='dark'] .advisor-modal-close-btn:hover svg path {
     max-height: 50vh !important;
   }
 
+  /* 折りたたみ時は高さを小さく */
+  .advisor-chat-box.advisor-chat-collapsed.advisor-chat-right,
+  .advisor-chat-box.advisor-chat-collapsed.advisor-chat-left {
+    height: 50px !important;
+    max-height: 50px !important;
+  }
+
+  /* 全画面モード（小型モバイル用 - safe area考慮） */
+  .advisor-chat-box.advisor-chat-fullscreen {
+    /* iPhoneのブラウザUIを避けるため、safe area insetを考慮 */
+    top: max(10px, env(safe-area-inset-top)) !important;
+    bottom: max(10px, env(safe-area-inset-bottom)) !important;
+    left: 10px !important;
+    right: 10px !important;
+    width: calc(100vw - 20px) !important;
+    /* 高さはtopとbottomで自動的に決まる */
+    height: auto !important;
+    max-height: none !important;
+  }
+
   .advisor-chat-box.advisor-chat-expanded {
     height: 50vh !important;
     max-height: 50vh !important;
@@ -4487,8 +4565,8 @@ html[data-theme='dark'] .advisor-modal-close-btn:hover svg path {
     padding: 8px;
   }
 
-  /* AI分析結果エリアのパディングを調整 */
+  /* AI分析結果エリアのパディングを調整（safe area inset も考慮） */
   .advisor-view-content {
-    padding-bottom: calc(50vh + 20px) !important;
+    padding-bottom: calc(50vh + 20px + max(20px, env(safe-area-inset-bottom))) !important;
   }
 }
