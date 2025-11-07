@@ -1148,8 +1148,9 @@ class BaseAdvisorManager {
           <div class="advisor-chat-header-right">
             <span class="advisor-chat-rate-limit">${rateLimitText}</span>
             <button type="button" class="advisor-chat-reset-btn" aria-label="位置とサイズをリセット" title="位置とサイズをリセット">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M16 21h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <polyline points="23 4 23 10 17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </button>
             <button type="button" class="advisor-chat-export-btn" aria-label="チャット履歴をエクスポート" title="履歴をエクスポート">
