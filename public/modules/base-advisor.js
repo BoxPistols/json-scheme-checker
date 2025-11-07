@@ -1899,17 +1899,23 @@ class BaseAdvisorManager {
 
   /**
    * フッターまでスムーズスクロール（共通メソッド）
+   * requestAnimationFrameを使用してDOM更新完了後に確実にスクロール
    */
   scrollToFooter() {
-    setTimeout(() => {
-      const footer = document.querySelector('footer');
-      if (footer) {
-        footer.scrollIntoView({ behavior: 'smooth', block: 'end' });
-      } else {
-        // footerが見つからない場合はページ最下部までスクロール
-        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-      }
-    }, 500); // 完了後少し待ってからスクロール
+    // requestAnimationFrameを2回使用して、DOM更新が確実に反映された後にスクロール
+    // 1回目: レイアウト計算
+    // 2回目: ペイント完了後
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const footer = document.querySelector('footer');
+        if (footer) {
+          footer.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        } else {
+          // footerが見つからない場合はページ最下部までスクロール
+          window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+      });
+    });
   }
 }
 
