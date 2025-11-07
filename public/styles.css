@@ -3809,11 +3809,14 @@ html[data-theme='dark'] .score-breakdown > div {
 }
 
 .advisor-chat-box.advisor-chat-collapsed {
-  max-height: 50px;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible;
 }
 
 .advisor-chat-box.advisor-chat-collapsed .advisor-chat-messages,
-.advisor-chat-box.advisor-chat-collapsed .advisor-chat-input-wrapper {
+.advisor-chat-box.advisor-chat-collapsed .advisor-chat-input-wrapper,
+.advisor-chat-box.advisor-chat-collapsed .advisor-chat-resize-handle {
   display: none;
 }
 
@@ -4465,11 +4468,11 @@ html[data-theme='dark'] .advisor-modal-close-btn:hover svg path {
     max-height: 60vh !important;
   }
 
-  /* 折りたたみ時は高さを小さく */
+  /* 折りたたみ時は高さを自動調整（ヘッダーのみ表示） */
   .advisor-chat-box.advisor-chat-collapsed.advisor-chat-right,
   .advisor-chat-box.advisor-chat-collapsed.advisor-chat-left {
-    height: 50px !important;
-    max-height: 50px !important;
+    height: auto !important;
+    max-height: none !important;
   }
 
   /* 全画面モード（モバイル用 - safe area考慮） */
@@ -4533,11 +4536,11 @@ html[data-theme='dark'] .advisor-modal-close-btn:hover svg path {
     max-height: 50vh !important;
   }
 
-  /* 折りたたみ時は高さを小さく */
+  /* 折りたたみ時は高さを自動調整（ヘッダーのみ表示） */
   .advisor-chat-box.advisor-chat-collapsed.advisor-chat-right,
   .advisor-chat-box.advisor-chat-collapsed.advisor-chat-left {
-    height: 50px !important;
-    max-height: 50px !important;
+    height: auto !important;
+    max-height: none !important;
   }
 
   /* 全画面モード（小型モバイル用 - safe area考慮） */
