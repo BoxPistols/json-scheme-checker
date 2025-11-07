@@ -104,6 +104,7 @@ body {
     'Hiragino Kaku Gothic ProN', 'BIZ UDPゴシック', 'Yu Gothic UI', Meiryo, sans-serif;
   background: var(--bg-color);
   min-height: 100vh;
+  min-height: calc(var(--vh, 1vh) * 100); /* モバイルブラウザ対応 */
   padding: 20px;
   color: var(--text-color);
   font-size: 1rem;
@@ -1390,6 +1391,7 @@ html[data-theme='dark'] .score-breakdown > div {
   border-radius: 8px;
   max-width: 900px;
   max-height: 85vh;
+  max-height: calc(var(--vh, 1vh) * 85); /* モバイルブラウザ対応 */
   overflow-y: auto;
   margin: 20px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
@@ -1398,6 +1400,7 @@ html[data-theme='dark'] .score-breakdown > div {
 .modal-container--narrow {
   max-width: 600px;
   max-height: 80vh;
+  max-height: calc(var(--vh, 1vh) * 80); /* モバイルブラウザ対応 */
 }
 
 .modal-header {
@@ -3797,6 +3800,7 @@ html[data-theme='dark'] .score-breakdown > div {
   flex-direction: column;
   height: 550px;
   max-height: 80vh;
+  max-height: calc(var(--vh, 1vh) * 80); /* モバイルブラウザ対応 */
   transition: all 0.3s ease;
 }
 
@@ -3816,7 +3820,9 @@ html[data-theme='dark'] .score-breakdown > div {
 /* 全画面モード（デスクトップ用） */
 .advisor-chat-box.advisor-chat-fullscreen {
   height: calc(100vh - 20px) !important;
+  height: calc(var(--vh, 1vh) * 100 - 20px) !important; /* モバイルブラウザ対応 */
   max-height: calc(100vh - 20px) !important;
+  max-height: calc(var(--vh, 1vh) * 100 - 20px) !important; /* モバイルブラウザ対応 */
   top: 10px !important;
   bottom: 10px !important;
   left: 10px !important;
