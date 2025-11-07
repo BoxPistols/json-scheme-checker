@@ -2897,7 +2897,6 @@ html[data-theme='dark'] .score-breakdown > div {
   opacity: 0;
   transition: opacity 0.3s ease;
   overflow: hidden;
-  -webkit-overflow-scrolling: touch;
 }
 
 .advisor-view.active {
@@ -3021,7 +3020,6 @@ html[data-theme='dark'] .score-breakdown > div {
   padding: 24px;
   overflow-y: auto;
   overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   transition:
     max-height 0.3s ease,
