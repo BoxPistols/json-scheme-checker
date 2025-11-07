@@ -1144,8 +1144,7 @@ class BaseAdvisorManager {
             <span class="advisor-chat-rate-limit">${rateLimitText}</span>
             <button type="button" class="advisor-chat-reset-btn" aria-label="位置とサイズをリセット" title="位置とサイズをリセット">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M3 3v5h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M16 21h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </button>
             <button type="button" class="advisor-chat-export-btn" aria-label="チャット履歴をエクスポート" title="履歴をエクスポート">
@@ -1375,9 +1374,65 @@ class BaseAdvisorManager {
         localStorage.setItem('advisor-chat-position-y', currentY);
       };
 
+      // タッチイベントハンドラー（iPhone/iPad用）
+      const onTouchStart = e => {
+        // ボタンタップ時はドラッグしない
+        if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+          return;
+        }
+
+        isDragging = true;
+        const touch = e.touches[0];
+
+        // 現在の位置を取得
+        currentX = chatBox.offsetLeft;
+        currentY = chatBox.offsetTop;
+        initialX = touch.clientX - currentX;
+        initialY = touch.clientY - currentY;
+
+        // インラインスタイルで位置を固定
+        chatBox.style.left = `${currentX}px`;
+        chatBox.style.top = `${currentY}px`;
+        chatBox.style.right = 'auto';
+        chatBox.style.bottom = 'auto';
+      };
+
+      const onTouchMove = e => {
+        if (!isDragging) return;
+
+        e.preventDefault();
+        const touch = e.touches[0];
+        currentX = touch.clientX - initialX;
+        currentY = touch.clientY - initialY;
+
+        // ビューポート内に制限
+        const maxX = window.innerWidth - chatBox.offsetWidth;
+        const maxY = window.innerHeight - chatBox.offsetHeight;
+        currentX = Math.max(0, Math.min(currentX, maxX));
+        currentY = Math.max(0, Math.min(currentY, maxY));
+
+        chatBox.style.left = `${currentX}px`;
+        chatBox.style.top = `${currentY}px`;
+      };
+
+      const onTouchEnd = () => {
+        if (!isDragging) return;
+        isDragging = false;
+
+        // 位置をローカルストレージに保存
+        localStorage.setItem('advisor-chat-position-x', currentX);
+        localStorage.setItem('advisor-chat-position-y', currentY);
+      };
+
+      // マウスイベント
       dragHandle.addEventListener('mousedown', onMouseDown);
       document.addEventListener('mousemove', onMouseMove);
       document.addEventListener('mouseup', onMouseUp);
+
+      // タッチイベント
+      dragHandle.addEventListener('touchstart', onTouchStart, { passive: false });
+      document.addEventListener('touchmove', onTouchMove, { passive: false });
+      document.addEventListener('touchend', onTouchEnd);
 
       // 保存された位置を復元
       const savedX = localStorage.getItem('advisor-chat-position-x');
