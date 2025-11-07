@@ -1139,6 +1139,9 @@ class BaseAdvisorManager {
             </svg>
             <h3 style="margin: 0; font-size: 1rem;">AI チャット</h3>
             ${config.questionerLabel ? `<span class="advisor-chat-questioner-badge">${config.questionerLabel}</span>` : ''}
+            <svg class="advisor-chat-expand-hint" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="opacity: 0.4; margin-left: auto;" title="ダブルタップで全画面表示">
+              <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
           </div>
           <div class="advisor-chat-header-right">
             <span class="advisor-chat-rate-limit">${rateLimitText}</span>
@@ -1301,6 +1304,55 @@ class BaseAdvisorManager {
       collapseBtn.addEventListener('click', () => {
         chatBox.classList.toggle('advisor-chat-collapsed');
         collapseBtn.textContent = chatBox.classList.contains('advisor-chat-collapsed') ? '+' : '−';
+      });
+    }
+
+    // ダブルタップで全画面切り替え（モバイル用）
+    if (dragHandle && chatBox) {
+      let lastTap = 0;
+      const doubleTapDelay = 300; // 300ms以内のタップをダブルタップとみなす
+
+      const toggleFullscreen = () => {
+        const isFullscreen = chatBox.classList.contains('advisor-chat-fullscreen');
+
+        if (isFullscreen) {
+          // 全画面モード解除
+          chatBox.classList.remove('advisor-chat-fullscreen');
+          console.log('[BaseAdvisor] Fullscreen mode disabled');
+        } else {
+          // 全画面モード有効化
+          chatBox.classList.add('advisor-chat-fullscreen');
+          console.log('[BaseAdvisor] Fullscreen mode enabled');
+        }
+      };
+
+      // ダブルタップイベント（タッチデバイス用）
+      dragHandle.addEventListener('touchend', e => {
+        // ボタンのタップは無視
+        if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+          return;
+        }
+
+        const currentTime = new Date().getTime();
+        const tapLength = currentTime - lastTap;
+
+        if (tapLength < doubleTapDelay && tapLength > 0) {
+          // ダブルタップ検出
+          e.preventDefault();
+          toggleFullscreen();
+          lastTap = 0; // リセット
+        } else {
+          lastTap = currentTime;
+        }
+      });
+
+      // ダブルクリックイベント（マウス用）
+      dragHandle.addEventListener('dblclick', e => {
+        // ボタンのクリックは無視
+        if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+          return;
+        }
+        toggleFullscreen();
       });
     }
 
