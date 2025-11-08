@@ -990,6 +990,10 @@ class BaseAdvisorManager {
       return;
     }
 
+    // チャット設定を保存（視点選択状態を保持）
+    this.chatConfig = config;
+    config.containerId = containerId;
+
     // ユニークなIDを生成
     const uniqueId = `advisorFloatingChatBtn-${config.type}-${Date.now()}`;
 
@@ -1009,8 +1013,16 @@ class BaseAdvisorManager {
         console.log('[BaseAdvisor] Floating chat button clicked');
         e.preventDefault();
         e.stopPropagation();
-        // 質問者選択モーダルを表示
-        this.showQuestionerModal(config);
+
+        // 既に視点が選択済みの場合は直接チャットを開く
+        if (this.chatConfig.questionerSelected) {
+          console.log('[BaseAdvisor] Questioner already selected, opening chat directly');
+          this.renderChatBoxCommon(containerId, this.chatConfig);
+        } else {
+          // 未選択の場合は質問者選択モーダルを表示
+          console.log('[BaseAdvisor] Questioner not selected, showing modal');
+          this.showQuestionerModal(this.chatConfig);
+        }
       });
     } else {
       console.error('[BaseAdvisor] Floating chat button not found:', uniqueId);
@@ -1483,6 +1495,13 @@ class BaseAdvisorManager {
     if (expandBtn && chatBox) {
       expandBtn.addEventListener('click', e => {
         e.stopPropagation(); // ドラッグイベントとの衝突を防ぐ
+
+        // 折りたたみ状態の場合は先に解除
+        if (chatBox.classList.contains('advisor-chat-collapsed')) {
+          chatBox.classList.remove('advisor-chat-collapsed');
+        }
+
+        // 全画面表示を切り替え
         toggleFullscreen();
       });
     }
