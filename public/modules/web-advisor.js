@@ -202,6 +202,7 @@ class WebAdvisorManager extends BaseAdvisorManager {
             </div>
           </div>
         </div>
+        <div class="advisor-resize-handle" data-resize-target="web-advisor"></div>
         <div class="advisor-advice-panel">
           <h3 class="advisor-accordion-header" data-action="web-toggle-content-section">
             <span class="advisor-accordion-icon">▼</span>AI分析結果
@@ -234,7 +235,11 @@ class WebAdvisorManager extends BaseAdvisorManager {
 
     container.style.display = 'none';
     document.body.appendChild(view);
-    setTimeout(() => view.classList.add('active'), 10);
+    setTimeout(() => {
+      view.classList.add('active');
+      // リサイズハンドルを初期化
+      this.initResizeHandle('web-advisor');
+    }, 10);
   }
 
   /**

@@ -548,6 +548,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
             ${this.formatArticle(this.currentArticle)}
           </div>
         </div>
+        <div class="advisor-resize-handle" data-resize-target="blog-reviewer"></div>
         <div class="advisor-advice-panel">
           <h3 class="advisor-accordion-header" data-action="blog-reviewer-toggle-review-section">
             <span class="advisor-accordion-icon">▼</span>AI分析結果
@@ -589,6 +590,8 @@ class BlogReviewerManager extends BaseAdvisorManager {
         sel.value = this.getSelectedModel();
         sel.addEventListener('change', () => this.setSelectedModel(sel.value));
       }
+      // リサイズハンドルを初期化
+      this.initResizeHandle('blog-reviewer');
       // 初期表示時点で累積表示を更新
       this.updateHeaderUsageChip();
     }, 10);

@@ -149,6 +149,7 @@ class AdvisorManager extends BaseAdvisorManager {
           </h3>
           <div class="advisor-job-content advisor-accordion-content" id="advisorJobContent">${this.formatJobPosting(this.currentJobPosting)}</div>
         </div>
+        <div class="advisor-resize-handle" data-resize-target="advisor"></div>
         <div class="advisor-advice-panel">
           <h3 class="advisor-accordion-header" data-action="advisor-toggle-advice-section">
             <span class="advisor-accordion-icon">▼</span>AI分析結果
@@ -181,6 +182,11 @@ class AdvisorManager extends BaseAdvisorManager {
     );
     container.style.display = 'none';
     advisorView.classList.add('advisor-view');
+
+    // リサイズハンドルを初期化
+    setTimeout(() => {
+      this.initResizeHandle('advisor');
+    }, 10);
   }
 
   closeAdvisorView() {

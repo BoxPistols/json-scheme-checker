@@ -2103,6 +2103,90 @@ class BaseAdvisorManager {
   }
 
   /**
+   * リサイズハンドルを初期化（PC時のみ）
+   * @param {string} target - advisor, blog-reviewer, web-advisorのいずれか
+   */
+  initResizeHandle(target) {
+    // モバイルではリサイズ無効
+    if (window.innerWidth <= 768) {
+      return;
+    }
+
+    const handle = document.querySelector(`.advisor-resize-handle[data-resize-target="${target}"]`);
+    const leftPanel = handle?.previousElementSibling;
+    const viewContent = handle?.parentElement;
+
+    if (!handle || !leftPanel || !viewContent) {
+      console.warn('[BaseAdvisor] Resize handle not found for', target);
+      return;
+    }
+
+    // 保存された幅を復元
+    const storageKey = `advisor-panel-width-${target}`;
+    const savedWidth = localStorage.getItem(storageKey);
+    if (savedWidth) {
+      leftPanel.style.flex = `0 0 ${savedWidth}`;
+    }
+
+    let isResizing = false;
+    let startX = 0;
+    let startWidth = 0;
+
+    const handleMouseDown = e => {
+      isResizing = true;
+      startX = e.clientX;
+      startWidth = leftPanel.offsetWidth;
+
+      // カーソルをドキュメント全体に適用
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+
+      e.preventDefault();
+    };
+
+    const handleMouseMove = e => {
+      if (!isResizing) return;
+
+      const containerWidth = viewContent.offsetWidth;
+      const handleWidth = handle.offsetWidth;
+      const deltaX = e.clientX - startX;
+      const newWidth = startWidth + deltaX;
+
+      // 最小幅300px、最大80%
+      const minWidth = 300;
+      const maxWidth = containerWidth * 0.8 - handleWidth;
+
+      if (newWidth >= minWidth && newWidth <= maxWidth) {
+        const widthPercent = ((newWidth / containerWidth) * 100).toFixed(2) + '%';
+        leftPanel.style.flex = `0 0 ${widthPercent}`;
+      }
+    };
+
+    const handleMouseUp = () => {
+      if (!isResizing) return;
+
+      isResizing = false;
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+
+      // 幅を保存
+      const currentWidth = leftPanel.style.flex.split(' ')[2];
+      localStorage.setItem(storageKey, currentWidth);
+      console.log('[BaseAdvisor] Panel width saved:', currentWidth);
+    };
+
+    handle.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+
+    // クリーンアップ用に参照を保存
+    handle._resizeCleanup = () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }
+
+  /**
    * フッターまでスムーズスクロール（共通メソッド）
    * requestAnimationFrameを使用してDOM更新完了後に確実にスクロール
    */

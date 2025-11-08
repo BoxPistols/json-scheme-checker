@@ -2968,8 +2968,7 @@ html[data-theme='dark'] .score-breakdown > div {
 /* Advisor Content (Split View) */
 .advisor-view-content {
   flex: 1;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
   gap: 0;
   overflow: hidden;
   padding-bottom: max(20px, env(safe-area-inset-bottom));
@@ -2984,7 +2983,41 @@ html[data-theme='dark'] .score-breakdown > div {
 }
 
 .advisor-job-panel {
-  border-right: 1px solid var(--border-color);
+  flex: 0 0 50%;
+  min-width: 300px;
+  max-width: 80%;
+}
+
+.advisor-advice-panel {
+  flex: 1;
+  min-width: 300px;
+}
+
+/* リサイズハンドル */
+.advisor-resize-handle {
+  width: 8px;
+  cursor: col-resize;
+  background: var(--border-color);
+  position: relative;
+  flex-shrink: 0;
+  transition: background 0.2s ease;
+}
+
+.advisor-resize-handle:hover {
+  background: var(--link-color);
+}
+
+.advisor-resize-handle::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px;
+  height: 40px;
+  background: var(--bg-color);
+  border-radius: 2px;
+  opacity: 0.5;
 }
 
 .advisor-job-panel h3,
@@ -3474,6 +3507,24 @@ html[data-theme='dark'] .score-breakdown > div {
 
   .advisor-view-header h2 {
     font-size: 1.2rem;
+  }
+
+  /* モバイルでは縦並びに変更 */
+  .advisor-view-content {
+    flex-direction: column;
+  }
+
+  .advisor-job-panel,
+  .advisor-advice-panel {
+    flex: none;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+
+  /* モバイルではリサイズハンドルを非表示 */
+  .advisor-resize-handle {
+    display: none;
   }
 
   .advisor-job-content,
