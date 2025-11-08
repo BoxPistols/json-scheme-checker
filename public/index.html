@@ -268,137 +268,367 @@
 
             <!-- 使い方解説Modal -->
             <div id="guideModal" class="modal-overlay">
-                <div class="modal-container">
+                <div class="modal-container modal-container--wide">
                     <div class="modal-header modal-header--sticky">
-                        <h2>JSON-LD Schema Viewerの使い方</h2>
+                        <h2>Schema Viewer & AI Advisor - 使い方ガイド</h2>
                     </div>
                     <div class="modal-body">
-                        <!-- アプリの概要 -->
+                        <!-- このアプリでできること -->
                         <section class="modal-section">
-                            <h3>このアプリについて</h3>
-                            <p>
-                                JSON-LD Schema Viewerは、WebサイトのJSON-LD構造化データを抽出して可視化するツールです。
+                            <h3 class="modal-section-title">このアプリでできること</h3>
+                            <p class="modal-lead-text">
+                                Web構造化データの可視化から、AIによるSEO最適化支援まで、Webサイトの品質向上を総合的にサポートします。
                             </p>
-                            <ul>
-                                <!-- <li>CORSプロキシサーバーを使用してあらゆるURLにアクセス可能</li> -->
-                                <!-- <li>開発中のlocalhostサイトも検証可能</li> -->
-                                <li>テーブル形式とJSON形式の切り替え表示</li>
-                                <li>Basic認証が必要なサイトにも対応</li>
-                            </ul>
-                        </section>
-
-                        <!-- 基本的な使い方 -->
-                        <section class="modal-section">
-                            <h3>基本的な使い方</h3>
-                            <ol>
-                                <li><strong>URLを入力:</strong> 検証したいWebサイトのURLを入力欄に貼り付けます</li>
-                                <li><strong>取得ボタンをクリック:</strong> 「取得」ボタンをクリックしてJSON-LDを抽出します</li>
-                                <li><strong>結果を確認:</strong> 抽出されたJSON-LDがテーブル形式で表示されます</li>
-                                <li><strong>表示切り替え:</strong> 「JSON」タブで生のJSON形式でも確認できます</li>
-                                <li><strong>コピー:</strong> 「コピー」ボタンでJSON-LDをクリップボードにコピーできます</li>
-                            </ol>
-                            <div class="modal-info-box modal-info-box--blue">
-                                <p>
-                                    <strong>ヒント:</strong> Cmd+K（Mac）またはCtrl+K（Windows）でURL入力欄に素早くフォーカスできます。
-                                </p>
+                            <div class="feature-cards">
+                                <div class="feature-card feature-card--primary">
+                                    <div class="feature-card-icon">
+                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                            <path d="M9 3v18"/>
+                                            <path d="M3 9h18"/>
+                                        </svg>
+                                    </div>
+                                    <h4>Schema Viewer</h4>
+                                    <p>JSON-LD構造化データの抽出・可視化。テーブル形式とJSON形式で見やすく表示。</p>
+                                </div>
+                                <div class="feature-card feature-card--secondary">
+                                    <div class="feature-card-icon">
+                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                                            <line x1="12" y1="22.08" x2="12" y2="12"/>
+                                        </svg>
+                                    </div>
+                                    <h4>AI分析</h4>
+                                    <p>求人票の最適化、ブログ記事のレビュー、WebページのSEO/EEAT分析をAIが支援。</p>
+                                </div>
+                                <div class="feature-card feature-card--tertiary">
+                                    <div class="feature-card-icon">
+                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                                        </svg>
+                                    </div>
+                                    <h4>SEO最適化</h4>
+                                    <p>HTML構造、メタタグ、SNS対応を自動分析。改善ポイントを具体的に提示。</p>
+                                </div>
                             </div>
                         </section>
 
-                        <!-- サンプルリンクの使い方 -->
+                        <!-- Schema Viewer機能 -->
                         <section class="modal-section">
-                            <h3>サンプルリンクの管理</h3>
-                            <p>
-                                入力欄の下にある「サンプル」リンクをカスタマイズできます。よく使うURLを登録しておけば、ワンクリックで検証できます。
-                            </p>
-                            <h4 style="font-size: 14px; margin-top: 12px; margin-bottom: 8px;">基本操作</h4>
-                            <ul>
-                                <li><strong>クリックで実行:</strong> サンプルURLをクリックすると、自動的にURLが入力されて取得が実行されます</li>
-                                <li><strong>追加:</strong> 「＋ 追加」ボタンをクリックして新しいURLを登録</li>
-                                <li><strong>編集:</strong> 各URLの下にある「編集」ボタンでURL名とアドレスを変更</li>
-                                <li><strong>削除:</strong> 「削除」ボタンで不要なURLを削除</li>
-                                <li><strong>並び替え:</strong> URLタグをドラッグ＆ドロップで並び順を変更</li>
-                                <li><strong>初期化:</strong> 「初期化」ボタンでデフォルトのサンプルURLに戻す</li>
-                            </ul>
-                            <h4 style="font-size: 14px; margin-top: 12px; margin-bottom: 8px;">データ保存</h4>
-                            <ul>
-                                <li>登録したサンプルURLは<strong>ブラウザのlocalStorage</strong>に自動保存されます</li>
-                                <li>ブラウザを閉じても設定は保持されます</li>
-                                <li>ブラウザのキャッシュをクリアすると設定も削除されます</li>
-                            </ul>
-                            <div class="modal-info-box modal-info-box--blue">
-                                <p>
-                                    <strong>ヒント:</strong> よく検証するステージング環境や開発環境のURLを登録しておくと便利です。
-                                </p>
+                            <h3 class="modal-section-title">Schema Viewer機能</h3>
+                            <div class="modal-subsection">
+                                <h4 class="modal-subsection-title">JSON-LD構造化データの抽出と可視化</h4>
+                                <p>WebページからJSON-LD形式の構造化データを自動抽出し、分かりやすく表示します。</p>
+                                <div class="feature-list">
+                                    <div class="feature-list-item">
+                                        <div class="feature-list-icon">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polyline points="20 6 9 17 4 12"/>
+                                            </svg>
+                                        </div>
+                                        <div class="feature-list-content">
+                                            <strong>テーブル表示</strong>
+                                            <p>プロパティ名、値、型を階層構造で見やすく表示。ネストされたオブジェクトも展開・折りたたみ可能。</p>
+                                        </div>
+                                    </div>
+                                    <div class="feature-list-item">
+                                        <div class="feature-list-icon">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polyline points="20 6 9 17 4 12"/>
+                                            </svg>
+                                        </div>
+                                        <div class="feature-list-content">
+                                            <strong>JSON表示</strong>
+                                            <p>生のJSON形式でシンタックスハイライト付き表示。開発者向けの詳細確認に最適。</p>
+                                        </div>
+                                    </div>
+                                    <div class="feature-list-item">
+                                        <div class="feature-list-icon">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polyline points="20 6 9 17 4 12"/>
+                                            </svg>
+                                        </div>
+                                        <div class="feature-list-content">
+                                            <strong>ワンクリックコピー</strong>
+                                            <p>各スキーマをクリップボードに即座にコピー。他のツールとの連携もスムーズ。</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </section>
 
-                        <!-- Basic認証について -->
+                        <!-- AI Advisor機能 -->
                         <section class="modal-section">
-                            <h3>Basic認証が必要なサイトの検証</h3>
-                            <p>
-                                パスワード保護されたサイト（ステージング環境など）を検証する場合：
+                            <h3 class="modal-section-title">AI Advisor機能</h3>
+                            <p class="modal-lead-text">
+                                AIがページ内容を分析し、具体的な改善提案を提供します。各Advisorは特定の目的に最適化されています。
                             </p>
-                            <ol>
-                                <li>「Basic認証が必要な場合」セクションを展開</li>
-                                <li>ユーザー名とパスワードを入力</li>
-                                <li>認証情報の保存方法を選択（推奨：タブを閉じるまで保存）</li>
-                                <li>URLを入力して「取得」ボタンをクリック</li>
-                            </ol>
-                            <div class="modal-info-box modal-info-box--yellow">
-                                <p>
-                                    <strong>セキュリティ:</strong> 認証情報はブラウザのみに保存され、サーバーには送信されません。重要な認証情報は「保存しない」を選択してください。
-                                </p>
+                            <div class="advisor-cards">
+                                <div class="advisor-card">
+                                    <div class="advisor-card-header">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="2" y="7" width="20" height="14" rx="2"/>
+                                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                                        </svg>
+                                        <h4>JobPosting Advisor</h4>
+                                    </div>
+                                    <p><strong>対象：</strong>求人票（JobPostingスキーマ検出時）</p>
+                                    <p><strong>分析内容：</strong></p>
+                                    <ul>
+                                        <li>採用側視点：応募を増やすための改善提案</li>
+                                        <li>応募者視点：求人情報の明確性と魅力度分析</li>
+                                        <li>構造化データの最適化アドバイス</li>
+                                    </ul>
+                                </div>
+                                <div class="advisor-card">
+                                    <div class="advisor-card-header">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                                        </svg>
+                                        <h4>Blog Reviewer</h4>
+                                    </div>
+                                    <p><strong>対象：</strong>ブログ記事（Articleスキーマ検出時）</p>
+                                    <p><strong>分析内容：</strong></p>
+                                    <ul>
+                                        <li>記事の構成と読みやすさの評価</li>
+                                        <li>SEO観点からの改善提案</li>
+                                        <li>EEAT（専門性・権威性・信頼性）の評価</li>
+                                        <li>構造化データの最適化</li>
+                                    </ul>
+                                </div>
+                                <div class="advisor-card">
+                                    <div class="advisor-card-header">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10"/>
+                                            <line x1="2" y1="12" x2="22" y2="12"/>
+                                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                                        </svg>
+                                        <h4>Web Advisor</h4>
+                                    </div>
+                                    <p><strong>対象：</strong>汎用Webページ（スキーマ無し、またはWebPageのみ）</p>
+                                    <p><strong>分析内容：</strong></p>
+                                    <ul>
+                                        <li>SEO最適化提案（タイトル、メタタグ、見出し構造）</li>
+                                        <li>EEAT評価と改善アドバイス</li>
+                                        <li>アクセシビリティ評価</li>
+                                        <li>優先対応事項の提示</li>
+                                    </ul>
+                                </div>
                             </div>
                         </section>
 
-                        <!-- 表示モードの切り替え -->
+                        <!-- SEO分析機能 -->
                         <section class="modal-section">
-                            <h3>表示モードの切り替え</h3>
-                            <table class="modal-table">
+                            <h3 class="modal-section-title">SEO分析機能</h3>
+                            <p class="modal-lead-text">
+                                6つのタブでWebページを多角的に分析し、改善ポイントを明確化します。
+                            </p>
+                            <table class="modal-table modal-table--striped">
                                 <thead>
                                     <tr>
-                                        <th>モード</th>
-                                        <th>説明</th>
+                                        <th style="width: 25%;">タブ</th>
+                                        <th>分析内容</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td><strong>テーブル</strong></td>
-                                        <td>プロパティ名、値、型が見やすく表示されます。階層構造も分かりやすく表示されます。</td>
+                                        <td><strong>Schema</strong></td>
+                                        <td>JSON-LD構造化データの詳細表示。テーブル/JSON形式で切り替え可能。</td>
                                     </tr>
                                     <tr>
-                                        <td><strong>JSON</strong></td>
-                                        <td>生のJSON形式で表示されます。シンタックスハイライト付きで読みやすくフォーマットされています。</td>
+                                        <td><strong>HTML構造</strong></td>
+                                        <td>HTML要素数、見出しタグ（h1〜h6）の使用状況、ページ構造の分析。</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>概要・メタタグ</strong></td>
+                                        <td>SEOスコア、タイトルタグ、メタディスクリプション、Robotsタグの検証。</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>SNS</strong></td>
+                                        <td>Open Graph（Facebook/LinkedIn）、Twitter Cardsの設定確認。</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>改善ガイダンス</strong></td>
+                                        <td>検出された問題点と具体的な改善方法を優先度順に表示。</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>スキーマ学習</strong></td>
+                                        <td>JSON-LDの基礎知識と実装例。初心者向けガイド。</td>
                                     </tr>
                                 </tbody>
                             </table>
                         </section>
 
-                        <!-- 便利な機能 -->
+                        <!-- 基本操作 -->
                         <section class="modal-section">
-                            <h3>便利な機能</h3>
-                            <ul>
-                                <li><strong>スキーマ統計:</strong> 検出されたスキーマ数、プロパティ総数、ドメイン情報を表示</li>
-                                <li><strong>Schema.orgリンク:</strong> 各スキーマタイプの公式ドキュメントへのリンクを自動生成</li>
-                                <li><strong>Googleリファレンス:</strong> Googleの構造化データガイドへのリンクを提供</li>
-                                <li><strong>画像サムネイル:</strong> 画像URLは自動的にサムネイル表示されます</li>
-                                <li><strong>展開/折りたたみ:</strong> ネストされたオブジェクトをクリックして展開・折りたたみできます</li>
-                                <li><strong>コピー機能:</strong> 各スキーマをワンクリックでクリップボードにコピー</li>
-                            </ul>
+                            <h3 class="modal-section-title">基本操作</h3>
+                            <div class="modal-subsection">
+                                <h4 class="modal-subsection-title">1. URLを入力して分析開始</h4>
+                                <ol class="modal-ordered-list">
+                                    <li>画面上部のURL入力欄に、分析したいWebページのURLを貼り付けます</li>
+                                    <li>「取得」ボタンをクリック、またはEnterキーを押します</li>
+                                    <li>数秒後、分析結果が表示されます</li>
+                                </ol>
+                                <div class="modal-info-box modal-info-box--blue">
+                                    <p>
+                                        <strong>キーボードショートカット：</strong> Cmd+K（Mac）またはCtrl+K（Windows）でURL入力欄に素早くフォーカスできます。
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="modal-subsection">
+                                <h4 class="modal-subsection-title">2. Basic認証が必要なサイトの分析</h4>
+                                <p>ステージング環境などパスワード保護されたサイトも分析できます。</p>
+                                <ol class="modal-ordered-list">
+                                    <li>「Basic認証が必要な場合」セクションを展開</li>
+                                    <li>ユーザー名とパスワードを入力</li>
+                                    <li>認証情報の保存方法を選択（推奨：タブを閉じるまで保存）</li>
+                                    <li>URLを入力して分析を実行</li>
+                                </ol>
+                                <div class="modal-info-box modal-info-box--yellow">
+                                    <p>
+                                        <strong>セキュリティ：</strong> 認証情報はブラウザのみに保存され、サーバーには送信されません。重要な認証情報は「保存しない」を選択してください。
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="modal-subsection">
+                                <h4 class="modal-subsection-title">3. サンプルリンクの管理</h4>
+                                <p>よく使うURLを登録しておけば、ワンクリックで分析できます。</p>
+                                <div class="feature-list">
+                                    <div class="feature-list-item">
+                                        <div class="feature-list-icon">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <circle cx="12" cy="12" r="10"/>
+                                                <line x1="12" y1="8" x2="12" y2="16"/>
+                                                <line x1="8" y1="12" x2="16" y2="12"/>
+                                            </svg>
+                                        </div>
+                                        <div class="feature-list-content">
+                                            <strong>追加：</strong>「+ 追加」ボタンからURL名とアドレスを登録
+                                        </div>
+                                    </div>
+                                    <div class="feature-list-item">
+                                        <div class="feature-list-icon">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                            </svg>
+                                        </div>
+                                        <div class="feature-list-content">
+                                            <strong>編集：</strong>各URLの「編集」ボタンから情報を変更
+                                        </div>
+                                    </div>
+                                    <div class="feature-list-item">
+                                        <div class="feature-list-icon">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M3 6h18"/>
+                                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
+                                                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                            </svg>
+                                        </div>
+                                        <div class="feature-list-content">
+                                            <strong>削除：</strong>「削除」ボタンで不要なURLを削除
+                                        </div>
+                                    </div>
+                                    <div class="feature-list-item">
+                                        <div class="feature-list-icon">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polyline points="5 9 2 12 5 15"/>
+                                                <polyline points="9 5 12 2 15 5"/>
+                                                <polyline points="15 19 12 22 9 19"/>
+                                                <polyline points="19 9 22 12 19 15"/>
+                                            </svg>
+                                        </div>
+                                        <div class="feature-list-content">
+                                            <strong>並び替え：</strong>URLタグをドラッグ＆ドロップで順序変更
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </section>
 
-                        <!-- タブ機能の説明 -->
+                        <!-- 便利な機能 -->
                         <section class="modal-section">
-                            <h3>タブ機能</h3>
-                            <p>
-                                結果は4つのタブで表示されます：
-                            </p>
-                            <ul>
-                                <li><strong>Schema:</strong> JSON-LD構造化データの詳細表示</li>
-                                <li><strong>HTML構造:</strong> ページのHTML要素数や見出しタグの分析</li>
-                                <li><strong>概要・メタタグ:</strong> SEOスコアとメタタグの検証結果</li>
-                                <li><strong>SNS:</strong> Open GraphとTwitter Cardsの設定確認</li>
-                            </ul>
+                            <h3 class="modal-section-title">便利な機能</h3>
+                            <div class="utility-grid">
+                                <div class="utility-card">
+                                    <div class="utility-card-icon">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="5"/>
+                                            <line x1="12" y1="1" x2="12" y2="3"/>
+                                            <line x1="12" y1="21" x2="12" y2="23"/>
+                                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                                            <line x1="1" y1="12" x2="3" y2="12"/>
+                                            <line x1="21" y1="12" x2="23" y2="12"/>
+                                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                                        </svg>
+                                    </div>
+                                    <h4>テーマ切り替え</h4>
+                                    <p>ライトモード/ダークモードを切り替え可能。目に優しい表示を選択できます。</p>
+                                </div>
+                                <div class="utility-card">
+                                    <div class="utility-card-icon">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                        </svg>
+                                    </div>
+                                    <h4>My API</h4>
+                                    <p>独自のOpenAI APIキーを設定可能。レート制限なしでAI機能を無制限に利用できます。</p>
+                                </div>
+                                <div class="utility-card">
+                                    <div class="utility-card-icon">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                                        </svg>
+                                    </div>
+                                    <h4>コピー機能</h4>
+                                    <p>JSON-LDデータやAI分析結果をワンクリックでコピー。レポート作成に便利です。</p>
+                                </div>
+                                <div class="utility-card">
+                                    <div class="utility-card-icon">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="16 18 22 12 16 6"/>
+                                            <polyline points="8 6 2 12 8 18"/>
+                                        </svg>
+                                    </div>
+                                    <h4>開発者向け機能</h4>
+                                    <p>localhost環境のサイトも分析可能。開発中のページをリアルタイムで検証できます。</p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- API利用について -->
+                        <section class="modal-section">
+                            <h3 class="modal-section-title">API利用について</h3>
+                            <div class="modal-info-box modal-info-box--blue">
+                                <h4>無料版の利用制限</h4>
+                                <p>各AI Advisor機能は、ブラウザごとに<strong>50回/24時間</strong>まで無料で利用できます。</p>
+                                <ul style="margin: 8px 0 0 20px;">
+                                    <li>JobPosting Advisor: 50回/24時間</li>
+                                    <li>Blog Reviewer: 50回/24時間</li>
+                                    <li>Web Advisor: 50回/24時間</li>
+                                </ul>
+                                <p style="margin-top: 8px;">
+                                    <strong>注意：</strong>各Advisorは独立したカウントです。すべてのAdvisorを合わせて50回ではなく、各々が50回まで利用可能です。
+                                </p>
+                            </div>
+                            <div class="modal-info-box modal-info-box--green">
+                                <h4>無制限利用（My API）</h4>
+                                <p>独自のOpenAI APIキーを設定することで、レート制限なしで無制限に利用できます。</p>
+                                <ol style="margin: 8px 0 0 20px;">
+                                    <li>ヘッダーの「My API」ボタンをクリック</li>
+                                    <li>OpenAI APIキーを入力</li>
+                                    <li>使用したいモデルを選択</li>
+                                    <li>保存</li>
+                                </ol>
+                            </div>
                         </section>
                     </div>
                     <div class="modal-footer">

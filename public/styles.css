@@ -4592,3 +4592,309 @@ html[data-theme='dark'] .advisor-modal-close-btn:hover svg path {
     padding-bottom: calc(50vh + 20px + max(20px, env(safe-area-inset-bottom))) !important;
   }
 }
+
+/* ===================================================
+   Help Modal 拡張スタイル
+   =================================================== */
+
+/* より大きなModal */
+.modal-container--wide {
+  max-width: 900px;
+  width: 95%;
+}
+
+/* セクションタイトル */
+.modal-section-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 12px;
+  border-bottom: 2px solid var(--accent-color);
+  padding-bottom: 8px;
+}
+
+/* リードテキスト */
+.modal-lead-text {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--secondary-text-color);
+  margin-bottom: 16px;
+}
+
+/* 機能カードグリッド */
+.feature-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.feature-card {
+  background: var(--card-bg-color);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.feature-card--primary {
+  border-color: #3b82f6;
+}
+
+.feature-card--secondary {
+  border-color: #8b5cf6;
+}
+
+.feature-card--tertiary {
+  border-color: #10b981;
+}
+
+.feature-card-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 12px;
+  color: var(--accent-color);
+}
+
+.feature-card--primary .feature-card-icon {
+  color: #3b82f6;
+}
+
+.feature-card--secondary .feature-card-icon {
+  color: #8b5cf6;
+}
+
+.feature-card--tertiary .feature-card-icon {
+  color: #10b981;
+}
+
+.feature-card h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 8px;
+}
+
+.feature-card p {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--secondary-text-color);
+  margin: 0;
+}
+
+/* サブセクション */
+.modal-subsection {
+  margin-top: 20px;
+  padding: 16px;
+  background: var(--secondary-bg-color);
+  border-radius: 6px;
+}
+
+.modal-subsection-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 12px;
+}
+
+.modal-subsection p {
+  margin-bottom: 12px;
+}
+
+/* 機能リスト */
+.feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.feature-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.feature-list-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  color: var(--success-color);
+}
+
+.feature-list-content {
+  flex: 1;
+}
+
+.feature-list-content strong {
+  display: block;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 4px;
+}
+
+.feature-list-content p {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--secondary-text-color);
+  margin: 0;
+}
+
+/* Advisorカード */
+.advisor-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.advisor-card {
+  background: var(--card-bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.advisor-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.advisor-card-header svg {
+  flex-shrink: 0;
+  color: var(--accent-color);
+}
+
+.advisor-card-header h4 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 0;
+}
+
+.advisor-card p {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--secondary-text-color);
+  margin-bottom: 8px;
+}
+
+.advisor-card ul {
+  margin: 8px 0 0 20px;
+  padding: 0;
+}
+
+.advisor-card li {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--secondary-text-color);
+  margin-bottom: 4px;
+}
+
+/* テーブルのストライプバリエーション */
+.modal-table--striped tbody tr:nth-child(odd) {
+  background: var(--secondary-bg-color);
+}
+
+.modal-table--striped tbody tr:nth-child(even) {
+  background: var(--card-bg-color);
+}
+
+/* 番号付きリスト */
+.modal-ordered-list {
+  margin: 12px 0 12px 20px;
+  padding: 0;
+}
+
+.modal-ordered-list li {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-color);
+  margin-bottom: 8px;
+}
+
+/* ユーティリティグリッド */
+.utility-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.utility-card {
+  background: var(--card-bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 16px;
+  text-align: center;
+  transition: border-color 0.2s;
+}
+
+.utility-card:hover {
+  border-color: var(--accent-color);
+}
+
+.utility-card-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 12px;
+  color: var(--accent-color);
+}
+
+.utility-card h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 8px;
+}
+
+.utility-card p {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--secondary-text-color);
+  margin: 0;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .modal-container--wide {
+    width: 98%;
+    max-width: none;
+  }
+
+  .feature-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .advisor-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .utility-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-section-title {
+    font-size: 1.15rem;
+  }
+
+  .feature-card h4 {
+    font-size: 1rem;
+  }
+}
