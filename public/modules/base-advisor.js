@@ -2092,14 +2092,98 @@ class BaseAdvisorManager {
       content += `## ${index + 1}. ${role}\n\n${text}\n\n`;
     });
 
-    // BOM付きUTF-8でエンコード（Windows/Mac両方で文字化けしない）
-    const contentWithBom = '\ufeff' + content;
-    const blob = new Blob([contentWithBom], { type: 'text/markdown;charset=utf-8' });
+    // Markdownをレンダリングしてプレビュー用HTMLを生成
+    const previewHtml = this.renderMarkdownCommon(content);
+
+    // タイムスタンプとファイル名を事前に生成
     const timestamp = new Date().toISOString().replace(/:/g, '-').split('.')[0];
     const filename = `chat-history-${config.type}-${timestamp}.md`;
 
-    this.downloadFile(blob, filename);
-    console.log('[BaseAdvisor] Chat history exported:', filename);
+    // プレビューモーダルを表示
+    this.showExportPreview(
+      'チャット履歴エクスポート - プレビュー',
+      previewHtml,
+      () => {
+        // ダウンロード処理
+        const contentWithBom = '\ufeff' + content;
+        const blob = new Blob([contentWithBom], { type: 'text/markdown;charset=utf-8' });
+        this.downloadFile(blob, filename);
+        console.log('[BaseAdvisor] Chat history exported:', filename);
+      },
+      'markdown'
+    );
+  }
+
+  /**
+   * エクスポートプレビューモーダルを表示
+   * @param {string} title - モーダルのタイトル
+   * @param {string} content - プレビューする内容（HTML）
+   * @param {Function} onDownload - ダウンロードボタンクリック時のコールバック
+   * @param {string} type - プレビュータイプ（'table', 'html', 'markdown'）
+   */
+  showExportPreview(title, content, onDownload, type = 'html') {
+    const overlay = document.createElement('div');
+    overlay.className = 'export-preview-overlay';
+
+    overlay.innerHTML = `
+      <div class="export-preview-modal">
+        <div class="export-preview-header">
+          <h3 class="export-preview-title">${this.escapeHtml(title)}</h3>
+          <button type="button" class="export-preview-close" aria-label="閉じる">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        <div class="export-preview-content">
+          <div class="export-preview-${type}">${content}</div>
+        </div>
+        <div class="export-preview-footer">
+          <button type="button" class="export-preview-btn export-preview-btn-cancel">キャンセル</button>
+          <button type="button" class="export-preview-btn export-preview-btn-download">ダウンロード</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    // フェードイン
+    setTimeout(() => overlay.classList.add('active'), 10);
+
+    // 閉じる処理
+    const closePreview = () => {
+      overlay.classList.remove('active');
+      setTimeout(() => overlay.remove(), 300);
+    };
+
+    // イベントリスナー
+    const closeBtn = overlay.querySelector('.export-preview-close');
+    const cancelBtn = overlay.querySelector('.export-preview-btn-cancel');
+    const downloadBtn = overlay.querySelector('.export-preview-btn-download');
+
+    closeBtn.addEventListener('click', closePreview);
+    cancelBtn.addEventListener('click', closePreview);
+
+    downloadBtn.addEventListener('click', () => {
+      onDownload();
+      closePreview();
+    });
+
+    // オーバーレイクリックで閉じる
+    overlay.addEventListener('click', e => {
+      if (e.target === overlay) {
+        closePreview();
+      }
+    });
+
+    // Escキーで閉じる
+    const handleEscape = e => {
+      if (e.key === 'Escape') {
+        closePreview();
+        document.removeEventListener('keydown', handleEscape);
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
   }
 
   /**

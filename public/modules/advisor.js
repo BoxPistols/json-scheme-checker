@@ -693,17 +693,96 @@ class AdvisorManager extends BaseAdvisorManager {
       const adviceLines = adviceText.split('\n').filter(line => line.trim().length > 0);
       adviceLines.forEach(line => csvLines.push(`,${this.escapeCsvValue(line)}`));
 
-      // BOM付きUTF-8でエンコード（Excelで正常に表示される）
-      const csvContent = '\ufeff' + csvLines.join('\n');
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      // CSVをHTMLテーブルに変換してプレビュー
+      const previewHtml = this.generateCsvPreview(csvLines);
+
+      // ファイル名を事前に生成
       const filename = `advice_${this.currentMode}_${timestamp}.csv`;
 
-      this.downloadFile(blob, filename);
-      console.log('[Advisor] CSV export successful:', filename);
+      // プレビューモーダルを表示
+      this.showExportPreview(
+        'CSVエクスポート - プレビュー',
+        previewHtml,
+        () => {
+          // ダウンロード処理
+          const csvContent = '\ufeff' + csvLines.join('\n');
+          const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+          this.downloadFile(blob, filename);
+          console.log('[Advisor] CSV export successful:', filename);
+        },
+        'table'
+      );
     } catch (error) {
       console.error('[Advisor] CSV export failed:', error);
       alert('CSVエクスポートに失敗しました。');
     }
+  }
+
+  /**
+   * CSVデータをHTMLテーブルプレビューに変換
+   * @param {Array<string>} csvLines - CSVライン配列
+   * @returns {string} HTMLテーブル
+   */
+  generateCsvPreview(csvLines) {
+    let html = '<table class="csv-preview-table"><thead><tr>';
+
+    // ヘッダー行
+    const headerCells = csvLines[0].split(',');
+    headerCells.forEach(cell => {
+      html += `<th>${this.escapeHtml(cell)}</th>`;
+    });
+    html += '</tr></thead><tbody>';
+
+    // データ行
+    for (let i = 1; i < csvLines.length; i++) {
+      const cells = this.parseCsvLine(csvLines[i]);
+      html += '<tr>';
+      cells.forEach((cell, index) => {
+        // 空のセル（インデント用）は特別なスタイルを適用
+        const className = cell.trim() === '' && index === 0 ? 'csv-cell-indent' : '';
+        html += `<td class="${className}">${this.escapeHtml(cell)}</td>`;
+      });
+      html += '</tr>';
+    }
+
+    html += '</tbody></table>';
+    return html;
+  }
+
+  /**
+   * CSVラインをパースしてセル配列に変換（引用符を考慮）
+   * @param {string} line - CSVライン
+   * @returns {Array<string>} セル配列
+   */
+  parseCsvLine(line) {
+    const cells = [];
+    let currentCell = '';
+    let inQuotes = false;
+
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+
+      if (char === '"') {
+        if (inQuotes && line[i + 1] === '"') {
+          // エスケープされた引用符
+          currentCell += '"';
+          i++;
+        } else {
+          // 引用符の開始または終了
+          inQuotes = !inQuotes;
+        }
+      } else if (char === ',' && !inQuotes) {
+        // セルの区切り
+        cells.push(currentCell);
+        currentCell = '';
+      } else {
+        currentCell += char;
+      }
+    }
+
+    // 最後のセルを追加
+    cells.push(currentCell);
+    return cells;
   }
 
   /**
@@ -849,14 +928,26 @@ class AdvisorManager extends BaseAdvisorManager {
 </html>
       `;
 
-      // BOM付きUTF-8でエンコード（Windows/Mac両方で文字化けしない）
-      const htmlWithBom = '\ufeff' + htmlContent;
-      const blob = new Blob([htmlWithBom], { type: 'text/html;charset=utf-8;' });
+      // プレビュー用にHTMLをレンダリング（iframeで表示）
+      const previewHtml = htmlContent;
+
+      // ファイル名を事前に生成
       const dateStr = new Date().toISOString().split('T')[0];
       const filename = `advice_${this.currentMode}_${dateStr}.html`;
 
-      this.downloadFile(blob, filename);
-      console.log('[Advisor] PDF export successful (HTML形式):', filename);
+      // プレビューモーダルを表示
+      this.showExportPreview(
+        'HTML/PDFエクスポート - プレビュー',
+        previewHtml,
+        () => {
+          // ダウンロード処理
+          const htmlWithBom = '\ufeff' + htmlContent;
+          const blob = new Blob([htmlWithBom], { type: 'text/html;charset=utf-8;' });
+          this.downloadFile(blob, filename);
+          console.log('[Advisor] PDF export successful (HTML形式):', filename);
+        },
+        'html'
+      );
     } catch (error) {
       console.error('[Advisor] PDF export failed:', error);
       alert('PDFエクスポートに失敗しました。');
