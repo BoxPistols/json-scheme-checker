@@ -990,6 +990,10 @@ class BaseAdvisorManager {
       return;
     }
 
+    // チャット設定を保存（視点選択状態を保持）
+    this.chatConfig = config;
+    config.containerId = containerId;
+
     // ユニークなIDを生成
     const uniqueId = `advisorFloatingChatBtn-${config.type}-${Date.now()}`;
 
@@ -1009,8 +1013,16 @@ class BaseAdvisorManager {
         console.log('[BaseAdvisor] Floating chat button clicked');
         e.preventDefault();
         e.stopPropagation();
-        // 質問者選択モーダルを表示
-        this.showQuestionerModal(config);
+
+        // 既に視点が選択済みの場合は直接チャットを開く
+        if (this.chatConfig.questionerSelected) {
+          console.log('[BaseAdvisor] Questioner already selected, opening chat directly');
+          this.renderChatBoxCommon(containerId, this.chatConfig);
+        } else {
+          // 未選択の場合は質問者選択モーダルを表示
+          console.log('[BaseAdvisor] Questioner not selected, showing modal');
+          this.showQuestionerModal(this.chatConfig);
+        }
       });
     } else {
       console.error('[BaseAdvisor] Floating chat button not found:', uniqueId);
@@ -1164,11 +1176,16 @@ class BaseAdvisorManager {
               <span class="advisor-chat-btn-label">保存</span>
             </button>
             <button type="button" class="advisor-chat-collapse-btn" aria-label="チャットを折りたたむ" title="折りたたむ">
-              <span style="font-size: 1.2rem;">−</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
               <span class="advisor-chat-btn-label">最小化</span>
             </button>
             <button type="button" class="advisor-chat-close-btn" aria-label="チャットを閉じる" title="閉じる">
-              <span style="font-size: 1.2rem;">×</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
               <span class="advisor-chat-btn-label">閉じる</span>
             </button>
           </div>
@@ -1176,6 +1193,24 @@ class BaseAdvisorManager {
         <div class="advisor-chat-messages" id="${config.chatMessagesId}">
           <div class="advisor-chat-welcome">
             <p>フォローアップが必要ですか？</p>
+            ${
+              config.questioner
+                ? `
+            <div class="advisor-chat-sample-questions">
+              <p class="advisor-chat-sample-label">サンプル質問:</p>
+              ${this.getSampleQuestions(config.type, config.questioner.id)
+                .map(
+                  question => `
+                <button type="button" class="advisor-chat-sample-btn" data-sample-question="${this.escapeHtml(question)}">
+                  ${this.escapeHtml(question)}
+                </button>
+              `
+                )
+                .join('')}
+            </div>
+            `
+                : ''
+            }
           </div>
         </div>
         <div class="advisor-chat-input-wrapper">
@@ -1264,6 +1299,70 @@ class BaseAdvisorManager {
   }
 
   /**
+   * ペルソナに応じたサンプル質問を取得
+   * @param {string} type - Advisorタイプ ('advisor', 'blog-reviewer', 'web-advisor')
+   * @param {string} questionerId - 質問者ID ('employer', 'applicant', 'agent', など)
+   * @returns {Array<string>} サンプル質問の配列
+   */
+  getSampleQuestions(type, questionerId) {
+    const samples = {
+      advisor: {
+        employer: [
+          'この求人で不足している情報は何ですか？',
+          '競合他社と比較して、この求人の魅力をどう高められますか？',
+          '応募者を増やすために、どの項目を改善すべきですか？',
+        ],
+        applicant: [
+          'この求人で最も評価されるスキルは何ですか？',
+          '面接でアピールすべきポイントを教えてください',
+          'この企業の技術スタックで、キャリアはどう成長しますか？',
+        ],
+        agent: [
+          'この求人に最適な候補者の技術プロフィールは？',
+          '開発現場で使われる技術の実務的な使い方を教えてください',
+          '候補者との面談で確認すべき技術要件は何ですか？',
+        ],
+      },
+      'blog-reviewer': {
+        writer: [
+          'この記事の構成で改善すべき点はどこですか？',
+          'SEO効果を高めるために追加すべき要素は？',
+          '読者の離脱を防ぐために工夫できることは？',
+        ],
+        editor: [
+          '記事全体の品質を向上させるポイントは？',
+          'ターゲット読者に響く内容になっていますか？',
+          'コンテンツ戦略として不足している要素は？',
+        ],
+      },
+      'web-advisor': {
+        owner: [
+          'このページで最優先で改善すべき要素は何ですか？',
+          'ユーザー体験を向上させるための具体的な施策は？',
+          'コンバージョン率を改善するにはどうすればいいですか？',
+        ],
+        marketer: [
+          'SEO観点でこのページの課題はどこですか？',
+          'SNSでのシェアを増やすための改善点は？',
+          '流入経路ごとに最適化すべき要素はありますか？',
+        ],
+      },
+    };
+
+    // タイプとquestionerIdに対応するサンプルを返す
+    if (samples[type] && samples[type][questionerId]) {
+      return samples[type][questionerId];
+    }
+
+    // デフォルト（汎用的な質問）
+    return [
+      'この内容で改善すべきポイントは何ですか？',
+      '最も重要な課題は何ですか？',
+      '具体的な改善提案を教えてください',
+    ];
+  }
+
+  /**
    * チャットUI制御を初期化
    * @param {string} containerId - コンテナID
    * @param {object} config - チャット設定
@@ -1288,6 +1387,13 @@ class BaseAdvisorManager {
       if (isFullscreen) {
         // 全画面モード解除
         chatBox.classList.remove('advisor-chat-fullscreen');
+
+        // viewport調整で設定したスタイルをクリア
+        chatBox.style.removeProperty('height');
+        chatBox.style.removeProperty('max-height');
+        chatBox.style.removeProperty('top');
+        chatBox.style.removeProperty('bottom');
+
         if (expandBtn) {
           expandBtn.setAttribute('title', '全画面表示');
           expandBtn.setAttribute('aria-label', '全画面表示に切り替え');
@@ -1296,11 +1402,32 @@ class BaseAdvisorManager {
       } else {
         // 全画面モード有効化
         chatBox.classList.add('advisor-chat-fullscreen');
+
+        // ドラッグによる位置調整をクリア（全画面表示時は画面全体に表示）
+        chatBox.style.left = '';
+        chatBox.style.top = '';
+        chatBox.style.right = '';
+        chatBox.style.bottom = '';
+        chatBox.style.transform = '';
+
         if (expandBtn) {
           expandBtn.setAttribute('title', '全画面解除');
           expandBtn.setAttribute('aria-label', '全画面を解除');
         }
         console.log('[BaseAdvisor] Fullscreen mode enabled');
+
+        // visualViewportが利用可能な場合は即座にサイズ調整
+        if ('visualViewport' in window && window.visualViewport) {
+          const viewport = window.visualViewport;
+          const viewportHeight = viewport.height;
+          const viewportOffsetTop = viewport.offsetTop;
+          const maxHeight = viewportHeight - 20;
+
+          chatBox.style.setProperty('height', `${maxHeight}px`, 'important');
+          chatBox.style.setProperty('max-height', `${maxHeight}px`, 'important');
+          chatBox.style.setProperty('top', `${viewportOffsetTop + 10}px`, 'important');
+          chatBox.style.setProperty('bottom', 'auto', 'important');
+        }
       }
     };
 
@@ -1353,11 +1480,14 @@ class BaseAdvisorManager {
     // 折りたたみボタン
     if (collapseBtn) {
       collapseBtn.addEventListener('click', () => {
-        chatBox.classList.toggle('advisor-chat-collapsed');
-        const icon = collapseBtn.querySelector('span:first-child');
-        if (icon) {
-          icon.textContent = chatBox.classList.contains('advisor-chat-collapsed') ? '+' : '−';
+        // 全画面モードの場合は先に全画面を解除
+        const isFullscreen = chatBox.classList.contains('advisor-chat-fullscreen');
+        if (isFullscreen) {
+          toggleFullscreen();
         }
+
+        // 折りたたみをトグル
+        chatBox.classList.toggle('advisor-chat-collapsed');
       });
     }
 
@@ -1365,6 +1495,13 @@ class BaseAdvisorManager {
     if (expandBtn && chatBox) {
       expandBtn.addEventListener('click', e => {
         e.stopPropagation(); // ドラッグイベントとの衝突を防ぐ
+
+        // 折りたたみ状態の場合は先に解除
+        if (chatBox.classList.contains('advisor-chat-collapsed')) {
+          chatBox.classList.remove('advisor-chat-collapsed');
+        }
+
+        // 全画面表示を切り替え
         toggleFullscreen();
       });
     }
@@ -1409,27 +1546,32 @@ class BaseAdvisorManager {
           // 全画面モード時のみ調整
           if (chatBox.classList.contains('advisor-chat-fullscreen')) {
             const viewport = window.visualViewport;
-            const scale = viewport.scale;
-
-            // キーボードが表示されているかをビューポートの高さで判定
             const viewportHeight = viewport.height;
-            const windowHeight = window.innerHeight;
+            const viewportOffsetTop = viewport.offsetTop;
 
-            if (viewportHeight < windowHeight * 0.7) {
-              // キーボードが表示されている（ビューポートが70%以下に縮小）
-              console.log('[BaseAdvisor] Keyboard detected, viewport height:', viewportHeight);
+            // ビューポートの高さに合わせてチャットボックスのサイズを調整
+            // 上下に10pxずつマージンを確保
+            const maxHeight = viewportHeight - 20;
 
-              // チャットボックスの高さを調整
-              chatBox.style.height = `${viewportHeight - 20}px`;
-            } else {
-              // キーボードが非表示
-              chatBox.style.height = '';
-            }
+            console.log('[BaseAdvisor] Viewport resize detected:', {
+              viewportHeight,
+              viewportOffsetTop,
+              maxHeight,
+            });
+
+            // チャットボックスの高さと位置を調整
+            chatBox.style.setProperty('height', `${maxHeight}px`, 'important');
+            chatBox.style.setProperty('max-height', `${maxHeight}px`, 'important');
+            chatBox.style.setProperty('top', `${viewportOffsetTop + 10}px`, 'important');
+            chatBox.style.setProperty('bottom', 'auto', 'important');
           }
         };
 
         window.visualViewport.addEventListener('resize', handleViewportResize);
         window.visualViewport.addEventListener('scroll', handleViewportResize);
+
+        // 初回実行（全画面モード時に即座に適用）
+        handleViewportResize();
       }
     }
 
@@ -1719,6 +1861,21 @@ class BaseAdvisorManager {
       }
     });
 
+    // サンプル質問ボタンのクリックイベント
+    const sampleButtons = document.querySelectorAll('.advisor-chat-sample-btn');
+    sampleButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const question = btn.dataset.sampleQuestion;
+        if (question) {
+          // 質問を入力欄にセットして送信
+          inputEl.value = question;
+          this.sendChatMessageCommon(question, config);
+          inputEl.value = '';
+          inputEl.focus();
+        }
+      });
+    });
+
     // 初期フォーカス
     inputEl.focus();
   }
@@ -1935,14 +2092,182 @@ class BaseAdvisorManager {
       content += `## ${index + 1}. ${role}\n\n${text}\n\n`;
     });
 
-    // BOM付きUTF-8でエンコード（Windows/Mac両方で文字化けしない）
-    const contentWithBom = '\ufeff' + content;
-    const blob = new Blob([contentWithBom], { type: 'text/markdown;charset=utf-8' });
+    // Markdownをレンダリングしてプレビュー用HTMLを生成
+    const previewHtml = this.renderMarkdownCommon(content);
+
+    // タイムスタンプとファイル名を事前に生成
     const timestamp = new Date().toISOString().replace(/:/g, '-').split('.')[0];
     const filename = `chat-history-${config.type}-${timestamp}.md`;
 
-    this.downloadFile(blob, filename);
-    console.log('[BaseAdvisor] Chat history exported:', filename);
+    // プレビューモーダルを表示
+    this.showExportPreview(
+      'チャット履歴エクスポート - プレビュー',
+      previewHtml,
+      () => {
+        // ダウンロード処理
+        const contentWithBom = '\ufeff' + content;
+        const blob = new Blob([contentWithBom], { type: 'text/markdown;charset=utf-8' });
+        this.downloadFile(blob, filename);
+        console.log('[BaseAdvisor] Chat history exported:', filename);
+      },
+      'markdown'
+    );
+  }
+
+  /**
+   * エクスポートプレビューモーダルを表示
+   * @param {string} title - モーダルのタイトル
+   * @param {string} content - プレビューする内容（HTML）
+   * @param {Function} onDownload - ダウンロードボタンクリック時のコールバック
+   * @param {string} type - プレビュータイプ（'table', 'html', 'markdown'）
+   */
+  showExportPreview(title, content, onDownload, type = 'html') {
+    const overlay = document.createElement('div');
+    overlay.className = 'export-preview-overlay';
+
+    overlay.innerHTML = `
+      <div class="export-preview-modal">
+        <div class="export-preview-header">
+          <h3 class="export-preview-title">${this.escapeHtml(title)}</h3>
+          <button type="button" class="export-preview-close" aria-label="閉じる">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        <div class="export-preview-content">
+          <div class="export-preview-${type}">${content}</div>
+        </div>
+        <div class="export-preview-footer">
+          <button type="button" class="export-preview-btn export-preview-btn-cancel">キャンセル</button>
+          <button type="button" class="export-preview-btn export-preview-btn-download">ダウンロード</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    // フェードイン
+    setTimeout(() => overlay.classList.add('active'), 10);
+
+    // 閉じる処理
+    const closePreview = () => {
+      overlay.classList.remove('active');
+      setTimeout(() => overlay.remove(), 300);
+    };
+
+    // イベントリスナー
+    const closeBtn = overlay.querySelector('.export-preview-close');
+    const cancelBtn = overlay.querySelector('.export-preview-btn-cancel');
+    const downloadBtn = overlay.querySelector('.export-preview-btn-download');
+
+    closeBtn.addEventListener('click', closePreview);
+    cancelBtn.addEventListener('click', closePreview);
+
+    downloadBtn.addEventListener('click', () => {
+      onDownload();
+      closePreview();
+    });
+
+    // オーバーレイクリックで閉じる
+    overlay.addEventListener('click', e => {
+      if (e.target === overlay) {
+        closePreview();
+      }
+    });
+
+    // Escキーで閉じる
+    const handleEscape = e => {
+      if (e.key === 'Escape') {
+        closePreview();
+        document.removeEventListener('keydown', handleEscape);
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+  }
+
+  /**
+   * リサイズハンドルを初期化（PC時のみ）
+   * @param {string} target - advisor, blog-reviewer, web-advisorのいずれか
+   */
+  initResizeHandle(target) {
+    // モバイルではリサイズ無効
+    if (window.innerWidth <= 768) {
+      return;
+    }
+
+    const handle = document.querySelector(`.advisor-resize-handle[data-resize-target="${target}"]`);
+    const leftPanel = handle?.previousElementSibling;
+    const viewContent = handle?.parentElement;
+
+    if (!handle || !leftPanel || !viewContent) {
+      console.warn('[BaseAdvisor] Resize handle not found for', target);
+      return;
+    }
+
+    // 保存された幅を復元
+    const storageKey = `advisor-panel-width-${target}`;
+    const savedWidth = localStorage.getItem(storageKey);
+    if (savedWidth) {
+      leftPanel.style.flex = `0 0 ${savedWidth}`;
+    }
+
+    let isResizing = false;
+    let startX = 0;
+    let startWidth = 0;
+
+    const handleMouseDown = e => {
+      isResizing = true;
+      startX = e.clientX;
+      startWidth = leftPanel.offsetWidth;
+
+      // カーソルをドキュメント全体に適用
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+
+      e.preventDefault();
+    };
+
+    const handleMouseMove = e => {
+      if (!isResizing) return;
+
+      const containerWidth = viewContent.offsetWidth;
+      const handleWidth = handle.offsetWidth;
+      const deltaX = e.clientX - startX;
+      const newWidth = startWidth + deltaX;
+
+      // 最小幅300px、最大80%
+      const minWidth = 300;
+      const maxWidth = containerWidth * 0.8 - handleWidth;
+
+      if (newWidth >= minWidth && newWidth <= maxWidth) {
+        const widthPercent = ((newWidth / containerWidth) * 100).toFixed(2) + '%';
+        leftPanel.style.flex = `0 0 ${widthPercent}`;
+      }
+    };
+
+    const handleMouseUp = () => {
+      if (!isResizing) return;
+
+      isResizing = false;
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+
+      // 幅を保存
+      const currentWidth = leftPanel.style.flex.split(' ')[2];
+      localStorage.setItem(storageKey, currentWidth);
+      console.log('[BaseAdvisor] Panel width saved:', currentWidth);
+    };
+
+    handle.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+
+    // クリーンアップ用に参照を保存
+    handle._resizeCleanup = () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
   }
 
   /**

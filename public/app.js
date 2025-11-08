@@ -205,84 +205,92 @@ function togglePasswordVisibility() {
   }
 }
 
-// セキュリティ解説Modalを表示
-function showSecurityModal() {
-  const modal = document.getElementById('securityModal');
+// ===================================================
+// モーダル共通ユーティリティ関数
+// ===================================================
+
+/**
+ * モーダルを開く共通関数
+ * - モーダルを表示
+ * - 背景（body）のスクロールを無効化
+ * @param {string} modalId - モーダル要素のID
+ */
+function openModal(modalId) {
+  const modal = document.getElementById(modalId);
   if (modal) {
     modal.classList.add('modal-overlay--visible');
+    // 背景のスクロールを無効化
+    document.body.style.overflow = 'hidden';
   }
+}
+
+/**
+ * モーダルを閉じる共通関数
+ * - モーダルを非表示
+ * - 背景（body）のスクロールを有効化
+ * @param {string} modalId - モーダル要素のID
+ */
+function closeModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.classList.remove('modal-overlay--visible');
+    // 背景のスクロールを有効化
+    document.body.style.overflow = '';
+  }
+}
+
+// ===================================================
+// 個別モーダル関数（共通関数を使用）
+// ===================================================
+
+// セキュリティ解説Modalを表示
+function showSecurityModal() {
+  openModal('securityModal');
 }
 
 // セキュリティ解説Modalを閉じる
 function closeSecurityModal() {
-  const modal = document.getElementById('securityModal');
-  if (modal) {
-    modal.classList.remove('modal-overlay--visible');
-  }
+  closeModal('securityModal');
 }
 
 // 使い方解説Modalを表示
 function showGuideModal() {
-  const modal = document.getElementById('guideModal');
-  if (modal) {
-    modal.classList.add('modal-overlay--visible');
-  }
+  openModal('guideModal');
 }
 
 // 使い方解説Modalを閉じる
 function closeGuideModal() {
-  const modal = document.getElementById('guideModal');
-  if (modal) {
-    modal.classList.remove('modal-overlay--visible');
-  }
+  closeModal('guideModal');
 }
 
 // Robots メタタグ設定ガイド Modal を開く
 function showRobotsModal() {
-  const modal = document.getElementById('robotsGuideModal');
-  if (modal) {
-    modal.classList.add('modal-overlay--visible');
-  }
+  openModal('robotsGuideModal');
 }
 
 // Robots メタタグ設定ガイド Modal を閉じる
 function closeRobotsModal() {
-  const modal = document.getElementById('robotsGuideModal');
-  if (modal) {
-    modal.classList.remove('modal-overlay--visible');
-  }
+  closeModal('robotsGuideModal');
 }
 
 // Twitter Card 設定ガイド Modal を開く
 function showTwitterCardModal() {
-  const modal = document.getElementById('twitterCardGuideModal');
-  if (modal) {
-    modal.classList.add('modal-overlay--visible');
-  }
+  openModal('twitterCardGuideModal');
 }
 
 // Twitter Card 設定ガイド Modal を閉じる
 function closeTwitterCardModal() {
-  const modal = document.getElementById('twitterCardGuideModal');
-  if (modal) {
-    modal.classList.remove('modal-overlay--visible');
-  }
+  closeModal('twitterCardGuideModal');
 }
 
 // Open Graph 設定ガイド Modal を開く
 function showOpenGraphModal() {
-  const modal = document.getElementById('openGraphGuideModal');
-  if (modal) {
-    modal.classList.add('modal-overlay--visible');
-  }
+  openModal('openGraphGuideModal');
 }
 
 // Open Graph 設定ガイド Modal を閉じる
 function closeOpenGraphModal() {
-  const modal = document.getElementById('openGraphGuideModal');
-  if (modal) {
-    modal.classList.remove('modal-overlay--visible');
-  }
+  closeModal('openGraphGuideModal');
 }
 
 // Modalの背景クリックで閉じる
@@ -317,6 +325,50 @@ document.addEventListener('DOMContentLoaded', () => {
       subtitle.style.color = '#ff6b6b';
       subtitle.textContent += ' [デバッグモード: モックデータを使用]';
     }
+
+    // モックデータを自動的にロードして表示
+    console.log('[DEBUG] Auto-loading mock data for UI preview...');
+
+    // URLフィールドにモックURLを自動入力
+    const urlInput = document.getElementById('urlInput');
+    if (urlInput) {
+      urlInput.value = 'https://example.com/mock-jobposting';
+      console.log('[DEBUG] Mock URL set in input field');
+    }
+
+    // 少し遅延させてから各Advisorのモックデータを表示
+    setTimeout(() => {
+      // JobPosting Advisor のモックデータを自動表示
+      if (window.advisorManager && window.DEBUG_MOCK_DATA?.jobPosting?.sample1) {
+        console.log('[DEBUG] Loading JobPosting Advisor mock data...');
+        const mockData = window.DEBUG_MOCK_DATA.jobPosting.sample1;
+
+        // JSON-LDデータを設定
+        window.advisorManager.currentJobPosting = mockData.data;
+
+        // 採用側の視点でモック分析を実行
+        console.log('[DEBUG] Starting analysis with employer perspective...');
+        window.advisorManager.startAnalysis('employer');
+      }
+
+      // Blog Reviewer のモックデータを自動表示（タブがあれば）
+      if (window.blogReviewerManager && window.DEBUG_MOCK_DATA?.blog?.sample1) {
+        console.log('[DEBUG] Loading Blog Reviewer mock data...');
+        const mockData = window.DEBUG_MOCK_DATA.blog.sample1;
+        window.blogReviewerManager.jsonldData = mockData.data;
+        // 必要に応じて分析を開始
+        // window.blogReviewerManager.startReview();
+      }
+
+      // Web Advisor のモックデータを自動表示（タブがあれば）
+      if (window.webAdvisorManager && window.DEBUG_MOCK_DATA?.web?.sample1) {
+        console.log('[DEBUG] Loading Web Advisor mock data...');
+        const mockData = window.DEBUG_MOCK_DATA.web.sample1;
+        window.webAdvisorManager.pageData = mockData.data;
+        // 必要に応じて分析を開始
+        // window.webAdvisorManager.startAnalysis();
+      }
+    }, 500);
   }
 
   // モーダル関連のイベントリスナー
@@ -606,12 +658,20 @@ const COLLAPSE_SUMMARY_CARD_KEY = 'jsonld_ui_summary_card_open';
 // サンプルURLの管理
 const SAMPLE_URLS_KEY = 'jsonld_sample_urls';
 const DEFAULT_SAMPLE_URLS = [
-  { label: 'f-hub', url: 'https://freelance-hub.jp/project/detail/281563/' },
-  { label: 'f-job', url: 'https://freelance-job.com/job/detail/146243' },
-  { label: 'PE-BANK', url: 'https://pe-bank.jp/project/aws/47302-18/' },
-  { label: 'RecruitAgent', url: 'https://www.r-agent.com/kensaku/kyujin/20250107-188-01-052.html' },
-  { label: 'levtech', url: 'https://freelance.levtech.jp/project/detail/28421/' },
-  { label: 'レバテックLAB', url: 'https://levtech.jp/media/article/focus/detail_680/' },
+  // 求人サイト
+  { label: '求人: レバテック', url: 'https://freelance.levtech.jp/project/detail/28421/' },
+  { label: '求人: PE-BANK', url: 'https://pe-bank.jp/project/aws/47302-18/' },
+
+  // テックブログ
+  { label: 'Tech: Zenn React', url: 'https://zenn.dev/topics/react' },
+  { label: 'Tech: Qiita TS', url: 'https://qiita.com/tags/typescript' },
+
+  // ブログ・メディア
+  { label: 'Blog: レバテックLAB', url: 'https://levtech.jp/media/article/focus/detail_680/' },
+  { label: 'News: ITmedia', url: 'https://www.itmedia.co.jp/news/' },
+
+  // コーポレートサイト
+  { label: '企業: サイボウズ', url: 'https://cybozu.co.jp/company/' },
 ];
 
 // サンプルURLリストを読み込み
@@ -1478,7 +1538,7 @@ function displaySchemas(schemas, url) {
 
   // 1. JobPosting検出
   if (typeof advisorManager !== 'undefined') {
-    if (advisorManager.detectJobPosting(schemas)) {
+    if (advisorManager.detectJobPosting(schemas, url)) {
       console.log('[App] JobPosting検出 → Advisor');
       hasSpecializedAdvisor = true;
     }
@@ -1486,7 +1546,7 @@ function displaySchemas(schemas, url) {
 
   // 2. Article/BlogPosting検出
   if (typeof blogReviewerManager !== 'undefined') {
-    if (blogReviewerManager.detectBlogPost(schemas)) {
+    if (blogReviewerManager.detectBlogPost(schemas, url)) {
       console.log('[App] BlogPost検出 → BlogReviewer');
       hasSpecializedAdvisor = true;
     }
@@ -2039,17 +2099,14 @@ function openDeveloperSettingsModal() {
   // ラジオボタンの切り替えイベントを設定
   setupApiModeToggle();
 
-  modal.classList.add('modal-overlay--visible');
-  document.body.style.overflow = 'hidden';
+  // 共通関数を使用してモーダルを開く
+  openModal('developerSettingsModal');
 }
 
 // モーダルを閉じる
 function closeDeveloperSettingsModal() {
-  const modal = document.getElementById('developerSettingsModal');
-  if (!modal) return;
-
-  modal.classList.remove('modal-overlay--visible');
-  document.body.style.overflow = '';
+  // 共通関数を使用してモーダルを閉じる
+  closeModal('developerSettingsModal');
 }
 
 // APIモードの切り替え設定

@@ -47,13 +47,14 @@ class AdvisorManager extends BaseAdvisorManager {
     this.perspectiveCache = {}; // 視点ごとのキャッシュ
   }
 
-  detectJobPosting(jsonLdData) {
+  detectJobPosting(jsonLdData, url) {
     this.hideAdvisorButton();
     const jobPosting = jsonLdData.find(
       item => item['@type'] === 'JobPosting' || item['@type']?.includes('JobPosting')
     );
     if (jobPosting) {
       this.currentJobPosting = jobPosting;
+      this.currentUrl = url;
       this.showAdvisorButton();
       return true;
     }
@@ -148,6 +149,7 @@ class AdvisorManager extends BaseAdvisorManager {
           </h3>
           <div class="advisor-job-content advisor-accordion-content" id="advisorJobContent">${this.formatJobPosting(this.currentJobPosting)}</div>
         </div>
+        <div class="advisor-resize-handle" data-resize-target="advisor"></div>
         <div class="advisor-advice-panel">
           <h3 class="advisor-accordion-header" data-action="advisor-toggle-advice-section">
             <span class="advisor-accordion-icon">▼</span>AI分析結果
@@ -180,6 +182,11 @@ class AdvisorManager extends BaseAdvisorManager {
     );
     container.style.display = 'none';
     advisorView.classList.add('advisor-view');
+
+    // リサイズハンドルを初期化
+    setTimeout(() => {
+      this.initResizeHandle('advisor');
+    }, 10);
   }
 
   closeAdvisorView() {
@@ -203,7 +210,46 @@ class AdvisorManager extends BaseAdvisorManager {
   formatJobPosting(job) {
     const title = job.title || '不明';
     const description = this.formatDescription(job.description || '説明なし');
-    return `<div class="job-field"><label>職種</label><div>${this.escapeHtml(title)}</div></div><div class="job-field"><label>職務内容</label><div>${description}</div></div>`;
+    const company = job.hiringOrganization?.name || '不明';
+    const location = job.jobLocation?.address?.addressLocality || job.jobLocation?.address?.addressRegion || '不明';
+
+    let html = '';
+
+    // URL情報
+    if (this.currentUrl) {
+      html += `
+        <div class="job-field">
+          <label>分析元URL</label>
+          <div class="job-value">
+            <a href="${this.escapeHtml(this.currentUrl)}" target="_blank" rel="noopener noreferrer" style="color: var(--link-color); text-decoration: underline; word-break: break-all;">
+              ${this.escapeHtml(this.currentUrl)}
+            </a>
+          </div>
+        </div>
+      `;
+    }
+
+    // メタタグ情報
+    html += `
+      <div class="job-field">
+        <label>企業名</label>
+        <div class="job-value">${this.escapeHtml(company)}</div>
+      </div>
+      <div class="job-field">
+        <label>勤務地</label>
+        <div class="job-value">${this.escapeHtml(location)}</div>
+      </div>
+      <div class="job-field">
+        <label>職種</label>
+        <div class="job-value">${this.escapeHtml(title)}</div>
+      </div>
+      <div class="job-field">
+        <label>職務内容</label>
+        <div class="job-value job-description">${description}</div>
+      </div>
+    `;
+
+    return html;
   }
 
   formatDescription(text) {
@@ -627,13 +673,6 @@ class AdvisorManager extends BaseAdvisorManager {
       // ヘッダー行
       csvLines.push('項目,値');
 
-      // メタデータ
-      csvLines.push(`エクスポート日時,${new Date().toLocaleString('ja-JP')}`);
-      csvLines.push(`視点,${modeLabel}`);
-      csvLines.push(`使用モデル,${this.currentModel}`);
-      csvLines.push(`入力トークン数,${this.currentUsage.prompt_tokens}`);
-      csvLines.push(`出力トークン数,${this.currentUsage.completion_tokens}`);
-
       // 求人情報（セクションヘッダー）
       csvLines.push('求人情報（タイトル）,');
       const jobLines = jobText.split('\n').filter(line => line.trim().length > 0);
@@ -647,17 +686,102 @@ class AdvisorManager extends BaseAdvisorManager {
       const adviceLines = adviceText.split('\n').filter(line => line.trim().length > 0);
       adviceLines.forEach(line => csvLines.push(`,${this.escapeCsvValue(line)}`));
 
-      // BOM付きUTF-8でエンコード（Excelで正常に表示される）
-      const csvContent = '\ufeff' + csvLines.join('\n');
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      // メタデータ（最下部）
+      csvLines.push(','); // 空行
+      csvLines.push(`使用モデル,${this.currentModel}`);
+      csvLines.push(`入力トークン数,${this.currentUsage.prompt_tokens}`);
+      csvLines.push(`出力トークン数,${this.currentUsage.completion_tokens}`);
+
+      // CSVをHTMLテーブルに変換してプレビュー
+      const previewHtml = this.generateCsvPreview(csvLines);
+
+      // ファイル名を事前に生成
       const filename = `advice_${this.currentMode}_${timestamp}.csv`;
 
-      this.downloadFile(blob, filename);
-      console.log('[Advisor] CSV export successful:', filename);
+      // プレビューモーダルを表示
+      this.showExportPreview(
+        'CSVエクスポート - プレビュー',
+        previewHtml,
+        () => {
+          // ダウンロード処理
+          const csvContent = '\ufeff' + csvLines.join('\n');
+          const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+          this.downloadFile(blob, filename);
+          console.log('[Advisor] CSV export successful:', filename);
+        },
+        'table'
+      );
     } catch (error) {
       console.error('[Advisor] CSV export failed:', error);
       alert('CSVエクスポートに失敗しました。');
     }
+  }
+
+  /**
+   * CSVデータをHTMLテーブルプレビューに変換
+   * @param {Array<string>} csvLines - CSVライン配列
+   * @returns {string} HTMLテーブル
+   */
+  generateCsvPreview(csvLines) {
+    let html = '<table class="csv-preview-table"><thead><tr>';
+
+    // ヘッダー行
+    const headerCells = csvLines[0].split(',');
+    headerCells.forEach(cell => {
+      html += `<th>${this.escapeHtml(cell)}</th>`;
+    });
+    html += '</tr></thead><tbody>';
+
+    // データ行
+    for (let i = 1; i < csvLines.length; i++) {
+      const cells = this.parseCsvLine(csvLines[i]);
+      html += '<tr>';
+      cells.forEach((cell, index) => {
+        // 空のセル（インデント用）は特別なスタイルを適用
+        const className = cell.trim() === '' && index === 0 ? 'csv-cell-indent' : '';
+        html += `<td class="${className}">${this.escapeHtml(cell)}</td>`;
+      });
+      html += '</tr>';
+    }
+
+    html += '</tbody></table>';
+    return html;
+  }
+
+  /**
+   * CSVラインをパースしてセル配列に変換（引用符を考慮）
+   * @param {string} line - CSVライン
+   * @returns {Array<string>} セル配列
+   */
+  parseCsvLine(line) {
+    const cells = [];
+    let currentCell = '';
+    let inQuotes = false;
+
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+
+      if (char === '"') {
+        if (inQuotes && line[i + 1] === '"') {
+          // エスケープされた引用符
+          currentCell += '"';
+          i++;
+        } else {
+          // 引用符の開始または終了
+          inQuotes = !inQuotes;
+        }
+      } else if (char === ',' && !inQuotes) {
+        // セルの区切り
+        cells.push(currentCell);
+        currentCell = '';
+      } else {
+        currentCell += char;
+      }
+    }
+
+    // 最後のセルを追加
+    cells.push(currentCell);
+    return cells;
   }
 
   /**
@@ -720,22 +844,14 @@ class AdvisorManager extends BaseAdvisorManager {
       font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif;
       margin: 20px;
       line-height: 1.6;
-      color: #333;
+      color: #1a1a1a;
+      background-color: #ffffff;
     }
     h1 {
       text-align: center;
       border-bottom: 2px solid #5a7ca3;
       padding-bottom: 10px;
       color: #5a7ca3;
-    }
-    .metadata {
-      background-color: #f5f7fa;
-      padding: 15px;
-      border-radius: 4px;
-      margin: 20px 0;
-    }
-    .metadata p {
-      margin: 8px 0;
     }
     .section {
       margin: 30px 0;
@@ -748,21 +864,32 @@ class AdvisorManager extends BaseAdvisorManager {
       color: #2c3e50;
     }
     .content {
-      background-color: #ffffff;
+      background-color: #fafafa;
       padding: 15px;
-      border: 1px solid #e2e8f0;
+      border: 1px solid #e0e0e0;
       border-radius: 4px;
       white-space: pre-wrap;
       word-wrap: break-word;
       font-size: 13px;
+      color: #1a1a1a;
     }
     .footer {
       text-align: center;
       margin-top: 40px;
       padding-top: 20px;
-      border-top: 1px solid #e2e8f0;
-      font-size: 12px;
-      color: #999;
+      border-top: 1px solid #e0e0e0;
+      font-size: 11px;
+      color: #666;
+    }
+    .footer .metadata {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #e0e0e0;
+      font-size: 10px;
+      color: #888;
+    }
+    .footer .metadata p {
+      margin: 4px 0;
     }
     @media print {
       body { margin: 0; }
@@ -772,13 +899,6 @@ class AdvisorManager extends BaseAdvisorManager {
 </head>
 <body>
   <h1>AI分析結果エクスポート</h1>
-
-  <div class="metadata">
-    <p><strong>エクスポート日時:</strong> ${timestamp}</p>
-    <p><strong>視点:</strong> ${modeLabel}</p>
-    <p><strong>使用モデル:</strong> ${this.currentModel}</p>
-    <p><strong>トークン使用数:</strong> 入力 ${this.currentUsage.prompt_tokens}、出力 ${this.currentUsage.completion_tokens}</p>
-  </div>
 
   <div class="section">
     <h2>求人情報</h2>
@@ -793,6 +913,10 @@ class AdvisorManager extends BaseAdvisorManager {
   <div class="footer">
     <p>このドキュメントは自動生成されました。</p>
     <p>ブラウザの「印刷」機能から「PDFに保存」を選択してダウンロードしてください。</p>
+    <div class="metadata">
+      <p>エクスポート日時: ${timestamp} | 視点: ${modeLabel}</p>
+      <p>使用モデル: ${this.currentModel} | トークン使用数: 入力 ${this.currentUsage.prompt_tokens}、出力 ${this.currentUsage.completion_tokens}</p>
+    </div>
   </div>
 
   <script>
@@ -803,14 +927,26 @@ class AdvisorManager extends BaseAdvisorManager {
 </html>
       `;
 
-      // BOM付きUTF-8でエンコード（Windows/Mac両方で文字化けしない）
-      const htmlWithBom = '\ufeff' + htmlContent;
-      const blob = new Blob([htmlWithBom], { type: 'text/html;charset=utf-8;' });
+      // プレビュー用にHTMLをレンダリング（iframeで表示）
+      const previewHtml = htmlContent;
+
+      // ファイル名を事前に生成
       const dateStr = new Date().toISOString().split('T')[0];
       const filename = `advice_${this.currentMode}_${dateStr}.html`;
 
-      this.downloadFile(blob, filename);
-      console.log('[Advisor] PDF export successful (HTML形式):', filename);
+      // プレビューモーダルを表示
+      this.showExportPreview(
+        'HTML/PDFエクスポート - プレビュー',
+        previewHtml,
+        () => {
+          // ダウンロード処理
+          const htmlWithBom = '\ufeff' + htmlContent;
+          const blob = new Blob([htmlWithBom], { type: 'text/html;charset=utf-8;' });
+          this.downloadFile(blob, filename);
+          console.log('[Advisor] PDF export successful (HTML形式):', filename);
+        },
+        'html'
+      );
     } catch (error) {
       console.error('[Advisor] PDF export failed:', error);
       alert('PDFエクスポートに失敗しました。');
@@ -983,3 +1119,4 @@ class AdvisorManager extends BaseAdvisorManager {
 
 // グローバルインスタンス
 const advisorManager = new AdvisorManager();
+window.advisorManager = advisorManager;

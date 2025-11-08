@@ -91,8 +91,9 @@ class BlogReviewerManager extends BaseAdvisorManager {
   /**
    * Article/BlogPostingスキーマを検出してレビューボタンを表示
    * @param {Array} jsonLdData - 抽出されたJSON-LDデータ
+   * @param {string} url - 分析元URL
    */
-  detectBlogPost(jsonLdData) {
+  detectBlogPost(jsonLdData, url) {
     console.log('[BlogReviewerManager] detectBlogPost called with:', jsonLdData);
     console.log('[BlogReviewerManager] Number of schemas:', jsonLdData?.length);
 
@@ -123,6 +124,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
     if (article) {
       // HTMLから不足情報を補完
       this.currentArticle = this.enrichArticleData(article);
+      this.currentUrl = url;
       this.showReviewButton();
       console.log(
         '[BlogReviewerManager] Review button shown with enriched data:',
@@ -546,6 +548,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
             ${this.formatArticle(this.currentArticle)}
           </div>
         </div>
+        <div class="advisor-resize-handle" data-resize-target="blog-reviewer"></div>
         <div class="advisor-advice-panel">
           <h3 class="advisor-accordion-header" data-action="blog-reviewer-toggle-review-section">
             <span class="advisor-accordion-icon">▼</span>AI分析結果
@@ -587,6 +590,8 @@ class BlogReviewerManager extends BaseAdvisorManager {
         sel.value = this.getSelectedModel();
         sel.addEventListener('change', () => this.setSelectedModel(sel.value));
       }
+      // リサイズハンドルを初期化
+      this.initResizeHandle('blog-reviewer');
       // 初期表示時点で累積表示を更新
       this.updateHeaderUsageChip();
     }, 10);
@@ -622,25 +627,42 @@ class BlogReviewerManager extends BaseAdvisorManager {
       isTruncated = true;
     }
 
-    return `
-      ${
-        image
-          ? `
-      <div class="job-field">
-        <label>OGP画像</label>
-        <div class="job-value" style="text-align: center;">
-          <img
-            src="${this.escapeHtml(image)}"
-            alt="OGP"
-            loading="lazy"
-            onerror="this.parentElement.parentElement.style.display='none'"
-            style="max-width: 100%; max-height: 300px; border-radius: 4px; border: 1px solid var(--border-color); display: block;"
-          >
+    let html = '';
+
+    // URL情報
+    if (this.currentUrl) {
+      html += `
+        <div class="job-field">
+          <label>分析元URL</label>
+          <div class="job-value">
+            <a href="${this.escapeHtml(this.currentUrl)}" target="_blank" rel="noopener noreferrer" style="color: var(--link-color); text-decoration: underline; word-break: break-all;">
+              ${this.escapeHtml(this.currentUrl)}
+            </a>
+          </div>
         </div>
-      </div>
-      `
-          : ''
-      }
+      `;
+    }
+
+    // OGP画像
+    if (image) {
+      html += `
+        <div class="job-field">
+          <label>OGP画像</label>
+          <div class="job-value" style="text-align: center;">
+            <img
+              src="${this.escapeHtml(image)}"
+              alt="OGP"
+              loading="lazy"
+              onerror="this.parentElement.parentElement.style.display='none'"
+              style="max-width: 100%; max-height: 300px; border-radius: 4px; border: 1px solid var(--border-color); display: block;"
+            >
+          </div>
+        </div>
+      `;
+    }
+
+    // メタタグ情報
+    html += `
       <div class="job-field">
         <label>タイトル</label>
         <div class="job-value">${this.escapeHtml(headline)}</div>
@@ -661,19 +683,21 @@ class BlogReviewerManager extends BaseAdvisorManager {
         <label>説明</label>
         <div class="job-value job-description">${this.escapeHtml(description)}</div>
       </div>
-      ${
-        articleBody && articleBody !== '本文なし'
-          ? `
-      <div class="job-field">
-        <label>本文</label>
-        <div class="job-value job-description">
-          ${this.escapeHtml(articleBody)}${isTruncated ? '<span class="text-muted">...（省略）</span>' : ''}
-        </div>
-      </div>
-      `
-          : ''
-      }
     `;
+
+    // 本文
+    if (articleBody && articleBody !== '本文なし') {
+      html += `
+        <div class="job-field">
+          <label>本文</label>
+          <div class="job-value job-description">
+            ${this.escapeHtml(articleBody)}${isTruncated ? '<span class="text-muted">...（省略）</span>' : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    return html;
   }
 
   /**
@@ -1148,12 +1172,6 @@ class BlogReviewerManager extends BaseAdvisorManager {
       // ヘッダー行
       csvLines.push('項目,値');
 
-      // メタデータ
-      csvLines.push(`エクスポート日時,${new Date().toLocaleString('ja-JP')}`);
-      csvLines.push(`使用モデル,${this.model}`);
-      csvLines.push(`入力トークン数,${this.currentUsage.prompt_tokens}`);
-      csvLines.push(`出力トークン数,${this.currentUsage.completion_tokens}`);
-
       // 記事情報（セクションヘッダー）
       csvLines.push('記事情報（タイトル）,');
       const articleLines = articleText.split('\n').filter(line => line.trim().length > 0);
@@ -1167,17 +1185,102 @@ class BlogReviewerManager extends BaseAdvisorManager {
       const reviewLines = reviewText.split('\n').filter(line => line.trim().length > 0);
       reviewLines.forEach(line => csvLines.push(`,${this.escapeCsvValue(line)}`));
 
-      // BOM付きUTF-8でエンコード（Excelで正常に表示される）
-      const csvContent = '\ufeff' + csvLines.join('\n');
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      // メタデータ（最下部）
+      csvLines.push(','); // 空行
+      csvLines.push(`使用モデル,${this.model}`);
+      csvLines.push(`入力トークン数,${this.currentUsage.prompt_tokens}`);
+      csvLines.push(`出力トークン数,${this.currentUsage.completion_tokens}`);
+
+      // CSVをHTMLテーブルに変換してプレビュー
+      const previewHtml = this.generateCsvPreview(csvLines);
+
+      // ファイル名を事前に生成
       const filename = `blog_review_${timestamp}.csv`;
 
-      this.downloadFile(blob, filename);
-      console.log('[BlogReviewer] CSV export successful:', filename);
+      // プレビューモーダルを表示
+      this.showExportPreview(
+        'CSVエクスポート - プレビュー',
+        previewHtml,
+        () => {
+          // ダウンロード処理
+          const csvContent = '\ufeff' + csvLines.join('\n');
+          const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+          this.downloadFile(blob, filename);
+          console.log('[BlogReviewer] CSV export successful:', filename);
+        },
+        'table'
+      );
     } catch (error) {
       console.error('[BlogReviewer] CSV export failed:', error);
       alert('CSVエクスポートに失敗しました。');
     }
+  }
+
+  /**
+   * CSVデータをHTMLテーブルプレビューに変換
+   * @param {Array<string>} csvLines - CSVライン配列
+   * @returns {string} HTMLテーブル
+   */
+  generateCsvPreview(csvLines) {
+    let html = '<table class="csv-preview-table"><thead><tr>';
+
+    // ヘッダー行
+    const headerCells = csvLines[0].split(',');
+    headerCells.forEach(cell => {
+      html += `<th>${this.escapeHtml(cell)}</th>`;
+    });
+    html += '</tr></thead><tbody>';
+
+    // データ行
+    for (let i = 1; i < csvLines.length; i++) {
+      const cells = this.parseCsvLine(csvLines[i]);
+      html += '<tr>';
+      cells.forEach((cell, index) => {
+        // 空のセル（インデント用）は特別なスタイルを適用
+        const className = cell.trim() === '' && index === 0 ? 'csv-cell-indent' : '';
+        html += `<td class="${className}">${this.escapeHtml(cell)}</td>`;
+      });
+      html += '</tr>';
+    }
+
+    html += '</tbody></table>';
+    return html;
+  }
+
+  /**
+   * CSVラインをパースしてセル配列に変換（引用符を考慮）
+   * @param {string} line - CSVライン
+   * @returns {Array<string>} セル配列
+   */
+  parseCsvLine(line) {
+    const cells = [];
+    let currentCell = '';
+    let inQuotes = false;
+
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+
+      if (char === '"') {
+        if (inQuotes && line[i + 1] === '"') {
+          // エスケープされた引用符
+          currentCell += '"';
+          i++;
+        } else {
+          // 引用符の開始または終了
+          inQuotes = !inQuotes;
+        }
+      } else if (char === ',' && !inQuotes) {
+        // セルの区切り
+        cells.push(currentCell);
+        currentCell = '';
+      } else {
+        currentCell += char;
+      }
+    }
+
+    // 最後のセルを追加
+    cells.push(currentCell);
+    return cells;
   }
 
   /**
@@ -1207,22 +1310,14 @@ class BlogReviewerManager extends BaseAdvisorManager {
       font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif;
       margin: 20px;
       line-height: 1.6;
-      color: #333;
+      color: #1a1a1a;
+      background-color: #ffffff;
     }
     h1 {
       text-align: center;
       border-bottom: 2px solid #5a7ca3;
       padding-bottom: 10px;
       color: #5a7ca3;
-    }
-    .metadata {
-      background-color: #f5f7fa;
-      padding: 15px;
-      border-radius: 4px;
-      margin: 20px 0;
-    }
-    .metadata p {
-      margin: 8px 0;
     }
     .section {
       margin: 30px 0;
@@ -1235,21 +1330,32 @@ class BlogReviewerManager extends BaseAdvisorManager {
       color: #2c3e50;
     }
     .content {
-      background-color: #ffffff;
+      background-color: #fafafa;
       padding: 15px;
-      border: 1px solid #e2e8f0;
+      border: 1px solid #e0e0e0;
       border-radius: 4px;
       white-space: pre-wrap;
       word-wrap: break-word;
       font-size: 13px;
+      color: #1a1a1a;
     }
     .footer {
       text-align: center;
       margin-top: 40px;
       padding-top: 20px;
-      border-top: 1px solid #e2e8f0;
-      font-size: 12px;
-      color: #999;
+      border-top: 1px solid #e0e0e0;
+      font-size: 11px;
+      color: #666;
+    }
+    .footer .metadata {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #e0e0e0;
+      font-size: 10px;
+      color: #888;
+    }
+    .footer .metadata p {
+      margin: 4px 0;
     }
     @media print {
       body { margin: 0; }
@@ -1259,12 +1365,6 @@ class BlogReviewerManager extends BaseAdvisorManager {
 </head>
 <body>
   <h1>ブログ記事レビュー結果エクスポート</h1>
-
-  <div class="metadata">
-    <p><strong>エクスポート日時:</strong> ${timestamp}</p>
-    <p><strong>使用モデル:</strong> ${this.model}</p>
-    <p><strong>トークン使用数:</strong> 入力 ${this.currentUsage.prompt_tokens}、出力 ${this.currentUsage.completion_tokens}</p>
-  </div>
 
   <div class="section">
     <h2>記事情報</h2>
@@ -1279,6 +1379,10 @@ class BlogReviewerManager extends BaseAdvisorManager {
   <div class="footer">
     <p>このドキュメントは自動生成されました。</p>
     <p>ブラウザの「印刷」機能から「PDFに保存」を選択してダウンロードしてください。</p>
+    <div class="metadata">
+      <p>エクスポート日時: ${timestamp}</p>
+      <p>使用モデル: ${this.model} | トークン使用数: 入力 ${this.currentUsage.prompt_tokens}、出力 ${this.currentUsage.completion_tokens}</p>
+    </div>
   </div>
 
   <script>
@@ -1289,14 +1393,26 @@ class BlogReviewerManager extends BaseAdvisorManager {
 </html>
       `;
 
-      // BOM付きUTF-8でエンコード（Windows/Mac両方で文字化けしない）
-      const htmlWithBom = '\ufeff' + htmlContent;
-      const blob = new Blob([htmlWithBom], { type: 'text/html;charset=utf-8;' });
+      // プレビュー用にHTMLをレンダリング（iframeで表示）
+      const previewHtml = htmlContent;
+
+      // ファイル名を事前に生成
       const dateStr = new Date().toISOString().split('T')[0];
       const filename = `blog_review_${dateStr}.html`;
 
-      this.downloadFile(blob, filename);
-      console.log('[BlogReviewer] PDF export successful (HTML形式):', filename);
+      // プレビューモーダルを表示
+      this.showExportPreview(
+        'HTML/PDFエクスポート - プレビュー',
+        previewHtml,
+        () => {
+          // ダウンロード処理
+          const htmlWithBom = '\ufeff' + htmlContent;
+          const blob = new Blob([htmlWithBom], { type: 'text/html;charset=utf-8;' });
+          this.downloadFile(blob, filename);
+          console.log('[BlogReviewer] PDF export successful (HTML形式):', filename);
+        },
+        'html'
+      );
     } catch (error) {
       console.error('[BlogReviewer] PDF export failed:', error);
       alert('PDFエクスポートに失敗しました。');
@@ -1413,3 +1529,4 @@ class BlogReviewerManager extends BaseAdvisorManager {
 
 // グローバルインスタンス
 const blogReviewerManager = new BlogReviewerManager();
+window.blogReviewerManager = blogReviewerManager;
