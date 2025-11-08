@@ -3823,7 +3823,7 @@ html[data-theme='dark'] .score-breakdown > div {
 /* 全画面モード（デスクトップ用） */
 .advisor-chat-box.advisor-chat-fullscreen {
   position: fixed !important;
-  z-index: 10000 !important; /* 最前面に表示 */
+  z-index: 99999 !important; /* advisor-view (9999) より確実に上に表示 */
   height: calc(100vh - 20px) !important;
   height: calc(var(--vh, 1vh) * 100 - 20px) !important; /* モバイルブラウザ対応 */
   max-height: calc(100vh - 20px) !important;
