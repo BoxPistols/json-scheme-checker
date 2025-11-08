@@ -1468,11 +1468,14 @@ class BaseAdvisorManager {
     // 折りたたみボタン
     if (collapseBtn) {
       collapseBtn.addEventListener('click', () => {
-        chatBox.classList.toggle('advisor-chat-collapsed');
-        const icon = collapseBtn.querySelector('span:first-child');
-        if (icon) {
-          icon.textContent = chatBox.classList.contains('advisor-chat-collapsed') ? '+' : '−';
+        // 全画面モードの場合は先に全画面を解除
+        const isFullscreen = chatBox.classList.contains('advisor-chat-fullscreen');
+        if (isFullscreen) {
+          toggleFullscreen();
         }
+
+        // 折りたたみをトグル
+        chatBox.classList.toggle('advisor-chat-collapsed');
       });
     }
 
