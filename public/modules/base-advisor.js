@@ -1139,26 +1139,38 @@ class BaseAdvisorManager {
             </svg>
             <h3 style="margin: 0; font-size: 1rem;">AI チャット</h3>
             ${config.questionerLabel ? `<span class="advisor-chat-questioner-badge">${config.questionerLabel}</span>` : ''}
-            <svg class="advisor-chat-expand-hint" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="opacity: 0.4; margin-left: auto;" title="ダブルタップで全画面表示">
-              <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+            <button type="button" class="advisor-chat-expand-btn" aria-label="全画面表示に切り替え" title="全画面表示">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="advisor-chat-btn-label">拡大</span>
+            </button>
           </div>
           <div class="advisor-chat-header-right">
             <span class="advisor-chat-rate-limit">${rateLimitText}</span>
             <button type="button" class="advisor-chat-reset-btn" aria-label="位置とサイズをリセット" title="位置とサイズをリセット">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M16 21h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <polyline points="23 4 23 10 17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
+              <span class="advisor-chat-btn-label">リセット</span>
             </button>
             <button type="button" class="advisor-chat-export-btn" aria-label="チャット履歴をエクスポート" title="履歴をエクスポート">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 <polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
+              <span class="advisor-chat-btn-label">保存</span>
             </button>
-            <button type="button" class="advisor-chat-collapse-btn" aria-label="チャットを折りたたむ" title="折りたたむ">−</button>
-            <button type="button" class="advisor-chat-close-btn" aria-label="チャットを閉じる" title="閉じる">×</button>
+            <button type="button" class="advisor-chat-collapse-btn" aria-label="チャットを折りたたむ" title="折りたたむ">
+              <span style="font-size: 1.2rem;">−</span>
+              <span class="advisor-chat-btn-label">最小化</span>
+            </button>
+            <button type="button" class="advisor-chat-close-btn" aria-label="チャットを閉じる" title="閉じる">
+              <span style="font-size: 1.2rem;">×</span>
+              <span class="advisor-chat-btn-label">閉じる</span>
+            </button>
           </div>
         </div>
         <div class="advisor-chat-messages" id="${config.chatMessagesId}">
@@ -1265,15 +1277,41 @@ class BaseAdvisorManager {
     const closeBtn = container.querySelector('.advisor-chat-close-btn');
     const resetBtn = container.querySelector('.advisor-chat-reset-btn');
     const exportBtn = container.querySelector('.advisor-chat-export-btn');
+    const expandBtn = container.querySelector('.advisor-chat-expand-btn');
     const dragHandle = container.querySelector('.advisor-chat-drag-handle');
     const resizeHandle = container.querySelector('.advisor-chat-resize-handle');
+
+    // 全画面表示切り替え共通関数
+    const toggleFullscreen = () => {
+      const isFullscreen = chatBox.classList.contains('advisor-chat-fullscreen');
+
+      if (isFullscreen) {
+        // 全画面モード解除
+        chatBox.classList.remove('advisor-chat-fullscreen');
+        if (expandBtn) {
+          expandBtn.setAttribute('title', '全画面表示');
+          expandBtn.setAttribute('aria-label', '全画面表示に切り替え');
+        }
+        console.log('[BaseAdvisor] Fullscreen mode disabled');
+      } else {
+        // 全画面モード有効化
+        chatBox.classList.add('advisor-chat-fullscreen');
+        if (expandBtn) {
+          expandBtn.setAttribute('title', '全画面解除');
+          expandBtn.setAttribute('aria-label', '全画面を解除');
+        }
+        console.log('[BaseAdvisor] Fullscreen mode enabled');
+      }
+    };
 
     // リセットボタン
     if (resetBtn && chatBox) {
       resetBtn.addEventListener('click', () => {
-        // 位置とサイズをリセット（デフォルト位置に戻す）
+        // すべての状態をリセット（位置、サイズ、全画面モード、折りたたみモード）
         chatBox.classList.add('advisor-chat-right');
         chatBox.classList.remove('advisor-chat-left');
+        chatBox.classList.remove('advisor-chat-fullscreen');
+        chatBox.classList.remove('advisor-chat-collapsed');
         chatBox.style.right = '';
         chatBox.style.bottom = '';
         chatBox.style.left = '';
@@ -1281,13 +1319,26 @@ class BaseAdvisorManager {
         chatBox.style.width = '';
         chatBox.style.height = '';
         chatBox.style.transform = '';
+
+        // ボタンの状態も更新
+        if (expandBtn) {
+          expandBtn.setAttribute('title', '全画面表示');
+          expandBtn.setAttribute('aria-label', '全画面表示に切り替え');
+        }
+        if (collapseBtn) {
+          const icon = collapseBtn.querySelector('span:first-child');
+          if (icon) {
+            icon.textContent = '−';
+          }
+        }
+
         // LocalStorageもクリア
         localStorage.removeItem('advisor-chat-position-x');
         localStorage.removeItem('advisor-chat-position-y');
         localStorage.removeItem('advisor-chat-width');
         localStorage.removeItem('advisor-chat-height');
         console.log(
-          '[BaseAdvisor] Chat position and size reset to default (right: 20px, bottom: 20px)'
+          '[BaseAdvisor] Chat reset to default state (position, size, fullscreen, collapsed)'
         );
       });
     }
@@ -1303,28 +1354,25 @@ class BaseAdvisorManager {
     if (collapseBtn) {
       collapseBtn.addEventListener('click', () => {
         chatBox.classList.toggle('advisor-chat-collapsed');
-        collapseBtn.textContent = chatBox.classList.contains('advisor-chat-collapsed') ? '+' : '−';
+        const icon = collapseBtn.querySelector('span:first-child');
+        if (icon) {
+          icon.textContent = chatBox.classList.contains('advisor-chat-collapsed') ? '+' : '−';
+        }
       });
     }
 
-    // ダブルタップで全画面切り替え（モバイル用）
+    // 全画面表示切り替えボタン
+    if (expandBtn && chatBox) {
+      expandBtn.addEventListener('click', e => {
+        e.stopPropagation(); // ドラッグイベントとの衝突を防ぐ
+        toggleFullscreen();
+      });
+    }
+
+    // ダブルタップで全画面切り替え（モバイル用、後方互換性のため残す）
     if (dragHandle && chatBox) {
       let lastTap = 0;
       const doubleTapDelay = 300; // 300ms以内のタップをダブルタップとみなす
-
-      const toggleFullscreen = () => {
-        const isFullscreen = chatBox.classList.contains('advisor-chat-fullscreen');
-
-        if (isFullscreen) {
-          // 全画面モード解除
-          chatBox.classList.remove('advisor-chat-fullscreen');
-          console.log('[BaseAdvisor] Fullscreen mode disabled');
-        } else {
-          // 全画面モード有効化
-          chatBox.classList.add('advisor-chat-fullscreen');
-          console.log('[BaseAdvisor] Fullscreen mode enabled');
-        }
-      };
 
       // ダブルタップイベント（タッチデバイス用）
       dragHandle.addEventListener('touchend', e => {
