@@ -81,10 +81,21 @@ json-ld-viewer/
 ├── public/
 │   ├── index.html           # Webアプリケーション（フロントエンド）
 │   ├── styles.css           # スタイルシート
-│   └── modules/             # フロントエンド用モジュール
+│   ├── modules/             # フロントエンド用モジュール
+│   │   ├── advisor.js       # JobPosting Advisor
+│   │   ├── blog-reviewer.js # Blog Reviewer
+│   │   ├── web-advisor.js   # Web Advisor
+│   │   ├── content-upload-reviewer.js # Content Upload Reviewer
+│   │   └── base-advisor.js  # 共通基底クラス
+│   └── utils/               # ユーティリティ
+│       └── file-parser.js   # ファイルパース機能
 ├── api/                      # Vercelサーバーレス関数
 │   ├── proxy.js
-│   └── health.js
+│   ├── health.js
+│   ├── advisor.js           # JobPosting Advisor API
+│   ├── blog-reviewer.js     # Blog Reviewer API
+│   ├── web-advisor.js       # Web Advisor API
+│   └── content-upload-reviewer.js # Content Upload Reviewer API
 ├── package.json             # 依存関係・スクリプト
 ├── vercel.json              # Vercelデプロイ設定
 ├── .eslintrc.json           # ESLint設定
@@ -92,6 +103,98 @@ json-ld-viewer/
 ├── .cursorrules             # Cursor AI設定
 └── .ai-docs/                # AIMyAPI向けドキュメント
 ```
+
+## AI Advisor機能
+
+このプロジェクトには、複数のAI分析機能が統合されています。すべての機能は`BaseAdvisorManager`を継承し、共通のインターフェースと機能を共有しています。
+
+### 利用可能なAdvisor機能
+
+#### 1. JobPosting Advisor
+
+求人票の分析と最適化を行います。
+
+- **対象**: JobPostingスキーマが検出されたページ
+- **機能**:
+  - 採用側視点での改善提案
+  - 応募者視点での評価
+  - エージェント視点での技術要件分析
+  - 構造化データの最適化
+- **実装**: `public/modules/advisor.js`, `api/advisor.js`
+
+#### 2. Blog Reviewer
+
+ブログ記事のSEO最適化とコンテンツ評価を行います。
+
+- **対象**: Article/BlogPostingスキーマが検出されたページ
+- **機能**:
+  - SEO観点での分析
+  - EEAT評価
+  - 読者エンゲージメント分析
+  - コンテンツの質と深度評価
+- **実装**: `public/modules/blog-reviewer.js`, `api/blog-reviewer.js`
+
+#### 3. Web Advisor
+
+汎用Webページの包括的分析を行います。
+
+- **対象**: スキーマなし、またはWebPageのみのページ
+- **機能**:
+  - SEO最適化提案
+  - EEAT評価
+  - アクセシビリティ評価
+  - 優先対応事項の提示
+- **実装**: `public/modules/web-advisor.js`, `api/web-advisor.js`
+
+#### 4. Content Upload Reviewer（新機能）
+
+ファイルやテキストをアップロードして、AIによるレビュー・校閲・マッチング分析を行います。
+
+- **対象**: ユーザーがアップロードしたコンテンツ
+- **機能**:
+  - **ブログコンテンツレビュー**: 草案ベースの記事テキストの分析、過不足やコンテンツ評価、発展的な内容の提示
+  - **求人票レビュー**: 求人票の最適化提案
+  - **スキルシートレビュー**: エンジニアのスキルシートの分析と改善提案
+  - **求人×スキルシートマッチング**: 求人票とスキルシートのマッチング度評価、ギャップ分析、キャリアアップ提案
+  - **汎用テキストレビュー**: あらゆるテキストの校閲と改善提案
+- **対応ファイル形式**: PDF, CSV, Excel, Markdown, JSON, TXT、またはテキスト直接入力
+- **特徴**:
+  - Diff形式での表示（左：元の内容、右：校閲済みの内容）
+  - 校閲済みテキストのコピー・ダウンロード機能
+  - リアルタイムストリーミング表示
+- **実装**: `public/modules/content-upload-reviewer.js`, `api/content-upload-reviewer.js`, `public/utils/file-parser.js`
+
+### 共通機能（BaseAdvisorManager）
+
+すべてのAdvisor機能は`BaseAdvisorManager`を継承し、以下の共通機能を持ちます：
+
+- **レート制限管理**: 無料ユーザーは50回/24時間まで利用可能（各Advisor独立）
+- **APIキー管理**: ユーザー独自のOpenAI APIキーを設定可能
+- **マークダウンレンダリング**: AI応答をMarkdown形式で表示
+- **エクスポート機能**: CSV/HTMLでの分析結果エクスポート
+- **使用量トラッキング**: API使用量の表示とトラッキング
+- **モデル選択**: GPT-5-nano、GPT-4.1-nano等の選択が可能
+
+### Content Upload Reviewer の使い方
+
+1. **アップロードボタンをクリック**: ヘッダーの「Upload」ボタンをクリック
+2. **レビュー種類を選択**: ブログ、求人票、スキルシート、マッチング、汎用から選択
+3. **コンテンツ入力**:
+   - テキスト入力: テキストエリアに直接貼り付け
+   - ファイルアップロード: ドラッグ&ドロップまたはファイル選択
+4. **レビュー開始**: 「レビュー開始」ボタンをクリック
+5. **結果確認**: Diff形式で元の内容と校閲済みの内容を比較
+6. **エクスポート**: 必要に応じて校閲済みテキストをコピーまたはダウンロード
+
+### マッチング機能の使い方
+
+求人票とスキルシートのマッチング分析を行う場合：
+
+1. レビュー種類で「求人×スキルシートマッチング」を選択
+2. 求人票を入力（URLまたはテキスト）
+3. スキルシートをテキストまたはファイルでアップロード
+4. レビュー開始
+5. マッチング度スコア、ギャップ分析、キャリアアップ提案を確認
 
 ## アーキテクチャの重要ポイント
 
