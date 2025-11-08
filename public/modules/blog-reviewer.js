@@ -1310,22 +1310,14 @@ class BlogReviewerManager extends BaseAdvisorManager {
       font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif;
       margin: 20px;
       line-height: 1.6;
-      color: #333;
+      color: #1a1a1a;
+      background-color: #ffffff;
     }
     h1 {
       text-align: center;
       border-bottom: 2px solid #5a7ca3;
       padding-bottom: 10px;
       color: #5a7ca3;
-    }
-    .metadata {
-      background-color: #f5f7fa;
-      padding: 15px;
-      border-radius: 4px;
-      margin: 20px 0;
-    }
-    .metadata p {
-      margin: 8px 0;
     }
     .section {
       margin: 30px 0;
@@ -1338,21 +1330,32 @@ class BlogReviewerManager extends BaseAdvisorManager {
       color: #2c3e50;
     }
     .content {
-      background-color: #ffffff;
+      background-color: #fafafa;
       padding: 15px;
-      border: 1px solid #e2e8f0;
+      border: 1px solid #e0e0e0;
       border-radius: 4px;
       white-space: pre-wrap;
       word-wrap: break-word;
       font-size: 13px;
+      color: #1a1a1a;
     }
     .footer {
       text-align: center;
       margin-top: 40px;
       padding-top: 20px;
-      border-top: 1px solid #e2e8f0;
-      font-size: 12px;
-      color: #999;
+      border-top: 1px solid #e0e0e0;
+      font-size: 11px;
+      color: #666;
+    }
+    .footer .metadata {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #e0e0e0;
+      font-size: 10px;
+      color: #888;
+    }
+    .footer .metadata p {
+      margin: 4px 0;
     }
     @media print {
       body { margin: 0; }
@@ -1362,12 +1365,6 @@ class BlogReviewerManager extends BaseAdvisorManager {
 </head>
 <body>
   <h1>ブログ記事レビュー結果エクスポート</h1>
-
-  <div class="metadata">
-    <p><strong>エクスポート日時:</strong> ${timestamp}</p>
-    <p><strong>使用モデル:</strong> ${this.model}</p>
-    <p><strong>トークン使用数:</strong> 入力 ${this.currentUsage.prompt_tokens}、出力 ${this.currentUsage.completion_tokens}</p>
-  </div>
 
   <div class="section">
     <h2>記事情報</h2>
@@ -1382,6 +1379,10 @@ class BlogReviewerManager extends BaseAdvisorManager {
   <div class="footer">
     <p>このドキュメントは自動生成されました。</p>
     <p>ブラウザの「印刷」機能から「PDFに保存」を選択してダウンロードしてください。</p>
+    <div class="metadata">
+      <p>エクスポート日時: ${timestamp}</p>
+      <p>使用モデル: ${this.model} | トークン使用数: 入力 ${this.currentUsage.prompt_tokens}、出力 ${this.currentUsage.completion_tokens}</p>
+    </div>
   </div>
 
   <script>
