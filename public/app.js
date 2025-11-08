@@ -205,84 +205,92 @@ function togglePasswordVisibility() {
   }
 }
 
-// セキュリティ解説Modalを表示
-function showSecurityModal() {
-  const modal = document.getElementById('securityModal');
+// ===================================================
+// モーダル共通ユーティリティ関数
+// ===================================================
+
+/**
+ * モーダルを開く共通関数
+ * - モーダルを表示
+ * - 背景（body）のスクロールを無効化
+ * @param {string} modalId - モーダル要素のID
+ */
+function openModal(modalId) {
+  const modal = document.getElementById(modalId);
   if (modal) {
     modal.classList.add('modal-overlay--visible');
+    // 背景のスクロールを無効化
+    document.body.style.overflow = 'hidden';
   }
+}
+
+/**
+ * モーダルを閉じる共通関数
+ * - モーダルを非表示
+ * - 背景（body）のスクロールを有効化
+ * @param {string} modalId - モーダル要素のID
+ */
+function closeModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.classList.remove('modal-overlay--visible');
+    // 背景のスクロールを有効化
+    document.body.style.overflow = '';
+  }
+}
+
+// ===================================================
+// 個別モーダル関数（共通関数を使用）
+// ===================================================
+
+// セキュリティ解説Modalを表示
+function showSecurityModal() {
+  openModal('securityModal');
 }
 
 // セキュリティ解説Modalを閉じる
 function closeSecurityModal() {
-  const modal = document.getElementById('securityModal');
-  if (modal) {
-    modal.classList.remove('modal-overlay--visible');
-  }
+  closeModal('securityModal');
 }
 
 // 使い方解説Modalを表示
 function showGuideModal() {
-  const modal = document.getElementById('guideModal');
-  if (modal) {
-    modal.classList.add('modal-overlay--visible');
-  }
+  openModal('guideModal');
 }
 
 // 使い方解説Modalを閉じる
 function closeGuideModal() {
-  const modal = document.getElementById('guideModal');
-  if (modal) {
-    modal.classList.remove('modal-overlay--visible');
-  }
+  closeModal('guideModal');
 }
 
 // Robots メタタグ設定ガイド Modal を開く
 function showRobotsModal() {
-  const modal = document.getElementById('robotsGuideModal');
-  if (modal) {
-    modal.classList.add('modal-overlay--visible');
-  }
+  openModal('robotsGuideModal');
 }
 
 // Robots メタタグ設定ガイド Modal を閉じる
 function closeRobotsModal() {
-  const modal = document.getElementById('robotsGuideModal');
-  if (modal) {
-    modal.classList.remove('modal-overlay--visible');
-  }
+  closeModal('robotsGuideModal');
 }
 
 // Twitter Card 設定ガイド Modal を開く
 function showTwitterCardModal() {
-  const modal = document.getElementById('twitterCardGuideModal');
-  if (modal) {
-    modal.classList.add('modal-overlay--visible');
-  }
+  openModal('twitterCardGuideModal');
 }
 
 // Twitter Card 設定ガイド Modal を閉じる
 function closeTwitterCardModal() {
-  const modal = document.getElementById('twitterCardGuideModal');
-  if (modal) {
-    modal.classList.remove('modal-overlay--visible');
-  }
+  closeModal('twitterCardGuideModal');
 }
 
 // Open Graph 設定ガイド Modal を開く
 function showOpenGraphModal() {
-  const modal = document.getElementById('openGraphGuideModal');
-  if (modal) {
-    modal.classList.add('modal-overlay--visible');
-  }
+  openModal('openGraphGuideModal');
 }
 
 // Open Graph 設定ガイド Modal を閉じる
 function closeOpenGraphModal() {
-  const modal = document.getElementById('openGraphGuideModal');
-  if (modal) {
-    modal.classList.remove('modal-overlay--visible');
-  }
+  closeModal('openGraphGuideModal');
 }
 
 // Modalの背景クリックで閉じる
@@ -2039,17 +2047,14 @@ function openDeveloperSettingsModal() {
   // ラジオボタンの切り替えイベントを設定
   setupApiModeToggle();
 
-  modal.classList.add('modal-overlay--visible');
-  document.body.style.overflow = 'hidden';
+  // 共通関数を使用してモーダルを開く
+  openModal('developerSettingsModal');
 }
 
 // モーダルを閉じる
 function closeDeveloperSettingsModal() {
-  const modal = document.getElementById('developerSettingsModal');
-  if (!modal) return;
-
-  modal.classList.remove('modal-overlay--visible');
-  document.body.style.overflow = '';
+  // 共通関数を使用してモーダルを閉じる
+  closeModal('developerSettingsModal');
 }
 
 // APIモードの切り替え設定

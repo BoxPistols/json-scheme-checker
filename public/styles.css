@@ -1380,6 +1380,7 @@ html[data-theme='dark'] .score-breakdown > div {
   z-index: 1000;
   align-items: center;
   justify-content: center;
+  overflow: hidden; /* オーバーレイ自体はスクロールしない */
 }
 
 .modal-overlay--visible {
