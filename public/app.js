@@ -1538,7 +1538,7 @@ function displaySchemas(schemas, url) {
 
   // 1. JobPosting検出
   if (typeof advisorManager !== 'undefined') {
-    if (advisorManager.detectJobPosting(schemas)) {
+    if (advisorManager.detectJobPosting(schemas, url)) {
       console.log('[App] JobPosting検出 → Advisor');
       hasSpecializedAdvisor = true;
     }
@@ -1546,7 +1546,7 @@ function displaySchemas(schemas, url) {
 
   // 2. Article/BlogPosting検出
   if (typeof blogReviewerManager !== 'undefined') {
-    if (blogReviewerManager.detectBlogPost(schemas)) {
+    if (blogReviewerManager.detectBlogPost(schemas, url)) {
       console.log('[App] BlogPost検出 → BlogReviewer');
       hasSpecializedAdvisor = true;
     }

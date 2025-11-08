@@ -47,13 +47,14 @@ class AdvisorManager extends BaseAdvisorManager {
     this.perspectiveCache = {}; // 視点ごとのキャッシュ
   }
 
-  detectJobPosting(jsonLdData) {
+  detectJobPosting(jsonLdData, url) {
     this.hideAdvisorButton();
     const jobPosting = jsonLdData.find(
       item => item['@type'] === 'JobPosting' || item['@type']?.includes('JobPosting')
     );
     if (jobPosting) {
       this.currentJobPosting = jobPosting;
+      this.currentUrl = url;
       this.showAdvisorButton();
       return true;
     }
@@ -203,7 +204,46 @@ class AdvisorManager extends BaseAdvisorManager {
   formatJobPosting(job) {
     const title = job.title || '不明';
     const description = this.formatDescription(job.description || '説明なし');
-    return `<div class="job-field"><label>職種</label><div>${this.escapeHtml(title)}</div></div><div class="job-field"><label>職務内容</label><div>${description}</div></div>`;
+    const company = job.hiringOrganization?.name || '不明';
+    const location = job.jobLocation?.address?.addressLocality || job.jobLocation?.address?.addressRegion || '不明';
+
+    let html = '';
+
+    // URL情報
+    if (this.currentUrl) {
+      html += `
+        <div class="job-field">
+          <label>分析元URL</label>
+          <div class="job-value">
+            <a href="${this.escapeHtml(this.currentUrl)}" target="_blank" rel="noopener noreferrer" style="color: var(--link-color); text-decoration: underline; word-break: break-all;">
+              ${this.escapeHtml(this.currentUrl)}
+            </a>
+          </div>
+        </div>
+      `;
+    }
+
+    // メタタグ情報
+    html += `
+      <div class="job-field">
+        <label>企業名</label>
+        <div class="job-value">${this.escapeHtml(company)}</div>
+      </div>
+      <div class="job-field">
+        <label>勤務地</label>
+        <div class="job-value">${this.escapeHtml(location)}</div>
+      </div>
+      <div class="job-field">
+        <label>職種</label>
+        <div class="job-value">${this.escapeHtml(title)}</div>
+      </div>
+      <div class="job-field">
+        <label>職務内容</label>
+        <div class="job-value job-description">${description}</div>
+      </div>
+    `;
+
+    return html;
   }
 
   formatDescription(text) {

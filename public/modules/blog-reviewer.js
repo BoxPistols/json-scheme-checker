@@ -91,8 +91,9 @@ class BlogReviewerManager extends BaseAdvisorManager {
   /**
    * Article/BlogPostingスキーマを検出してレビューボタンを表示
    * @param {Array} jsonLdData - 抽出されたJSON-LDデータ
+   * @param {string} url - 分析元URL
    */
-  detectBlogPost(jsonLdData) {
+  detectBlogPost(jsonLdData, url) {
     console.log('[BlogReviewerManager] detectBlogPost called with:', jsonLdData);
     console.log('[BlogReviewerManager] Number of schemas:', jsonLdData?.length);
 
@@ -123,6 +124,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
     if (article) {
       // HTMLから不足情報を補完
       this.currentArticle = this.enrichArticleData(article);
+      this.currentUrl = url;
       this.showReviewButton();
       console.log(
         '[BlogReviewerManager] Review button shown with enriched data:',
@@ -622,25 +624,42 @@ class BlogReviewerManager extends BaseAdvisorManager {
       isTruncated = true;
     }
 
-    return `
-      ${
-        image
-          ? `
-      <div class="job-field">
-        <label>OGP画像</label>
-        <div class="job-value" style="text-align: center;">
-          <img
-            src="${this.escapeHtml(image)}"
-            alt="OGP"
-            loading="lazy"
-            onerror="this.parentElement.parentElement.style.display='none'"
-            style="max-width: 100%; max-height: 300px; border-radius: 4px; border: 1px solid var(--border-color); display: block;"
-          >
+    let html = '';
+
+    // URL情報
+    if (this.currentUrl) {
+      html += `
+        <div class="job-field">
+          <label>分析元URL</label>
+          <div class="job-value">
+            <a href="${this.escapeHtml(this.currentUrl)}" target="_blank" rel="noopener noreferrer" style="color: var(--link-color); text-decoration: underline; word-break: break-all;">
+              ${this.escapeHtml(this.currentUrl)}
+            </a>
+          </div>
         </div>
-      </div>
-      `
-          : ''
-      }
+      `;
+    }
+
+    // OGP画像
+    if (image) {
+      html += `
+        <div class="job-field">
+          <label>OGP画像</label>
+          <div class="job-value" style="text-align: center;">
+            <img
+              src="${this.escapeHtml(image)}"
+              alt="OGP"
+              loading="lazy"
+              onerror="this.parentElement.parentElement.style.display='none'"
+              style="max-width: 100%; max-height: 300px; border-radius: 4px; border: 1px solid var(--border-color); display: block;"
+            >
+          </div>
+        </div>
+      `;
+    }
+
+    // メタタグ情報
+    html += `
       <div class="job-field">
         <label>タイトル</label>
         <div class="job-value">${this.escapeHtml(headline)}</div>
@@ -661,19 +680,21 @@ class BlogReviewerManager extends BaseAdvisorManager {
         <label>説明</label>
         <div class="job-value job-description">${this.escapeHtml(description)}</div>
       </div>
-      ${
-        articleBody && articleBody !== '本文なし'
-          ? `
-      <div class="job-field">
-        <label>本文</label>
-        <div class="job-value job-description">
-          ${this.escapeHtml(articleBody)}${isTruncated ? '<span class="text-muted">...（省略）</span>' : ''}
-        </div>
-      </div>
-      `
-          : ''
-      }
     `;
+
+    // 本文
+    if (articleBody && articleBody !== '本文なし') {
+      html += `
+        <div class="job-field">
+          <label>本文</label>
+          <div class="job-value job-description">
+            ${this.escapeHtml(articleBody)}${isTruncated ? '<span class="text-muted">...（省略）</span>' : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    return html;
   }
 
   /**
