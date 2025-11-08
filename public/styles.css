@@ -4254,9 +4254,14 @@ html[data-theme='dark'] .score-breakdown > div {
 }
 
 .advisor-questioner-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 12px;
+}
+
+/* エージェントボタンは全幅（2つのマッチング支援のため） */
+.advisor-questioner-btn[data-questioner-id="agent"] {
+  grid-column: 1 / -1;
 }
 
 .advisor-questioner-btn {
