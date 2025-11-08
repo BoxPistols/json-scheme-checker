@@ -1164,11 +1164,16 @@ class BaseAdvisorManager {
               <span class="advisor-chat-btn-label">保存</span>
             </button>
             <button type="button" class="advisor-chat-collapse-btn" aria-label="チャットを折りたたむ" title="折りたたむ">
-              <span style="font-size: 1.2rem;">−</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
               <span class="advisor-chat-btn-label">最小化</span>
             </button>
             <button type="button" class="advisor-chat-close-btn" aria-label="チャットを閉じる" title="閉じる">
-              <span style="font-size: 1.2rem;">×</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
               <span class="advisor-chat-btn-label">閉じる</span>
             </button>
           </div>
