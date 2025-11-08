@@ -658,12 +658,29 @@ const COLLAPSE_SUMMARY_CARD_KEY = 'jsonld_ui_summary_card_open';
 // サンプルURLの管理
 const SAMPLE_URLS_KEY = 'jsonld_sample_urls';
 const DEFAULT_SAMPLE_URLS = [
-  { label: 'f-hub', url: 'https://freelance-hub.jp/project/detail/281563/' },
-  { label: 'f-job', url: 'https://freelance-job.com/job/detail/146243' },
-  { label: 'PE-BANK', url: 'https://pe-bank.jp/project/aws/47302-18/' },
-  { label: 'RecruitAgent', url: 'https://www.r-agent.com/kensaku/kyujin/20250107-188-01-052.html' },
-  { label: 'levtech', url: 'https://freelance.levtech.jp/project/detail/28421/' },
-  { label: 'レバテックLAB', url: 'https://levtech.jp/media/article/focus/detail_680/' },
+  // 求人サイト
+  { label: '求人: レバテック', url: 'https://freelance.levtech.jp/project/detail/28421/' },
+  { label: '求人: PE-BANK', url: 'https://pe-bank.jp/project/aws/47302-18/' },
+  { label: '求人: Green', url: 'https://www.green-japan.com/job/197854' },
+
+  // テックブログ
+  { label: 'Tech: Zenn', url: 'https://zenn.dev/topics/react' },
+  { label: 'Tech: Qiita', url: 'https://qiita.com/tags/typescript' },
+  { label: 'Tech: レバテックLAB', url: 'https://levtech.jp/media/article/focus/detail_680/' },
+
+  // ブログ・メディア
+  { label: 'Blog: note', url: 'https://note.com/engineering' },
+  { label: 'Blog: はてな', url: 'https://blog.hatena.ne.jp/' },
+
+  // ニュースサイト
+  { label: 'News: ITmedia', url: 'https://www.itmedia.co.jp/news/' },
+  { label: 'News: TechCrunch', url: 'https://jp.techcrunch.com/' },
+  { label: 'News: Impress Watch', url: 'https://www.watch.impress.co.jp/' },
+
+  // コーポレートサイト
+  { label: '企業: サイボウズ', url: 'https://cybozu.co.jp/' },
+  { label: '企業: メルカリ', url: 'https://about.mercari.com/about/' },
+  { label: '企業: SmartHR', url: 'https://smarthr.co.jp/' },
 ];
 
 // サンプルURLリストを読み込み
