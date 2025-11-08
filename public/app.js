@@ -661,26 +661,17 @@ const DEFAULT_SAMPLE_URLS = [
   // 求人サイト
   { label: '求人: レバテック', url: 'https://freelance.levtech.jp/project/detail/28421/' },
   { label: '求人: PE-BANK', url: 'https://pe-bank.jp/project/aws/47302-18/' },
-  { label: '求人: Green', url: 'https://www.green-japan.com/job/197854' },
 
   // テックブログ
-  { label: 'Tech: Zenn', url: 'https://zenn.dev/topics/react' },
-  { label: 'Tech: Qiita', url: 'https://qiita.com/tags/typescript' },
-  { label: 'Tech: レバテックLAB', url: 'https://levtech.jp/media/article/focus/detail_680/' },
+  { label: 'Tech: Zenn React', url: 'https://zenn.dev/topics/react' },
+  { label: 'Tech: Qiita TS', url: 'https://qiita.com/tags/typescript' },
 
   // ブログ・メディア
-  { label: 'Blog: note', url: 'https://note.com/engineering' },
-  { label: 'Blog: はてな', url: 'https://blog.hatena.ne.jp/' },
-
-  // ニュースサイト
+  { label: 'Blog: レバテックLAB', url: 'https://levtech.jp/media/article/focus/detail_680/' },
   { label: 'News: ITmedia', url: 'https://www.itmedia.co.jp/news/' },
-  { label: 'News: TechCrunch', url: 'https://jp.techcrunch.com/' },
-  { label: 'News: Impress Watch', url: 'https://www.watch.impress.co.jp/' },
 
   // コーポレートサイト
-  { label: '企業: サイボウズ', url: 'https://cybozu.co.jp/' },
-  { label: '企業: メルカリ', url: 'https://about.mercari.com/about/' },
-  { label: '企業: SmartHR', url: 'https://smarthr.co.jp/' },
+  { label: '企業: サイボウズ', url: 'https://cybozu.co.jp/company/' },
 ];
 
 // サンプルURLリストを読み込み
