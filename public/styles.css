@@ -3822,6 +3822,8 @@ html[data-theme='dark'] .score-breakdown > div {
 
 /* 全画面モード（デスクトップ用） */
 .advisor-chat-box.advisor-chat-fullscreen {
+  position: fixed !important;
+  z-index: 10000 !important; /* 最前面に表示 */
   height: calc(100vh - 20px) !important;
   height: calc(var(--vh, 1vh) * 100 - 20px) !important; /* モバイルブラウザ対応 */
   max-height: calc(100vh - 20px) !important;
@@ -3831,6 +3833,7 @@ html[data-theme='dark'] .score-breakdown > div {
   left: 10px !important;
   right: 10px !important;
   width: calc(100vw - 20px) !important;
+  transform: none !important; /* ドラッグによるtransformをリセット */
 }
 
 .advisor-chat-box.advisor-chat-right {

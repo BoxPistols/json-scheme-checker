@@ -1301,6 +1301,14 @@ class BaseAdvisorManager {
       } else {
         // 全画面モード有効化
         chatBox.classList.add('advisor-chat-fullscreen');
+
+        // ドラッグによる位置調整をクリア（全画面表示時は画面全体に表示）
+        chatBox.style.left = '';
+        chatBox.style.top = '';
+        chatBox.style.right = '';
+        chatBox.style.bottom = '';
+        chatBox.style.transform = '';
+
         if (expandBtn) {
           expandBtn.setAttribute('title', '全画面解除');
           expandBtn.setAttribute('aria-label', '全画面を解除');
