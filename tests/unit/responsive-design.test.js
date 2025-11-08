@@ -95,9 +95,7 @@ describe('レスポンシブデザイン: gap とスペーシング', () => {
   const stylesContent = readFileSync(join(__dirname, '../../public/styles.css'), 'utf-8');
 
   it('質問者リストに適切な gap が設定されている', () => {
-    const listMatch = stylesContent.match(
-      /\.advisor-questioner-list\s*\{[\s\S]*?gap:\s*(\d+px)/
-    );
+    const listMatch = stylesContent.match(/\.advisor-questioner-list\s*\{[\s\S]*?gap:\s*(\d+px)/);
     expect(listMatch).toBeTruthy();
 
     if (listMatch) {
