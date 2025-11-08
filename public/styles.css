@@ -4297,6 +4297,18 @@ html[data-theme='dark'] .score-breakdown > div {
   gap: 12px;
 }
 
+/* モバイル対応: 小さい画面では1カラムに */
+@media (max-width: 600px) {
+  .advisor-questioner-list {
+    grid-template-columns: 1fr;
+  }
+
+  /* モバイルでもエージェントは全幅（既にデフォルトで1カラムなので設定は不要だが明示） */
+  .advisor-questioner-btn[data-questioner-id="agent"] {
+    grid-column: 1 / -1;
+  }
+}
+
 /* エージェントボタンは全幅（2つのマッチング支援のため） */
 .advisor-questioner-btn[data-questioner-id="agent"] {
   grid-column: 1 / -1;
