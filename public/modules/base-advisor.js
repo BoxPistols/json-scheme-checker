@@ -1181,6 +1181,24 @@ class BaseAdvisorManager {
         <div class="advisor-chat-messages" id="${config.chatMessagesId}">
           <div class="advisor-chat-welcome">
             <p>フォローアップが必要ですか？</p>
+            ${
+              config.questioner
+                ? `
+            <div class="advisor-chat-sample-questions">
+              <p class="advisor-chat-sample-label">サンプル質問:</p>
+              ${this.getSampleQuestions(config.type, config.questioner.id)
+                .map(
+                  question => `
+                <button type="button" class="advisor-chat-sample-btn" data-sample-question="${this.escapeHtml(question)}">
+                  ${this.escapeHtml(question)}
+                </button>
+              `
+                )
+                .join('')}
+            </div>
+            `
+                : ''
+            }
           </div>
         </div>
         <div class="advisor-chat-input-wrapper">
@@ -1266,6 +1284,70 @@ class BaseAdvisorManager {
     };
 
     return personas[type] || [];
+  }
+
+  /**
+   * ペルソナに応じたサンプル質問を取得
+   * @param {string} type - Advisorタイプ ('advisor', 'blog-reviewer', 'web-advisor')
+   * @param {string} questionerId - 質問者ID ('employer', 'applicant', 'agent', など)
+   * @returns {Array<string>} サンプル質問の配列
+   */
+  getSampleQuestions(type, questionerId) {
+    const samples = {
+      advisor: {
+        employer: [
+          'この求人で不足している情報は何ですか？',
+          '競合他社と比較して、この求人の魅力をどう高められますか？',
+          '応募者を増やすために、どの項目を改善すべきですか？',
+        ],
+        applicant: [
+          'この求人で最も評価されるスキルは何ですか？',
+          '面接でアピールすべきポイントを教えてください',
+          'この企業の技術スタックで、キャリアはどう成長しますか？',
+        ],
+        agent: [
+          'この求人に最適な候補者の技術プロフィールは？',
+          '開発現場で使われる技術の実務的な使い方を教えてください',
+          '候補者との面談で確認すべき技術要件は何ですか？',
+        ],
+      },
+      'blog-reviewer': {
+        writer: [
+          'この記事の構成で改善すべき点はどこですか？',
+          'SEO効果を高めるために追加すべき要素は？',
+          '読者の離脱を防ぐために工夫できることは？',
+        ],
+        editor: [
+          '記事全体の品質を向上させるポイントは？',
+          'ターゲット読者に響く内容になっていますか？',
+          'コンテンツ戦略として不足している要素は？',
+        ],
+      },
+      'web-advisor': {
+        owner: [
+          'このページで最優先で改善すべき要素は何ですか？',
+          'ユーザー体験を向上させるための具体的な施策は？',
+          'コンバージョン率を改善するにはどうすればいいですか？',
+        ],
+        marketer: [
+          'SEO観点でこのページの課題はどこですか？',
+          'SNSでのシェアを増やすための改善点は？',
+          '流入経路ごとに最適化すべき要素はありますか？',
+        ],
+      },
+    };
+
+    // タイプとquestionerIdに対応するサンプルを返す
+    if (samples[type] && samples[type][questionerId]) {
+      return samples[type][questionerId];
+    }
+
+    // デフォルト（汎用的な質問）
+    return [
+      'この内容で改善すべきポイントは何ですか？',
+      '最も重要な課題は何ですか？',
+      '具体的な改善提案を教えてください',
+    ];
   }
 
   /**
@@ -1755,6 +1837,21 @@ class BaseAdvisorManager {
         this.sendChatMessageCommon(message, config);
         inputEl.value = '';
       }
+    });
+
+    // サンプル質問ボタンのクリックイベント
+    const sampleButtons = document.querySelectorAll('.advisor-chat-sample-btn');
+    sampleButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const question = btn.dataset.sampleQuestion;
+        if (question) {
+          // 質問を入力欄にセットして送信
+          inputEl.value = question;
+          this.sendChatMessageCommon(question, config);
+          inputEl.value = '';
+          inputEl.focus();
+        }
+      });
     });
 
     // 初期フォーカス
