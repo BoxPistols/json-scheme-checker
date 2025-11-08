@@ -1556,7 +1556,7 @@ class BaseAdvisorManager {
             console.log('[BaseAdvisor] Viewport resize detected:', {
               viewportHeight,
               viewportOffsetTop,
-              maxHeight
+              maxHeight,
             });
 
             // チャットボックスの高さと位置を調整
