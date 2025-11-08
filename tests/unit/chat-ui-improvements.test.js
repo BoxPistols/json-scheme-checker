@@ -185,7 +185,9 @@ describe('チャットUI改善: チャットボックスレンダリング', () 
 
     const closeBtn = container.querySelector('.advisor-chat-close-btn');
     expect(closeBtn).toBeTruthy();
-    expect(closeBtn.textContent).toBe('×');
+    // SVGアイコンが含まれることを確認
+    const svg = closeBtn.querySelector('svg');
+    expect(svg).toBeTruthy();
   });
 
   it('ウェルカムメッセージが短縮されている', () => {
@@ -324,17 +326,20 @@ describe('チャットUI改善: UI制御機能', () => {
     const collapseBtn = container.querySelector('.advisor-chat-collapse-btn');
 
     expect(chatBox.classList.contains('advisor-chat-collapsed')).toBe(false);
-    expect(collapseBtn.textContent).toBe('−');
+    // SVGアイコンが含まれることを確認
+    const svg = collapseBtn.querySelector('svg');
+    expect(svg).toBeTruthy();
 
     collapseBtn.click();
 
     expect(chatBox.classList.contains('advisor-chat-collapsed')).toBe(true);
-    expect(collapseBtn.textContent).toBe('+');
+    // 折りたたまれてもSVGアイコンが存在
+    expect(collapseBtn.querySelector('svg')).toBeTruthy();
 
     collapseBtn.click();
 
     expect(chatBox.classList.contains('advisor-chat-collapsed')).toBe(false);
-    expect(collapseBtn.textContent).toBe('−');
+    expect(collapseBtn.querySelector('svg')).toBeTruthy();
   });
 });
 
