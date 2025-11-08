@@ -5133,7 +5133,7 @@ html[data-theme='dark'] .advisor-modal-close-btn:hover svg path {
 .export-preview-html h1,
 .export-preview-html h2,
 .export-preview-html h3 {
-  color: var(--text-color);
+  color: var(--text-color) !important;
   margin-top: 1.5em;
   margin-bottom: 0.5em;
 }
@@ -5152,6 +5152,37 @@ html[data-theme='dark'] .advisor-modal-close-btn:hover svg path {
 
 .export-preview-html p {
   margin: 0.8em 0;
+}
+
+.export-preview-html body {
+  background-color: var(--card-bg-color) !important;
+  color: var(--text-color) !important;
+}
+
+.export-preview-html .section h2 {
+  color: var(--text-color) !important;
+  border-left-color: var(--primary-color) !important;
+}
+
+.export-preview-html .content {
+  background-color: var(--secondary-bg-color) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-color) !important;
+}
+
+.export-preview-html .metadata {
+  background-color: var(--secondary-bg-color) !important;
+  color: var(--text-color) !important;
+}
+
+.export-preview-html .footer {
+  border-top-color: var(--border-color) !important;
+  color: var(--text-muted-color) !important;
+}
+
+.export-preview-html .footer .metadata {
+  border-top-color: var(--border-color) !important;
+  color: var(--text-muted-color) !important;
 }
 
 .export-preview-markdown {

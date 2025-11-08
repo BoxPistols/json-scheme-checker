@@ -736,12 +736,6 @@ class WebAdvisorManager extends BaseAdvisorManager {
       // ヘッダー行
       csvLines.push('項目,値');
 
-      // メタデータ
-      csvLines.push(`エクスポート日時,${new Date().toLocaleString('ja-JP')}`);
-      csvLines.push(`使用モデル,${this.currentModel}`);
-      csvLines.push(`入力トークン数,${this.currentUsage.prompt_tokens}`);
-      csvLines.push(`出力トークン数,${this.currentUsage.completion_tokens}`);
-
       // ページ情報（セクションヘッダー）
       csvLines.push('ページ情報,');
       const metadataLines = metadataText.split('\n').filter(line => line.trim().length > 0);
@@ -751,6 +745,12 @@ class WebAdvisorManager extends BaseAdvisorManager {
       csvLines.push('AI分析結果,');
       const analysisLines = analysisText.split('\n').filter(line => line.trim().length > 0);
       analysisLines.forEach(line => csvLines.push(`,${this.escapeCsvValue(line)}`));
+
+      // メタデータ（最下部）
+      csvLines.push(','); // 空行
+      csvLines.push(`使用モデル,${this.currentModel}`);
+      csvLines.push(`入力トークン数,${this.currentUsage.prompt_tokens}`);
+      csvLines.push(`出力トークン数,${this.currentUsage.completion_tokens}`);
 
       // CSVをHTMLテーブルに変換してプレビュー
       const previewHtml = this.generateCsvPreview(csvLines);

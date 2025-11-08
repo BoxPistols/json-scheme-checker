@@ -673,13 +673,6 @@ class AdvisorManager extends BaseAdvisorManager {
       // ヘッダー行
       csvLines.push('項目,値');
 
-      // メタデータ
-      csvLines.push(`エクスポート日時,${new Date().toLocaleString('ja-JP')}`);
-      csvLines.push(`視点,${modeLabel}`);
-      csvLines.push(`使用モデル,${this.currentModel}`);
-      csvLines.push(`入力トークン数,${this.currentUsage.prompt_tokens}`);
-      csvLines.push(`出力トークン数,${this.currentUsage.completion_tokens}`);
-
       // 求人情報（セクションヘッダー）
       csvLines.push('求人情報（タイトル）,');
       const jobLines = jobText.split('\n').filter(line => line.trim().length > 0);
@@ -692,6 +685,12 @@ class AdvisorManager extends BaseAdvisorManager {
       csvLines.push('AI分析結果,');
       const adviceLines = adviceText.split('\n').filter(line => line.trim().length > 0);
       adviceLines.forEach(line => csvLines.push(`,${this.escapeCsvValue(line)}`));
+
+      // メタデータ（最下部）
+      csvLines.push(','); // 空行
+      csvLines.push(`使用モデル,${this.currentModel}`);
+      csvLines.push(`入力トークン数,${this.currentUsage.prompt_tokens}`);
+      csvLines.push(`出力トークン数,${this.currentUsage.completion_tokens}`);
 
       // CSVをHTMLテーブルに変換してプレビュー
       const previewHtml = this.generateCsvPreview(csvLines);
