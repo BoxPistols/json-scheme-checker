@@ -1293,6 +1293,13 @@ class BaseAdvisorManager {
       if (isFullscreen) {
         // 全画面モード解除
         chatBox.classList.remove('advisor-chat-fullscreen');
+
+        // viewport調整で設定したスタイルをクリア
+        chatBox.style.removeProperty('height');
+        chatBox.style.removeProperty('max-height');
+        chatBox.style.removeProperty('top');
+        chatBox.style.removeProperty('bottom');
+
         if (expandBtn) {
           expandBtn.setAttribute('title', '全画面表示');
           expandBtn.setAttribute('aria-label', '全画面表示に切り替え');
@@ -1314,6 +1321,19 @@ class BaseAdvisorManager {
           expandBtn.setAttribute('aria-label', '全画面を解除');
         }
         console.log('[BaseAdvisor] Fullscreen mode enabled');
+
+        // visualViewportが利用可能な場合は即座にサイズ調整
+        if ('visualViewport' in window && window.visualViewport) {
+          const viewport = window.visualViewport;
+          const viewportHeight = viewport.height;
+          const viewportOffsetTop = viewport.offsetTop;
+          const maxHeight = viewportHeight - 20;
+
+          chatBox.style.setProperty('height', `${maxHeight}px`, 'important');
+          chatBox.style.setProperty('max-height', `${maxHeight}px`, 'important');
+          chatBox.style.setProperty('top', `${viewportOffsetTop + 10}px`, 'important');
+          chatBox.style.setProperty('bottom', 'auto', 'important');
+        }
       }
     };
 
@@ -1422,27 +1442,32 @@ class BaseAdvisorManager {
           // 全画面モード時のみ調整
           if (chatBox.classList.contains('advisor-chat-fullscreen')) {
             const viewport = window.visualViewport;
-            const scale = viewport.scale;
-
-            // キーボードが表示されているかをビューポートの高さで判定
             const viewportHeight = viewport.height;
-            const windowHeight = window.innerHeight;
+            const viewportOffsetTop = viewport.offsetTop;
 
-            if (viewportHeight < windowHeight * 0.7) {
-              // キーボードが表示されている（ビューポートが70%以下に縮小）
-              console.log('[BaseAdvisor] Keyboard detected, viewport height:', viewportHeight);
+            // ビューポートの高さに合わせてチャットボックスのサイズを調整
+            // 上下に10pxずつマージンを確保
+            const maxHeight = viewportHeight - 20;
 
-              // チャットボックスの高さを調整
-              chatBox.style.height = `${viewportHeight - 20}px`;
-            } else {
-              // キーボードが非表示
-              chatBox.style.height = '';
-            }
+            console.log('[BaseAdvisor] Viewport resize detected:', {
+              viewportHeight,
+              viewportOffsetTop,
+              maxHeight
+            });
+
+            // チャットボックスの高さと位置を調整
+            chatBox.style.setProperty('height', `${maxHeight}px`, 'important');
+            chatBox.style.setProperty('max-height', `${maxHeight}px`, 'important');
+            chatBox.style.setProperty('top', `${viewportOffsetTop + 10}px`, 'important');
+            chatBox.style.setProperty('bottom', 'auto', 'important');
           }
         };
 
         window.visualViewport.addEventListener('resize', handleViewportResize);
         window.visualViewport.addEventListener('scroll', handleViewportResize);
+
+        // 初回実行（全画面モード時に即座に適用）
+        handleViewportResize();
       }
     }
 
