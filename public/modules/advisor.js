@@ -983,3 +983,4 @@ class AdvisorManager extends BaseAdvisorManager {
 
 // グローバルインスタンス
 const advisorManager = new AdvisorManager();
+window.advisorManager = advisorManager;

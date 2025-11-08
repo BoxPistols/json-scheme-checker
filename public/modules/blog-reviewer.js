@@ -1413,3 +1413,4 @@ class BlogReviewerManager extends BaseAdvisorManager {
 
 // グローバルインスタンス
 const blogReviewerManager = new BlogReviewerManager();
+window.blogReviewerManager = blogReviewerManager;

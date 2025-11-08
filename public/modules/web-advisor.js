@@ -994,3 +994,4 @@ class WebAdvisorManager extends BaseAdvisorManager {
 
 // グローバルインスタンスを作成
 const webAdvisorManager = new WebAdvisorManager();
+window.webAdvisorManager = webAdvisorManager;

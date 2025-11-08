@@ -325,6 +325,50 @@ document.addEventListener('DOMContentLoaded', () => {
       subtitle.style.color = '#ff6b6b';
       subtitle.textContent += ' [デバッグモード: モックデータを使用]';
     }
+
+    // モックデータを自動的にロードして表示
+    console.log('[DEBUG] Auto-loading mock data for UI preview...');
+
+    // URLフィールドにモックURLを自動入力
+    const urlInput = document.getElementById('urlInput');
+    if (urlInput) {
+      urlInput.value = 'https://example.com/mock-jobposting';
+      console.log('[DEBUG] Mock URL set in input field');
+    }
+
+    // 少し遅延させてから各Advisorのモックデータを表示
+    setTimeout(() => {
+      // JobPosting Advisor のモックデータを自動表示
+      if (window.advisorManager && window.DEBUG_MOCK_DATA?.jobPosting?.sample1) {
+        console.log('[DEBUG] Loading JobPosting Advisor mock data...');
+        const mockData = window.DEBUG_MOCK_DATA.jobPosting.sample1;
+
+        // JSON-LDデータを設定
+        window.advisorManager.currentJobPosting = mockData.data;
+
+        // 採用側の視点でモック分析を実行
+        console.log('[DEBUG] Starting analysis with employer perspective...');
+        window.advisorManager.startAnalysis('employer');
+      }
+
+      // Blog Reviewer のモックデータを自動表示（タブがあれば）
+      if (window.blogReviewerManager && window.DEBUG_MOCK_DATA?.blog?.sample1) {
+        console.log('[DEBUG] Loading Blog Reviewer mock data...');
+        const mockData = window.DEBUG_MOCK_DATA.blog.sample1;
+        window.blogReviewerManager.jsonldData = mockData.data;
+        // 必要に応じて分析を開始
+        // window.blogReviewerManager.startReview();
+      }
+
+      // Web Advisor のモックデータを自動表示（タブがあれば）
+      if (window.webAdvisorManager && window.DEBUG_MOCK_DATA?.web?.sample1) {
+        console.log('[DEBUG] Loading Web Advisor mock data...');
+        const mockData = window.DEBUG_MOCK_DATA.web.sample1;
+        window.webAdvisorManager.pageData = mockData.data;
+        // 必要に応じて分析を開始
+        // window.webAdvisorManager.startAnalysis();
+      }
+    }, 500);
   }
 
   // モーダル関連のイベントリスナー
