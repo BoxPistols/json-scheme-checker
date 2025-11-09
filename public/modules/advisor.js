@@ -43,8 +43,8 @@ class AdvisorManager extends BaseAdvisorManager {
     this.currentMode = null;
     this.isStreaming = false;
     this.currentUsage = null;
-    this.currentModel = window.ADVISOR_CONST.DEFAULT_MODEL; // デフォルトモデル
-    this.perspectiveCache = {}; // 視点ごとのキャッシュ
+    this.currentModel = window.ADVISOR_CONST.DEFAULT_MODEL;
+    this.perspectiveCache = {};
   }
 
   detectJobPosting(jsonLdData, url) {
@@ -81,29 +81,9 @@ class AdvisorManager extends BaseAdvisorManager {
   }
 
   showModeSelector() {
-    // Dialog内にはAPI関連情報は含めない（API設定はHeaderのMy APIで管理）
     const overlay = this.createModal(
       'ModeOverlay',
-      `
-      <div class="advisor-modal">
-        <div class="advisor-modal-header">
-          <h2>どの視点でアドバイスしますか？</h2>
-          <button type="button" class="advisor-modal-close" data-action="advisor-close-mode-overlay"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor"/></svg></button>
-        </div>
-        <div class="advisor-modal-body">
-          <div class="advisor-mode-buttons-grid">
-            <button type="button" class="advisor-mode-btn" data-action="advisor-start-employer">
-              <h3>採用側向け</h3><p>求人票をレビューし改善提案を提供</p>
-            </button>
-            <button type="button" class="advisor-mode-btn" data-action="advisor-start-applicant">
-              <h3>応募者向け</h3><p>面接対策と要件傾向の分析を提供</p>
-            </button>
-            </div>
-            <button type="button" class="advisor-mode-btn" data-action="advisor-start-agent">
-              <h3>エージェント向け</h3><p>営業戦略・市場分析・双方へのアドバイスを提供</p>
-            </button>
-        </div>
-      </div>
+      ` <div class="advisor-modal">   <div class="advisor-modal-header">     <h2>どの視点でアドバイスしますか？</h2>     <button type="button" class="advisor-modal-close" data-action="advisor-close-mode-overlay"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor"/></svg></button>   </div>   <div class="advisor-modal-body">     <div class="advisor-mode-buttons-grid">       <button type="button" class="advisor-mode-btn" data-action="advisor-start-employer">         <h3>採用側向け</h3><p>求人票をレビューし改善提案を提供</p>       </button>       <button type="button" class="advisor-mode-btn" data-action="advisor-start-applicant">         <h3>応募者向け</h3><p>面接対策と要件傾向の分析を提供</p>       </button>       </div>       <button type="button" class="advisor-mode-btn" data-action="advisor-start-agent">         <h3>エージェント向け</h3><p>営業戦略・市場分析・双方へのアドバイスを提供</p>       </button>   </div> </div>
     `
     );
     this.addEscapeKeyListener(overlay, () => this.closeModal('ModeOverlay'));
@@ -117,7 +97,6 @@ class AdvisorManager extends BaseAdvisorManager {
       return;
     }
     this.currentMode = mode;
-    // ユーザーが選択したモードを保存（結果ページでの表示制御用）
     this.saveSelectedUserMode(mode);
     this.closeModal('ModeOverlay');
     this.showAdvisorView(mode);
@@ -140,44 +119,7 @@ class AdvisorManager extends BaseAdvisorManager {
     const headerHtml = this.renderViewHeader(modeTitle, 'advisor-close-view');
     const advisorView = this.createModal(
       'View',
-      `
-      ${headerHtml}
-      <div class="advisor-view-content">
-        <div class="advisor-job-panel">
-          <h3 class="advisor-accordion-header" data-action="advisor-toggle-job-section">
-            <span class="advisor-accordion-icon">▼</span>求人票
-          </h3>
-          <div class="advisor-job-content advisor-accordion-content" id="advisorJobContent">${this.formatJobPosting(this.currentJobPosting)}</div>
-        </div>
-        <div class="advisor-resize-handle" data-resize-target="advisor"></div>
-        <div class="advisor-advice-panel">
-          <h3 class="advisor-accordion-header" data-action="advisor-toggle-advice-section">
-            <span class="advisor-accordion-icon">▼</span>AI分析結果
-          </h3>
-          <div class="advisor-advice-content advisor-accordion-content" id="advisorAdviceContent">
-            <div class="advisor-progress-container" id="advisorProgressContainer">
-              <div class="advisor-progress-bar">
-                <div class="advisor-progress-fill" id="advisorProgressFill"></div>
-              </div>
-              <div class="advisor-progress-text" id="advisorProgressText">準備中...</div>
-            </div>
-            <div class="advisor-skeleton-loader" id="advisorSkeletonLoader">
-              <div class="advisor-skeleton-item large"></div>
-              <div class="advisor-skeleton-item medium"></div>
-              <div class="advisor-skeleton-item medium"></div>
-              <div class="advisor-skeleton-item small"></div>
-              <div style="height: 8px;"></div>
-              <div class="advisor-skeleton-item large"></div>
-              <div class="advisor-skeleton-item medium"></div>
-              <div class="advisor-skeleton-item medium"></div>
-              <div class="advisor-skeleton-item small"></div>
-            </div>
-            <div class="advisor-markdown" id="advisorMarkdown"></div>
-          </div>
-          <div id="advisorExportButtons" class="advisor-export-buttons"></div>
-        </div>
-        <div id="advisorChatContainer" class="advisor-chat-container"></div>
-      </div>
+      ` ${headerHtml} <div class="advisor-view-content">   <div class="advisor-job-panel">     <h3 class="advisor-accordion-header" data-action="advisor-toggle-job-section">       <span class="advisor-accordion-icon">▼</span>求人票     </h3>     <div class="advisor-job-content advisor-accordion-content" id="advisorJobContent">${this.formatJobPosting(this.currentJobPosting)}</div>   </div>   <div class="advisor-resize-handle" data-resize-target="advisor"></div>   <div class="advisor-advice-panel">     <h3 class="advisor-accordion-header" data-action="advisor-toggle-advice-section">       <span class="advisor-accordion-icon">▼</span>AI分析結果     </h3>     <div class="advisor-advice-content advisor-accordion-content" id="advisorAdviceContent">       <div class="advisor-progress-container" id="advisorProgressContainer">         <div class="advisor-progress-bar">           <div class="advisor-progress-fill" id="advisorProgressFill"></div>         </div>         <div class="advisor-progress-text" id="advisorProgressText">準備中...</div>       </div>       <div class="advisor-skeleton-loader" id="advisorSkeletonLoader">         <div class="advisor-skeleton-item large"></div>         <div class="advisor-skeleton-item medium"></div>         <div class="advisor-skeleton-item medium"></div>         <div class="advisor-skeleton-item small"></div>         <div style="height: 8px;"></div>         <div class="advisor-skeleton-item large"></div>         <div class="advisor-skeleton-item medium"></div>         <div class="advisor-skeleton-item medium"></div>         <div class="advisor-skeleton-item small"></div>       </div>       <div class="advisor-markdown" id="advisorMarkdown"></div>     </div>     <div id="advisorExportButtons" class="advisor-export-buttons"></div>   </div>   <div id="advisorChatContainer" class="advisor-chat-container"></div> </div>
     `
     );
     container.style.display = 'none';
@@ -191,14 +133,12 @@ class AdvisorManager extends BaseAdvisorManager {
 
   closeAdvisorView() {
     this.isStreaming = false;
-    this.perspectiveCache = {}; // キャッシュをクリア
+    this.perspectiveCache = {};
     this.clearSelectedUserMode(); // ユーザータイプ選択をクリア
 
-    // グローバルな分析状態をクリア
     setAnalysisInactive('advisor');
     cancelAnalysis('advisor');
 
-    // モーダルオーバーレイを削除
     const modals = document.querySelectorAll('.advisor-modal-overlay');
     modals.forEach(modal => modal.remove());
 
@@ -211,11 +151,13 @@ class AdvisorManager extends BaseAdvisorManager {
     const title = job.title || '不明';
     const description = this.formatDescription(job.description || '説明なし');
     const company = job.hiringOrganization?.name || '不明';
-    const location = job.jobLocation?.address?.addressLocality || job.jobLocation?.address?.addressRegion || '不明';
+    const location =
+      job.jobLocation?.address?.addressLocality ||
+      job.jobLocation?.address?.addressRegion ||
+      '不明';
 
     let html = '';
 
-    // URL情報
     if (this.currentUrl) {
       html += `
         <div class="job-field">
@@ -229,7 +171,6 @@ class AdvisorManager extends BaseAdvisorManager {
       `;
     }
 
-    // メタタグ情報
     html += `
       <div class="job-field">
         <label>企業名</label>
@@ -261,14 +202,12 @@ class AdvisorManager extends BaseAdvisorManager {
   }
 
   async fetchAdvice(mode) {
-    // デバッグモードチェック
     if (window.isDebugMode && window.isDebugMode()) {
       console.log('[Advisor] Debug mode enabled - using mock data');
       this.renderMockAnalysis(mode);
       return;
     }
 
-    // グローバルな分析実行状態をチェック（複数の分析の同時実行を防ぐ）
     if (!canStartAnalysis('advisor')) {
       alert('別の分析が実行中です。しばらくお待ちください。');
       return;
@@ -281,11 +220,9 @@ class AdvisorManager extends BaseAdvisorManager {
     setAnalysisActive('advisor'); // グローバルにアクティブ化
     console.log('[Advisor] fetchAdvice started for mode:', mode);
 
-    // AbortControllerを作成してグローバルに保存
     const abortController = new AbortController();
     window.ANALYSIS_STATE.abortControllers['advisor'] = abortController;
 
-    // タイムアウト処理（180秒）
     const timeoutId = setTimeout(() => {
       if (this.isStreaming) {
         console.warn('[Advisor] Analysis timeout - forcing completion');
@@ -449,32 +386,21 @@ class AdvisorManager extends BaseAdvisorManager {
     }
   }
 
-  /**
-   * マークダウンをHTMLに変換（BaseAdvisorManagerの共通メソッドを使用）
-   * @deprecated renderMarkdownCommon()を使用してください
-   */
   renderMarkdown(markdown) {
     return this.renderMarkdownCommon(markdown);
   }
 
-  /**
-   * フッターまでスムーズスクロール
-   */
   scrollToFooter() {
     setTimeout(() => {
       const footer = document.querySelector('footer');
       if (footer) {
         footer.scrollIntoView({ behavior: 'smooth', block: 'end' });
       } else {
-        // footerが見つからない場合はページ最下部までスクロール
         window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
       }
-    }, 500); // 完了後少し待ってからスクロール
+    }, 500);
   }
 
-  /**
-   * プログレスバーを更新
-   */
   updateProgress(percentage, text) {
     const fill = document.getElementById('advisorProgressFill');
     const textEl = document.getElementById('advisorProgressText');
@@ -491,35 +417,25 @@ class AdvisorManager extends BaseAdvisorManager {
   displayUsage() {
     if (!this.currentUsage) return;
     const container = document.createElement('div');
-    // BaseAdvisorManagerの共通メソッドを使用して詳細な使用量表示を生成
-    // サーバーから受信したモデル名を使用、なければデフォルト
     container.innerHTML = this.renderApiUsagePanel(this.currentUsage, this.currentModel);
     document.getElementById('advisorAdviceContent').appendChild(container);
   }
 
-  /**
-   * 視点を切り替えて再分析を実行（キャッシュ対応）
-   */
   async switchPerspective(newMode) {
-    // ユーザーが選択したモード以外への切り替えは禁止
     const selectedUserMode = this.getSelectedUserMode();
     if (selectedUserMode && selectedUserMode !== newMode) {
       console.log('[Advisor] 別のユーザータイプモードへの切り替えは許可されません');
       return;
     }
 
-    // 現在のモードと同じ場合は何もしない
     if (this.currentMode === newMode) return;
 
-    // ストリーミング中の場合は停止
     if (this.isStreaming) {
       this.isStreaming = false;
     }
 
-    // モードを更新
     this.currentMode = newMode;
 
-    // タイトルを更新
     let modeTitle;
     if (newMode === 'employer') {
       modeTitle = '採用側向けアドバイス';
@@ -534,7 +450,6 @@ class AdvisorManager extends BaseAdvisorManager {
       viewHeader.textContent = modeTitle;
     }
 
-    // アクティブボタンを更新
     const perspectiveBtns = document.querySelectorAll('.advisor-perspective-btn');
     perspectiveBtns.forEach(btn => {
       btn.classList.remove('active');
@@ -546,7 +461,6 @@ class AdvisorManager extends BaseAdvisorManager {
     const adviceContent = document.getElementById('advisorAdviceContent');
     if (!adviceContent) return;
 
-    // キャッシュがある場合はキャッシュから表示（トークン消費なし）
     if (this.perspectiveCache[newMode]) {
       console.log(`[Advisor] Using cached data for ${newMode}`);
       const cached = this.perspectiveCache[newMode];
@@ -564,7 +478,6 @@ class AdvisorManager extends BaseAdvisorManager {
       return;
     }
 
-    // キャッシュがない場合、トークン消費を確認
     console.log(`[Advisor] Fetching new data for ${newMode}`);
     const rateLimit = this.checkRateLimit();
     const willConsumeTokens = !rateLimit.allowed || rateLimit.mode !== 'developer';
@@ -583,15 +496,11 @@ class AdvisorManager extends BaseAdvisorManager {
       }
     }
 
-    // 新しく取得
     adviceContent.innerHTML =
       '<div class="advisor-loading"><div class="advisor-spinner"></div><p>AI分析中...</p></div>';
     await this.fetchAdvice(newMode);
   }
 
-  /**
-   * キャッシュ利用通知を表示
-   */
   showCacheNotification(message) {
     const adviceContent = document.getElementById('advisorAdviceContent');
     if (!adviceContent) return;
@@ -609,13 +518,9 @@ class AdvisorManager extends BaseAdvisorManager {
     notification.innerHTML = `<strong>キャッシュから取得</strong><br>${message}（追加トークン消費なし）`;
     adviceContent.insertBefore(notification, adviceContent.firstChild);
 
-    // 5秒後に自動削除
     setTimeout(() => notification.remove(), 5000);
   }
 
-  /**
-   * アコーディオンの開閉を切り替え
-   */
   toggleAccordion(section) {
     const contentId = section === 'job' ? 'advisorJobContent' : 'advisorAdviceContent';
     const content = document.getElementById(contentId);
@@ -633,9 +538,6 @@ class AdvisorManager extends BaseAdvisorManager {
     }
   }
 
-  /**
-   * エクスポートボタンを表示
-   */
   showExportButtons() {
     const exportContainer = document.getElementById('advisorExportButtons');
     if (!exportContainer) return;
@@ -652,9 +554,6 @@ class AdvisorManager extends BaseAdvisorManager {
     pdfBtn.addEventListener('click', () => this.exportToPDF());
   }
 
-  /**
-   * CSV形式でエクスポート（整形済みで見やすい形式）
-   */
   exportToCSV() {
     try {
       const timestamp = new Date().toISOString().split('T')[0];
@@ -670,7 +569,6 @@ class AdvisorManager extends BaseAdvisorManager {
       // CSVを項目,値の形式で整形（BOM付きUTF-8対応）
       const csvLines = [];
 
-      // ヘッダー行
       csvLines.push('項目,値');
 
       // 求人情報（セクションヘッダー）
@@ -717,22 +615,15 @@ class AdvisorManager extends BaseAdvisorManager {
     }
   }
 
-  /**
-   * CSVデータをHTMLテーブルプレビューに変換
-   * @param {Array<string>} csvLines - CSVライン配列
-   * @returns {string} HTMLテーブル
-   */
   generateCsvPreview(csvLines) {
     let html = '<table class="csv-preview-table"><thead><tr>';
 
-    // ヘッダー行
     const headerCells = csvLines[0].split(',');
     headerCells.forEach(cell => {
       html += `<th>${this.escapeHtml(cell)}</th>`;
     });
     html += '</tr></thead><tbody>';
 
-    // データ行
     for (let i = 1; i < csvLines.length; i++) {
       const cells = this.parseCsvLine(csvLines[i]);
       html += '<tr>';
@@ -748,11 +639,6 @@ class AdvisorManager extends BaseAdvisorManager {
     return html;
   }
 
-  /**
-   * CSVラインをパースしてセル配列に変換（引用符を考慮）
-   * @param {string} line - CSVライン
-   * @returns {Array<string>} セル配列
-   */
   parseCsvLine(line) {
     const cells = [];
     let currentCell = '';
@@ -779,14 +665,10 @@ class AdvisorManager extends BaseAdvisorManager {
       }
     }
 
-    // 最後のセルを追加
     cells.push(currentCell);
     return cells;
   }
 
-  /**
-   * HTMLタグを除去してテキストをクリーンアップ
-   */
   cleanHtmlText(text) {
     return text
       .replace(/<[^>]*>/g, '') // HTMLタグ除去
@@ -796,31 +678,16 @@ class AdvisorManager extends BaseAdvisorManager {
       .trim();
   }
 
-  /**
-   * CSV用に値をエスケープ（ダブルクォートで囲む）
-   */
   escapeCsvValue(value) {
-    // ダブルクォートが含まれている場合は2倍にする
     const escaped = String(value).replace(/"/g, '""');
-    // ダブルクォートで囲む
     return `"${escaped}"`;
   }
 
-  /**
-   * CSV用に行をエスケープ（改行や特殊文字を処理）
-   */
   escapeCsvLine(line) {
-    // ダブルクォートが含まれている場合は2倍にする
     const escaped = line.replace(/"/g, '""');
-    // ダブルクォートで囲む
     return `"${escaped}"`;
   }
 
-  /**
-   * HTMLファイルでエクスポート（ブラウザで印刷→PDFで保存）
-   * 注：実装上HTMLファイルがダウンロードされます。
-   *     ブラウザで開き、「印刷」→「PDFとして保存」でPDF化してください。
-   */
   exportToPDF() {
     try {
       const timestamp = new Date().toLocaleString('ja-JP');
@@ -920,8 +787,6 @@ class AdvisorManager extends BaseAdvisorManager {
   </div>
 
   <script>
-    // ページ読み込み後に自動印刷ダイアログを表示（オプション）
-    // window.print();
   </script>
 </body>
 </html>
@@ -953,9 +818,6 @@ class AdvisorManager extends BaseAdvisorManager {
     }
   }
 
-  /**
-   * ファイルダウンロード
-   */
   downloadFile(blob, filename) {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -967,9 +829,6 @@ class AdvisorManager extends BaseAdvisorManager {
     URL.revokeObjectURL(url);
   }
 
-  /**
-   * 視点のラベルを取得
-   */
   getModeLabel(mode) {
     const labels = {
       employer: '採用側視点',
@@ -979,32 +838,20 @@ class AdvisorManager extends BaseAdvisorManager {
     return labels[mode] || mode;
   }
 
-  /**
-   * ユーザーが選択したモードを保存
-   */
   saveSelectedUserMode(mode) {
     localStorage.setItem('jsonld_advisor_selected_user_mode', mode);
     console.log('[Advisor] 選択ユーザータイプを保存:', mode);
   }
 
-  /**
-   * ユーザーが選択したモードを取得
-   */
   getSelectedUserMode() {
     return localStorage.getItem('jsonld_advisor_selected_user_mode');
   }
 
-  /**
-   * ユーザーが選択したモードをクリア
-   */
   clearSelectedUserMode() {
     localStorage.removeItem('jsonld_advisor_selected_user_mode');
     console.log('[Advisor] 選択ユーザータイプをクリア');
   }
 
-  /**
-   * チャットボックスを初期化
-   */
   initChatBox() {
     const chatConfig = {
       type: 'advisor',
@@ -1035,7 +882,6 @@ class AdvisorManager extends BaseAdvisorManager {
       return;
     }
 
-    // プログレスバーとスケルトンローダーを表示
     if (progressContainer) {
       progressContainer.style.display = 'block';
     }
@@ -1043,7 +889,6 @@ class AdvisorManager extends BaseAdvisorManager {
       skeletonLoader.style.display = 'block';
     }
 
-    // モックデータを取得
     const mockData = window.DEBUG_MOCK_DATA?.jobPosting?.sample1;
     if (!mockData) {
       console.error('[Advisor] Mock data not found');
@@ -1058,7 +903,6 @@ class AdvisorManager extends BaseAdvisorManager {
       return;
     }
 
-    // ストリーミングをシミュレート
     this.updateProgress(0, '初期化中...');
 
     setTimeout(() => {

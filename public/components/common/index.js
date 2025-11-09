@@ -28,3 +28,9 @@ export {
   showWarning,
   showInfo,
 } from './Snackbar.js';
+
+// Tabs
+export { Tabs, setActiveTab } from './Tabs.js';
+
+// Preview
+export { Preview } from './Preview.js';

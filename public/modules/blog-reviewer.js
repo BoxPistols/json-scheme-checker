@@ -38,7 +38,6 @@ class BlogReviewerManager extends BaseAdvisorManager {
       },
     };
     super(config);
-
     this.currentArticle = null;
     this.isStreaming = false;
     this.currentUsage = null;
@@ -46,38 +45,20 @@ class BlogReviewerManager extends BaseAdvisorManager {
     this.model = this.getSelectedModel();
   }
 
-  /**
-   * 現在選択されているモデルを取得
-   * @returns {string} モデル名
-   */
   getSelectedModel() {
     return localStorage.getItem('jsonld_blog_reviewer_model') || window.ADVISOR_CONST.DEFAULT_MODEL;
   }
 
-  /**
-   * モデルを選択して保存
-   * @param {string} model - 選択されたモデル名
-   */
   setSelectedModel(model) {
     this.model = model;
     localStorage.setItem('jsonld_blog_reviewer_model', model);
     console.log(`[BlogReviewer] Model set to: ${model}`);
   }
 
-  // getModelPricingメソッドは削除（BaseAdvisorManagerの共通メソッドを使用）
-  // BaseAdvisorManagerのgetModelPricingは1000トークンあたりの価格なので、
-  // 計算時に調整が必要
-
-  /**
-   * レビュー対象のリモートHTMLを設定
-   * @param {string} html - 取得したリモートHTML
-   */
   setRemoteHtml(html) {
     try {
       const parser = new DOMParser();
       this.remoteDoc = parser.parseFromString(html, 'text/html');
-
-      // デバッグ: og:image メタタグの有無を確認
       const ogImageMeta = this.remoteDoc.querySelector('meta[property="og:image"]');
       const ogImageUrl = ogImageMeta?.content;
       console.log('[BlogReviewer] setRemoteHtml - og:image meta tag found:', !!ogImageMeta);
@@ -96,21 +77,14 @@ class BlogReviewerManager extends BaseAdvisorManager {
   detectBlogPost(jsonLdData, url) {
     console.log('[BlogReviewerManager] detectBlogPost called with:', jsonLdData);
     console.log('[BlogReviewerManager] Number of schemas:', jsonLdData?.length);
-
-    // 既存のボタンを削除
     this.hideReviewButton();
-
     if (!jsonLdData || !Array.isArray(jsonLdData) || jsonLdData.length === 0) {
       console.warn('[BlogReviewerManager] jsonLdData is empty or not an array');
       return;
     }
-
-    // デバッグ: 各アイテムの@typeをログ出力
     jsonLdData.forEach((item, index) => {
       console.log(`[BlogReviewerManager] Schema ${index + 1} @type:`, item['@type']);
     });
-
-    // Article または BlogPosting を検索
     const article = jsonLdData.find(
       item =>
         item['@type'] === 'Article' ||
@@ -118,11 +92,8 @@ class BlogReviewerManager extends BaseAdvisorManager {
         item['@type']?.includes('Article') ||
         item['@type']?.includes('BlogPosting')
     );
-
     console.log('[BlogReviewerManager] Article/BlogPosting detected:', article);
-
     if (article) {
-      // HTMLから不足情報を補完
       this.currentArticle = this.enrichArticleData(article);
       this.currentUrl = url;
       this.showReviewButton();
@@ -144,43 +115,31 @@ class BlogReviewerManager extends BaseAdvisorManager {
    */
   enrichArticleData(article) {
     const enriched = { ...article };
-
     console.log('[BlogReviewerManager] enrichArticleData called');
     console.log('[BlogReviewerManager] remoteDoc available:', !!this.remoteDoc);
     console.log('[BlogReviewerManager] article.image:', article.image);
-
-    // description が欠けている場合、メタタグから取得
     if (!enriched.description && !enriched.abstract) {
       const root = this.remoteDoc || document;
       const metaDescription =
         root.querySelector('meta[name="description"]')?.content ||
         root.querySelector('meta[property="og:description"]')?.content;
-
       if (metaDescription) {
         enriched.description = metaDescription;
         console.log('[BlogReviewerManager] Added description from meta tag:', metaDescription);
       }
     }
-
-    // image プロパティを正規化（文字列化）
     if (enriched.image) {
       let imageUrl = '';
-
-      // オブジェクトの場合は url プロパティを取得
       if (typeof enriched.image === 'object') {
         if (Array.isArray(enriched.image)) {
-          // 配列の場合は最初の要素
           const firstImage = enriched.image[0];
           imageUrl = typeof firstImage === 'string' ? firstImage : firstImage?.url || '';
         } else if (enriched.image.url) {
-          // ImageObject の場合
           imageUrl = enriched.image.url;
         }
       } else if (typeof enriched.image === 'string') {
-        // 文字列の場合はそのまま使用
         imageUrl = enriched.image;
       }
-
       if (imageUrl) {
         enriched.image = imageUrl;
         console.log('[BlogReviewerManager] image normalized to string:', imageUrl);
@@ -189,33 +148,23 @@ class BlogReviewerManager extends BaseAdvisorManager {
         console.log('[BlogReviewerManager] image is empty object, will search OGP');
       }
     }
-
-    // OGP画像を取得（image プロパティがない場合）
     if (!enriched.image) {
       const root = this.remoteDoc || document;
       console.log('[BlogReviewerManager] Searching for OGP image...');
-
-      // デバッグ: すべてのメタタグを確認
       const allMetas = root.querySelectorAll('meta[property]');
       console.log('[BlogReviewerManager] Total meta tags with property:', allMetas.length);
-
       const ogImage =
         root.querySelector('meta[property="og:image"]')?.content ||
         root.querySelector('meta[property="og:image:url"]')?.content;
-
       console.log('[BlogReviewerManager] og:image found:', ogImage);
-
       if (ogImage) {
-        // 相対URLの場合は絶対URLに変換
         let absoluteImageUrl = ogImage;
         try {
           if (typeof ogImage === 'string') {
             if (ogImage.startsWith('/')) {
-              // サーバー相対パス
               const urlObj = new URL(window.location.href);
               absoluteImageUrl = urlObj.origin + ogImage;
             } else if (!ogImage.startsWith('http')) {
-              // 相対パス
               const urlObj = new URL(window.location.href);
               const basePath = urlObj.pathname.substring(0, urlObj.pathname.lastIndexOf('/') + 1);
               absoluteImageUrl = urlObj.origin + basePath + ogImage;
@@ -237,22 +186,16 @@ class BlogReviewerManager extends BaseAdvisorManager {
     } else {
       console.log('[BlogReviewerManager] image already exists in article:', enriched.image);
     }
-
-    // articleBody が欠けている場合、HTMLから抽出
     if (!enriched.articleBody) {
       const root = this.remoteDoc || document; // 取得済みのリモートHTMLを優先
       let bodyText = '';
       console.log('[BlogReviewer] articleBody not found in JSON-LD, extracting from HTML...');
-
-      // 方法1: <article>タグから抽出
       const articleElement = root.querySelector('article');
       console.log('[BlogReviewer] article element:', articleElement);
       if (articleElement) {
         bodyText = this.extractTextContent(articleElement);
         console.log('[BlogReviewer] Extracted from <article>:', bodyText.substring(0, 200));
       }
-
-      // 方法2: main要素から抽出（articleがない場合）
       if (!bodyText) {
         const mainElement = root.querySelector('main');
         console.log('[BlogReviewer] main element:', mainElement);
@@ -261,12 +204,8 @@ class BlogReviewerManager extends BaseAdvisorManager {
           console.log('[BlogReviewer] Extracted from <main>:', bodyText.substring(0, 200));
         }
       }
-
-      // 方法3: 汎用的なセレクタで本文候補を探す
       if (!bodyText) {
         console.log('[BlogReviewer] Trying generic content selectors...');
-
-        // セマンティックHTMLと一般的なCMSクラスを優先順に試す
         const contentSelectors = [
           'article',
           'main',
@@ -282,7 +221,6 @@ class BlogReviewerManager extends BaseAdvisorManager {
           '[class*="article"]',
           '[class*="post"]',
         ];
-
         for (const selector of contentSelectors) {
           const element = root.querySelector(selector);
           if (element) {
@@ -295,7 +233,6 @@ class BlogReviewerManager extends BaseAdvisorManager {
           }
         }
       }
-
       if (bodyText) {
         enriched.articleBody = bodyText;
         console.log('[BlogReviewerManager] Final articleBody:', bodyText.substring(0, 200) + '...');
@@ -303,19 +240,11 @@ class BlogReviewerManager extends BaseAdvisorManager {
         console.warn('[BlogReviewer] Could not extract articleBody from HTML');
       }
     }
-
     return enriched;
   }
 
-  /**
-   * HTML要素からテキストコンテンツを抽出
-   * @param {HTMLElement} element - 抽出元の要素
-   * @returns {string} 抽出されたテキスト
-   */
   extractTextContent(element) {
     if (!element) return '';
-
-    // スクリプトやスタイルタグを除外（パフォーマンス最適化：単一クエリで実行）
     const clone = element.cloneNode(true);
     const excludeSelector = [
       'script',
@@ -342,15 +271,10 @@ class BlogReviewerManager extends BaseAdvisorManager {
       '.advisor-modal',
       'details',
     ].join(',');
-
-    // 単一のクエリで全要素を取得して削除
     clone.querySelectorAll(excludeSelector).forEach(el => el.remove());
-
     let text = clone.textContent
       .replace(/\s+/g, ' ') // 連続する空白を1つに
       .trim();
-
-    // 不要なフレーズを削除（Basic認証ダイアログの残骸など）
     const unwantedPhrases = [
       '認証情報の保存方法',
       '保存しない（最もセキュア）',
@@ -362,27 +286,20 @@ class BlogReviewerManager extends BaseAdvisorManager {
       'ユーザー名',
       'パスワード',
     ];
-
     unwantedPhrases.forEach(phrase => {
       text = text.replace(new RegExp(phrase, 'g'), '');
     });
-
     return text.replace(/\s+/g, ' ').trim();
   }
 
-  /**
-   * レビューボタンを表示
-   */
   showReviewButton() {
     const actionsContainer =
       document.getElementById('aiActions') || document.getElementById('results');
     console.log('[BlogReviewerManager] showReviewButton called');
     console.log('[BlogReviewerManager] actions container:', actionsContainer);
     console.log('[BlogReviewerManager] actions container found:', !!actionsContainer);
-
     if (!actionsContainer) {
       console.error('[BlogReviewerManager] ERROR: actions container not found');
-      // フォールバック: schemasContainerを探す
       const schemasContainer = document.getElementById('schemasContainer');
       if (schemasContainer) {
         console.log('[BlogReviewerManager] Using schemasContainer as fallback');
@@ -392,94 +309,49 @@ class BlogReviewerManager extends BaseAdvisorManager {
       }
       return;
     }
-
     const existingBtn = document.getElementById('blogReviewerTriggerBtn');
     if (existingBtn) {
       console.log('[BlogReviewerManager] Review button already exists');
       return;
     }
-
     const button = this.createReviewButton();
     actionsContainer.appendChild(button);
     console.log('[BlogReviewerManager] Review button inserted into DOM');
   }
 
-  /**
-   * レビューボタンを作成
-   * @returns {HTMLButtonElement}
-   */
   createReviewButton() {
     const button = document.createElement('button');
     button.id = 'blogReviewerTriggerBtn';
     button.className = 'advisor-trigger-btn';
     button.type = 'button';
     button.dataset.action = 'show-blog-confirm-dialog';
-    button.innerHTML = `
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      ブログ記事レビューを受ける
-    `;
+    button.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>  <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>ブログ記事レビューを受ける`;
     console.log('[BlogReviewerManager] Review button created');
     return button;
   }
 
-  /**
-   * レビューボタンを非表示
-   */
   hideReviewButton() {
     const btn = document.getElementById('blogReviewerTriggerBtn');
     if (btn) btn.remove();
   }
 
-  /**
-   * レビュー実行確認ダイアログを表示
-   * Dialog内にはAPI関連情報は含めない（API設定はHeaderのMy APIで管理）
-   */
   showConfirmDialog() {
-    // currentArticleがnullの場合は何もしない（誤動作防止）
     if (!this.currentArticle) {
       console.warn('[BlogReviewer] showConfirmDialog called but currentArticle is null');
       return;
     }
-
     const overlay = document.createElement('div');
     overlay.id = 'blogReviewerConfirmOverlay';
     overlay.className = 'advisor-overlay';
-    overlay.innerHTML = `
-      <div class="advisor-modal">
-        <div class="advisor-modal-header">
-          <h2>ブログ記事レビュー</h2>
-          <button type="button" class="advisor-modal-close" data-action="blog-close-confirm-dialog">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </button>
-        </div>
-        <div class="advisor-modal-body">
-          <p class="advisor-modal-text advisor-center advisor-muted">SEO観点、EEAT観点、アクセシビリティ観点でブログ記事をレビューします。</p>
-          <div class="advisor-confirm-buttons">
-            <button type="button" class="advisor-btn-secondary" data-action="blog-close-confirm-dialog">キャンセル</button>
-            <button type="button" class="advisor-btn-primary" data-action="blog-start-review">レビュー開始</button>
-          </div>
-        </div>
-      </div>
-    `;
-
+    overlay.innerHTML = ` <div class="advisor-modal">   <div class="advisor-modal-header">     <h2>ブログ記事レビュー</h2>     <button type="button" class="advisor-modal-close" data-action="blog-close-confirm-dialog">       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">         <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>       </svg>     </button>   </div>   <div class="advisor-modal-body">     <p class="advisor-modal-text advisor-center advisor-muted">SEO観点、EEAT観点、アクセシビリティ観点でブログ記事をレビューします。</p>     <div class="advisor-confirm-buttons">       <button type="button" class="advisor-btn-secondary" data-action="blog-close-confirm-dialog">キャンセル</button>       <button type="button" class="advisor-btn-primary" data-action="blog-start-review">レビュー開始</button>     </div>   </div> </div> `;
     document.body.appendChild(overlay);
     this.addEscapeKeyListener(overlay, () => this.closeConfirmDialog());
-
     setTimeout(() => overlay.classList.add('active'), 10);
   }
 
-  /**
-   * 確認ダイアログを閉じる
-   */
   closeConfirmDialog() {
     const overlay = document.getElementById('blogReviewerConfirmOverlay');
     if (overlay) {
-      // Escapeキーリスナーをクリーンアップ
       if (overlay.handleEscape) {
         document.removeEventListener('keydown', overlay.handleEscape);
       }
@@ -488,120 +360,53 @@ class BlogReviewerManager extends BaseAdvisorManager {
     }
   }
 
-  /**
-   * レビューを開始
-   */
   async startReview() {
-    // currentArticleがnullの場合は何もしない（誤動作防止）
     if (!this.currentArticle) {
       console.error('[BlogReviewer] startReview called but currentArticle is null');
       alert('レビュー対象の記事が見つかりません。');
       return;
     }
-
-    // レート制限チェック
     const rateLimit = this.checkRateLimit();
     if (!rateLimit.allowed) {
       this.closeConfirmDialog();
       const resetTimeStr = rateLimit.resetTime
         ? rateLimit.resetTime.toLocaleString('ja-JP')
         : '不明';
-
       const message = `利用制限に達しました。\n\nリセット時刻: ${resetTimeStr}\n\nMyAPIモード（Header「My API」設定）で自分のOpenAI APIキーを使用すると無制限利用できます。`;
       alert(message);
       return;
     }
-
     this.closeConfirmDialog();
     this.showReviewView();
     await this.fetchReview();
   }
 
-  /**
-   * レビュー表示画面を表示
-   */
   showReviewView() {
     const container = document.querySelector('.container');
     if (!container) return;
-
     const reviewView = document.createElement('div');
     reviewView.id = 'blogReviewerView';
     reviewView.className = 'advisor-view';
     const headerHtml = this.renderViewHeader(
       'ブログ記事レビュー',
       'blog-close-review-view',
-      `
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    `
+      ` <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/> <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/> </svg> `
     );
-    reviewView.innerHTML = `
-      ${headerHtml}
-      <div class="advisor-view-content">
-        <div class="advisor-job-panel">
-          <h3 class="advisor-accordion-header" data-action="blog-reviewer-toggle-article-section">
-            <span class="advisor-accordion-icon">▼</span>記事情報
-          </h3>
-          <div class="advisor-job-content advisor-accordion-content" id="blogReviewerArticleContent">
-            ${this.formatArticle(this.currentArticle)}
-          </div>
-        </div>
-        <div class="advisor-resize-handle" data-resize-target="blog-reviewer"></div>
-        <div class="advisor-advice-panel">
-          <h3 class="advisor-accordion-header" data-action="blog-reviewer-toggle-review-section">
-            <span class="advisor-accordion-icon">▼</span>AI分析結果
-          </h3>
-          <div class="advisor-advice-content advisor-accordion-content" id="blogReviewerReviewContent">
-            <div class="advisor-progress-container" id="blogReviewerProgressContainer">
-              <div class="advisor-progress-bar">
-                <div class="advisor-progress-fill" id="blogReviewerProgressFill"></div>
-              </div>
-              <div class="advisor-progress-text" id="blogReviewerProgressText">準備中...</div>
-            </div>
-            <div class="advisor-skeleton-loader" id="blogReviewerSkeletonLoader">
-              <div class="advisor-skeleton-item large"></div>
-              <div class="advisor-skeleton-item medium"></div>
-              <div class="advisor-skeleton-item medium"></div>
-              <div class="advisor-skeleton-item small"></div>
-              <div style="height: 8px;"></div>
-              <div class="advisor-skeleton-item large"></div>
-              <div class="advisor-skeleton-item medium"></div>
-              <div class="advisor-skeleton-item medium"></div>
-              <div class="advisor-skeleton-item small"></div>
-            </div>
-            <div class="advisor-markdown" id="blogReviewerMarkdown"></div>
-          </div>
-          <div id="blogReviewerExportButtons" class="advisor-export-buttons"></div>
-        </div>
-        <div id="blogReviewerChatContainer" class="advisor-chat-container"></div>
-      </div>
-    `;
-
+    reviewView.innerHTML = ` ${headerHtml} <div class="advisor-view-content">   <div class="advisor-job-panel">     <h3 class="advisor-accordion-header" data-action="blog-reviewer-toggle-article-section">       <span class="advisor-accordion-icon">▼</span>記事情報     </h3>     <div class="advisor-job-content advisor-accordion-content" id="blogReviewerArticleContent">       ${this.formatArticle(this.currentArticle)}     </div>   </div>   <div class="advisor-resize-handle" data-resize-target="blog-reviewer"></div>   <div class="advisor-advice-panel">     <h3 class="advisor-accordion-header" data-action="blog-reviewer-toggle-review-section">       <span class="advisor-accordion-icon">▼</span>AI分析結果     </h3>     <div class="advisor-advice-content advisor-accordion-content" id="blogReviewerReviewContent">       <div class="advisor-progress-container" id="blogReviewerProgressContainer">         <div class="advisor-progress-bar">           <div class="advisor-progress-fill" id="blogReviewerProgressFill"></div>         </div>         <div class="advisor-progress-text" id="blogReviewerProgressText">準備中...</div>       </div>       <div class="advisor-skeleton-loader" id="blogReviewerSkeletonLoader">         <div class="advisor-skeleton-item large"></div>         <div class="advisor-skeleton-item medium"></div>         <div class="advisor-skeleton-item medium"></div>         <div class="advisor-skeleton-item small"></div>         <div style="height: 8px;"></div>         <div class="advisor-skeleton-item large"></div>         <div class="advisor-skeleton-item medium"></div>         <div class="advisor-skeleton-item medium"></div>         <div class="advisor-skeleton-item small"></div>       </div>       <div class="advisor-markdown" id="blogReviewerMarkdown"></div>     </div>     <div id="blogReviewerExportButtons" class="advisor-export-buttons"></div>   </div>   <div id="blogReviewerChatContainer" class="advisor-chat-container"></div> </div> `;
     container.style.display = 'none';
     document.body.appendChild(reviewView);
-
     setTimeout(() => {
       reviewView.classList.add('active');
-      // モデルセレクト初期化
       const sel = document.getElementById('blogReviewerModelSelect');
       if (sel) {
         sel.value = this.getSelectedModel();
         sel.addEventListener('change', () => this.setSelectedModel(sel.value));
       }
-      // リサイズハンドルを初期化
       this.initResizeHandle('blog-reviewer');
-      // 初期表示時点で累積表示を更新
       this.updateHeaderUsageChip();
     }, 10);
   }
 
-  /**
-   * Articleデータをフォーマット
-   * @param {Object} article - Articleオブジェクト
-   * @returns {string} HTML文字列
-   */
   formatArticle(article) {
     const headline = article.headline || article.name || article.title || '不明';
     const author =
@@ -614,120 +419,44 @@ class BlogReviewerManager extends BaseAdvisorManager {
       : '不明';
     const description = article.description || article.abstract || '説明なし';
     const image = article.image;
-
     console.log('[BlogReviewer] formatArticle called - image available:', !!image);
-
-    // 記事本文を取得（最大1000文字で省略）
     const MAX_BODY_LENGTH = 1000;
     let articleBody = article.articleBody || '本文なし';
     let isTruncated = false;
-
     if (articleBody !== '本文なし' && articleBody.length > MAX_BODY_LENGTH) {
       articleBody = articleBody.substring(0, MAX_BODY_LENGTH);
       isTruncated = true;
     }
-
     let html = '';
-
-    // URL情報
     if (this.currentUrl) {
-      html += `
-        <div class="job-field">
-          <label>分析元URL</label>
-          <div class="job-value">
-            <a href="${this.escapeHtml(this.currentUrl)}" target="_blank" rel="noopener noreferrer" style="color: var(--link-color); text-decoration: underline; word-break: break-all;">
-              ${this.escapeHtml(this.currentUrl)}
-            </a>
-          </div>
-        </div>
-      `;
+      html += ` <div class="job-field"> <label>分析元URL</label> <div class="job-value"> <a href="${this.escapeHtml(this.currentUrl)}" target="_blank" rel="noopener noreferrer" style="color: var(--link-color); text-decoration: underline; word-break: break-all;"> ${this.escapeHtml(this.currentUrl)} </a> </div> </div> `;
     }
-
-    // OGP画像
     if (image) {
-      html += `
-        <div class="job-field">
-          <label>OGP画像</label>
-          <div class="job-value" style="text-align: center;">
-            <img
-              src="${this.escapeHtml(image)}"
-              alt="OGP"
-              loading="lazy"
-              onerror="this.parentElement.parentElement.style.display='none'"
-              style="max-width: 100%; max-height: 300px; border-radius: 4px; border: 1px solid var(--border-color); display: block;"
-            >
-          </div>
-        </div>
-      `;
+      html += ` <div class="job-field"> <label>OGP画像</label> <div class="job-value" style="text-align: center;"> <img src="${this.escapeHtml(image)}" alt="OGP" loading="lazy" onerror="this.parentElement.parentElement.style.display='none'" style="max-width: 100%; max-height: 300px; border-radius: 4px; border: 1px solid var(--border-color); display: block;" > </div> </div> `;
     }
-
-    // メタタグ情報
-    html += `
-      <div class="job-field">
-        <label>タイトル</label>
-        <div class="job-value">${this.escapeHtml(headline)}</div>
-      </div>
-      <div class="job-field">
-        <label>著者</label>
-        <div class="job-value">${this.escapeHtml(author)}</div>
-      </div>
-      <div class="job-field">
-        <label>公開日</label>
-        <div class="job-value">${this.escapeHtml(datePublished)}</div>
-      </div>
-      <div class="job-field">
-        <label>最終更新日</label>
-        <div class="job-value">${this.escapeHtml(dateModified)}</div>
-      </div>
-      <div class="job-field">
-        <label>説明</label>
-        <div class="job-value job-description">${this.escapeHtml(description)}</div>
-      </div>
-    `;
-
-    // 本文
+    html += ` <div class="job-field"> <label>タイトル</label> <div class="job-value">${this.escapeHtml(headline)}</div> </div> <div class="job-field"> <label>著者</label> <div class="job-value">${this.escapeHtml(author)}</div> </div> <div class="job-field"> <label>公開日</label> <div class="job-value">${this.escapeHtml(datePublished)}</div> </div> <div class="job-field"> <label>最終更新日</label> <div class="job-value">${this.escapeHtml(dateModified)}</div> </div> <div class="job-field"> <label>説明</label> <div class="job-value job-description">${this.escapeHtml(description)}</div> </div> `;
     if (articleBody && articleBody !== '本文なし') {
-      html += `
-        <div class="job-field">
-          <label>本文</label>
-          <div class="job-value job-description">
-            ${this.escapeHtml(articleBody)}${isTruncated ? '<span class="text-muted">...（省略）</span>' : ''}
-          </div>
-        </div>
-      `;
+      html += ` <div class="job-field"> <label>本文</label> <div class="job-value job-description"> ${this.escapeHtml(articleBody)}${isTruncated ? '<span class="text-muted">...（省略）</span>' : ''} </div> </div> `;
     }
-
     return html;
   }
 
-  /**
-   * AIレビューを取得（ストリーミング）
-   */
   async fetchReview() {
-    // デバッグモードチェック
     if (window.isDebugMode && window.isDebugMode()) {
       console.log('[BlogReviewer] Debug mode enabled - using mock data');
       this.renderMockReview();
       return;
     }
-
-    // グローバルな分析実行状態をチェック（複数の分析の同時実行を防ぐ）
     if (!canStartAnalysis('blog-reviewer')) {
       alert('別の分析が実行中です。しばらくお待ちください。');
       return;
     }
-
     const reviewContent = document.getElementById('blogReviewerReviewContent');
     if (!reviewContent) return;
-
     this.isStreaming = true;
     setAnalysisActive('blog-reviewer'); // グローバルにアクティブ化
-
-    // AbortControllerを作成してグローバルに保存
     const abortController = new AbortController();
     window.ANALYSIS_STATE.abortControllers['blog-reviewer'] = abortController;
-
-    // タイムアウト処理（180秒）
     const timeoutId = setTimeout(() => {
       if (this.isStreaming) {
         console.warn('[BlogReviewer] Analysis timeout - forcing completion');
@@ -741,13 +470,10 @@ class BlogReviewerManager extends BaseAdvisorManager {
         alert('分析がタイムアウトしました。取得できた範囲で結果を表示しています。');
       }
     }, 180000); // 180秒
-
     try {
       const isVercel = window.location.hostname.includes('vercel.app');
       const apiUrl = isVercel ? '/api/blog-reviewer' : 'http://127.0.0.1:3333/api/blog-reviewer';
-
       const userApiKey = this.getUserApiKey();
-
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
@@ -760,9 +486,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
         }),
         signal: abortController.signal,
       });
-
       if (!response.ok) {
-        // 429 Too Many Requests: レート制限エラー
         if (response.status === 429) {
           try {
             const errorData = await response.json();
@@ -780,45 +504,36 @@ class BlogReviewerManager extends BaseAdvisorManager {
         }
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-
-      // 既存のマークダウン要素を使用（HTML 上書きしない）
       const md = document.getElementById('blogReviewerMarkdown');
       if (!md) {
         throw new Error('マークダウン要素が見つかりません');
       }
-
       this.updateProgress(0, '初期化中...');
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let buffer = '';
       let fullText = '';
       let firstTokenReceived = false;
-
       try {
         while (this.isStreaming) {
           const { done, value } = await reader.read();
           if (done) break;
-
           buffer += decoder.decode(value, { stream: true });
           const lines = buffer.split('\n');
           buffer = lines.pop();
-
           for (const line of lines) {
             if (line.startsWith('data: ')) {
               const data = line.slice(6);
               if (data === '[DONE]') {
                 this.isStreaming = false;
                 this.updateProgress(100, '完了');
-                // プログレスバーとスケルトンを非表示
                 const progressContainer = document.getElementById('blogReviewerProgressContainer');
                 if (progressContainer) {
                   progressContainer.style.display = 'none';
                 }
-                // 使用履歴を記録（成功時のみ）
                 this.recordUsage();
                 break;
               }
-
               try {
                 const parsed = JSON.parse(data);
                 if (parsed.model) {
@@ -826,8 +541,6 @@ class BlogReviewerManager extends BaseAdvisorManager {
                   console.log('[BlogReviewer] Received model:', parsed.model);
                 } else if (parsed.content) {
                   fullText += parsed.content;
-
-                  // 初回トークン受信時、スケルトンローダーを非表示
                   if (!firstTokenReceived) {
                     firstTokenReceived = true;
                     const skeletonLoader = document.getElementById('blogReviewerSkeletonLoader');
@@ -836,12 +549,9 @@ class BlogReviewerManager extends BaseAdvisorManager {
                     }
                     this.updateProgress(10, '分析開始...');
                   }
-
-                  // テキスト長に基づいて進捗を更新（10%-90%）
                   const textLength = fullText.length;
                   let progressPercentage = 10;
                   let progressText = '分析中...';
-
                   if (textLength < 500) {
                     progressPercentage = 10 + Math.floor((textLength / 500) * 20); // 10-30%
                   } else if (textLength < 1500) {
@@ -852,11 +562,9 @@ class BlogReviewerManager extends BaseAdvisorManager {
                     progressPercentage = 80 + Math.min(Math.floor((textLength - 3000) / 500), 10); // 80-90%
                     progressText = '完了間近...';
                   }
-
                   this.updateProgress(progressPercentage, progressText);
                   md.innerHTML = this.renderMarkdown(fullText);
                 } else if (parsed.usage) {
-                  // usage情報を保存して表示
                   console.log('[BlogReviewer] Received usage:', parsed.usage);
                   this.currentUsage = parsed.usage;
                   this.displayUsage();
@@ -875,16 +583,12 @@ class BlogReviewerManager extends BaseAdvisorManager {
           }
         }
       } finally {
-        // ストリームを確実にキャンセル
         reader.cancel().catch(err => console.warn('Reader cancel failed:', err));
-
-        // グローバルな分析状態をクリア
         this.isStreaming = false;
         setAnalysisInactive('blog-reviewer');
         delete window.ANALYSIS_STATE.abortControllers['blog-reviewer'];
       }
     } catch (error) {
-      // プログレスバーとスケルトン非表示
       const progressContainer = document.getElementById('blogReviewerProgressContainer');
       const skeletonLoader = document.getElementById('blogReviewerSkeletonLoader');
       if (progressContainer) {
@@ -893,8 +597,6 @@ class BlogReviewerManager extends BaseAdvisorManager {
       if (skeletonLoader) {
         skeletonLoader.style.display = 'none';
       }
-
-      // AbortError（キャンセル）の場合
       if (error.name === 'AbortError') {
         console.log('[BlogReviewer] 分析がキャンセルされました');
         const md = document.getElementById('blogReviewerMarkdown');
@@ -903,88 +605,53 @@ class BlogReviewerManager extends BaseAdvisorManager {
         }
         return;
       }
-
       console.error('BlogReviewer fetch error:', error);
       const isVercel = window.location.hostname.includes('vercel.app');
       const errorMessage = isVercel
         ? '予期せぬエラーが発生しました。時間をおいて再度お試しください。'
         : this.escapeHtml(error.message);
-
       const md = document.getElementById('blogReviewerMarkdown');
       if (md) {
-        md.innerHTML = `
-          <div class="advisor-error">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-              <path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          <p>AI分析に失敗しました</p>
-          <p class="advisor-error-detail">${errorMessage}</p>
-          <button class="advisor-btn-primary" data-action="blog-fetch-review">
-            再試行
-          </button>
-        </div>
-      `;
+        md.innerHTML = ` <div class="advisor-error"> <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"> <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/> <path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/> </svg> <p>AI分析に失敗しました</p> <p class="advisor-error-detail">${errorMessage}</p> <button class="advisor-btn-primary" data-action="blog-fetch-review"> 再試行 </button> </div> `;
       }
     } finally {
-      // タイムアウトタイマーをクリア
       clearTimeout(timeoutId);
     }
   }
 
-  /**
-   * Markdownを簡易的にHTMLに変換（BaseAdvisorManagerの共通メソッドを使用）
-   * @param {string} markdown - Markdown文字列
-   * @returns {string} HTML文字列
-   * @deprecated renderMarkdownCommon()を使用してください
-   */
   renderMarkdown(markdown) {
     return this.renderMarkdownCommon(markdown);
   }
 
-  /**
-   * フッターまでスムーズスクロール
-   */
   scrollToFooter() {
     setTimeout(() => {
       const footer = document.querySelector('footer');
       if (footer) {
         footer.scrollIntoView({ behavior: 'smooth', block: 'end' });
       } else {
-        // footerが見つからない場合はページ最下部までスクロール
         window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
       }
     }, 500); // 完了後少し待ってからスクロール
   }
 
-  /**
-   * プログレスバーを更新
-   */
   updateProgress(percentage, text) {
     const fill = document.getElementById('blogReviewerProgressFill');
     const textEl = document.getElementById('blogReviewerProgressText');
-
     if (fill) {
       fill.style.width = Math.min(percentage, 100) + '%';
     }
-
     if (textEl) {
       textEl.textContent = text;
     }
   }
 
-  /**
-   * アコーディオンを開閉
-   */
   toggleAccordion(section) {
     const contentId =
       section === 'article' ? 'blogReviewerArticleContent' : 'blogReviewerReviewContent';
     const content = document.getElementById(contentId);
     const header = content?.previousElementSibling;
     const icon = header?.querySelector('.advisor-accordion-icon');
-
     if (!content || !header || !icon) return;
-
     if (content.classList.contains('advisor-accordion-collapsed')) {
       content.classList.remove('advisor-accordion-collapsed');
       icon.textContent = '▼';
@@ -994,31 +661,21 @@ class BlogReviewerManager extends BaseAdvisorManager {
     }
   }
 
-  /**
-   * ヘッダの使用量チップを更新
-   */
   updateHeaderUsageChip() {
     const chip = document.getElementById('blogReviewerHeaderUsage');
     const cur = document.getElementById('blogReviewerHeaderUsageTokens');
     const total = document.getElementById('blogReviewerHeaderUsageTotal');
     if (!chip || !cur || !total) return;
-
-    // 現回
     if (this.currentUsage) {
       const { prompt_tokens = 0, completion_tokens = 0, total_tokens = 0 } = this.currentUsage;
       cur.textContent = `${total_tokens.toLocaleString()} tok`;
       chip.style.display = 'inline-flex';
     }
-
-    // 累計
     const acc = this.getAccumulatedUsage();
     const totalTokens = acc?.total_tokens || 0;
     total.textContent = `${totalTokens.toLocaleString()} tok`;
   }
 
-  /**
-   * 累積使用量の取得/保存
-   */
   getAccumulatedUsage() {
     try {
       const mode = localStorage.getItem(this.config.USAGE_MODE_KEY) || 'session';
@@ -1060,41 +717,26 @@ class BlogReviewerManager extends BaseAdvisorManager {
     this.updateHeaderUsageChip();
   }
 
-  /**
-   * 累積モード切替（セッション or 永続）
-   */
   setUsageMode(mode) {
-    // mode: 'session' | 'permanent'
     if (mode !== 'session' && mode !== 'permanent') return;
     localStorage.setItem(this.config.USAGE_MODE_KEY, mode);
     this.updateHeaderUsageChip();
   }
 
-  /**
-   * API usage情報を表示
-   */
   displayUsage() {
     if (!this.currentUsage) {
       console.log('[BlogReviewer] No usage data to display');
       return;
     }
-
     console.log('[BlogReviewer] Displaying usage:', this.currentUsage);
-
-    // モデル名を取得
     const model = this.currentArticle.model || 'gpt-5-nano';
-
-    // BaseAdvisorManagerの共通メソッドを使用してHTML生成
     const usageHtml = this.renderApiUsagePanel(this.currentUsage, model);
-
-    // レビューコンテンツの末尾に追加
     const reviewContent = document.getElementById('blogReviewerReviewContent');
     console.log('[BlogReviewer] reviewContent element:', reviewContent);
     if (reviewContent) {
       const markdownDiv = reviewContent.querySelector('.advisor-markdown');
       console.log('[BlogReviewer] markdownDiv element:', markdownDiv);
       if (markdownDiv) {
-        // 既存のusageパネルがあれば削除
         const existingPanel = reviewContent.querySelector('.advisor-usage-panel');
         if (existingPanel) existingPanel.remove();
         markdownDiv.insertAdjacentHTML('afterend', usageHtml);
@@ -1103,46 +745,30 @@ class BlogReviewerManager extends BaseAdvisorManager {
     }
   }
 
-  /**
-   * レビュー画面を閉じる
-   */
   closeReviewView() {
     this.isStreaming = false;
-
-    // モーダルオーバーレイを削除
     const modals = document.querySelectorAll('.advisor-modal-overlay');
     modals.forEach(modal => modal.remove());
-
     const view = document.getElementById('blogReviewerView');
     if (view) {
       view.classList.remove('active');
       setTimeout(() => view.remove(), 300);
     }
-
     const container = document.querySelector('.container');
     if (container) {
       container.style.display = '';
     }
   }
 
-  /**
-   * HTMLエスケープ
-   * @param {string} text - エスケープする文字列
-   * @returns {string} エスケープされた文字列
-   */
   escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
   }
 
-  /**
-   * エクスポートボタンを表示
-   */
   showExportButtons() {
     const exportContainer = document.getElementById('blogReviewerExportButtons');
     if (!exportContainer) return;
-
     this.showExportButtonsCommon(
       'blogReviewerExportButtons',
       () => this.exportToCSV(),
@@ -1150,59 +776,35 @@ class BlogReviewerManager extends BaseAdvisorManager {
     );
   }
 
-  /**
-   * CSV形式でエクスポート（整形済みで見やすい形式）
-   */
   exportToCSV() {
     try {
       const timestamp = new Date().toISOString().split('T')[0];
-
       const articleContent = document.getElementById('blogReviewerArticleContent');
       const reviewContent = document.querySelector('.advisor-markdown');
-
-      // メタデータ抽出（HTMLタグ除去）
       const articleText = articleContent
         ? this.cleanHtmlText(articleContent.innerText)
         : '情報なし';
       const reviewText = reviewContent ? reviewContent.innerText : '情報なし';
-
-      // CSVを項目,値の形式で整形（BOM付きUTF-8対応）
       const csvLines = [];
-
-      // ヘッダー行
       csvLines.push('項目,値');
-
-      // 記事情報（セクションヘッダー）
       csvLines.push('記事情報（タイトル）,');
       const articleLines = articleText.split('\n').filter(line => line.trim().length > 0);
       articleLines.slice(0, 1).forEach(line => csvLines.push(`,${this.escapeCsvValue(line)}`)); // 最初の行（タイトル）
-
       csvLines.push('記事情報（詳細）,');
       articleLines.slice(1).forEach(line => csvLines.push(`,${this.escapeCsvValue(line)}`)); // 残りの行（詳細）
-
-      // AI分析結果
       csvLines.push('AI分析結果,');
       const reviewLines = reviewText.split('\n').filter(line => line.trim().length > 0);
       reviewLines.forEach(line => csvLines.push(`,${this.escapeCsvValue(line)}`));
-
-      // メタデータ（最下部）
       csvLines.push(','); // 空行
       csvLines.push(`使用モデル,${this.model}`);
       csvLines.push(`入力トークン数,${this.currentUsage.prompt_tokens}`);
       csvLines.push(`出力トークン数,${this.currentUsage.completion_tokens}`);
-
-      // CSVをHTMLテーブルに変換してプレビュー
       const previewHtml = this.generateCsvPreview(csvLines);
-
-      // ファイル名を事前に生成
       const filename = `blog_review_${timestamp}.csv`;
-
-      // プレビューモーダルを表示
       this.showExportPreview(
         'CSVエクスポート - プレビュー',
         previewHtml,
         () => {
-          // ダウンロード処理
           const csvContent = '\ufeff' + csvLines.join('\n');
           const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
           this.downloadFile(blob, filename);
@@ -1216,196 +818,65 @@ class BlogReviewerManager extends BaseAdvisorManager {
     }
   }
 
-  /**
-   * CSVデータをHTMLテーブルプレビューに変換
-   * @param {Array<string>} csvLines - CSVライン配列
-   * @returns {string} HTMLテーブル
-   */
   generateCsvPreview(csvLines) {
     let html = '<table class="csv-preview-table"><thead><tr>';
-
-    // ヘッダー行
     const headerCells = csvLines[0].split(',');
     headerCells.forEach(cell => {
       html += `<th>${this.escapeHtml(cell)}</th>`;
     });
     html += '</tr></thead><tbody>';
-
-    // データ行
     for (let i = 1; i < csvLines.length; i++) {
       const cells = this.parseCsvLine(csvLines[i]);
       html += '<tr>';
       cells.forEach((cell, index) => {
-        // 空のセル（インデント用）は特別なスタイルを適用
         const className = cell.trim() === '' && index === 0 ? 'csv-cell-indent' : '';
         html += `<td class="${className}">${this.escapeHtml(cell)}</td>`;
       });
       html += '</tr>';
     }
-
     html += '</tbody></table>';
     return html;
   }
 
-  /**
-   * CSVラインをパースしてセル配列に変換（引用符を考慮）
-   * @param {string} line - CSVライン
-   * @returns {Array<string>} セル配列
-   */
   parseCsvLine(line) {
     const cells = [];
     let currentCell = '';
     let inQuotes = false;
-
     for (let i = 0; i < line.length; i++) {
       const char = line[i];
-
       if (char === '"') {
         if (inQuotes && line[i + 1] === '"') {
-          // エスケープされた引用符
           currentCell += '"';
           i++;
         } else {
-          // 引用符の開始または終了
           inQuotes = !inQuotes;
         }
       } else if (char === ',' && !inQuotes) {
-        // セルの区切り
         cells.push(currentCell);
         currentCell = '';
       } else {
         currentCell += char;
       }
     }
-
-    // 最後のセルを追加
     cells.push(currentCell);
     return cells;
   }
 
-  /**
-   * HTMLファイルでエクスポート（ブラウザで印刷→PDFで保存）
-   * 注：実装上HTMLファイルがダウンロードされます。
-   *     ブラウザで開き、「印刷」→「PDFとして保存」でPDF化してください。
-   */
   exportToPDF() {
     try {
       const timestamp = new Date().toLocaleString('ja-JP');
-
       const articleContent = document.getElementById('blogReviewerArticleContent');
       const reviewContent = document.querySelector('.advisor-markdown');
-
       const articleText = articleContent ? articleContent.innerText : '情報なし';
       const reviewText = reviewContent ? reviewContent.innerText : '情報なし';
-
-      // HTML形式のPDF（ブラウザで印刷→PDFで保存）
-      const htmlContent = `
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <title>ブログ記事レビュー結果エクスポート</title>
-  <style>
-    body {
-      font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif;
-      margin: 20px;
-      line-height: 1.6;
-      color: #1a1a1a;
-      background-color: #ffffff;
-    }
-    h1 {
-      text-align: center;
-      border-bottom: 2px solid #5a7ca3;
-      padding-bottom: 10px;
-      color: #5a7ca3;
-    }
-    .section {
-      margin: 30px 0;
-      page-break-inside: avoid;
-    }
-    .section h2 {
-      border-left: 4px solid #5a7ca3;
-      padding-left: 10px;
-      margin-top: 0;
-      color: #2c3e50;
-    }
-    .content {
-      background-color: #fafafa;
-      padding: 15px;
-      border: 1px solid #e0e0e0;
-      border-radius: 4px;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      font-size: 13px;
-      color: #1a1a1a;
-    }
-    .footer {
-      text-align: center;
-      margin-top: 40px;
-      padding-top: 20px;
-      border-top: 1px solid #e0e0e0;
-      font-size: 11px;
-      color: #666;
-    }
-    .footer .metadata {
-      margin-top: 15px;
-      padding-top: 15px;
-      border-top: 1px solid #e0e0e0;
-      font-size: 10px;
-      color: #888;
-    }
-    .footer .metadata p {
-      margin: 4px 0;
-    }
-    @media print {
-      body { margin: 0; }
-      .section { page-break-inside: avoid; }
-    }
-  </style>
-</head>
-<body>
-  <h1>ブログ記事レビュー結果エクスポート</h1>
-
-  <div class="section">
-    <h2>記事情報</h2>
-    <div class="content">${this.escapeHtml(articleText)}</div>
-  </div>
-
-  <div class="section">
-    <h2>AI分析結果</h2>
-    <div class="content">${this.escapeHtml(reviewText)}</div>
-  </div>
-
-  <div class="footer">
-    <p>このドキュメントは自動生成されました。</p>
-    <p>ブラウザの「印刷」機能から「PDFに保存」を選択してダウンロードしてください。</p>
-    <div class="metadata">
-      <p>エクスポート日時: ${timestamp}</p>
-      <p>使用モデル: ${this.model} | トークン使用数: 入力 ${this.currentUsage.prompt_tokens}、出力 ${this.currentUsage.completion_tokens}</p>
-    </div>
-  </div>
-
-  <script>
-    // ページ読み込み後に自動印刷ダイアログを表示（オプション）
-    // window.print();
-  </script>
-</body>
-</html>
-      `;
-
-      // プレビュー用にHTMLをレンダリング（iframeで表示）
+      const htmlContent = ` <!DOCTYPE html> <html lang="ja"> <head> <meta charset="UTF-8"> <title>ブログ記事レビュー結果エクスポート</title> <style> body { font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif; margin: 20px; line-height: 1.6; color: #1a1a1a; background-color: #ffffff; } h1 { text-align: center; border-bottom: 2px solid #5a7ca3; padding-bottom: 10px; color: #5a7ca3; } .section { margin: 30px 0; page-break-inside: avoid; } .section h2 { border-left: 4px solid #5a7ca3; padding-left: 10px; margin-top: 0; color: #2c3e50; } .content { background-color: #fafafa; padding: 15px; border: 1px solid #e0e0e0; border-radius: 4px; white-space: pre-wrap; word-wrap: break-word; font-size: 13px; color: #1a1a1a; } .footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: 11px; color: #666; } .footer .metadata { margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0; font-size: 10px; color: #888; } .footer .metadata p { margin: 4px 0; } @media print { body { margin: 0; } .section { page-break-inside: avoid; } } </style> </head> <body> <h1>ブログ記事レビュー結果エクスポート</h1>  <div class="section"> <h2>記事情報</h2> <div class="content">${this.escapeHtml(articleText)}</div> </div>  <div class="section"> <h2>AI分析結果</h2> <div class="content">${this.escapeHtml(reviewText)}</div> </div>  <div class="footer"> <p>このドキュメントは自動生成されました。</p> <p>ブラウザの「印刷」機能から「PDFに保存」を選択してダウンロードしてください。</p> <div class="metadata"> <p>エクスポート日時: ${timestamp}</p> <p>使用モデル: ${this.model} | トークン使用数: 入力 ${this.currentUsage.prompt_tokens}、出力 ${this.currentUsage.completion_tokens}</p> </div> </div>  <script> </script> </body> </html> `;
       const previewHtml = htmlContent;
-
-      // ファイル名を事前に生成
       const dateStr = new Date().toISOString().split('T')[0];
       const filename = `blog_review_${dateStr}.html`;
-
-      // プレビューモーダルを表示
       this.showExportPreview(
         'HTML/PDFエクスポート - プレビュー',
         previewHtml,
         () => {
-          // ダウンロード処理
           const htmlWithBom = '\ufeff' + htmlContent;
           const blob = new Blob([htmlWithBom], { type: 'text/html;charset=utf-8;' });
           this.downloadFile(blob, filename);
@@ -1419,9 +890,6 @@ class BlogReviewerManager extends BaseAdvisorManager {
     }
   }
 
-  /**
-   * チャットボックスを初期化
-   */
   initChatBox() {
     const chatConfig = {
       type: 'blog-reviewer',
@@ -1434,91 +902,63 @@ class BlogReviewerManager extends BaseAdvisorManager {
       chatInputId: 'blogReviewerChatInput',
       chatSendBtnId: 'blogReviewerChatSendBtn',
     };
-
     this.renderFloatingChatButton('blogReviewerChatContainer', chatConfig);
   }
 
   renderMockReview() {
     console.log('[BlogReviewer] Rendering mock review');
-
     const reviewContent = document.getElementById('blogReviewerReviewContent');
     const progressContainer = document.getElementById('blogReviewerProgressContainer');
     const skeletonLoader = document.getElementById('blogReviewerSkeletonLoader');
     const md = document.getElementById('blogReviewerMarkdown');
-
     if (!reviewContent || !md) {
       console.error('[BlogReviewer] Required elements not found');
       return;
     }
-
-    // プログレスバーとスケルトンローダーを表示
     if (progressContainer) {
       progressContainer.style.display = 'block';
     }
     if (skeletonLoader) {
       skeletonLoader.style.display = 'block';
     }
-
-    // モックデータを取得
     const mockData = window.DEBUG_MOCK_DATA?.blog?.sample1;
     if (!mockData) {
       console.error('[BlogReviewer] Mock data not found');
       md.innerHTML = '<p>デバッグデータが見つかりません</p>';
       return;
     }
-
     const mockAnalysis = mockData.mockAnalysis;
     if (!mockAnalysis) {
       console.error('[BlogReviewer] Mock analysis not found');
       md.innerHTML = '<p>デバッグデータが見つかりません</p>';
       return;
     }
-
-    // ストリーミングをシミュレート
     this.updateProgress(0, '初期化中...');
-
     setTimeout(() => {
-      // スケルトンローダーを非表示
       if (skeletonLoader) {
         skeletonLoader.style.display = 'none';
       }
       this.updateProgress(30, '分析中...');
-
       setTimeout(() => {
         this.updateProgress(60, '分析中...');
-
         setTimeout(() => {
           this.updateProgress(90, '完了間近...');
-
           setTimeout(() => {
-            // レビュー結果を表示
             md.innerHTML = this.renderMarkdownCommon(mockAnalysis);
             this.currentReviewContent = mockAnalysis;
-
             this.updateProgress(100, '完了');
-
-            // プログレスバーを非表示
             if (progressContainer) {
               progressContainer.style.display = 'none';
             }
-
-            // モックの使用量データ
             this.currentUsage = {
               prompt_tokens: 1200,
               completion_tokens: 600,
               total_tokens: 1800,
             };
             this.currentModel = 'gpt-4o (mock)';
-
-            // 使用量を表示
             this.displayUsage();
-
-            // エクスポートボタンを表示
             this.showExportButtons();
-
-            // チャットボックスを表示
             this.initChatBox();
-
             console.log('[BlogReviewer] Mock review rendering completed');
           }, 500);
         }, 500);
@@ -1526,7 +966,5 @@ class BlogReviewerManager extends BaseAdvisorManager {
     }, 500);
   }
 }
-
-// グローバルインスタンス
 const blogReviewerManager = new BlogReviewerManager();
 window.blogReviewerManager = blogReviewerManager;

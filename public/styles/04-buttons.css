@@ -1,0 +1,474 @@
+/*
+ * 04-buttons.css
+ * ボタンスタイル
+ */
+/*
+ * 結果表示
+ */
+
+.results-section {
+  display: none;
+}
+
+.results-section.active {
+  display: block;
+}
+
+.schema-card {
+  background: var(--card-bg-color);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.schema-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--secondary-bg-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.schema-type {
+  display: inline-block;
+  padding: 4px 10px;
+  background: var(--primary-color);
+  color: var(--primary-text-color);
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.schema-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.doc-links {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.doc-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background: var(--card-bg-color);
+  color: var(--text-color);
+  font-size: 12px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.doc-pill:hover {
+  background: var(--secondary-bg-color);
+  border-color: var(--secondary-text-color);
+  color: var(--text-color);
+}
+
+.api-status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background: var(--card-bg-color);
+  color: var(--text-color);
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.api-status-label {
+  color: var(--secondary-text-color);
+  font-weight: 400;
+}
+
+.view-toggle {
+  display: flex;
+  gap: 4px;
+  background: var(--bg-color);
+  padding: 2px;
+  border-radius: 4px;
+}
+
+.view-toggle button {
+  padding: 6px 12px;
+  font-size: 13px;
+  background: transparent;
+  color: var(--secondary-text-color);
+  min-width: 70px;
+}
+
+.view-toggle button.active {
+  background: var(--card-bg-color);
+  color: var(--primary-color);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.schema-index {
+  color: var(--secondary-text-color);
+  font-size: 14px;
+}
+
+.schema-content {
+  padding: 16px;
+  container-type: inline-size;
+  container-name: schema;
+}
+
+/* テーブル表示 */
+.table-view {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  table-layout: fixed;
+}
+
+.data-table th,
+.data-table td {
+  text-align: left;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  vertical-align: top;
+  box-sizing: border-box;
+}
+
+.data-table th {
+  background: var(--secondary-bg-color);
+  font-weight: 600;
+  color: var(--secondary-text-color);
+}
+
+.data-table tr:hover {
+  background: var(--secondary-bg-color);
+}
+
+.data-table col.col-prop {
+  width: 18%;
+}
+.data-table col.col-value {
+  width: auto;
+}
+.data-table col.col-type {
+  width: 96px;
+}
+
+.data-table td:nth-child(2) {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.data-table th:nth-child(3),
+.data-table td:nth-child(3) {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.property-name {
+  font-weight: 500;
+  color: var(--primary-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.property-value {
+  color: var(--text-color);
+}
+
+.property-type {
+  display: inline-block;
+  padding: 2px 6px;
+  background: var(--secondary-bg-color);
+  border-radius: 3px;
+  font-size: 12px;
+  color: var(--secondary-text-color);
+  margin-left: 8px;
+  font-weight: normal;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 配列表示 */
+.array-list {
+  background: var(--secondary-bg-color);
+  border-radius: 4px;
+  padding: 12px;
+  margin: 8px 0;
+}
+
+.array-list-item {
+  background: var(--card-bg-color);
+  padding: 10px;
+  margin: 6px 0;
+  border-radius: 4px;
+  border: 1px solid var(--primary-color);
+}
+
+.compact-array-table {
+  margin: 8px 0;
+  width: 100%;
+}
+.compact-array-table th {
+  background: var(--bg-color);
+  font-size: 13px;
+  padding: 8px 12px;
+}
+.compact-array-table td {
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+.nested-object {
+  margin-left: 0;
+  padding-left: 16px;
+  border-left: 1px solid var(--border-color);
+  overflow-x: auto;
+}
+
+.nested-object .data-table col.col-prop {
+  width: 32%;
+}
+.nested-object .data-table col.col-value {
+  width: auto;
+}
+.nested-object .data-table col.col-type {
+  width: 96px;
+}
+
+/* JSON表示 */
+.json-view {
+  background: var(--json-bg);
+  border-radius: 6px;
+  padding: 20px;
+  overflow-x: auto;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--json-bracket);
+}
+
+.json-view.hidden,
+.table-view.hidden {
+  display: none;
+}
+
+.json-key {
+  color: var(--json-key);
+}
+.json-string {
+  color: var(--json-string);
+}
+.json-number {
+  color: var(--json-number);
+}
+.json-boolean {
+  color: var(--json-boolean);
+}
+.json-null {
+  color: var(--json-null);
+}
+.json-bracket {
+  color: var(--json-bracket);
+}
+
+/*
+ * ユーティリティ
+ */
+
+.copy-button {
+  padding: 8px 16px;
+  background: var(--card-bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--secondary-text-color);
+}
+
+.copy-button:hover {
+  background: var(--secondary-bg-color);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.copy-button.copied {
+  background: var(--success-color);
+  color: var(--primary-text-color);
+  border-color: var(--success-color);
+}
+
+.error-message {
+  position: relative;
+  background: transparent;
+  border: 2px solid var(--error-color);
+  border-radius: 6px;
+  padding: 14px 40px 14px 14px;
+  color: var(--error-color);
+  margin: 24px 0 20px;
+  font-size: 14px;
+  line-height: 1.6;
+  display: none;
+  font-weight: 500;
+}
+
+.error-message.active {
+  display: block;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  background: var(--card-bg-color);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: none;
+}
+
+.loading.active {
+  display: block;
+}
+
+.spinner {
+  border: 3px solid var(--border-color);
+  border-top: 3px solid var(--primary-color);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 20px auto;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.stats {
+  background: var(--card-bg-color);
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.stat-label {
+  color: var(--secondary-text-color);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.stat-value {
+  font-weight: 600;
+  font-size: 18px;
+  color: var(--text-color);
+}
+
+.no-data {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--secondary-text-color);
+  background: var(--card-bg-color);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.no-data h3 {
+  color: var(--text-color);
+  margin: 16px 0 8px;
+}
+
+.expandable {
+  cursor: pointer;
+  user-select: none;
+}
+.expandable::before {
+  content: '▼';
+  display: inline-block;
+  margin-right: 6px;
+  transition: transform 0.2s;
+  font-size: 12px;
+}
+.expandable.collapsed::before {
+  content: '▶';
+  transform: rotate(0deg);
+}
+.nested-content {
+  display: block;
+  margin-top: 8px;
+}
+.nested-content.collapsed {
+  display: none;
+}
+
+.url-value {
+  color: var(--accent-color);
+  text-decoration: none;
+  word-break: break-all;
+}
+.url-value:hover {
+  text-decoration: underline;
+}
+
+.image-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.image-thumb {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  background: var(--card-bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+@container schema (max-width: 1024px) {
+  .data-table {
+    min-width: 1024px;
+  }
+}

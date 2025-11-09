@@ -1,0 +1,325 @@
+/*
+ * 02-layout.css
+ * レイアウト: ヘッダー、コンテナ、入力セクション
+ */
+/*
+ * ヘッダー
+ */
+
+header {
+  text-align: center;
+  color: var(--text-color);
+  margin-bottom: 16px;
+  padding: 14px 16px 12px;
+  background: var(--header-bg-color);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.header-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.header-row:hover {
+  opacity: 0.8;
+}
+.logo-xl {
+  width: 48px;
+  height: 48px;
+}
+.heading-reset {
+  margin: 0;
+}
+
+h1 {
+  font-size: 1.5rem;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: var(--secondary-text-color);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.server-status {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  margin: 3px 2px;
+  background: transparent;
+  color: var(--success-color);
+  border: 1px solid var(--success-color);
+}
+
+.server-status.offline {
+  background: transparent;
+  color: var(--error-color);
+  border: 1px solid var(--error-color);
+}
+
+/* デバッグモードバッジ */
+.debug-mode-badge {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #ff6b6b;
+  color: white;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+  z-index: 10001;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.debug-mode-badge svg {
+  stroke: white;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(255, 107, 107, 0.6);
+  }
+}
+
+/*
+ * 入力セクション
+ */
+
+.input-section {
+  background: var(--card-bg-color);
+  border-radius: 8px;
+  padding: 18px 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.input-group {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+input[type='url'] {
+  flex: 1;
+  padding: 10px 14px;
+  font-size: 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+input[type='url']:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px var(--primary-shadow-color);
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--primary-text-color);
+  background: var(--primary-color);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  background: var(--primary-hover-color);
+  box-shadow: 0 0 0 2px var(--primary-shadow-color);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/*
+ * サンプルリンク
+ */
+
+.sample-links {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  padding: 8px 0;
+}
+
+.sample-links > span:first-child {
+  color: var(--secondary-text-color);
+  font-size: 14px;
+  margin-right: 4px;
+  padding-top: 6px;
+}
+
+.sample-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: move;
+  position: relative;
+  transition: transform 0.2s ease;
+}
+
+.sample-item.dragging {
+  opacity: 0.5;
+  transform: scale(1.05);
+}
+
+.sample-item.drag-over-left::before,
+.sample-item.drag-over-right::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--primary-color);
+  border-radius: 2px;
+}
+
+.sample-item.drag-over-left::before {
+  left: -6px;
+}
+
+.sample-item.drag-over-right::after {
+  right: -6px;
+}
+
+.sample-link {
+  padding: 6px 12px;
+  background: var(--secondary-bg-color);
+  border-radius: 4px;
+  font-size: 14px;
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: 1px solid var(--border-color);
+  display: block;
+  min-width: 80px;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.sample-link:hover {
+  background: var(--border-color);
+}
+
+.sample-actions {
+  display: flex;
+  gap: 2px;
+  justify-content: flex-end;
+  width: 100%;
+  padding-right: 2px;
+}
+
+.sample-edit-btn,
+.sample-delete-btn,
+.sample-move-btn {
+  padding: 3px 8px;
+  font-size: 12px;
+  border-radius: 3px;
+  min-width: auto;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--secondary-text-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1.2;
+}
+
+.sample-move-btn {
+  padding: 3px 6px;
+  font-size: 12px;
+}
+
+.sample-edit-btn:hover {
+  background: var(--secondary-bg-color);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.sample-delete-btn:hover {
+  background: var(--error-bg-color);
+  border-color: var(--error-color);
+  color: var(--error-color);
+}
+
+.sample-move-btn:hover {
+  background: var(--secondary-bg-color);
+  border-color: var(--secondary-text-color);
+  color: var(--secondary-text-color);
+}
+
+.sample-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.sample-add-btn {
+  padding: 6px 12px;
+  font-size: 14px;
+  background: transparent;
+  border: 1px dashed var(--secondary-text-color);
+  color: var(--secondary-text-color);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sample-add-btn:hover {
+  background: var(--secondary-bg-color);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  border-style: solid;
+}
+
+.sample-reset-btn {
+  padding: 6px 12px;
+  font-size: 14px;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--secondary-text-color);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sample-reset-btn:hover {
+  background: var(--error-bg-color);
+  border-color: var(--error-color);
+  color: var(--error-color);
+}

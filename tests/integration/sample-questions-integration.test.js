@@ -95,7 +95,7 @@ describe('サンプル質問機能: 統合テスト', () => {
     expect(sampleBtns.length).toBe(3);
 
     // 各ボタンをクリック
-    sampleBtns.forEach((btn, idx) => {
+    sampleBtns.forEach((btn, _idx) => {
       mgr.sendChatMessageCommon.mockClear();
       btn.click();
 

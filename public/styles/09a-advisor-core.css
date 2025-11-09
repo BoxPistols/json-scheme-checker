@@ -1,0 +1,600 @@
+/*
+ * 09-advisor.css
+ * AI Advisor機能
+ */
+/* ============================================
+   AI Advisor Styles
+   ============================================ */
+
+/* AI Actions Container - 複数のボタンを横並びで表示 */
+.ai-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+/* Advisor Trigger Button */
+.advisor-trigger-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  margin-bottom: 0;
+}
+
+.advisor-trigger-btn:hover {
+  opacity: 0.9;
+}
+
+.advisor-trigger-btn:active {
+  opacity: 0.8;
+}
+
+/* Advisor Modal Overlay */
+.advisor-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.advisor-overlay.active {
+  opacity: 1;
+}
+
+/* Advisor Modal */
+.advisor-modal {
+  background: var(--card-bg-color);
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 600px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  transform: scale(0.9);
+  transition: transform 0.3s ease;
+}
+
+.advisor-overlay.active .advisor-modal {
+  transform: scale(1);
+}
+
+.advisor-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.advisor-modal-header h2 {
+  font-size: 1.5rem;
+  color: var(--text-color);
+  margin: 0;
+  flex: 1;
+}
+
+/* Small Mode Buttons */
+.advisor-mode-buttons-small {
+  display: flex;
+  gap: 8px;
+  margin-right: 12px;
+}
+
+.advisor-mode-btn-small {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--secondary-text-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.advisor-mode-btn-small:hover {
+  border-color: var(--accent-color);
+  color: var(--text-color);
+}
+
+.advisor-modal-close {
+  background: none;
+  border: none;
+  color: var(--secondary-text-color);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.advisor-modal-close:hover {
+  background: var(--secondary-bg-color);
+  color: var(--text-color);
+}
+
+.advisor-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Rate Limit Info */
+.advisor-rate-info {
+  background: var(--secondary-bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px 16px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--secondary-text-color);
+}
+
+.advisor-rate-unlimited {
+  background: rgba(52, 211, 153, 0.1);
+  border-color: rgba(52, 211, 153, 0.3);
+  color: rgb(52, 211, 153);
+}
+
+.advisor-rate-stakeholder {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.3);
+  color: rgb(59, 130, 246);
+}
+
+.advisor-rate-exceeded {
+  background: rgba(248, 113, 113, 0.1);
+  border-color: rgba(248, 113, 113, 0.3);
+  color: rgb(248, 113, 113);
+}
+
+/* API Key Section */
+.advisor-api-key-section {
+  border-top: 1px solid var(--border-color);
+  padding-top: 16px;
+  margin-bottom: 16px;
+}
+
+.advisor-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+
+.advisor-checkbox-label input[type='checkbox'] {
+  cursor: pointer;
+}
+
+.advisor-checkbox-label span {
+  font-size: 0.95rem;
+  color: var(--text-color);
+}
+
+.advisor-api-key-input {
+  margin-top: 12px;
+  padding: 12px;
+  background: var(--secondary-bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+
+.advisor-api-key-wrapper {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.advisor-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-color);
+  color: var(--text-color);
+  font-size: 0.9rem;
+  font-family: 'Courier New', monospace;
+}
+
+.advisor-input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+}
+
+.advisor-btn-icon {
+  padding: 8px 12px;
+  background: var(--card-bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text-color);
+  transition: opacity 0.2s ease;
+}
+
+.advisor-btn-icon:hover {
+  opacity: 0.8;
+}
+
+.advisor-notice {
+  font-size: 0.85rem;
+  color: var(--secondary-text-color);
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.advisor-notice a {
+  color: var(--accent-color);
+  text-decoration: none;
+}
+
+.advisor-notice a:hover {
+  text-decoration: underline;
+}
+
+.advisor-notice-warning {
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: 6px;
+  padding: 10px;
+  color: rgb(251, 191, 36);
+}
+
+.advisor-notice-warning strong {
+  color: rgb(251, 191, 36);
+}
+
+/* Mode Selection Buttons Container */
+.advisor-modal-body > .advisor-mode-btn:first-of-type,
+.advisor-modal-body > .advisor-mode-btn:last-of-type {
+  flex: 1;
+}
+
+.advisor-mode-buttons-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .advisor-mode-buttons-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Utility classes for advisor modals */
+.advisor-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  align-items: end;
+}
+.advisor-modal-header--stack {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.advisor-modal-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.advisor-center {
+  text-align: center;
+}
+.advisor-modal-text {
+  margin-bottom: 20px;
+}
+.advisor-muted {
+  font-size: 0.95rem;
+  color: var(--secondary-text-color);
+}
+
+.advisor-help-text {
+  font-size: 0.85rem;
+  color: var(--secondary-text-color);
+  margin-top: 4px;
+}
+
+/* Usage panel */
+.advisor-usage-panel {
+  margin-top: 24px;
+  padding: 16px;
+  background: var(--secondary-bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+.advisor-usage-title {
+  margin: 0 0 12px 0;
+  font-size: 0.9rem;
+  color: var(--secondary-text-color);
+}
+.advisor-usage-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  font-size: 0.85rem;
+}
+.advisor-usage-label {
+  color: var(--secondary-text-color);
+  margin-bottom: 4px;
+}
+.advisor-usage-footer {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-color);
+  font-size: 0.75rem;
+  color: var(--secondary-text-color);
+}
+.advisor-usage-sup {
+  font-size: 0.7rem;
+}
+
+/* Confirm Modal (Stakeholder/Developer) */
+.advisor-confirm-modal {
+  max-width: 450px;
+}
+
+.advisor-developer-modal {
+  max-width: 640px;
+}
+
+/* Developerモーダルの入力幅を統一 */
+.advisor-developer-modal .advisor-field {
+  width: 100%;
+}
+.advisor-developer-modal .advisor-input {
+  width: 100%;
+  box-sizing: border-box;
+}
+.advisor-api-key-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.advisor-api-key-wrapper .advisor-input {
+  flex: 1;
+}
+.advisor-label {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.advisor-confirm-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.advisor-btn-primary,
+.advisor-btn-secondary {
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  border: none;
+}
+
+.advisor-btn-primary {
+  background: var(--accent-color);
+  color: white;
+}
+
+.advisor-btn-primary:hover {
+  opacity: 0.9;
+}
+
+.advisor-btn-secondary {
+  background: var(--secondary-bg-color);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+}
+
+.advisor-btn-secondary:hover {
+  opacity: 0.8;
+}
+
+/* Mode Selection Buttons */
+.advisor-mode-btn {
+  background: var(--card-bg-color);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.advisor-mode-btn:hover {
+  border-color: var(--accent-color);
+  background: var(--hover-bg-color);
+}
+
+.advisor-mode-icon {
+  font-size: 3rem;
+  margin-bottom: 12px;
+  color: var(--text-color);
+}
+
+.advisor-mode-btn h3 {
+  font-size: 1.2rem;
+  color: var(--text-color);
+  margin-bottom: 8px;
+}
+
+.advisor-mode-btn p {
+  font-size: 0.9rem;
+  color: var(--secondary-text-color);
+  line-height: 1.5;
+}
+
+.advisor-mode-employer:hover {
+  border-color: var(--accent-color);
+}
+
+.advisor-mode-applicant:hover {
+  border-color: var(--accent-color);
+}
+
+/* Advisor View (Full Screen) */
+.advisor-view {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--bg-color);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  overflow: hidden;
+}
+
+.advisor-view.active {
+  opacity: 1;
+}
+
+.advisor-view-header {
+  background: var(--header-bg-color);
+  border-bottom: 1px solid var(--border-color);
+  padding: 20px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.advisor-view-header h2 {
+  font-size: 1.5rem;
+  color: var(--text-color);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.advisor-view-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.advisor-btn-primary,
+.advisor-btn-secondary {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.advisor-btn-primary {
+  background: var(--accent-color);
+  color: white;
+}
+
+.advisor-btn-primary:hover {
+  background: var(--accent-hover-color);
+}
+
+.advisor-btn-secondary {
+  background: var(--secondary-bg-color);
+  color: var(--text-color);
+}
+
+.advisor-btn-secondary:hover {
+  background: var(--border-color);
+}
+
+/* Advisor Content (Split View) */
+.advisor-view-content {
+  flex: 1;
+  display: flex;
+  gap: 0;
+  overflow: hidden;
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
+}
+
+.advisor-job-panel,
+.advisor-advice-panel {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--card-bg-color);
+}
+
+.advisor-job-panel {
+  flex: 0 0 50%;
+  min-width: 300px;
+  max-width: 80%;
+}
+
+.advisor-advice-panel {
+  flex: 1;
+  min-width: 300px;
+}
+
+/* リサイズハンドル */
+.advisor-resize-handle {
+  width: 8px;
+  cursor: col-resize;
+  background: var(--border-color);
+  position: relative;
+  flex-shrink: 0;
+  transition: background 0.2s ease;
+}
+
+.advisor-resize-handle:hover {
+  background: var(--link-color);
+}
+
+.advisor-resize-handle::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px;
+  height: 40px;
+  background: var(--bg-color);
+  border-radius: 2px;
+  opacity: 0.5;
+}
+
+.advisor-job-panel h3,
+.advisor-advice-panel h3 {
+  padding: 16px 24px;
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--text-color);
+  border-bottom: 1px solid var(--border-color);
+  background: var(--secondary-bg-color);
+}

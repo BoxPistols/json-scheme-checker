@@ -50,10 +50,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="/styles/design-tokens.css">
-    <link rel="stylesheet" href="/styles.css">
-    <link rel="stylesheet" href="/styles/chat-container-query.css">
-    <link rel="stylesheet" href="/styles/usage-panel-container-query.css">
+    <link rel="stylesheet" href="/styles/main.css">
     <script src="/scripts/theme-init.js"></script>
     <script src="/scripts/viewport-height.js"></script>
 </head>
@@ -73,7 +70,7 @@
                 <span class="server-status" id="serverStatus">Checking...</span>
                 <a class="doc-pill" target="_blank" rel="noopener noreferrer"
                     href="https://developers.google.com/search/docs/appearance/structured-data/job-posting?hl=ja">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-inline">
                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="currentColor"/>
                         <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="currentColor"/>
                         <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="currentColor"/>
@@ -104,8 +101,22 @@
                     取得
                 </button>
             </div>
-            <div class="auth-hint">
-                Cmd+K / Ctrl+K でURL入力欄にフォーカス
+            <div class="input-actions-row">
+                <div class="auth-hint">
+                    Cmd+K / Ctrl+K でURL入力欄にフォーカス
+                </div>
+                <!-- コンテンツアップロードボタン（小さく目立たない） -->
+                <div class="content-upload-action">
+                    <button type="button" class="btn-content-upload-subtle" id="contentUploadButton" title="ファイルやテキストをアップロードしてAIレビュー（ベータ版）">
+                        <svg class="btn-icon-inline" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                        コンテンツをアップロード
+                        <span class="badge-beta">Beta</span>
+                    </button>
+                </div>
             </div>
 
             <details class="auth-details" id="authSection">
@@ -435,7 +446,7 @@
                             <table class="modal-table modal-table--striped">
                                 <thead>
                                     <tr>
-                                        <th style="width: 25%;">タブ</th>
+                                        <th class="table-col-quarter">タブ</th>
                                         <th>分析内容</th>
                                     </tr>
                                 </thead>
@@ -617,19 +628,19 @@
                             <div class="modal-info-box modal-info-box--blue">
                                 <h4>無料版の利用制限</h4>
                                 <p>各AI Advisor機能は、ブラウザごとに<strong>50回/24時間</strong>まで無料で利用できます。</p>
-                                <ul style="margin: 8px 0 0 20px;">
+                                <ul class="list-spaced">
                                     <li>JobPosting Advisor: 50回/24時間</li>
                                     <li>Blog Reviewer: 50回/24時間</li>
                                     <li>Web Advisor: 50回/24時間</li>
                                 </ul>
-                                <p style="margin-top: 8px;">
+                                <p class="para-spaced-top">
                                     <strong>注意：</strong>各Advisorは独立したカウントです。すべてのAdvisorを合わせて50回ではなく、各々が50回まで利用可能です。
                                 </p>
                             </div>
                             <div class="modal-info-box modal-info-box--green">
                                 <h4>無制限利用（My API）</h4>
                                 <p>独自のOpenAI APIキーを設定することで、レート制限なしで無制限に利用できます。</p>
-                                <ol style="margin: 8px 0 0 20px;">
+                                <ol class="list-spaced">
                                     <li>ヘッダーの「My API」ボタンをクリック</li>
                                     <li>OpenAI APIキーを入力</li>
                                     <li>使用したいモデルを選択</li>
@@ -662,11 +673,11 @@
 
                         <section class="modal-section">
                             <h3>コピー可能な実装例</h3>
-                            <p style="margin-bottom: 8px; font-size: 0.875rem; color: var(--secondary-text-color);">該当するセクションをコピーして使用してください</p>
+                            <p class="para-instruction">該当するセクションをコピーして使用してください</p>
                         </section>
 
                         <section class="modal-section">
-                            <h4 style="font-size: 14px; margin-bottom: 8px;">1. Static HTML（HTMLファイル直接編集）</h4>
+                            <h4 class="heading-subsection">1. Static HTML（HTMLファイル直接編集）</h4>
                             <div class="recommendation-example">
 &lt;head&gt;
   &lt;meta name="robots" content="index,follow"&gt;
@@ -675,7 +686,7 @@
                         </section>
 
                         <section class="modal-section">
-                            <h4 style="font-size: 14px; margin-bottom: 8px;">2. Vue / Nuxt.js</h4>
+                            <h4 class="heading-subsection">2. Vue / Nuxt.js</h4>
                             <div class="recommendation-example">
 export default {
   head() {
@@ -690,7 +701,7 @@ export default {
                         </section>
 
                         <section class="modal-section">
-                            <h4 style="font-size: 14px; margin-bottom: 8px;">3. React / Next.js</h4>
+                            <h4 class="heading-subsection">3. React / Next.js</h4>
                             <div class="recommendation-example">
 import Head from 'next/head';
 
@@ -794,11 +805,11 @@ export default function Home() {
 
                         <section class="modal-section">
                             <h3>コピー可能な実装例</h3>
-                            <p style="margin-bottom: 8px; font-size: 0.875rem; color: var(--secondary-text-color);">該当するセクションをコピーして使用してください</p>
+                            <p class="para-instruction">該当するセクションをコピーして使用してください</p>
                         </section>
 
                         <section class="modal-section">
-                            <h4 style="font-size: 14px; margin-bottom: 8px;">1. Static HTML（HTMLファイル直接編集）</h4>
+                            <h4 class="heading-subsection">1. Static HTML（HTMLファイル直接編集）</h4>
                             <div class="recommendation-example">
 &lt;head&gt;
   &lt;meta property="og:title" content="ページタイトル"&gt;
@@ -811,7 +822,7 @@ export default function Home() {
                         </section>
 
                         <section class="modal-section">
-                            <h4 style="font-size: 14px; margin-bottom: 8px;">2. Vue / Nuxt.js</h4>
+                            <h4 class="heading-subsection">2. Vue / Nuxt.js</h4>
                             <div class="recommendation-example">
 export default {
   head() {
@@ -830,7 +841,7 @@ export default {
                         </section>
 
                         <section class="modal-section">
-                            <h4 style="font-size: 14px; margin-bottom: 8px;">3. React / Next.js</h4>
+                            <h4 class="heading-subsection">3. React / Next.js</h4>
                             <div class="recommendation-example">
 import Head from 'next/head';
 
@@ -934,11 +945,11 @@ export default function Page() {
 
                         <section class="modal-section">
                             <h3>コピー可能な実装例</h3>
-                            <p style="margin-bottom: 8px; font-size: 0.875rem; color: var(--secondary-text-color);">該当するセクションをコピーして使用してください</p>
+                            <p class="para-instruction">該当するセクションをコピーして使用してください</p>
                         </section>
 
                         <section class="modal-section">
-                            <h4 style="font-size: 14px; margin-bottom: 8px;">基本的な設定（全ページ共通）</h4>
+                            <h4 class="heading-subsection">基本的な設定（全ページ共通）</h4>
                             <div class="recommendation-example">
 &lt;!-- Twitter Card 基本設定 --&gt;
 &lt;meta name="twitter:card" content="summary_large_image"&gt;
@@ -948,7 +959,7 @@ export default function Page() {
                         </section>
 
                         <section class="modal-section">
-                            <h4 style="font-size: 14px; margin-bottom: 8px;">1. Static HTML（HTMLファイル直接編集）</h4>
+                            <h4 class="heading-subsection">1. Static HTML（HTMLファイル直接編集）</h4>
                             <div class="recommendation-example">
 &lt;head&gt;
   &lt;!-- Twitter Card --&gt;
@@ -963,7 +974,7 @@ export default function Page() {
                         </section>
 
                         <section class="modal-section">
-                            <h4 style="font-size: 14px; margin-bottom: 8px;">2. Vue / Nuxt.js</h4>
+                            <h4 class="heading-subsection">2. Vue / Nuxt.js</h4>
                             <div class="recommendation-example">
 export default {
   head() {
@@ -983,7 +994,7 @@ export default {
                         </section>
 
                         <section class="modal-section">
-                            <h4 style="font-size: 14px; margin-bottom: 8px;">3. React / Next.js</h4>
+                            <h4 class="heading-subsection">3. React / Next.js</h4>
                             <div class="recommendation-example">
 import Head from 'next/head';
 
@@ -1035,7 +1046,7 @@ export default function Home() {
                         <section class="modal-section">
                             <div class="modal-info-box modal-info-box--blue">
                                 <h4>実装のコツ</h4>
-                                <ul style="margin: 8px 0; padding-left: 20px;">
+                                <ul class="list-indented">
                                     <li><strong>twitter:image</strong> は必ず HTTPS で指定</li>
                                     <li>画像サイズは 1200x630px（または 1:1、2:1 のアスペクト比）</li>
                                     <li>summary_large_image が最も効果的</li>
@@ -1048,7 +1059,7 @@ export default function Home() {
                             <div class="modal-info-box modal-info-box--yellow">
                                 <h4>テスト方法</h4>
                                 <p>
-                                    <a href="https://cards-dev.twitter.com/validator" target="_blank" rel="noopener noreferrer" style="color: var(--accent-color); font-weight: 500;">Twitter Card Validator</a> にURLを入力して、プレビューを確認できます。
+                                    <a href="https://cards-dev.twitter.com/validator" target="_blank" rel="noopener noreferrer" class="link-accent">Twitter Card Validator</a> にURLを入力して、プレビューを確認できます。
                                 </p>
                             </div>
                         </section>
@@ -1132,7 +1143,7 @@ export default function Home() {
                         <p><strong>用途:</strong> 求人情報をGoogleに正しく伝える</p>
                         <p><strong>メリット:</strong> Google 求人検索に表示される可能性がある</p>
 
-                        <h4 style="margin-top: 16px;">最小限の実装例</h4>
+                        <h4 class="heading-example">最小限の実装例</h4>
                         <div class="code-example">
 &lt;script type="application/ld+json"&gt;
 {
@@ -1174,7 +1185,7 @@ export default function Home() {
                         <p><strong>用途:</strong> ブログ記事情報をGoogleに伝える</p>
                         <p><strong>メリット:</strong> リッチスニペット表示、Google 検索に優先的に表示される可能性</p>
 
-                        <h4 style="margin-top: 16px;">実装例</h4>
+                        <h4 class="heading-example">実装例</h4>
                         <div class="code-example">
 &lt;script type="application/ld+json"&gt;
 {
@@ -1207,7 +1218,7 @@ export default function Home() {
                         <p><strong>用途:</strong> 企業・組織情報をGoogleに伝える</p>
                         <p><strong>メリット:</strong> ナレッジパネルに企業情報が表示される可能性</p>
 
-                        <h4 style="margin-top: 16px;">実装例</h4>
+                        <h4 class="heading-example">実装例</h4>
                         <div class="code-example">
 &lt;script type="application/ld+json"&gt;
 {
@@ -1234,7 +1245,7 @@ export default function Home() {
                     <section class="learning-section">
                         <div class="modal-info-box modal-info-box--blue">
                             <h4>実装のコツ</h4>
-                            <ul style="margin: 8px 0; padding-left: 20px;">
+                            <ul class="list-indented">
                                 <li>JSONは正確に記述する（カンマやコロンの誤字に注意）</li>
                                 <li>Google 構造化データテストツールで検証する</li>
                                 <li>このツールでもスキーマの正確性をチェックできます</li>
@@ -1246,8 +1257,8 @@ export default function Home() {
                         <div class="modal-info-box modal-info-box--green">
                             <h4>詳細は公式ドキュメント</h4>
                             <p>
-                                <a href="https://schema.org/" target="_blank" rel="noopener noreferrer" style="color: var(--accent-color); font-weight: 500;">Schema.org 公式サイト</a><br>
-                                <a href="https://developers.google.com/search/docs/appearance/structured-data" target="_blank" rel="noopener noreferrer" style="color: var(--accent-color); font-weight: 500;">Google 構造化データドキュメント</a>
+                                <a href="https://schema.org/" target="_blank" rel="noopener noreferrer" class="link-accent">Schema.org 公式サイト</a><br>
+                                <a href="https://developers.google.com/search/docs/appearance/structured-data" target="_blank" rel="noopener noreferrer" class="link-accent">Google 構造化データドキュメント</a>
                             </p>
                         </div>
                     </section>
@@ -1264,6 +1275,8 @@ export default function Home() {
         <script src="/modules/advisor.js"></script>
         <script src="/modules/blog-reviewer.js"></script>
         <script src="/modules/web-advisor.js"></script>
+        <script src="/utils/file-parser.js"></script>
+        <script type="module" src="/modules/content-upload-reviewer.js"></script>
         <script src="/app.js"></script>
         <script type="module" src="/modules/seo-analyzer.js"></script>
 </body>

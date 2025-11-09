@@ -302,6 +302,19 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
+// Content Upload Reviewer APIエンドポイント（ローカル開発用）
+app.post('/api/content-upload-reviewer', async (req, res) => {
+  try {
+    const contentUploadReviewerHandler = require('./api/content-upload-reviewer');
+    await contentUploadReviewerHandler(req, res);
+  } catch (error) {
+    console.error('Content Upload Reviewer API error:', error);
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Internal server error', details: error.message });
+    }
+  }
+});
+
 // MyAPI 接続テスト（ローカル開発用）
 app.post('/api/test-connection', async (req, res) => {
   try {

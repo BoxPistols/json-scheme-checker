@@ -1,0 +1,330 @@
+/*
+ * 03-forms.css
+ * フォーム: input、textarea、認証フォーム
+ */
+input[type='url'] {
+  flex: 1;
+  padding: 10px 14px;
+  font-size: 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+input[type='url']:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px var(--primary-shadow-color);
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--primary-text-color);
+  background: var(--primary-color);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  background: var(--primary-hover-color);
+  box-shadow: 0 0 0 2px var(--primary-shadow-color);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/*
+ * サンプルリンク
+ */
+
+.sample-links {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  padding: 8px 0;
+}
+
+.sample-links > span:first-child {
+  color: var(--secondary-text-color);
+  font-size: 14px;
+  margin-right: 4px;
+  padding-top: 6px;
+}
+
+.sample-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: move;
+  position: relative;
+  transition: transform 0.2s ease;
+}
+
+.sample-item.dragging {
+  opacity: 0.5;
+  transform: scale(1.05);
+}
+
+.sample-item.drag-over-left::before,
+.sample-item.drag-over-right::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--primary-color);
+  border-radius: 2px;
+}
+
+.sample-item.drag-over-left::before {
+  left: -6px;
+}
+
+.sample-item.drag-over-right::after {
+  right: -6px;
+}
+
+.sample-link {
+  padding: 6px 12px;
+  background: var(--secondary-bg-color);
+  border-radius: 4px;
+  font-size: 14px;
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: 1px solid var(--border-color);
+  display: block;
+  min-width: 80px;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.sample-link:hover {
+  background: var(--border-color);
+}
+
+.sample-actions {
+  display: flex;
+  gap: 2px;
+  justify-content: flex-end;
+  width: 100%;
+  padding-right: 2px;
+}
+
+.sample-edit-btn,
+.sample-delete-btn,
+.sample-move-btn {
+  padding: 3px 8px;
+  font-size: 12px;
+  border-radius: 3px;
+  min-width: auto;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--secondary-text-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1.2;
+}
+
+.sample-move-btn {
+  padding: 3px 6px;
+  font-size: 12px;
+}
+
+.sample-edit-btn:hover {
+  background: var(--secondary-bg-color);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.sample-delete-btn:hover {
+  background: var(--error-bg-color);
+  border-color: var(--error-color);
+  color: var(--error-color);
+}
+
+.sample-move-btn:hover {
+  background: var(--secondary-bg-color);
+  border-color: var(--secondary-text-color);
+  color: var(--secondary-text-color);
+}
+
+.sample-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.sample-add-btn {
+  padding: 6px 12px;
+  font-size: 14px;
+  background: transparent;
+  border: 1px dashed var(--secondary-text-color);
+  color: var(--secondary-text-color);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sample-add-btn:hover {
+  background: var(--secondary-bg-color);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  border-style: solid;
+}
+
+.sample-reset-btn {
+  padding: 6px 12px;
+  font-size: 14px;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--secondary-text-color);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sample-reset-btn:hover {
+  background: var(--error-bg-color);
+  border-color: var(--error-color);
+  color: var(--error-color);
+}
+
+/*
+ * 結果表示
+ */
+
+.results-section {
+  display: none;
+}
+
+.results-section.active {
+  display: block;
+}
+
+.schema-card {
+  background: var(--card-bg-color);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.schema-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--secondary-bg-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.schema-type {
+  display: inline-block;
+  padding: 4px 10px;
+  background: var(--primary-color);
+  color: var(--primary-text-color);
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.schema-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.doc-links {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.doc-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background: var(--card-bg-color);
+  color: var(--text-color);
+  font-size: 12px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.doc-pill:hover {
+  background: var(--secondary-bg-color);
+  border-color: var(--secondary-text-color);
+  color: var(--text-color);
+}
+
+.api-status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background: var(--card-bg-color);
+  color: var(--text-color);
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.api-status-label {
+  color: var(--secondary-text-color);
+  font-weight: 400;
+}
+
+.view-toggle {
+  display: flex;
+  gap: 4px;
+  background: var(--bg-color);
+  padding: 2px;
+  border-radius: 4px;
+}
+
+.view-toggle button {
+  padding: 6px 12px;
+  font-size: 13px;
+  background: transparent;
+  color: var(--secondary-text-color);
+  min-width: 70px;
+}
+
+.view-toggle button.active {
+  background: var(--card-bg-color);
+  color: var(--primary-color);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.schema-index {
+  color: var(--secondary-text-color);
+  font-size: 14px;
+}
+
+.schema-content {
+  padding: 16px;
+  container-type: inline-size;
+  container-name: schema;
+}
