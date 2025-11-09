@@ -221,6 +221,24 @@ class BaseAdvisorManager {
     return storedModel;
   }
 
+  /**
+   * 環境に応じたAPI URLを取得
+   * @param {string} endpoint - APIエンドポイント名（例: 'advisor', 'blog-reviewer', 'content-upload-reviewer'）
+   * @returns {string} 完全なAPI URL
+   */
+  getApiUrl(endpoint) {
+    const isVercel = window.location.hostname.includes('vercel.app');
+    const isLocalhost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+
+    if (isVercel) {
+      return `/api/${endpoint}`;
+    } else if (isLocalhost) {
+      return `http://localhost:3333/api/${endpoint}`;
+    } else {
+      return `http://${window.location.hostname}:3333/api/${endpoint}`;
+    }
+  }
+
   saveUserApiKey(apiKey) {
     if (apiKey && apiKey.trim()) {
       localStorage.setItem(this.config.USER_API_KEY, apiKey.trim());

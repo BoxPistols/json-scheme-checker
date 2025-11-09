@@ -715,7 +715,7 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
     this.isStreaming = true;
 
     try {
-      const apiUrl = this.getApiUrl();
+      const apiUrl = this.getApiUrl('content-upload-reviewer');
       const userApiKey = this.getUserApiKey();
       const baseUrl = this.getUserApiBaseUrl();
 
@@ -761,23 +761,6 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
       setAnalysisInactive('content-upload-reviewer');
       this.isStreaming = false;
       delete window.ANALYSIS_STATE.abortControllers['content-upload-reviewer'];
-    }
-  }
-
-  /**
-   * APIのURLを取得
-   * @returns {string} API URL
-   */
-  getApiUrl() {
-    const isVercel = window.location.hostname.includes('vercel.app');
-    const isLocalhost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
-
-    if (isVercel) {
-      return '/api/content-upload-reviewer';
-    } else if (isLocalhost) {
-      return 'http://localhost:3333/api/content-upload-reviewer';
-    } else {
-      return `http://${window.location.hostname}:3333/api/content-upload-reviewer`;
     }
   }
 
