@@ -7,6 +7,10 @@ import { Tabs } from '../components/common/Tabs.js';
 import { RadioGroup } from '../components/form/RadioGroup.js';
 import { Preview } from '../components/common/Preview.js';
 
+// BaseAdvisorManagerはグローバルスコープから取得
+// (base-advisor.jsで window.BaseAdvisorManager として定義されている)
+const BaseAdvisorManager = window.BaseAdvisorManager || globalThis.BaseAdvisorManager;
+
 class ContentUploadReviewerManager extends BaseAdvisorManager {
   constructor() {
     const config = {
@@ -113,147 +117,266 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
     overlay.className = 'modal-overlay';
     overlay.style.display = 'flex';
 
-    overlay.innerHTML = `
-      <div class="modal-container modal-container--wide">
-        <div class="modal-header">
-          <h2>コンテンツアップロード & レビュー <span class="badge-beta">Beta</span></h2>
-          <button class="btn-modal-close" onclick="window.contentUploadReviewerManager.closeUploadModal()">×</button>
-        </div>
-        <div class="modal-body">
-          <div class="modal-info-box modal-info-box--blue" style="margin-bottom: 20px;">
-            <h4>ベータ版機能について</h4>
-            <p>この機能は現在ベータ版です。無料プランでは<strong>50回/24時間</strong>まで利用できます。</p>
-            <p style="margin-top: 8px; font-size: 0.875rem;">独自のOpenAI APIキーを設定すると、レート制限なしで無制限に利用できます（ヘッダーの「My API」から設定）。</p>
-          </div>
-          <section class="modal-section">
-            <h3 class="modal-section-title">レビュー種類を選択</h3>
-            <div class="review-type-selector">
-              <label class="review-type-option">
-                <input type="radio" name="reviewType" value="blog" checked>
-                <span>ブログコンテンツ</span>
-              </label>
-              <label class="review-type-option">
-                <input type="radio" name="reviewType" value="job">
-                <span>求人票</span>
-              </label>
-              <label class="review-type-option">
-                <input type="radio" name="reviewType" value="skill-sheet">
-                <span>スキルシート</span>
-              </label>
-              <label class="review-type-option">
-                <input type="radio" name="reviewType" value="matching">
-                <span>求人×スキルシートマッチング</span>
-              </label>
-              <label class="review-type-option">
-                <input type="radio" name="reviewType" value="general">
-                <span>汎用テキスト</span>
-              </label>
-            </div>
-          </section>
+    const container = document.createElement('div');
+    container.className = 'modal-container modal-container--wide';
 
-          <section class="modal-section">
-            <h3 class="modal-section-title">コンテンツ入力方法</h3>
-            <div class="content-input-tabs">
-              <button class="content-input-tab active" data-tab="text">テキスト入力</button>
-              <button class="content-input-tab" data-tab="file">ファイルアップロード</button>
-            </div>
+    // ヘッダー
+    const header = this._createModalHeader();
+    container.appendChild(header);
 
-            <div class="content-input-panel" id="textInputPanel">
-              <textarea
-                id="contentTextArea"
-                placeholder="レビュー対象のテキストを貼り付けてください..."
-                rows="15"
-                class="content-text-area"
-              ></textarea>
-              <div class="text-count" id="textCount">0 文字</div>
-            </div>
+    // ボディ
+    const body = this._createModalBody();
+    container.appendChild(body);
 
-            <div class="content-input-panel" id="fileInputPanel" style="display: none;">
-              <div class="file-upload-area" id="fileUploadArea">
-                <input
-                  type="file"
-                  id="fileInput"
-                  accept=".pdf,.csv,.xlsx,.xls,.md,.markdown,.json,.txt"
-                  style="display: none;"
-                  data-action="content-upload-file-select"
-                >
-                <div class="file-upload-placeholder">
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                    <polyline points="17 8 12 3 7 8"/>
-                    <line x1="12" y1="3" x2="12" y2="15"/>
-                  </svg>
-                  <p>クリックしてファイルを選択、またはドラッグ&ドロップ</p>
-                  <p class="file-format-hint">対応形式: PDF, CSV, Excel, Markdown, JSON, TXT</p>
-                </div>
-                <div class="file-info" id="fileInfo" style="display: none;">
-                  <div class="file-name" id="fileName"></div>
-                  <div class="file-meta" id="fileMeta"></div>
-                  <button class="btn-remove-file" onclick="window.contentUploadReviewerManager.removeFile()">削除</button>
-                </div>
-              </div>
-            </div>
+    // フッター
+    const footer = this._createModalFooter();
+    container.appendChild(footer);
 
-            <div class="matching-mode-fields" id="matchingFields" style="display: none;">
-              <h4>マッチング分析用（2つのコンテンツが必要）</h4>
-              <div class="matching-inputs">
-                <div class="matching-input-group">
-                  <label>求人票URL または テキスト</label>
-                  <input type="url" id="jobUrlInput" placeholder="求人票のURL" class="matching-url-input">
-                  <span class="matching-separator">または</span>
-                  <textarea id="jobTextInput" placeholder="求人票のテキストを貼り付け" rows="5" class="matching-text-input"></textarea>
-                </div>
-                <div class="matching-input-group">
-                  <label>スキルシート（上記で入力済み）</label>
-                  <p class="matching-hint">スキルシートは「テキスト入力」または「ファイルアップロード」で入力してください</p>
-                </div>
-              </div>
-            </div>
-          </section>
-        </div>
-        <div class="modal-footer">
-          <button class="btn-secondary" onclick="window.contentUploadReviewerManager.closeUploadModal()">
-            キャンセル
-          </button>
-          <button class="btn-primary" data-action="content-upload-submit">
-            レビュー開始
-          </button>
-        </div>
-      </div>
-    `;
+    overlay.appendChild(container);
+    return overlay;
+  }
 
-    // タブ切り替えのイベントリスナー
-    const tabs = overlay.querySelectorAll('.content-input-tab');
-    tabs.forEach(tab => {
-      tab.addEventListener('click', e => {
-        const targetTab = e.target.dataset.tab;
-        this.switchInputTab(targetTab);
-      });
+  /**
+   * モーダルヘッダーを作成
+   * @private
+   * @returns {HTMLElement}
+   */
+  _createModalHeader() {
+    const header = document.createElement('div');
+    header.className = 'modal-header';
+
+    const title = document.createElement('h2');
+    title.textContent = 'コンテンツアップロード & レビュー ';
+
+    const betaBadge = document.createElement('span');
+    betaBadge.className = 'badge-beta';
+    betaBadge.textContent = 'Beta';
+    title.appendChild(betaBadge);
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'btn-modal-close';
+    closeBtn.textContent = '×';
+    closeBtn.addEventListener('click', () => this.closeUploadModal());
+
+    header.appendChild(title);
+    header.appendChild(closeBtn);
+
+    return header;
+  }
+
+  /**
+   * モーダルボディを作成
+   * @private
+   * @returns {HTMLElement}
+   */
+  _createModalBody() {
+    const body = document.createElement('div');
+    body.className = 'modal-body';
+
+    // ベータ版情報ボックス
+    const infoBox = this._createInfoBox();
+    body.appendChild(infoBox);
+
+    // レビュー種類選択セクション
+    const reviewTypeSection = this._createReviewTypeSection();
+    body.appendChild(reviewTypeSection);
+
+    // コンテンツ入力セクション
+    const inputSection = this._createInputSection();
+    body.appendChild(inputSection);
+
+    // マッチングフィールド
+    const matchingFields = this._createMatchingFields();
+    body.appendChild(matchingFields);
+
+    return body;
+  }
+
+  /**
+   * ベータ版情報ボックスを作成
+   * @private
+   * @returns {HTMLElement}
+   */
+  _createInfoBox() {
+    const infoBox = document.createElement('div');
+    infoBox.className = 'modal-info-box modal-info-box--blue modal-info-box--spacing';
+
+    const heading = document.createElement('h4');
+    heading.textContent = 'ベータ版機能について';
+
+    const para1 = document.createElement('p');
+    para1.textContent = 'この機能は現在ベータ版です。無料プランでは';
+
+    const strong = document.createElement('strong');
+    strong.textContent = '50回/24時間';
+    para1.appendChild(strong);
+    para1.appendChild(document.createTextNode('まで利用できます。'));
+
+    const para2 = document.createElement('p');
+    para2.className = 'modal-info-box-secondary-text';
+    para2.textContent =
+      '独自のOpenAI APIキーを設定すると、レート制限なしで無制限に利用できます（ヘッダーの「My API」から設定）。';
+
+    infoBox.appendChild(heading);
+    infoBox.appendChild(para1);
+    infoBox.appendChild(para2);
+
+    return infoBox;
+  }
+
+  /**
+   * レビュー種類選択セクションを作成
+   * @private
+   * @returns {HTMLElement}
+   */
+  _createReviewTypeSection() {
+    const section = document.createElement('section');
+    section.className = 'modal-section';
+
+    const title = document.createElement('h3');
+    title.className = 'modal-section-title';
+    title.textContent = 'レビュー種類を選択';
+    section.appendChild(title);
+
+    const radioGroup = RadioGroup({
+      name: 'reviewType',
+      value: 'blog',
+      layout: 'grid',
+      options: [
+        { value: 'blog', label: 'ブログコンテンツ' },
+        { value: 'job', label: '求人票' },
+        { value: 'skill-sheet', label: 'スキルシート' },
+        { value: 'matching', label: '求人×スキルシートマッチング' },
+        { value: 'general', label: '汎用テキスト' },
+      ],
+      onChange: value => {
+        this.currentReviewType = value;
+        this.toggleMatchingFields(value === 'matching');
+      },
     });
 
-    // テキストエリアの文字カウント
-    const textArea = overlay.querySelector('#contentTextArea');
+    // カスタムクラスを追加（既存CSSと互換性を保つ）
+    radioGroup.querySelector('.radio-group').className = 'review-type-selector';
+    radioGroup.querySelectorAll('.radio-option').forEach(opt => {
+      opt.className = 'review-type-option';
+    });
+
+    section.appendChild(radioGroup);
+
+    return section;
+  }
+
+  /**
+   * コンテンツ入力セクションを作成
+   * @private
+   * @returns {HTMLElement}
+   */
+  _createInputSection() {
+    const section = document.createElement('section');
+    section.className = 'modal-section';
+
+    const title = document.createElement('h3');
+    title.className = 'modal-section-title';
+    title.textContent = 'コンテンツ入力方法';
+    section.appendChild(title);
+
+    // テキスト入力パネル
+    const textPanel = this._createTextInputPanel();
+
+    // ファイルアップロードパネル
+    const filePanel = this._createFileInputPanel();
+
+    // タブコンポーネント
+    const tabs = Tabs({
+      id: 'contentInputTabs',
+      activeTab: 'text',
+      tabs: [
+        { id: 'text', label: 'テキスト入力', content: textPanel },
+        { id: 'file', label: 'ファイルアップロード', content: filePanel },
+      ],
+      onChange: tabId => {
+        this.switchInputTab(tabId);
+      },
+    });
+
+    // カスタムクラスを追加（既存CSSと互換性を保つ）
+    tabs.querySelector('.tabs-header').className = 'content-input-tabs';
+    tabs.querySelectorAll('.tab-button').forEach(btn => {
+      btn.className = btn.classList.contains('active')
+        ? 'content-input-tab active'
+        : 'content-input-tab';
+      btn.dataset.tab = btn.dataset.tabId;
+    });
+    tabs.querySelectorAll('.tab-panel').forEach(panel => {
+      panel.className = panel.classList.contains('active')
+        ? 'content-input-panel active'
+        : 'content-input-panel';
+      panel.id = panel.dataset.tabId === 'text' ? 'textInputPanel' : 'fileInputPanel';
+    });
+
+    section.appendChild(tabs);
+
+    return section;
+  }
+
+  /**
+   * テキスト入力パネルを作成
+   * @private
+   * @returns {HTMLElement}
+   */
+  _createTextInputPanel() {
+    const panel = document.createElement('div');
+
+    const textArea = document.createElement('textarea');
+    textArea.id = 'contentTextArea';
+    textArea.placeholder = 'レビュー対象のテキストを貼り付けてください...';
+    textArea.rows = 15;
+    textArea.className = 'content-text-area';
+
+    const textCount = document.createElement('div');
+    textCount.id = 'textCount';
+    textCount.className = 'text-count';
+    textCount.textContent = '0 文字';
+
     textArea.addEventListener('input', e => {
       const count = e.target.value.length;
-      overlay.querySelector('#textCount').textContent = `${count.toLocaleString()} 文字`;
+      textCount.textContent = `${count.toLocaleString()} 文字`;
     });
 
-    // レビュー種類の変更
-    const reviewTypeInputs = overlay.querySelectorAll('input[name="reviewType"]');
-    reviewTypeInputs.forEach(input => {
-      input.addEventListener('change', e => {
-        this.currentReviewType = e.target.value;
-        this.toggleMatchingFields(e.target.value === 'matching');
-      });
-    });
+    panel.appendChild(textArea);
+    panel.appendChild(textCount);
 
-    // ファイルアップロードエリアのクリックイベント
-    const uploadArea = overlay.querySelector('#fileUploadArea');
-    uploadArea.addEventListener('click', () => {
-      overlay.querySelector('#fileInput').click();
-    });
+    return panel;
+  }
 
-    // ドラッグ&ドロップイベント
+  /**
+   * ファイル入力パネルを作成
+   * @private
+   * @returns {HTMLElement}
+   */
+  _createFileInputPanel() {
+    const panel = document.createElement('div');
+
+    const uploadArea = document.createElement('div');
+    uploadArea.className = 'file-upload-area';
+    uploadArea.id = 'fileUploadArea';
+
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.id = 'fileInput';
+    fileInput.accept = '.pdf,.csv,.xlsx,.xls,.md,.markdown,.json,.txt';
+    fileInput.className = 'file-upload-input-hidden';
+    fileInput.dataset.action = 'content-upload-file-select';
+
+    const placeholder = this._createFileUploadPlaceholder();
+    const fileInfo = this._createFileInfoDisplay();
+
+    uploadArea.appendChild(placeholder);
+    uploadArea.appendChild(fileInfo);
+
+    // イベントリスナー
+    uploadArea.addEventListener('click', () => fileInput.click());
+
     uploadArea.addEventListener('dragover', e => {
       e.preventDefault();
       uploadArea.classList.add('drag-over');
@@ -272,7 +395,183 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
       }
     });
 
-    return overlay;
+    panel.appendChild(fileInput);
+    panel.appendChild(uploadArea);
+
+    return panel;
+  }
+
+  /**
+   * ファイルアップロードプレースホルダーを作成
+   * @private
+   * @returns {HTMLElement}
+   */
+  _createFileUploadPlaceholder() {
+    const placeholder = document.createElement('div');
+    placeholder.className = 'file-upload-placeholder';
+
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', '48');
+    svg.setAttribute('height', '48');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('fill', 'none');
+    svg.setAttribute('stroke', 'currentColor');
+    svg.setAttribute('stroke-width', '2');
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', 'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4');
+
+    const polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+    polyline.setAttribute('points', '17 8 12 3 7 8');
+
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', '12');
+    line.setAttribute('y1', '3');
+    line.setAttribute('x2', '12');
+    line.setAttribute('y2', '15');
+
+    svg.appendChild(path);
+    svg.appendChild(polyline);
+    svg.appendChild(line);
+
+    const text1 = document.createElement('p');
+    text1.textContent = 'クリックしてファイルを選択、またはドラッグ&ドロップ';
+
+    const text2 = document.createElement('p');
+    text2.className = 'file-format-hint';
+    text2.textContent = '対応形式: PDF, CSV, Excel, Markdown, JSON, TXT';
+
+    placeholder.appendChild(svg);
+    placeholder.appendChild(text1);
+    placeholder.appendChild(text2);
+
+    return placeholder;
+  }
+
+  /**
+   * ファイル情報表示エリアを作成
+   * @private
+   * @returns {HTMLElement}
+   */
+  _createFileInfoDisplay() {
+    const fileInfo = document.createElement('div');
+    fileInfo.className = 'file-info file-info-hidden';
+    fileInfo.id = 'fileInfo';
+
+    const fileName = document.createElement('div');
+    fileName.className = 'file-name';
+    fileName.id = 'fileName';
+
+    const fileMeta = document.createElement('div');
+    fileMeta.className = 'file-meta';
+    fileMeta.id = 'fileMeta';
+
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'btn-remove-file';
+    removeBtn.textContent = '削除';
+    removeBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      this.removeFile();
+    });
+
+    fileInfo.appendChild(fileName);
+    fileInfo.appendChild(fileMeta);
+    fileInfo.appendChild(removeBtn);
+
+    return fileInfo;
+  }
+
+  /**
+   * マッチングフィールドを作成
+   * @private
+   * @returns {HTMLElement}
+   */
+  _createMatchingFields() {
+    const fields = document.createElement('div');
+    fields.className = 'matching-mode-fields matching-mode-fields-hidden';
+    fields.id = 'matchingFields';
+
+    const heading = document.createElement('h4');
+    heading.textContent = 'マッチング分析用（2つのコンテンツが必要）';
+
+    const inputs = document.createElement('div');
+    inputs.className = 'matching-inputs';
+
+    // 求人票入力
+    const jobGroup = document.createElement('div');
+    jobGroup.className = 'matching-input-group';
+
+    const jobLabel = document.createElement('label');
+    jobLabel.textContent = '求人票URL または テキスト';
+
+    const jobUrlInput = document.createElement('input');
+    jobUrlInput.type = 'url';
+    jobUrlInput.id = 'jobUrlInput';
+    jobUrlInput.placeholder = '求人票のURL';
+    jobUrlInput.className = 'matching-url-input';
+
+    const separator = document.createElement('span');
+    separator.className = 'matching-separator';
+    separator.textContent = 'または';
+
+    const jobTextInput = document.createElement('textarea');
+    jobTextInput.id = 'jobTextInput';
+    jobTextInput.placeholder = '求人票のテキストを貼り付け';
+    jobTextInput.rows = 5;
+    jobTextInput.className = 'matching-text-input';
+
+    jobGroup.appendChild(jobLabel);
+    jobGroup.appendChild(jobUrlInput);
+    jobGroup.appendChild(separator);
+    jobGroup.appendChild(jobTextInput);
+
+    // スキルシート説明
+    const skillGroup = document.createElement('div');
+    skillGroup.className = 'matching-input-group';
+
+    const skillLabel = document.createElement('label');
+    skillLabel.textContent = 'スキルシート（上記で入力済み）';
+
+    const skillHint = document.createElement('p');
+    skillHint.className = 'matching-hint';
+    skillHint.textContent =
+      'スキルシートは「テキスト入力」または「ファイルアップロード」で入力してください';
+
+    skillGroup.appendChild(skillLabel);
+    skillGroup.appendChild(skillHint);
+
+    inputs.appendChild(jobGroup);
+    inputs.appendChild(skillGroup);
+
+    fields.appendChild(heading);
+    fields.appendChild(inputs);
+
+    return fields;
+  }
+
+  /**
+   * モーダルフッターを作成
+   * @private
+   * @returns {HTMLElement}
+   */
+  _createModalFooter() {
+    const footer = document.createElement('div');
+    footer.className = 'modal-footer';
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = 'btn-secondary';
+    cancelBtn.textContent = 'キャンセル';
+    cancelBtn.addEventListener('click', () => this.closeUploadModal());
+
+    const submitBtn = document.createElement('button');
+    submitBtn.className = 'btn-primary';
+    submitBtn.textContent = 'レビュー開始';
+    submitBtn.dataset.action = 'content-upload-submit';
+
+    footer.appendChild(cancelBtn);
+    footer.appendChild(submitBtn);
+
+    return footer;
   }
 
   /**
@@ -296,9 +595,9 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
 
     Object.keys(panels).forEach(key => {
       if (key === tabName) {
-        panels[key].style.display = 'block';
+        panels[key].classList.add('active');
       } else {
-        panels[key].style.display = 'none';
+        panels[key].classList.remove('active');
       }
     });
   }
@@ -310,7 +609,11 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
   toggleMatchingFields(show) {
     const matchingFields = document.getElementById('matchingFields');
     if (matchingFields) {
-      matchingFields.style.display = show ? 'block' : 'none';
+      if (show) {
+        matchingFields.classList.remove('matching-mode-fields-hidden');
+      } else {
+        matchingFields.classList.add('matching-mode-fields-hidden');
+      }
     }
   }
 
@@ -369,8 +672,8 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
       fileName.textContent = metadata.filename;
       fileMeta.textContent = `${FileParser.getFileTypeDisplayName(metadata.extension)} | ${(metadata.size / 1024).toFixed(2)} KB`;
 
-      placeholder.style.display = 'none';
-      fileInfo.style.display = 'block';
+      placeholder.classList.add('file-upload-placeholder-hidden');
+      fileInfo.classList.remove('file-info-hidden');
     }
   }
 
@@ -386,8 +689,8 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
     const fileInput = document.getElementById('fileInput');
 
     if (fileInfo && placeholder) {
-      fileInfo.style.display = 'none';
-      placeholder.style.display = 'block';
+      fileInfo.classList.add('file-info-hidden');
+      placeholder.classList.remove('file-upload-placeholder-hidden');
     }
 
     if (fileInput) {

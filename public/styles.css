@@ -1657,6 +1657,15 @@ html[data-theme='dark'] .score-breakdown > div {
   color: var(--info-red-heading-color);
 }
 
+.modal-info-box--spacing {
+  margin-bottom: 20px;
+}
+
+.modal-info-box-secondary-text {
+  margin-top: 8px;
+  font-size: 0.875rem;
+}
+
 .modal-note-box {
   margin-top: 20px;
   padding: 12px;
@@ -5390,6 +5399,11 @@ html[data-theme='dark'] .advisor-modal-close-btn:hover svg path {
   transform: scale(0.98);
 }
 
+.btn-icon-inline {
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
 /* Upload Button - Original variant */
 .btn-content-upload {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -5485,6 +5499,11 @@ html[data-theme='dark'] .advisor-modal-close-btn:hover svg path {
 /* Content Input Panels */
 .content-input-panel {
   margin-top: 16px;
+  display: none;
+}
+
+.content-input-panel.active {
+  display: block;
 }
 
 .content-text-area {
@@ -5533,6 +5552,22 @@ html[data-theme='dark'] .advisor-modal-close-btn:hover svg path {
 .file-upload-area.drag-over {
   border-color: var(--accent-color);
   background: rgba(102, 126, 234, 0.1);
+}
+
+.file-upload-input-hidden {
+  display: none;
+}
+
+.file-info-hidden {
+  display: none;
+}
+
+.matching-mode-fields-hidden {
+  display: none;
+}
+
+.file-upload-placeholder-hidden {
+  display: none;
 }
 
 .file-upload-placeholder svg {

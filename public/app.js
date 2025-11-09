@@ -431,6 +431,9 @@ document.addEventListener('DOMContentLoaded', () => {
     ?.addEventListener('click', closeTwitterCardModal);
   document.getElementById('btnCloseOpenGraphModal')?.addEventListener('click', closeOpenGraphModal);
   document.getElementById('btnHideError')?.addEventListener('click', hideError);
+  document.getElementById('contentUploadButton')?.addEventListener('click', () => {
+    window.contentUploadReviewerManager?.showUploadModal();
+  });
 
   // ロゴとh1のクリックでページをリロード（初期化/トップリンク）
   const headerRow = document.querySelector('.header-row');

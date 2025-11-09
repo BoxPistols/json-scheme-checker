@@ -7,6 +7,7 @@ const BaseAdvisorManager = baseMod.BaseAdvisorManager || baseMod.default || base
 
 // グローバルにBaseAdvisorManagerを設定
 globalThis.BaseAdvisorManager = BaseAdvisorManager;
+window.BaseAdvisorManager = BaseAdvisorManager;
 
 // グローバル関数とオブジェクトのモック
 globalThis.canStartAnalysis = vi.fn(() => true);

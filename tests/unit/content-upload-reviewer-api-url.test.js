@@ -1,5 +1,9 @@
 /* @vitest-environment jsdom */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+
+// 共通セットアップをインポート
+import '../setup/content-upload-reviewer-setup.js';
+
 import mod from '../../public/modules/content-upload-reviewer.js';
 const ContentUploadReviewerManager =
   mod.ContentUploadReviewerManager || mod.default || mod;
