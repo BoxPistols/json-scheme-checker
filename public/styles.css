@@ -5498,6 +5498,8 @@ html[data-theme='dark'] .advisor-modal-close-btn:hover svg path {
   line-height: 1.6;
   resize: vertical;
   transition: border-color 0.2s ease;
+  background: var(--card-bg-color);
+  color: var(--text-color);
 }
 
 .content-text-area:focus {
