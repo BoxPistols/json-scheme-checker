@@ -116,10 +116,15 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
     overlay.innerHTML = `
       <div class="modal-container modal-container--wide">
         <div class="modal-header">
-          <h2>コンテンツアップロード & レビュー</h2>
+          <h2>コンテンツアップロード & レビュー <span class="badge-beta">Beta</span></h2>
           <button class="btn-modal-close" onclick="window.contentUploadReviewerManager.closeUploadModal()">×</button>
         </div>
         <div class="modal-body">
+          <div class="modal-info-box modal-info-box--blue" style="margin-bottom: 20px;">
+            <h4>ベータ版機能について</h4>
+            <p>この機能は現在ベータ版です。無料プランでは<strong>50回/24時間</strong>まで利用できます。</p>
+            <p style="margin-top: 8px; font-size: 0.875rem;">独自のOpenAI APIキーを設定すると、レート制限なしで無制限に利用できます（ヘッダーの「My API」から設定）。</p>
+          </div>
           <section class="modal-section">
             <h3 class="modal-section-title">レビュー種類を選択</h3>
             <div class="review-type-selector">
