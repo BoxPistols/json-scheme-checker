@@ -5274,20 +5274,27 @@ html[data-theme='dark'] .advisor-modal-close-btn:hover svg path {
    Content Upload Reviewer Styles
    ========================================== */
 
+/* Content Upload Action Container */
+.content-upload-action {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-start;
+}
+
 /* Upload Button */
 .btn-content-upload {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  padding: 8px 16px;
+  padding: 10px 20px;
   border-radius: 8px;
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
 
 .btn-content-upload:hover {
