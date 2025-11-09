@@ -1,6 +1,12 @@
 // Content Upload Reviewer Module
 // ファイル/テキストアップロード型のレビュー機能
 
+// コンポーネントのインポート
+import { FileUpload } from '../components/form/FileUpload.js';
+import { Tabs } from '../components/common/Tabs.js';
+import { RadioGroup } from '../components/form/RadioGroup.js';
+import { Preview } from '../components/common/Preview.js';
+
 class ContentUploadReviewerManager extends BaseAdvisorManager {
   constructor() {
     const config = {
@@ -966,6 +972,10 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
   }
 }
 
-// グローバルに公開
+// グローバルに公開（後方互換性のため）
 window.ContentUploadReviewerManager = ContentUploadReviewerManager;
 window.contentUploadReviewerManager = new ContentUploadReviewerManager();
+
+// ES6モジュールとしてエクスポート
+export { ContentUploadReviewerManager };
+export default ContentUploadReviewerManager;
