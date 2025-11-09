@@ -1,5 +1,8 @@
 const OpenAI = require('openai');
 
+// 定数定義
+const MAX_CONTENT_LENGTH = 500 * 1024; // 500KB
+
 // レビュー種類ごとのプロンプト定義
 const PROMPTS = {
   blog: `あなたはSEO・コンテンツマーケティングの専門家です。以下のブログコンテンツを分析し、具体的な改善提案と校閲済みバージョンを提供してください。
@@ -243,13 +246,15 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'content は文字列である必要があります' });
     }
 
-    // 入力検証: コンテンツサイズ制限 (500KB)
-    if (content.length > 500000) {
-      return res.status(400).json({ error: 'コンテンツが大きすぎます（最大500KB）' });
+    // 入力検証: コンテンツサイズ制限
+    if (content.length > MAX_CONTENT_LENGTH) {
+      return res.status(400).json({
+        error: `コンテンツが大きすぎます（最大${MAX_CONTENT_LENGTH / 1024}KB）`,
+      });
     }
 
-    // 入力検証: reviewTypeのチェック
-    const validReviewTypes = ['blog', 'job', 'skill-sheet', 'matching', 'general'];
+    // 入力検証: reviewTypeのチェック（PROMPTSから動的に生成）
+    const validReviewTypes = Object.keys(PROMPTS);
     if (reviewType && !validReviewTypes.includes(reviewType)) {
       return res.status(400).json({ error: '無効なレビュー種類です' });
     }

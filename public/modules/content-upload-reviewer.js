@@ -458,10 +458,101 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
    * @returns {Promise<string>} 求人票のテキスト
    */
   async fetchJobFromUrl(url) {
-    // 既存のプロキシ機能を使用してHTML取得
-    // 実装は既存のapp.jsのfetchJsonLdDataを参考にする
-    // ここでは簡略化のため、テキストで返す
-    return `求人票URL: ${url}\n（実装予定：URLから自動取得）`;
+    try {
+      // プロキシ経由でHTMLを取得
+      const proxyUrl = this.getProxyUrl(url);
+      const response = await fetch(proxyUrl);
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const html = await response.text();
+
+      // JSON-LDからJobPostingを抽出
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const jsonLdScripts = doc.querySelectorAll('script[type="application/ld+json"]');
+
+      let jobPosting = null;
+
+      for (const script of jsonLdScripts) {
+        try {
+          const data = JSON.parse(script.textContent);
+          if (data['@type'] === 'JobPosting' || data['@type']?.includes('JobPosting')) {
+            jobPosting = data;
+            break;
+          }
+        } catch (e) {
+          console.warn('[ContentUploadReviewer] JSON-LD parse error:', e);
+        }
+      }
+
+      if (jobPosting) {
+        // JSON-LDから求人票テキストを生成
+        return this.formatJobPostingText(jobPosting);
+      } else {
+        // JSON-LDがない場合、HTMLから主要テキストを抽出
+        const bodyText = doc.body?.textContent || '';
+        return `URL: ${url}\n\n${bodyText.trim().substring(0, 5000)}`;
+      }
+    } catch (error) {
+      console.error('[ContentUploadReviewer] fetchJobFromUrl error:', error);
+      throw new Error(`求人票の取得に失敗しました: ${error.message}`);
+    }
+  }
+
+  /**
+   * プロキシURLを取得
+   * @param {string} targetUrl - 対象URL
+   * @returns {string} プロキシURL
+   */
+  getProxyUrl(targetUrl) {
+    const isVercel = window.location.hostname.includes('vercel.app');
+    const isLocalhost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+
+    const proxyBase = isVercel
+      ? '/proxy'
+      : isLocalhost
+        ? 'http://localhost:3333/proxy'
+        : `http://${window.location.hostname}:3333/proxy`;
+
+    return `${proxyBase}?url=${encodeURIComponent(targetUrl)}`;
+  }
+
+  /**
+   * JobPosting JSON-LDをテキスト形式にフォーマット
+   * @param {object} jobPosting - JobPosting JSON-LD
+   * @returns {string} フォーマット済みテキスト
+   */
+  formatJobPostingText(jobPosting) {
+    const lines = [];
+
+    if (jobPosting.title) lines.push(`職種: ${jobPosting.title}`);
+    if (jobPosting.description) lines.push(`\n職務内容:\n${jobPosting.description}`);
+    if (jobPosting.employmentType) lines.push(`\n雇用形態: ${jobPosting.employmentType}`);
+
+    if (jobPosting.baseSalary) {
+      const salary =
+        typeof jobPosting.baseSalary === 'object'
+          ? JSON.stringify(jobPosting.baseSalary)
+          : jobPosting.baseSalary;
+      lines.push(`\n給与: ${salary}`);
+    }
+
+    if (jobPosting.skills) {
+      lines.push(`\nスキル要件: ${jobPosting.skills}`);
+    }
+
+    if (jobPosting.qualifications) {
+      lines.push(`\n応募資格: ${jobPosting.qualifications}`);
+    }
+
+    if (jobPosting.responsibilities) {
+      lines.push(`\n業務内容: ${jobPosting.responsibilities}`);
+    }
+
+    return lines.join('\n');
   }
 
   /**
@@ -735,9 +826,9 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
                 if (analysisEl) analysisEl.style.display = 'block';
               }
 
-              // リアルタイムで校閲結果を表示
-              if (revisedContent) {
-                revisedContent.innerHTML = this.renderMarkdownCommon(fullText);
+              // リアルタイムで全体を表示（ストリーム中）
+              if (analysisContent) {
+                analysisContent.innerHTML = this.renderMarkdownCommon(fullText);
               }
             }
 
@@ -756,13 +847,43 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
       }
     }
 
-    // 最終的な校閲結果を保存
-    this.revisedText = fullText;
+    // ストリーム完了後、校閲済みテキストと分析結果を分離
+    const { revisedText, analysisText } = this.parseReviewResponse(fullText);
 
-    // 分析結果も表示（校閲結果とは別に）
-    if (analysisContent) {
-      analysisContent.innerHTML = this.renderMarkdownCommon(fullText);
+    // 校閲済みテキストを保存して表示
+    this.revisedText = revisedText;
+    if (revisedContent && revisedText) {
+      revisedContent.innerHTML = this.renderMarkdownCommon(revisedText);
     }
+
+    // 分析結果を表示
+    if (analysisContent && analysisText) {
+      analysisContent.innerHTML = this.renderMarkdownCommon(analysisText);
+    }
+  }
+
+  /**
+   * AIレスポンスから校閲済みテキストと分析結果を分離
+   * @param {string} fullText - AI応答全体
+   * @returns {{revisedText: string, analysisText: string}}
+   */
+  parseReviewResponse(fullText) {
+    // 「## 校閲済みテキスト」セクションを探す
+    const revisedSectionPattern = /##\s*校閲済みテキスト\s*\n([\s\S]*?)(?=\n##\s|\n---\s|$)/i;
+    const match = fullText.match(revisedSectionPattern);
+
+    let revisedText = '';
+    let analysisText = fullText;
+
+    if (match && match[1]) {
+      // 校閲済みテキストを抽出
+      revisedText = match[1].trim();
+
+      // 分析結果から校閲済みテキストセクションを除外
+      analysisText = fullText.replace(revisedSectionPattern, '').trim();
+    }
+
+    return { revisedText, analysisText };
   }
 
   /**

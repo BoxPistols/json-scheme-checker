@@ -5,6 +5,9 @@
  * 複数のファイル形式（PDF, CSV, Excel, Markdown, JSON, txt）をパースしてテキストを抽出
  */
 class FileParser {
+  // 定数定義
+  static MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
   /**
    * ファイルをパースしてテキストを抽出
    * @param {File} file - パース対象のファイル
@@ -13,12 +16,11 @@ class FileParser {
   static async parseFile(file) {
     const fileExtension = this.getFileExtension(file.name);
     const fileSize = file.size;
-    const maxSize = 10 * 1024 * 1024; // 10MB
 
     // ファイルサイズチェック
-    if (fileSize > maxSize) {
+    if (fileSize > this.MAX_FILE_SIZE) {
       throw new Error(
-        `ファイルサイズが大きすぎます（最大10MB）。現在のサイズ: ${(fileSize / 1024 / 1024).toFixed(2)}MB`
+        `ファイルサイズが大きすぎます（最大${this.MAX_FILE_SIZE / (1024 * 1024)}MB）。現在のサイズ: ${(fileSize / 1024 / 1024).toFixed(2)}MB`
       );
     }
 
