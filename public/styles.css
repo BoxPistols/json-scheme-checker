@@ -1757,12 +1757,20 @@ html[data-theme='dark'] .score-breakdown > div {
  * Basic認証
  */
 
-.auth-hint {
+/* Input Actions Row - auth-hintとcontent-upload-actionを両端揃え */
+.input-actions-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-top: 6px;
   margin-bottom: 4px;
+  gap: 16px;
+}
+
+.auth-hint {
   font-size: 12px;
   color: var(--secondary-text-color);
-  text-align: right;
+  flex: 1;
 }
 
 .auth-details {
@@ -5329,10 +5337,9 @@ html[data-theme='dark'] .advisor-modal-close-btn:hover svg path {
 
 /* Content Upload Action Container */
 .content-upload-action {
-  margin-top: 8px;
-  margin-bottom: 12px;
   display: flex;
-  justify-content: flex-start;
+  justify-content: flex-end;
+  align-items: center;
 }
 
 /* Beta Badge */
