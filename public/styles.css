@@ -5276,12 +5276,41 @@ html[data-theme='dark'] .advisor-modal-close-btn:hover svg path {
 
 /* Content Upload Action Container */
 .content-upload-action {
-  margin-top: 16px;
+  margin-top: 8px;
+  margin-bottom: 12px;
   display: flex;
   justify-content: flex-start;
 }
 
-/* Upload Button */
+/* Upload Button - Subtle variant (small and unobtrusive) */
+.btn-content-upload-subtle {
+  background: transparent;
+  color: var(--secondary-text-color);
+  border: 1px solid var(--border-color);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.7;
+}
+
+.btn-content-upload-subtle:hover {
+  opacity: 1;
+  background: var(--hover-bg-color);
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+}
+
+.btn-content-upload-subtle:active {
+  transform: scale(0.98);
+}
+
+/* Upload Button - Original variant */
 .btn-content-upload {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
