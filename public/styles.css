@@ -1461,6 +1461,59 @@ html[data-theme='dark'] .score-breakdown > div {
   left: 0;
   backdrop-filter: blur(2px);
   background: color-mix(in srgb, var(--card-bg-color) 88%, transparent);
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* Modal Footer Buttons */
+.modal-footer .btn-primary,
+.btn-primary {
+  background: var(--accent-color);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modal-footer .btn-primary:hover,
+.btn-primary:hover {
+  background: var(--accent-hover-color);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.modal-footer .btn-primary:active,
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.modal-footer .btn-secondary,
+.btn-secondary {
+  background: transparent;
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modal-footer .btn-secondary:hover,
+.btn-secondary:hover {
+  background: var(--hover-bg-color);
+  border-color: var(--accent-color);
+}
+
+.modal-footer .btn-secondary:active,
+.btn-secondary:active {
+  transform: scale(0.98);
 }
 
 .modal-section {
