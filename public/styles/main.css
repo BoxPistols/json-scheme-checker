@@ -42,6 +42,9 @@
 @import './12a-responsive-advisor.css';
 @import './12b-responsive-chat.css';
 
+/* 13. ユーティリティ */
+@import './13-utilities.css';
+
 /* 既存の個別モジュール */
 @import './design-tokens.css';
 @import './chat-container-query.css';
