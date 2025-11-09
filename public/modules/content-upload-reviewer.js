@@ -772,8 +772,12 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
                 if (diffContainer) diffContainer.style.display = 'grid';
                 if (analysisEl) analysisEl.style.display = 'block';
               }
-              if (analysisContent) {
-                analysisContent.innerHTML = this.renderMarkdownCommon(fullText);
+              const { revisedText, analysisText } = this.parseReviewResponse(fullText);
+              if (revisedContent && revisedText) {
+                revisedContent.innerHTML = this.renderMarkdownCommon(revisedText);
+              }
+              if (analysisContent && analysisText) {
+                analysisContent.innerHTML = this.renderMarkdownCommon(analysisText);
               }
             }
             if (parsed.usage) {
