@@ -5,16 +5,22 @@ window.ADVISOR_CONST = window.ADVISOR_CONST || {
   USD_TO_JPY_RATE: 150,
   RATE_LIMIT: { NORMAL: 50 },
   ARTICLE: { MAX_BODY_LENGTH: 1000, MIN_BODY_LEN: 100 },
-  USAGE_MODE: { SESSION: 'session', PERMANENT: 'permanent' }, };
+  USAGE_MODE: { SESSION: 'session', PERMANENT: 'permanent' },
+};
 window.ANALYSIS_STATE = window.ANALYSIS_STATE || {
-  activeAnalysis: null, // 現在実行中の分析（'advisor', 'blog-reviewer', 'web-advisor', null）
-  abortControllers: {}, // 各分析のAbortController
-  isStreaming: false, // ストリーミング実行中フラグ };
+  activeAnalysis: null,
+  abortControllers: {},
+  isStreaming: false,
+};
 function canStartAnalysis(analyzerType) {
   if (window.ANALYSIS_STATE.isStreaming) {
+    console.log(
       `[MultiAnalysisGuard] 分析実行中のため、${analyzerType}の実行をスキップしました。現在実行中：${window.ANALYSIS_STATE.activeAnalysis}`
-    ); return false; }
-  return true; }
+    );
+    return false;
+  }
+  return true;
+}
 function setAnalysisActive(analyzerType) {
   if (
     window.ANALYSIS_STATE.activeAnalysis &&

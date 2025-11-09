@@ -1,11 +1,11 @@
 /* @vitest-environment node */
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 
 describe('Content Upload Reviewer API', () => {
   describe('定数定義', () => {
     it('MAX_CONTENT_LENGTHが500KBに設定されている', async () => {
       // api/content-upload-reviewer.jsの定数を確認
-      const apiModule = await import('../../api/content-upload-reviewer.js');
+      await import('../../api/content-upload-reviewer.js');
       // 実際のコードで定数がエクスポートされていないため、間接的に確認
       // リクエストボディのサイズチェックで500KB制限が機能することを期待
     });
@@ -191,12 +191,7 @@ describe('Content Upload Reviewer API', () => {
 
   describe('プロンプト構造', () => {
     it('ブログレビュープロンプトに必要なセクションが含まれる', () => {
-      const requiredSections = [
-        '総合評価',
-        '主な改善点',
-        '校閲済みテキスト',
-        '詳細な改善提案',
-      ];
+      const requiredSections = ['総合評価', '主な改善点', '校閲済みテキスト', '詳細な改善提案'];
 
       // プロンプトテンプレートにこれらのセクションが含まれることを期待
       requiredSections.forEach(section => {

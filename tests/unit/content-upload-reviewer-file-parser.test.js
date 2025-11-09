@@ -22,9 +22,7 @@ describe('Content Upload Reviewer - File Parser', () => {
         type: 'text/plain',
       });
 
-      await expect(FileParser.parseFile(largeFile)).rejects.toThrow(
-        /ファイルサイズが大きすぎます/
-      );
+      await expect(FileParser.parseFile(largeFile)).rejects.toThrow(/ファイルサイズが大きすぎます/);
     });
 
     it('10MB以下のファイルは処理される', async () => {

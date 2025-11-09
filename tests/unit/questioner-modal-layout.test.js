@@ -1,5 +1,5 @@
 /* @vitest-environment jsdom */
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import mod from '../../public/modules/base-advisor.js';
 const BaseAdvisorManager = mod.BaseAdvisorManager || mod.default || mod;
 

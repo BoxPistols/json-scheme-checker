@@ -142,13 +142,13 @@
   }
 
   /* モバイルでもエージェントは全幅（既にデフォルトで1カラムなので設定は不要だが明示） */
-  .advisor-questioner-btn[data-questioner-id="agent"] {
+  .advisor-questioner-btn[data-questioner-id='agent'] {
     grid-column: 1 / -1;
   }
 }
 
 /* エージェントボタンは全幅（2つのマッチング支援のため） */
-.advisor-questioner-btn[data-questioner-id="agent"] {
+.advisor-questioner-btn[data-questioner-id='agent'] {
   grid-column: 1 / -1;
 }
 
@@ -532,7 +532,9 @@ html[data-theme='dark'] .advisor-modal-close-btn:hover svg path {
   border-radius: 8px;
   padding: 20px;
   text-align: center;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 
 .feature-card:hover {
@@ -561,5 +563,3 @@ html[data-theme='dark'] .advisor-modal-close-btn:hover svg path {
   margin: 0 auto 12px;
   color: var(--accent-color);
 }
-
-.feature-card--primary .feature-card-icon {

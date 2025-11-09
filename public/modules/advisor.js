@@ -151,7 +151,10 @@ class AdvisorManager extends BaseAdvisorManager {
     const title = job.title || '不明';
     const description = this.formatDescription(job.description || '説明なし');
     const company = job.hiringOrganization?.name || '不明';
-    const location = job.jobLocation?.address?.addressLocality || job.jobLocation?.address?.addressRegion || '不明';
+    const location =
+      job.jobLocation?.address?.addressLocality ||
+      job.jobLocation?.address?.addressRegion ||
+      '不明';
 
     let html = '';
 
@@ -566,7 +569,7 @@ class AdvisorManager extends BaseAdvisorManager {
       // CSVを項目,値の形式で整形（BOM付きUTF-8対応）
       const csvLines = [];
 
-        csvLines.push('項目,値');
+      csvLines.push('項目,値');
 
       // 求人情報（セクションヘッダー）
       csvLines.push('求人情報（タイトル）,');

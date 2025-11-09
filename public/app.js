@@ -357,26 +357,21 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const url = e.target.dataset.sampleUrl;
         if (url) loadSample(url);
-      }
-      else if (e.target.classList.contains('sample-edit-btn')) {
+      } else if (e.target.classList.contains('sample-edit-btn')) {
         e.preventDefault();
         const index = parseInt(e.target.dataset.index);
         editSampleUrl(index);
-      }
-      else if (e.target.classList.contains('sample-delete-btn')) {
+      } else if (e.target.classList.contains('sample-delete-btn')) {
         e.preventDefault();
         const index = parseInt(e.target.dataset.index);
         deleteSampleUrl(index);
-      }
-      else if (e.target.classList.contains('sample-add-btn')) {
+      } else if (e.target.classList.contains('sample-add-btn')) {
         e.preventDefault();
         addSampleUrl();
-      }
-      else if (e.target.classList.contains('sample-reset-btn')) {
+      } else if (e.target.classList.contains('sample-reset-btn')) {
         e.preventDefault();
         resetSampleUrls();
-      }
-      else if (e.target.classList.contains('sample-move-btn')) {
+      } else if (e.target.classList.contains('sample-move-btn')) {
         e.preventDefault();
         const index = parseInt(e.target.dataset.index);
         const direction = e.target.dataset.direction;
@@ -437,8 +432,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const newTheme = currentTheme === 'light' ? 'dark' : 'light';
     try {
       localStorage.setItem(THEME_KEY, newTheme);
-    } catch (error) {
-    }
+    } catch (error) {}
     applyTheme(newTheme);
   }
   if (document.documentElement.dataset.theme && themeToggleButton) {
@@ -458,8 +452,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!localStorage.getItem(THEME_KEY)) {
           applyTheme(e.matches ? 'dark' : 'light');
         }
-      } catch (error) {
-      }
+      } catch (error) {}
     });
   }
   document.addEventListener('keydown', e => {
@@ -520,8 +513,7 @@ function loadSampleUrls() {
   if (stored) {
     try {
       return JSON.parse(stored);
-    } catch (e) {
-    }
+    } catch (e) {}
   }
   localStorage.setItem(SAMPLE_URLS_KEY, JSON.stringify(DEFAULT_SAMPLE_URLS));
   return DEFAULT_SAMPLE_URLS;
@@ -828,8 +820,7 @@ async function loadStoredAuth() {
       document.getElementById('username').value = auth.username || '';
       document.getElementById('password').value = decryptionResult.data || '';
       updateAuthStatus(true);
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 }
 function clearAuth() {
@@ -911,8 +902,7 @@ function autoFillAuthForUrl(url) {
       showSnackbar(`${urlObj.hostname}の認証情報を自動入力しました`, 'success');
       return true;
     }
-  } catch (e) {
-  }
+  } catch (e) {}
   return false;
 }
 function openAuthSection() {
@@ -964,8 +954,7 @@ async function fetchAndDisplay() {
     try {
       const urlObj = new URL(url);
       isLocalhostUrl = urlObj.hostname === 'localhost' || urlObj.hostname === '127.0.0.1';
-    } catch (e) {
-    }
+    } catch (e) {}
     let response;
     if (isVercel && isLocalhostUrl) {
       try {
@@ -1076,8 +1065,7 @@ function extractJsonLd(html) {
       } else {
         schemas.push(json);
       }
-    } catch (e) {
-    }
+    } catch (e) {}
   });
   return schemas;
 }
@@ -1092,8 +1080,7 @@ function displaySchemas(schemas, url) {
     if (url) {
       domainHtml = new URL(url).hostname;
     }
-  } catch (e) {
-  }
+  } catch (e) {}
   statsContainer.innerHTML = `
                 <div class="stat-item">
                     <span class="stat-label">スキーマ数</span>
@@ -1620,8 +1607,7 @@ function loadDeveloperSettings() {
       document.getElementById('radioModeFree').checked = true;
       document.getElementById('freeModelSelect').value = settings.model || 'gpt-5-nano';
     }
-  } catch (error) {
-  }
+  } catch (error) {}
 }
 document.getElementById('btnSaveDeveloperSettings')?.addEventListener('click', () => {
   const isFreeMode = document.getElementById('radioModeFree').checked;
@@ -1754,8 +1740,7 @@ function updateHeaderApiStatus() {
       const usageData = JSON.parse(localStorage.getItem(key) || '[]');
       const recentRequests = usageData.filter(timestamp => now - timestamp < oneDayMs);
       totalUsed += recentRequests.length;
-    } catch (error) {
-    }
+    } catch (error) {}
   });
   const maxRequests = 50;
   const remaining = Math.max(0, maxRequests - totalUsed);

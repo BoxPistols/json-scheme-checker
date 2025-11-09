@@ -5,8 +5,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import '../setup/content-upload-reviewer-setup.js';
 
 import mod from '../../public/modules/content-upload-reviewer.js';
-const ContentUploadReviewerManager =
-  mod.ContentUploadReviewerManager || mod.default || mod;
+const ContentUploadReviewerManager = mod.ContentUploadReviewerManager || mod.default || mod;
 
 describe('Content Upload Reviewer - Parse Response', () => {
   let manager;

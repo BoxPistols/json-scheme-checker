@@ -42,9 +42,7 @@ globalThis.FileParser = {
   })),
   isSupportedFile: vi.fn(filename => {
     const ext = filename.substring(filename.lastIndexOf('.'));
-    return ['.pdf', '.csv', '.xlsx', '.xls', '.md', '.markdown', '.json', '.txt'].includes(
-      ext
-    );
+    return ['.pdf', '.csv', '.xlsx', '.xls', '.md', '.markdown', '.json', '.txt'].includes(ext);
   }),
   getSupportedExtensions: vi.fn(() => [
     '.pdf',

@@ -6,8 +6,7 @@ import '../setup/content-upload-reviewer-setup.js';
 
 // Content Upload Reviewerをインポート
 import mod from '../../public/modules/content-upload-reviewer.js';
-const ContentUploadReviewerManager =
-  mod.ContentUploadReviewerManager || mod.default || mod;
+const ContentUploadReviewerManager = mod.ContentUploadReviewerManager || mod.default || mod;
 
 describe('Content Upload Reviewer - Rate Limit', () => {
   beforeEach(() => {
@@ -50,9 +49,7 @@ describe('Content Upload Reviewer - Rate Limit', () => {
 
     // 使用記録は残らない
     manager.recordUsage();
-    const usage = JSON.parse(
-      localStorage.getItem('jsonld_content_upload_reviewer_usage') || '[]'
-    );
+    const usage = JSON.parse(localStorage.getItem('jsonld_content_upload_reviewer_usage') || '[]');
     expect(usage.length).toBe(0);
   });
 
@@ -61,10 +58,7 @@ describe('Content Upload Reviewer - Rate Limit', () => {
 
     // 25時間前のタイムスタンプを設定
     const oldTimestamp = Date.now() - 25 * 60 * 60 * 1000;
-    localStorage.setItem(
-      'jsonld_content_upload_reviewer_usage',
-      JSON.stringify([oldTimestamp])
-    );
+    localStorage.setItem('jsonld_content_upload_reviewer_usage', JSON.stringify([oldTimestamp]));
 
     const rateLimit = manager.checkRateLimit();
     expect(rateLimit.allowed).toBe(true);

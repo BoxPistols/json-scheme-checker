@@ -59,7 +59,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
     try {
       const parser = new DOMParser();
       this.remoteDoc = parser.parseFromString(html, 'text/html');
-        const ogImageMeta = this.remoteDoc.querySelector('meta[property="og:image"]');
+      const ogImageMeta = this.remoteDoc.querySelector('meta[property="og:image"]');
       const ogImageUrl = ogImageMeta?.content;
       console.log('[BlogReviewer] setRemoteHtml - og:image meta tag found:', !!ogImageMeta);
       console.log('[BlogReviewer] setRemoteHtml - og:image URL:', ogImageUrl);
@@ -94,7 +94,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
     );
     console.log('[BlogReviewerManager] Article/BlogPosting detected:', article);
     if (article) {
-        this.currentArticle = this.enrichArticleData(article);
+      this.currentArticle = this.enrichArticleData(article);
       this.currentUrl = url;
       this.showReviewButton();
       console.log(
@@ -130,15 +130,15 @@ class BlogReviewerManager extends BaseAdvisorManager {
     }
     if (enriched.image) {
       let imageUrl = '';
-        if (typeof enriched.image === 'object') {
+      if (typeof enriched.image === 'object') {
         if (Array.isArray(enriched.image)) {
-                const firstImage = enriched.image[0];
+          const firstImage = enriched.image[0];
           imageUrl = typeof firstImage === 'string' ? firstImage : firstImage?.url || '';
         } else if (enriched.image.url) {
-                imageUrl = enriched.image.url;
+          imageUrl = enriched.image.url;
         }
       } else if (typeof enriched.image === 'string') {
-            imageUrl = enriched.image;
+        imageUrl = enriched.image;
       }
       if (imageUrl) {
         enriched.image = imageUrl;
@@ -151,21 +151,21 @@ class BlogReviewerManager extends BaseAdvisorManager {
     if (!enriched.image) {
       const root = this.remoteDoc || document;
       console.log('[BlogReviewerManager] Searching for OGP image...');
-        const allMetas = root.querySelectorAll('meta[property]');
+      const allMetas = root.querySelectorAll('meta[property]');
       console.log('[BlogReviewerManager] Total meta tags with property:', allMetas.length);
       const ogImage =
         root.querySelector('meta[property="og:image"]')?.content ||
         root.querySelector('meta[property="og:image:url"]')?.content;
       console.log('[BlogReviewerManager] og:image found:', ogImage);
       if (ogImage) {
-            let absoluteImageUrl = ogImage;
+        let absoluteImageUrl = ogImage;
         try {
           if (typeof ogImage === 'string') {
             if (ogImage.startsWith('/')) {
-                        const urlObj = new URL(window.location.href);
+              const urlObj = new URL(window.location.href);
               absoluteImageUrl = urlObj.origin + ogImage;
             } else if (!ogImage.startsWith('http')) {
-                        const urlObj = new URL(window.location.href);
+              const urlObj = new URL(window.location.href);
               const basePath = urlObj.pathname.substring(0, urlObj.pathname.lastIndexOf('/') + 1);
               absoluteImageUrl = urlObj.origin + basePath + ogImage;
             }
@@ -190,13 +190,13 @@ class BlogReviewerManager extends BaseAdvisorManager {
       const root = this.remoteDoc || document; // 取得済みのリモートHTMLを優先
       let bodyText = '';
       console.log('[BlogReviewer] articleBody not found in JSON-LD, extracting from HTML...');
-        const articleElement = root.querySelector('article');
+      const articleElement = root.querySelector('article');
       console.log('[BlogReviewer] article element:', articleElement);
       if (articleElement) {
         bodyText = this.extractTextContent(articleElement);
         console.log('[BlogReviewer] Extracted from <article>:', bodyText.substring(0, 200));
       }
-        if (!bodyText) {
+      if (!bodyText) {
         const mainElement = root.querySelector('main');
         console.log('[BlogReviewer] main element:', mainElement);
         if (mainElement) {
@@ -204,9 +204,9 @@ class BlogReviewerManager extends BaseAdvisorManager {
           console.log('[BlogReviewer] Extracted from <main>:', bodyText.substring(0, 200));
         }
       }
-        if (!bodyText) {
+      if (!bodyText) {
         console.log('[BlogReviewer] Trying generic content selectors...');
-            const contentSelectors = [
+        const contentSelectors = [
           'article',
           'main',
           '[role="main"]',
@@ -300,7 +300,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
     console.log('[BlogReviewerManager] actions container found:', !!actionsContainer);
     if (!actionsContainer) {
       console.error('[BlogReviewerManager] ERROR: actions container not found');
-        const schemasContainer = document.getElementById('schemasContainer');
+      const schemasContainer = document.getElementById('schemasContainer');
       if (schemasContainer) {
         console.log('[BlogReviewerManager] Using schemasContainer as fallback');
         const button = this.createReviewButton();
@@ -343,7 +343,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
     const overlay = document.createElement('div');
     overlay.id = 'blogReviewerConfirmOverlay';
     overlay.className = 'advisor-overlay';
-overlay.innerHTML = ` <div class="advisor-modal">   <div class="advisor-modal-header">     <h2>ブログ記事レビュー</h2>     <button type="button" class="advisor-modal-close" data-action="blog-close-confirm-dialog">       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">         <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>       </svg>     </button>   </div>   <div class="advisor-modal-body">     <p class="advisor-modal-text advisor-center advisor-muted">SEO観点、EEAT観点、アクセシビリティ観点でブログ記事をレビューします。</p>     <div class="advisor-confirm-buttons">       <button type="button" class="advisor-btn-secondary" data-action="blog-close-confirm-dialog">キャンセル</button>       <button type="button" class="advisor-btn-primary" data-action="blog-start-review">レビュー開始</button>     </div>   </div> </div> `;
+    overlay.innerHTML = ` <div class="advisor-modal">   <div class="advisor-modal-header">     <h2>ブログ記事レビュー</h2>     <button type="button" class="advisor-modal-close" data-action="blog-close-confirm-dialog">       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">         <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>       </svg>     </button>   </div>   <div class="advisor-modal-body">     <p class="advisor-modal-text advisor-center advisor-muted">SEO観点、EEAT観点、アクセシビリティ観点でブログ記事をレビューします。</p>     <div class="advisor-confirm-buttons">       <button type="button" class="advisor-btn-secondary" data-action="blog-close-confirm-dialog">キャンセル</button>       <button type="button" class="advisor-btn-primary" data-action="blog-start-review">レビュー開始</button>     </div>   </div> </div> `;
     document.body.appendChild(overlay);
     this.addEscapeKeyListener(overlay, () => this.closeConfirmDialog());
     setTimeout(() => overlay.classList.add('active'), 10);
@@ -352,7 +352,7 @@ overlay.innerHTML = ` <div class="advisor-modal">   <div class="advisor-modal-he
   closeConfirmDialog() {
     const overlay = document.getElementById('blogReviewerConfirmOverlay');
     if (overlay) {
-        if (overlay.handleEscape) {
+      if (overlay.handleEscape) {
         document.removeEventListener('keydown', overlay.handleEscape);
       }
       overlay.classList.remove('active');
@@ -390,20 +390,20 @@ overlay.innerHTML = ` <div class="advisor-modal">   <div class="advisor-modal-he
     const headerHtml = this.renderViewHeader(
       'ブログ記事レビュー',
       'blog-close-review-view',
-` <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/> <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/> </svg> `
+      ` <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/> <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/> </svg> `
     );
-reviewView.innerHTML = ` ${headerHtml} <div class="advisor-view-content">   <div class="advisor-job-panel">     <h3 class="advisor-accordion-header" data-action="blog-reviewer-toggle-article-section">       <span class="advisor-accordion-icon">▼</span>記事情報     </h3>     <div class="advisor-job-content advisor-accordion-content" id="blogReviewerArticleContent">       ${this.formatArticle(this.currentArticle)}     </div>   </div>   <div class="advisor-resize-handle" data-resize-target="blog-reviewer"></div>   <div class="advisor-advice-panel">     <h3 class="advisor-accordion-header" data-action="blog-reviewer-toggle-review-section">       <span class="advisor-accordion-icon">▼</span>AI分析結果     </h3>     <div class="advisor-advice-content advisor-accordion-content" id="blogReviewerReviewContent">       <div class="advisor-progress-container" id="blogReviewerProgressContainer">         <div class="advisor-progress-bar">           <div class="advisor-progress-fill" id="blogReviewerProgressFill"></div>         </div>         <div class="advisor-progress-text" id="blogReviewerProgressText">準備中...</div>       </div>       <div class="advisor-skeleton-loader" id="blogReviewerSkeletonLoader">         <div class="advisor-skeleton-item large"></div>         <div class="advisor-skeleton-item medium"></div>         <div class="advisor-skeleton-item medium"></div>         <div class="advisor-skeleton-item small"></div>         <div style="height: 8px;"></div>         <div class="advisor-skeleton-item large"></div>         <div class="advisor-skeleton-item medium"></div>         <div class="advisor-skeleton-item medium"></div>         <div class="advisor-skeleton-item small"></div>       </div>       <div class="advisor-markdown" id="blogReviewerMarkdown"></div>     </div>     <div id="blogReviewerExportButtons" class="advisor-export-buttons"></div>   </div>   <div id="blogReviewerChatContainer" class="advisor-chat-container"></div> </div> `;
+    reviewView.innerHTML = ` ${headerHtml} <div class="advisor-view-content">   <div class="advisor-job-panel">     <h3 class="advisor-accordion-header" data-action="blog-reviewer-toggle-article-section">       <span class="advisor-accordion-icon">▼</span>記事情報     </h3>     <div class="advisor-job-content advisor-accordion-content" id="blogReviewerArticleContent">       ${this.formatArticle(this.currentArticle)}     </div>   </div>   <div class="advisor-resize-handle" data-resize-target="blog-reviewer"></div>   <div class="advisor-advice-panel">     <h3 class="advisor-accordion-header" data-action="blog-reviewer-toggle-review-section">       <span class="advisor-accordion-icon">▼</span>AI分析結果     </h3>     <div class="advisor-advice-content advisor-accordion-content" id="blogReviewerReviewContent">       <div class="advisor-progress-container" id="blogReviewerProgressContainer">         <div class="advisor-progress-bar">           <div class="advisor-progress-fill" id="blogReviewerProgressFill"></div>         </div>         <div class="advisor-progress-text" id="blogReviewerProgressText">準備中...</div>       </div>       <div class="advisor-skeleton-loader" id="blogReviewerSkeletonLoader">         <div class="advisor-skeleton-item large"></div>         <div class="advisor-skeleton-item medium"></div>         <div class="advisor-skeleton-item medium"></div>         <div class="advisor-skeleton-item small"></div>         <div style="height: 8px;"></div>         <div class="advisor-skeleton-item large"></div>         <div class="advisor-skeleton-item medium"></div>         <div class="advisor-skeleton-item medium"></div>         <div class="advisor-skeleton-item small"></div>       </div>       <div class="advisor-markdown" id="blogReviewerMarkdown"></div>     </div>     <div id="blogReviewerExportButtons" class="advisor-export-buttons"></div>   </div>   <div id="blogReviewerChatContainer" class="advisor-chat-container"></div> </div> `;
     container.style.display = 'none';
     document.body.appendChild(reviewView);
     setTimeout(() => {
       reviewView.classList.add('active');
-        const sel = document.getElementById('blogReviewerModelSelect');
+      const sel = document.getElementById('blogReviewerModelSelect');
       if (sel) {
         sel.value = this.getSelectedModel();
         sel.addEventListener('change', () => this.setSelectedModel(sel.value));
       }
-        this.initResizeHandle('blog-reviewer');
-        this.updateHeaderUsageChip();
+      this.initResizeHandle('blog-reviewer');
+      this.updateHeaderUsageChip();
     }, 10);
   }
 
@@ -429,14 +429,14 @@ reviewView.innerHTML = ` ${headerHtml} <div class="advisor-view-content">   <div
     }
     let html = '';
     if (this.currentUrl) {
-html += ` <div class="job-field"> <label>分析元URL</label> <div class="job-value"> <a href="${this.escapeHtml(this.currentUrl)}" target="_blank" rel="noopener noreferrer" style="color: var(--link-color); text-decoration: underline; word-break: break-all;"> ${this.escapeHtml(this.currentUrl)} </a> </div> </div> `;
+      html += ` <div class="job-field"> <label>分析元URL</label> <div class="job-value"> <a href="${this.escapeHtml(this.currentUrl)}" target="_blank" rel="noopener noreferrer" style="color: var(--link-color); text-decoration: underline; word-break: break-all;"> ${this.escapeHtml(this.currentUrl)} </a> </div> </div> `;
     }
     if (image) {
-html += ` <div class="job-field"> <label>OGP画像</label> <div class="job-value" style="text-align: center;"> <img src="${this.escapeHtml(image)}" alt="OGP" loading="lazy" onerror="this.parentElement.parentElement.style.display='none'" style="max-width: 100%; max-height: 300px; border-radius: 4px; border: 1px solid var(--border-color); display: block;" > </div> </div> `;
+      html += ` <div class="job-field"> <label>OGP画像</label> <div class="job-value" style="text-align: center;"> <img src="${this.escapeHtml(image)}" alt="OGP" loading="lazy" onerror="this.parentElement.parentElement.style.display='none'" style="max-width: 100%; max-height: 300px; border-radius: 4px; border: 1px solid var(--border-color); display: block;" > </div> </div> `;
     }
-html += ` <div class="job-field"> <label>タイトル</label> <div class="job-value">${this.escapeHtml(headline)}</div> </div> <div class="job-field"> <label>著者</label> <div class="job-value">${this.escapeHtml(author)}</div> </div> <div class="job-field"> <label>公開日</label> <div class="job-value">${this.escapeHtml(datePublished)}</div> </div> <div class="job-field"> <label>最終更新日</label> <div class="job-value">${this.escapeHtml(dateModified)}</div> </div> <div class="job-field"> <label>説明</label> <div class="job-value job-description">${this.escapeHtml(description)}</div> </div> `;
+    html += ` <div class="job-field"> <label>タイトル</label> <div class="job-value">${this.escapeHtml(headline)}</div> </div> <div class="job-field"> <label>著者</label> <div class="job-value">${this.escapeHtml(author)}</div> </div> <div class="job-field"> <label>公開日</label> <div class="job-value">${this.escapeHtml(datePublished)}</div> </div> <div class="job-field"> <label>最終更新日</label> <div class="job-value">${this.escapeHtml(dateModified)}</div> </div> <div class="job-field"> <label>説明</label> <div class="job-value job-description">${this.escapeHtml(description)}</div> </div> `;
     if (articleBody && articleBody !== '本文なし') {
-html += ` <div class="job-field"> <label>本文</label> <div class="job-value job-description"> ${this.escapeHtml(articleBody)}${isTruncated ? '<span class="text-muted">...（省略）</span>' : ''} </div> </div> `;
+      html += ` <div class="job-field"> <label>本文</label> <div class="job-value job-description"> ${this.escapeHtml(articleBody)}${isTruncated ? '<span class="text-muted">...（省略）</span>' : ''} </div> </div> `;
     }
     return html;
   }
@@ -487,7 +487,7 @@ html += ` <div class="job-field"> <label>本文</label> <div class="job-value jo
         signal: abortController.signal,
       });
       if (!response.ok) {
-            if (response.status === 429) {
+        if (response.status === 429) {
           try {
             const errorData = await response.json();
             const resetTime = new Date(errorData.resetTime).toLocaleTimeString('ja-JP');
@@ -504,7 +504,7 @@ html += ` <div class="job-field"> <label>本文</label> <div class="job-value jo
         }
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-        const md = document.getElementById('blogReviewerMarkdown');
+      const md = document.getElementById('blogReviewerMarkdown');
       if (!md) {
         throw new Error('マークダウン要素が見つかりません');
       }
@@ -527,11 +527,11 @@ html += ` <div class="job-field"> <label>本文</label> <div class="job-value jo
               if (data === '[DONE]') {
                 this.isStreaming = false;
                 this.updateProgress(100, '完了');
-                            const progressContainer = document.getElementById('blogReviewerProgressContainer');
+                const progressContainer = document.getElementById('blogReviewerProgressContainer');
                 if (progressContainer) {
                   progressContainer.style.display = 'none';
                 }
-                            this.recordUsage();
+                this.recordUsage();
                 break;
               }
               try {
@@ -541,7 +541,7 @@ html += ` <div class="job-field"> <label>本文</label> <div class="job-value jo
                   console.log('[BlogReviewer] Received model:', parsed.model);
                 } else if (parsed.content) {
                   fullText += parsed.content;
-                                if (!firstTokenReceived) {
+                  if (!firstTokenReceived) {
                     firstTokenReceived = true;
                     const skeletonLoader = document.getElementById('blogReviewerSkeletonLoader');
                     if (skeletonLoader) {
@@ -549,7 +549,7 @@ html += ` <div class="job-field"> <label>本文</label> <div class="job-value jo
                     }
                     this.updateProgress(10, '分析開始...');
                   }
-                                const textLength = fullText.length;
+                  const textLength = fullText.length;
                   let progressPercentage = 10;
                   let progressText = '分析中...';
                   if (textLength < 500) {
@@ -565,7 +565,7 @@ html += ` <div class="job-field"> <label>本文</label> <div class="job-value jo
                   this.updateProgress(progressPercentage, progressText);
                   md.innerHTML = this.renderMarkdown(fullText);
                 } else if (parsed.usage) {
-                                console.log('[BlogReviewer] Received usage:', parsed.usage);
+                  console.log('[BlogReviewer] Received usage:', parsed.usage);
                   this.currentUsage = parsed.usage;
                   this.displayUsage();
                   this.showExportButtons();
@@ -583,13 +583,13 @@ html += ` <div class="job-field"> <label>本文</label> <div class="job-value jo
           }
         }
       } finally {
-            reader.cancel().catch(err => console.warn('Reader cancel failed:', err));
-            this.isStreaming = false;
+        reader.cancel().catch(err => console.warn('Reader cancel failed:', err));
+        this.isStreaming = false;
         setAnalysisInactive('blog-reviewer');
         delete window.ANALYSIS_STATE.abortControllers['blog-reviewer'];
       }
     } catch (error) {
-        const progressContainer = document.getElementById('blogReviewerProgressContainer');
+      const progressContainer = document.getElementById('blogReviewerProgressContainer');
       const skeletonLoader = document.getElementById('blogReviewerSkeletonLoader');
       if (progressContainer) {
         progressContainer.style.display = 'none';
@@ -597,7 +597,7 @@ html += ` <div class="job-field"> <label>本文</label> <div class="job-value jo
       if (skeletonLoader) {
         skeletonLoader.style.display = 'none';
       }
-        if (error.name === 'AbortError') {
+      if (error.name === 'AbortError') {
         console.log('[BlogReviewer] 分析がキャンセルされました');
         const md = document.getElementById('blogReviewerMarkdown');
         if (md) {
@@ -612,10 +612,10 @@ html += ` <div class="job-field"> <label>本文</label> <div class="job-value jo
         : this.escapeHtml(error.message);
       const md = document.getElementById('blogReviewerMarkdown');
       if (md) {
-md.innerHTML = ` <div class="advisor-error"> <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"> <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/> <path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/> </svg> <p>AI分析に失敗しました</p> <p class="advisor-error-detail">${errorMessage}</p> <button class="advisor-btn-primary" data-action="blog-fetch-review"> 再試行 </button> </div> `;
+        md.innerHTML = ` <div class="advisor-error"> <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"> <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/> <path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/> </svg> <p>AI分析に失敗しました</p> <p class="advisor-error-detail">${errorMessage}</p> <button class="advisor-btn-primary" data-action="blog-fetch-review"> 再試行 </button> </div> `;
       }
     } finally {
-        clearTimeout(timeoutId);
+      clearTimeout(timeoutId);
     }
   }
 
@@ -629,7 +629,7 @@ md.innerHTML = ` <div class="advisor-error"> <svg width="48" height="48" viewBox
       if (footer) {
         footer.scrollIntoView({ behavior: 'smooth', block: 'end' });
       } else {
-            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
       }
     }, 500); // 完了後少し待ってからスクロール
   }
@@ -737,7 +737,7 @@ md.innerHTML = ` <div class="advisor-error"> <svg width="48" height="48" viewBox
       const markdownDiv = reviewContent.querySelector('.advisor-markdown');
       console.log('[BlogReviewer] markdownDiv element:', markdownDiv);
       if (markdownDiv) {
-            const existingPanel = reviewContent.querySelector('.advisor-usage-panel');
+        const existingPanel = reviewContent.querySelector('.advisor-usage-panel');
         if (existingPanel) existingPanel.remove();
         markdownDiv.insertAdjacentHTML('afterend', usageHtml);
         console.log('[BlogReviewer] Usage HTML inserted');
@@ -781,31 +781,31 @@ md.innerHTML = ` <div class="advisor-error"> <svg width="48" height="48" viewBox
       const timestamp = new Date().toISOString().split('T')[0];
       const articleContent = document.getElementById('blogReviewerArticleContent');
       const reviewContent = document.querySelector('.advisor-markdown');
-        const articleText = articleContent
+      const articleText = articleContent
         ? this.cleanHtmlText(articleContent.innerText)
         : '情報なし';
       const reviewText = reviewContent ? reviewContent.innerText : '情報なし';
-        const csvLines = [];
-        csvLines.push('項目,値');
-        csvLines.push('記事情報（タイトル）,');
+      const csvLines = [];
+      csvLines.push('項目,値');
+      csvLines.push('記事情報（タイトル）,');
       const articleLines = articleText.split('\n').filter(line => line.trim().length > 0);
       articleLines.slice(0, 1).forEach(line => csvLines.push(`,${this.escapeCsvValue(line)}`)); // 最初の行（タイトル）
       csvLines.push('記事情報（詳細）,');
       articleLines.slice(1).forEach(line => csvLines.push(`,${this.escapeCsvValue(line)}`)); // 残りの行（詳細）
-        csvLines.push('AI分析結果,');
+      csvLines.push('AI分析結果,');
       const reviewLines = reviewText.split('\n').filter(line => line.trim().length > 0);
       reviewLines.forEach(line => csvLines.push(`,${this.escapeCsvValue(line)}`));
-        csvLines.push(','); // 空行
+      csvLines.push(','); // 空行
       csvLines.push(`使用モデル,${this.model}`);
       csvLines.push(`入力トークン数,${this.currentUsage.prompt_tokens}`);
       csvLines.push(`出力トークン数,${this.currentUsage.completion_tokens}`);
-        const previewHtml = this.generateCsvPreview(csvLines);
-        const filename = `blog_review_${timestamp}.csv`;
-        this.showExportPreview(
+      const previewHtml = this.generateCsvPreview(csvLines);
+      const filename = `blog_review_${timestamp}.csv`;
+      this.showExportPreview(
         'CSVエクスポート - プレビュー',
         previewHtml,
         () => {
-                const csvContent = '\ufeff' + csvLines.join('\n');
+          const csvContent = '\ufeff' + csvLines.join('\n');
           const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
           this.downloadFile(blob, filename);
           console.log('[BlogReviewer] CSV export successful:', filename);
@@ -829,7 +829,7 @@ md.innerHTML = ` <div class="advisor-error"> <svg width="48" height="48" viewBox
       const cells = this.parseCsvLine(csvLines[i]);
       html += '<tr>';
       cells.forEach((cell, index) => {
-            const className = cell.trim() === '' && index === 0 ? 'csv-cell-indent' : '';
+        const className = cell.trim() === '' && index === 0 ? 'csv-cell-indent' : '';
         html += `<td class="${className}">${this.escapeHtml(cell)}</td>`;
       });
       html += '</tr>';
@@ -846,13 +846,13 @@ md.innerHTML = ` <div class="advisor-error"> <svg width="48" height="48" viewBox
       const char = line[i];
       if (char === '"') {
         if (inQuotes && line[i + 1] === '"') {
-                currentCell += '"';
+          currentCell += '"';
           i++;
         } else {
-                inQuotes = !inQuotes;
+          inQuotes = !inQuotes;
         }
       } else if (char === ',' && !inQuotes) {
-            cells.push(currentCell);
+        cells.push(currentCell);
         currentCell = '';
       } else {
         currentCell += char;
@@ -869,15 +869,15 @@ md.innerHTML = ` <div class="advisor-error"> <svg width="48" height="48" viewBox
       const reviewContent = document.querySelector('.advisor-markdown');
       const articleText = articleContent ? articleContent.innerText : '情報なし';
       const reviewText = reviewContent ? reviewContent.innerText : '情報なし';
-const htmlContent = ` <!DOCTYPE html> <html lang="ja"> <head> <meta charset="UTF-8"> <title>ブログ記事レビュー結果エクスポート</title> <style> body { font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif; margin: 20px; line-height: 1.6; color: #1a1a1a; background-color: #ffffff; } h1 { text-align: center; border-bottom: 2px solid #5a7ca3; padding-bottom: 10px; color: #5a7ca3; } .section { margin: 30px 0; page-break-inside: avoid; } .section h2 { border-left: 4px solid #5a7ca3; padding-left: 10px; margin-top: 0; color: #2c3e50; } .content { background-color: #fafafa; padding: 15px; border: 1px solid #e0e0e0; border-radius: 4px; white-space: pre-wrap; word-wrap: break-word; font-size: 13px; color: #1a1a1a; } .footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: 11px; color: #666; } .footer .metadata { margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0; font-size: 10px; color: #888; } .footer .metadata p { margin: 4px 0; } @media print { body { margin: 0; } .section { page-break-inside: avoid; } } </style> </head> <body> <h1>ブログ記事レビュー結果エクスポート</h1>  <div class="section"> <h2>記事情報</h2> <div class="content">${this.escapeHtml(articleText)}</div> </div>  <div class="section"> <h2>AI分析結果</h2> <div class="content">${this.escapeHtml(reviewText)}</div> </div>  <div class="footer"> <p>このドキュメントは自動生成されました。</p> <p>ブラウザの「印刷」機能から「PDFに保存」を選択してダウンロードしてください。</p> <div class="metadata"> <p>エクスポート日時: ${timestamp}</p> <p>使用モデル: ${this.model} | トークン使用数: 入力 ${this.currentUsage.prompt_tokens}、出力 ${this.currentUsage.completion_tokens}</p> </div> </div>  <script> </script> </body> </html> `;
-        const previewHtml = htmlContent;
-        const dateStr = new Date().toISOString().split('T')[0];
+      const htmlContent = ` <!DOCTYPE html> <html lang="ja"> <head> <meta charset="UTF-8"> <title>ブログ記事レビュー結果エクスポート</title> <style> body { font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif; margin: 20px; line-height: 1.6; color: #1a1a1a; background-color: #ffffff; } h1 { text-align: center; border-bottom: 2px solid #5a7ca3; padding-bottom: 10px; color: #5a7ca3; } .section { margin: 30px 0; page-break-inside: avoid; } .section h2 { border-left: 4px solid #5a7ca3; padding-left: 10px; margin-top: 0; color: #2c3e50; } .content { background-color: #fafafa; padding: 15px; border: 1px solid #e0e0e0; border-radius: 4px; white-space: pre-wrap; word-wrap: break-word; font-size: 13px; color: #1a1a1a; } .footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: 11px; color: #666; } .footer .metadata { margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0; font-size: 10px; color: #888; } .footer .metadata p { margin: 4px 0; } @media print { body { margin: 0; } .section { page-break-inside: avoid; } } </style> </head> <body> <h1>ブログ記事レビュー結果エクスポート</h1>  <div class="section"> <h2>記事情報</h2> <div class="content">${this.escapeHtml(articleText)}</div> </div>  <div class="section"> <h2>AI分析結果</h2> <div class="content">${this.escapeHtml(reviewText)}</div> </div>  <div class="footer"> <p>このドキュメントは自動生成されました。</p> <p>ブラウザの「印刷」機能から「PDFに保存」を選択してダウンロードしてください。</p> <div class="metadata"> <p>エクスポート日時: ${timestamp}</p> <p>使用モデル: ${this.model} | トークン使用数: 入力 ${this.currentUsage.prompt_tokens}、出力 ${this.currentUsage.completion_tokens}</p> </div> </div>  <script> </script> </body> </html> `;
+      const previewHtml = htmlContent;
+      const dateStr = new Date().toISOString().split('T')[0];
       const filename = `blog_review_${dateStr}.html`;
-        this.showExportPreview(
+      this.showExportPreview(
         'HTML/PDFエクスポート - プレビュー',
         previewHtml,
         () => {
-                const htmlWithBom = '\ufeff' + htmlContent;
+          const htmlWithBom = '\ufeff' + htmlContent;
           const blob = new Blob([htmlWithBom], { type: 'text/html;charset=utf-8;' });
           this.downloadFile(blob, filename);
           console.log('[BlogReviewer] PDF export successful (HTML形式):', filename);
@@ -935,7 +935,7 @@ const htmlContent = ` <!DOCTYPE html> <html lang="ja"> <head> <meta charset="UTF
     }
     this.updateProgress(0, '初期化中...');
     setTimeout(() => {
-        if (skeletonLoader) {
+      if (skeletonLoader) {
         skeletonLoader.style.display = 'none';
       }
       this.updateProgress(30, '分析中...');
@@ -944,21 +944,21 @@ const htmlContent = ` <!DOCTYPE html> <html lang="ja"> <head> <meta charset="UTF
         setTimeout(() => {
           this.updateProgress(90, '完了間近...');
           setTimeout(() => {
-                    md.innerHTML = this.renderMarkdownCommon(mockAnalysis);
+            md.innerHTML = this.renderMarkdownCommon(mockAnalysis);
             this.currentReviewContent = mockAnalysis;
             this.updateProgress(100, '完了');
-                    if (progressContainer) {
+            if (progressContainer) {
               progressContainer.style.display = 'none';
             }
-                    this.currentUsage = {
+            this.currentUsage = {
               prompt_tokens: 1200,
               completion_tokens: 600,
               total_tokens: 1800,
             };
             this.currentModel = 'gpt-4o (mock)';
-                    this.displayUsage();
-                    this.showExportButtons();
-                    this.initChatBox();
+            this.displayUsage();
+            this.showExportButtons();
+            this.initChatBox();
             console.log('[BlogReviewer] Mock review rendering completed');
           }, 500);
         }, 500);

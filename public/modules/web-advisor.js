@@ -176,7 +176,7 @@ class WebAdvisorManager extends BaseAdvisorManager {
     document.body.appendChild(view);
     setTimeout(() => {
       view.classList.add('active');
-        this.initResizeHandle('web-advisor');
+      this.initResizeHandle('web-advisor');
     }, 10);
   }
 
@@ -292,7 +292,7 @@ class WebAdvisorManager extends BaseAdvisorManager {
       if (footer) {
         footer.scrollIntoView({ behavior: 'smooth', block: 'end' });
       } else {
-            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
       }
     }, 500); // 完了後少し待ってからスクロール
   }
@@ -389,7 +389,7 @@ class WebAdvisorManager extends BaseAdvisorManager {
       }
     } catch (err) {
       console.log('[WebAdvisor-fetchAnalysis] Session creation error:', err.message);
-      }
+    }
 
     const params = new URLSearchParams({ url: this.currentUrl });
     if (sessionToken) params.set('sessionToken', sessionToken);
@@ -398,7 +398,7 @@ class WebAdvisorManager extends BaseAdvisorManager {
     console.log('[WebAdvisor-fetchAnalysis] SSE URL:', url);
 
     try {
-        const md = document.getElementById('webAdvisorMarkdown');
+      const md = document.getElementById('webAdvisorMarkdown');
       if (!md) {
         throw new Error('マークダウン要素が見つかりません');
       }
@@ -411,7 +411,7 @@ class WebAdvisorManager extends BaseAdvisorManager {
       this.eventSource = es;
       console.log('[WebAdvisor-fetchAnalysis] EventSource created');
 
-        this.updateProgress(0, '初期化中...');
+      this.updateProgress(0, '初期化中...');
 
       es.onmessage = e => {
         console.log('[WebAdvisor-SSE-onmessage] Event:', e.data?.substring(0, 100));
@@ -424,7 +424,7 @@ class WebAdvisorManager extends BaseAdvisorManager {
               this.updateProgress(5, data.message || '初期化中...');
               break;
             case 'progress':
-                        if (data.stage === 'fetching') {
+              if (data.stage === 'fetching') {
                 this.updateProgress(15, data.message || 'ページを取得中...');
               } else if (data.stage === 'parsing') {
                 this.updateProgress(45, data.message || 'ページを解析中...');
@@ -433,14 +433,14 @@ class WebAdvisorManager extends BaseAdvisorManager {
               }
               break;
             case 'meta':
-                        this.currentMetadata = data.data;
+              this.currentMetadata = data.data;
               this.updateMetadataPanel();
               break;
             case 'token':
               full += data.content || '';
               tokenCount++;
 
-                        if (!firstTokenReceived) {
+              if (!firstTokenReceived) {
                 firstTokenReceived = true;
                 const skeletonLoader = document.getElementById('webAdvisorSkeletonLoader');
                 if (skeletonLoader) {
@@ -448,12 +448,12 @@ class WebAdvisorManager extends BaseAdvisorManager {
                 }
               }
 
-                        const tokenProgress = 70 + Math.min(tokenCount * 0.5, 29);
+              const tokenProgress = 70 + Math.min(tokenCount * 0.5, 29);
               this.updateProgress(tokenProgress, `分析中...${tokenCount}トークン`);
               md.innerHTML = this.renderMarkdown(full);
               break;
             case 'usage':
-                        console.log('[WebAdvisor] Received usage:', data.data);
+              console.log('[WebAdvisor] Received usage:', data.data);
               this.currentUsage = data.data;
               this.currentModel = data.model || 'gpt-5-nano';
               this.displayUsage();
@@ -464,7 +464,7 @@ class WebAdvisorManager extends BaseAdvisorManager {
             case 'done':
               console.log('[WebAdvisor-SSE-onmessage] Analysis complete');
               this.updateProgress(100, '完了');
-                        const doneProgressContainer = document.getElementById('webAdvisorProgressContainer');
+              const doneProgressContainer = document.getElementById('webAdvisorProgressContainer');
               if (doneProgressContainer) doneProgressContainer.style.display = 'none';
               this.isStreaming = false;
               this.recordUsage();
@@ -474,7 +474,7 @@ class WebAdvisorManager extends BaseAdvisorManager {
               break;
             case 'error':
               console.log('[WebAdvisor-SSE-onmessage] Error:', data.message);
-                        const errProgressContainer = document.getElementById('webAdvisorProgressContainer');
+              const errProgressContainer = document.getElementById('webAdvisorProgressContainer');
               const errSkeletonLoader = document.getElementById('webAdvisorSkeletonLoader');
               if (errProgressContainer) errProgressContainer.style.display = 'none';
               if (errSkeletonLoader) errSkeletonLoader.style.display = 'none';
@@ -489,13 +489,13 @@ class WebAdvisorManager extends BaseAdvisorManager {
           }
         } catch (err) {
           console.log('[WebAdvisor-SSE-onmessage] Parse error:', err.message);
-              }
+        }
       };
 
       es.onerror = () => {
         console.log('[WebAdvisor-SSE-onerror] Connection error, isStreaming:', this.isStreaming);
         if (this.isStreaming) {
-                const errorProgressContainer = document.getElementById('webAdvisorProgressContainer');
+          const errorProgressContainer = document.getElementById('webAdvisorProgressContainer');
           const errorSkeletonLoader = document.getElementById('webAdvisorSkeletonLoader');
           if (errorProgressContainer) errorProgressContainer.style.display = 'none';
           if (errorSkeletonLoader) errorSkeletonLoader.style.display = 'none';
@@ -507,7 +507,7 @@ class WebAdvisorManager extends BaseAdvisorManager {
       };
     } catch (err) {
       console.log('[WebAdvisor-fetchAnalysis] Error:', err.message);
-        const catchProgressContainer = document.getElementById('webAdvisorProgressContainer');
+      const catchProgressContainer = document.getElementById('webAdvisorProgressContainer');
       const catchSkeletonLoader = document.getElementById('webAdvisorSkeletonLoader');
       if (catchProgressContainer) catchProgressContainer.style.display = 'none';
       if (catchSkeletonLoader) catchSkeletonLoader.style.display = 'none';
@@ -518,7 +518,7 @@ class WebAdvisorManager extends BaseAdvisorManager {
         md.innerHTML = `<div class="advisor-error"><p>${this.escapeHtml(err.message || '分析開始に失敗しました')}</p></div>`;
       }
     } finally {
-        clearTimeout(timeoutId);
+      clearTimeout(timeoutId);
     }
   }
 
@@ -625,37 +625,37 @@ class WebAdvisorManager extends BaseAdvisorManager {
       const metadataContent = document.getElementById('webAdvisorMetadata');
       const analysisContent = document.querySelector('.advisor-markdown');
 
-        const metadataText = metadataContent
+      const metadataText = metadataContent
         ? this.cleanHtmlText(metadataContent.innerText)
         : '情報なし';
       const analysisText = analysisContent ? analysisContent.innerText : '情報なし';
 
-        const csvLines = [];
+      const csvLines = [];
 
-        csvLines.push('項目,値');
+      csvLines.push('項目,値');
 
-        csvLines.push('ページ情報,');
+      csvLines.push('ページ情報,');
       const metadataLines = metadataText.split('\n').filter(line => line.trim().length > 0);
       metadataLines.forEach(line => csvLines.push(`,${this.escapeCsvValue(line)}`));
 
-        csvLines.push('AI分析結果,');
+      csvLines.push('AI分析結果,');
       const analysisLines = analysisText.split('\n').filter(line => line.trim().length > 0);
       analysisLines.forEach(line => csvLines.push(`,${this.escapeCsvValue(line)}`));
 
-        csvLines.push(','); // 空行
+      csvLines.push(','); // 空行
       csvLines.push(`使用モデル,${this.currentModel}`);
       csvLines.push(`入力トークン数,${this.currentUsage.prompt_tokens}`);
       csvLines.push(`出力トークン数,${this.currentUsage.completion_tokens}`);
 
-        const previewHtml = this.generateCsvPreview(csvLines);
+      const previewHtml = this.generateCsvPreview(csvLines);
 
-        const filename = `web_analysis_${timestamp}.csv`;
+      const filename = `web_analysis_${timestamp}.csv`;
 
-        this.showExportPreview(
+      this.showExportPreview(
         'CSVエクスポート - プレビュー',
         previewHtml,
         () => {
-                const csvContent = '\ufeff' + csvLines.join('\n');
+          const csvContent = '\ufeff' + csvLines.join('\n');
           const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
           this.downloadFile(blob, filename);
           console.log('[WebAdvisor] CSV export successful:', filename);
@@ -686,7 +686,7 @@ class WebAdvisorManager extends BaseAdvisorManager {
       const cells = this.parseCsvLine(csvLines[i]);
       html += '<tr>';
       cells.forEach((cell, index) => {
-            const className = cell.trim() === '' && index === 0 ? 'csv-cell-indent' : '';
+        const className = cell.trim() === '' && index === 0 ? 'csv-cell-indent' : '';
         html += `<td class="${className}">${this.escapeHtml(cell)}</td>`;
       });
       html += '</tr>';
@@ -711,13 +711,13 @@ class WebAdvisorManager extends BaseAdvisorManager {
 
       if (char === '"') {
         if (inQuotes && line[i + 1] === '"') {
-                currentCell += '"';
+          currentCell += '"';
           i++;
         } else {
-                inQuotes = !inQuotes;
+          inQuotes = !inQuotes;
         }
       } else if (char === ',' && !inQuotes) {
-            cells.push(currentCell);
+        cells.push(currentCell);
         currentCell = '';
       } else {
         currentCell += char;
@@ -743,7 +743,7 @@ class WebAdvisorManager extends BaseAdvisorManager {
       const metadataText = metadataContent ? metadataContent.innerText : '情報なし';
       const analysisText = analysisContent ? analysisContent.innerText : '情報なし';
 
-        const htmlContent = `
+      const htmlContent = `
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -835,16 +835,16 @@ class WebAdvisorManager extends BaseAdvisorManager {
 </html>
       `;
 
-        const previewHtml = htmlContent;
+      const previewHtml = htmlContent;
 
-        const dateStr = new Date().toISOString().split('T')[0];
+      const dateStr = new Date().toISOString().split('T')[0];
       const filename = `web_analysis_${dateStr}.html`;
 
-        this.showExportPreview(
+      this.showExportPreview(
         'HTML/PDFエクスポート - プレビュー',
         previewHtml,
         () => {
-                const htmlWithBom = '\ufeff' + htmlContent;
+          const htmlWithBom = '\ufeff' + htmlContent;
           const blob = new Blob([htmlWithBom], { type: 'text/html;charset=utf-8;' });
           this.downloadFile(blob, filename);
           console.log('[WebAdvisor] PDF export successful (HTML形式):', filename);
@@ -911,7 +911,7 @@ class WebAdvisorManager extends BaseAdvisorManager {
     this.updateProgress(0, '初期化中...');
 
     setTimeout(() => {
-        if (skeletonLoader) {
+      if (skeletonLoader) {
         skeletonLoader.style.display = 'none';
       }
       this.updateProgress(30, '分析中...');
@@ -923,27 +923,27 @@ class WebAdvisorManager extends BaseAdvisorManager {
           this.updateProgress(90, '完了間近...');
 
           setTimeout(() => {
-                    md.innerHTML = this.renderMarkdownCommon(mockAnalysis);
+            md.innerHTML = this.renderMarkdownCommon(mockAnalysis);
             this.currentAnalysisContent = mockAnalysis;
 
             this.updateProgress(100, '完了');
 
-                    if (progressContainer) {
+            if (progressContainer) {
               progressContainer.style.display = 'none';
             }
 
-                    this.currentUsage = {
+            this.currentUsage = {
               prompt_tokens: 1800,
               completion_tokens: 1000,
               total_tokens: 2800,
             };
             this.currentModel = 'gpt-4o (mock)';
 
-                    this.displayUsage();
+            this.displayUsage();
 
-                    this.showExportButtons();
+            this.showExportButtons();
 
-                    this.initChatBox();
+            this.initChatBox();
 
             console.log('[WebAdvisor] Mock analysis rendering completed');
           }, 500);

@@ -5,8 +5,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import '../setup/content-upload-reviewer-setup.js';
 
 import mod from '../../public/modules/content-upload-reviewer.js';
-const ContentUploadReviewerManager =
-  mod.ContentUploadReviewerManager || mod.default || mod;
+const ContentUploadReviewerManager = mod.ContentUploadReviewerManager || mod.default || mod;
 
 describe('Content Upload Reviewer - Integration Tests', () => {
   let manager;
@@ -55,9 +54,7 @@ describe('Content Upload Reviewer - Integration Tests', () => {
     it('setSelectedModelでモデルを保存', () => {
       manager.setSelectedModel('gpt-4.1-nano');
       expect(manager.model).toBe('gpt-4.1-nano');
-      expect(localStorage.getItem('jsonld_content_upload_reviewer_model')).toBe(
-        'gpt-4.1-nano'
-      );
+      expect(localStorage.getItem('jsonld_content_upload_reviewer_model')).toBe('gpt-4.1-nano');
     });
 
     it('保存されたモデルをgetSelectedModelで取得', () => {
@@ -145,9 +142,7 @@ describe('Content Upload Reviewer - Integration Tests', () => {
 
     it('window.contentUploadReviewerManagerが定義されている', () => {
       expect(window.contentUploadReviewerManager).toBeDefined();
-      expect(window.contentUploadReviewerManager).toBeInstanceOf(
-        ContentUploadReviewerManager
-      );
+      expect(window.contentUploadReviewerManager).toBeInstanceOf(ContentUploadReviewerManager);
     });
   });
 

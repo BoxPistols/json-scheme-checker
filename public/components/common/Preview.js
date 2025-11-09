@@ -13,7 +13,14 @@
  * @param {string} props.format - ファイル形式（text|markdown|html|json）
  * @returns {HTMLElement}
  */
-export function Preview({ id = '', title = '', content = '', onDownload, onClose, format = 'text' }) {
+export function Preview({
+  id = '',
+  title = '',
+  content = '',
+  onDownload,
+  onClose,
+  format = 'text',
+}) {
   const modal = document.createElement('div');
   modal.className = 'modal modal-large active';
   if (id) modal.id = id;

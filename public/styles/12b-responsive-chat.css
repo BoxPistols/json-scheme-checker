@@ -1,7 +1,3 @@
-  }
-}
-
-
 /* ==========================================
    Content Upload Reviewer Styles
    ========================================== */
@@ -114,12 +110,12 @@
   background: var(--secondary-bg-color);
 }
 
-.review-type-option input[type="radio"] {
+.review-type-option input[type='radio'] {
   margin-right: 8px;
   cursor: pointer;
 }
 
-.review-type-option input[type="radio"]:checked + span {
+.review-type-option input[type='radio']:checked + span {
   font-weight: 600;
   color: var(--accent-color);
 }

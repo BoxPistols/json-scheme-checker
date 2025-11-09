@@ -51,19 +51,19 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
     this.revisedText = '';
     this.uploadedFile = null;
   }
-  
+
   getSelectedModel() {
     return (
       localStorage.getItem('jsonld_content_upload_reviewer_model') ||
       window.ADVISOR_CONST.DEFAULT_MODEL
     );
   }
-  
+
   setSelectedModel(model) {
     this.model = model;
     localStorage.setItem('jsonld_content_upload_reviewer_model', model);
   }
-  
+
   showUploadModal() {
     const existingModal = document.getElementById('contentUploadModal');
     if (existingModal) {
@@ -79,7 +79,7 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
       }
     });
   }
-  
+
   createUploadModal() {
     const overlay = document.createElement('div');
     overlay.id = 'contentUploadModal';
@@ -96,7 +96,7 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
     overlay.appendChild(container);
     return overlay;
   }
-  
+
   _createModalHeader() {
     const header = document.createElement('div');
     header.className = 'modal-header';
@@ -114,7 +114,7 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
     header.appendChild(closeBtn);
     return header;
   }
-  
+
   _createModalBody() {
     const body = document.createElement('div');
     body.className = 'modal-body';
@@ -128,7 +128,7 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
     body.appendChild(matchingFields);
     return body;
   }
-  
+
   _createInfoBox() {
     const infoBox = document.createElement('div');
     infoBox.className = 'modal-info-box modal-info-box--blue modal-info-box--spacing';
@@ -149,7 +149,7 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
     infoBox.appendChild(para2);
     return infoBox;
   }
-  
+
   _createReviewTypeSection() {
     const section = document.createElement('section');
     section.className = 'modal-section';
@@ -180,7 +180,7 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
     section.appendChild(radioGroup);
     return section;
   }
-  
+
   _createInputSection() {
     const section = document.createElement('section');
     section.className = 'modal-section';
@@ -217,7 +217,7 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
     section.appendChild(tabs);
     return section;
   }
-  
+
   _createTextInputPanel() {
     const panel = document.createElement('div');
     const textArea = document.createElement('textarea');
@@ -237,7 +237,7 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
     panel.appendChild(textCount);
     return panel;
   }
-  
+
   _createFileInputPanel() {
     const panel = document.createElement('div');
     const uploadArea = document.createElement('div');
@@ -273,7 +273,7 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
     panel.appendChild(uploadArea);
     return panel;
   }
-  
+
   _createFileUploadPlaceholder() {
     const placeholder = document.createElement('div');
     placeholder.className = 'file-upload-placeholder';
@@ -306,7 +306,7 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
     placeholder.appendChild(text2);
     return placeholder;
   }
-  
+
   _createFileInfoDisplay() {
     const fileInfo = document.createElement('div');
     fileInfo.className = 'file-info file-info-hidden';
@@ -329,7 +329,7 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
     fileInfo.appendChild(removeBtn);
     return fileInfo;
   }
-  
+
   _createMatchingFields() {
     const fields = document.createElement('div');
     fields.className = 'matching-mode-fields matching-mode-fields-hidden';
@@ -375,7 +375,7 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
     fields.appendChild(inputs);
     return fields;
   }
-  
+
   _createModalFooter() {
     const footer = document.createElement('div');
     footer.className = 'modal-footer';
@@ -430,14 +430,14 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
       }
     }
   }
-  
+
   handleFileSelect() {
     const fileInput = document.getElementById('fileInput');
     if (fileInput && fileInput.files.length > 0) {
       this.handleFileUpload(fileInput.files[0]);
     }
   }
-  
+
   async handleFileUpload(file) {
     try {
       if (!FileParser.isSupportedFile(file.name)) {
@@ -453,7 +453,7 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
       this.showError(`ファイルの読み込みに失敗しました: ${error.message}`);
     }
   }
-  
+
   updateFileInfo(metadata) {
     const fileInfo = document.getElementById('fileInfo');
     const fileName = document.getElementById('fileName');
@@ -466,7 +466,7 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
       fileInfo.classList.remove('file-info-hidden');
     }
   }
-  
+
   removeFile() {
     this.uploadedFile = null;
     this.currentContent = null;
@@ -481,7 +481,7 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
       fileInput.value = '';
     }
   }
-  
+
   async submitForReview() {
     try {
       const textArea = document.getElementById('contentTextArea');
@@ -525,7 +525,7 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
       this.showError(`レビューの開始に失敗しました: ${error.message}`);
     }
   }
-  
+
   async fetchJobFromUrl(url) {
     try {
       const proxyUrl = this.getProxyUrl(url);
@@ -545,8 +545,7 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
             jobPosting = data;
             break;
           }
-        } catch (e) {
-        }
+        } catch (e) {}
       }
       if (jobPosting) {
         return this.formatJobPostingText(jobPosting);
@@ -558,7 +557,7 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
       throw new Error(`求人票の取得に失敗しました: ${error.message}`);
     }
   }
-  
+
   getProxyUrl(targetUrl) {
     const isVercel = window.location.hostname.includes('vercel.app');
     const isLocalhost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
@@ -569,7 +568,7 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
         : `http://${window.location.hostname}:3333/proxy`;
     return `${proxyBase}?url=${encodeURIComponent(targetUrl)}`;
   }
-  
+
   formatJobPostingText(jobPosting) {
     const lines = [];
     if (jobPosting.title) lines.push(`職種: ${jobPosting.title}`);
@@ -593,14 +592,14 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
     }
     return lines.join('\n');
   }
-  
+
   closeUploadModal() {
     const modal = document.getElementById('contentUploadModal');
     if (modal) {
       modal.remove();
     }
   }
-  
+
   showReviewView(content, jobContent = '') {
     const existingView = document.getElementById('contentUploadReviewView');
     if (existingView) {
@@ -610,7 +609,7 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
     document.body.appendChild(reviewView);
     reviewView.style.display = 'flex';
   }
-  
+
   createReviewView(content, jobContent) {
     const overlay = document.createElement('div');
     overlay.id = 'contentUploadReviewView';
@@ -665,7 +664,7 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
     `;
     return overlay;
   }
-  
+
   getReviewTypeLabel(reviewType) {
     const labels = {
       blog: 'ブログコンテンツ',
@@ -676,14 +675,14 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
     };
     return labels[reviewType] || '汎用';
   }
-  
+
   closeReviewView() {
     const view = document.getElementById('contentUploadReviewView');
     if (view) {
       view.remove();
     }
   }
-  
+
   async callReviewAPI(content, jobContent = '') {
     if (!canStartAnalysis('content-upload-reviewer')) {
       this.showError('他の分析が実行中です。完了してから再度お試しください。');
@@ -734,7 +733,7 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
       delete window.ANALYSIS_STATE.abortControllers['content-upload-reviewer'];
     }
   }
-  
+
   async processStreamingResponse(response) {
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
@@ -787,8 +786,7 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
             if (parsed.error) {
               throw new Error(parsed.error);
             }
-          } catch (e) {
-          }
+          } catch (e) {}
         }
       }
     }
@@ -801,7 +799,7 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
       analysisContent.innerHTML = this.renderMarkdownCommon(analysisText);
     }
   }
-  
+
   parseReviewResponse(fullText) {
     const revisedSectionPattern = /##\s*校閲済みテキスト\s*\n([\s\S]*?)(?=\n##\s|\n---\s|$)/i;
     const match = fullText.match(revisedSectionPattern);
@@ -813,14 +811,14 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
     }
     return { revisedText, analysisText };
   }
-  
+
   displayUsageInfo(usage, model) {
     const usagePanel = document.getElementById('reviewUsagePanel');
     if (!usagePanel) return;
     usagePanel.innerHTML = this.renderApiUsagePanel(usage, model);
     usagePanel.style.display = 'block';
   }
-  
+
   copyRevisedText() {
     if (!this.revisedText) {
       this.showError('校閲済みテキストがありません');
@@ -835,7 +833,7 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
         this.showError('コピーに失敗しました');
       });
   }
-  
+
   downloadRevisedText() {
     if (!this.revisedText) {
       this.showError('校閲済みテキストがありません');
@@ -845,7 +843,7 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
     const filename = `校閲済み_${new Date().toISOString().slice(0, 10)}.txt`;
     this.downloadFile(blob, filename);
   }
-  
+
   showError(message) {
     const snackbar = document.getElementById('snackbar');
     if (snackbar) {
@@ -856,7 +854,7 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
       }, 3000);
     }
   }
-  
+
   showSnackbar(message) {
     const snackbar = document.getElementById('snackbar');
     if (snackbar) {

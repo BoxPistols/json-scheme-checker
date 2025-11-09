@@ -1,12 +1,11 @@
 /* @vitest-environment jsdom */
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 
 // 共通セットアップをインポート
 import '../setup/content-upload-reviewer-setup.js';
 
 import mod from '../../public/modules/content-upload-reviewer.js';
-const ContentUploadReviewerManager =
-  mod.ContentUploadReviewerManager || mod.default || mod;
+const ContentUploadReviewerManager = mod.ContentUploadReviewerManager || mod.default || mod;
 
 describe('Content Upload Reviewer - API URL', () => {
   let manager;
@@ -88,9 +87,7 @@ describe('Content Upload Reviewer - API URL', () => {
       });
 
       expect(manager.getApiUrl('advisor')).toBe('http://localhost:3333/api/advisor');
-      expect(manager.getApiUrl('blog-reviewer')).toBe(
-        'http://localhost:3333/api/blog-reviewer'
-      );
+      expect(manager.getApiUrl('blog-reviewer')).toBe('http://localhost:3333/api/blog-reviewer');
       expect(manager.getApiUrl('web-advisor')).toBe('http://localhost:3333/api/web-advisor');
 
       Object.defineProperty(window.location, 'hostname', {
@@ -123,9 +120,7 @@ describe('Content Upload Reviewer - API URL', () => {
       });
 
       const proxyUrl = manager.getProxyUrl('https://example.com/job');
-      expect(proxyUrl).toBe(
-        'http://localhost:3333/proxy?url=https%3A%2F%2Fexample.com%2Fjob'
-      );
+      expect(proxyUrl).toBe('http://localhost:3333/proxy?url=https%3A%2F%2Fexample.com%2Fjob');
 
       Object.defineProperty(window.location, 'hostname', {
         writable: true,
@@ -140,9 +135,7 @@ describe('Content Upload Reviewer - API URL', () => {
       });
 
       const proxyUrl = manager.getProxyUrl('https://example.com/job');
-      expect(proxyUrl).toBe(
-        'http://192.168.1.100:3333/proxy?url=https%3A%2F%2Fexample.com%2Fjob'
-      );
+      expect(proxyUrl).toBe('http://192.168.1.100:3333/proxy?url=https%3A%2F%2Fexample.com%2Fjob');
 
       Object.defineProperty(window.location, 'hostname', {
         writable: true,
@@ -171,11 +164,7 @@ describe('Content Upload Reviewer - API URL', () => {
 
   describe('環境判定ロジック', () => {
     it('vercel.appを含むホスト名をVercel環境と判定', () => {
-      const testCases = [
-        'myapp.vercel.app',
-        'staging.vercel.app',
-        'test-branch.vercel.app',
-      ];
+      const testCases = ['myapp.vercel.app', 'staging.vercel.app', 'test-branch.vercel.app'];
 
       testCases.forEach(hostname => {
         Object.defineProperty(window.location, 'hostname', {
