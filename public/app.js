@@ -513,7 +513,9 @@ function loadSampleUrls() {
   if (stored) {
     try {
       return JSON.parse(stored);
-    } catch (e) {}
+    } catch (e) {
+      console.warn('Failed to parse sample URLs, falling back to default:', e);
+    }
   }
   localStorage.setItem(SAMPLE_URLS_KEY, JSON.stringify(DEFAULT_SAMPLE_URLS));
   return DEFAULT_SAMPLE_URLS;

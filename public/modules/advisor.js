@@ -83,8 +83,34 @@ class AdvisorManager extends BaseAdvisorManager {
   showModeSelector() {
     const overlay = this.createModal(
       'ModeOverlay',
-      ` <div class="advisor-modal">   <div class="advisor-modal-header">     <h2>どの視点でアドバイスしますか？</h2>     <button type="button" class="advisor-modal-close" data-action="advisor-close-mode-overlay"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor"/></svg></button>   </div>   <div class="advisor-modal-body">     <div class="advisor-mode-buttons-grid">       <button type="button" class="advisor-mode-btn" data-action="advisor-start-employer">         <h3>採用側向け</h3><p>求人票をレビューし改善提案を提供</p>       </button>       <button type="button" class="advisor-mode-btn" data-action="advisor-start-applicant">         <h3>応募者向け</h3><p>面接対策と要件傾向の分析を提供</p>       </button>       </div>       <button type="button" class="advisor-mode-btn" data-action="advisor-start-agent">         <h3>エージェント向け</h3><p>営業戦略・市場分析・双方へのアドバイスを提供</p>       </button>   </div> </div>
-    `
+      `
+      <div class="advisor-modal">
+        <div class="advisor-modal-header">
+          <h2>どの視点でアドバイスしますか？</h2>
+          <button type="button" class="advisor-modal-close" data-action="advisor-close-mode-overlay">
+            <svg width="24" height="24" viewBox="0 0 24 24">
+              <path d="M18 6L6 18M6 6L18 18" stroke="currentColor"/>
+            </svg>
+          </button>
+        </div>
+        <div class="advisor-modal-body">
+          <div class="advisor-mode-buttons-grid">
+            <button type="button" class="advisor-mode-btn" data-action="advisor-start-employer">
+              <h3>採用側向け</h3>
+              <p>求人票をレビューし改善提案を提供</p>
+            </button>
+            <button type="button" class="advisor-mode-btn" data-action="advisor-start-applicant">
+              <h3>応募者向け</h3>
+              <p>面接対策と要件傾向の分析を提供</p>
+            </button>
+            <button type="button" class="advisor-mode-btn" data-action="advisor-start-agent">
+              <h3>エージェント向け</h3>
+              <p>営業戦略・市場分析・双方へのアドバイスを提供</p>
+            </button>
+          </div>
+        </div>
+      </div>
+      `
     );
     this.addEscapeKeyListener(overlay, () => this.closeModal('ModeOverlay'));
   }
