@@ -1,0 +1,565 @@
+.advisor-chat-message-content h3 {
+  font-size: 0.9rem;
+}
+
+.advisor-chat-message-content ul {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.advisor-chat-message-content li {
+  margin: 4px 0;
+}
+
+.advisor-chat-message-content strong {
+  font-weight: 600;
+}
+
+/* レスポンシブ対応はchat-container-query.cssに移行 */
+
+/* フローティングチャットボタン */
+.advisor-floating-chat-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  color: var(--primary-text-color);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  z-index: 999;
+}
+
+.advisor-floating-chat-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+}
+
+.advisor-floating-chat-btn:active {
+  transform: scale(0.95);
+}
+
+.advisor-floating-chat-btn svg {
+  width: 28px;
+  height: 28px;
+}
+
+/* モーダルオーバーレイ */
+.advisor-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 質問者選択モーダル */
+.advisor-questioner-modal {
+  background: var(--card-bg-color);
+  border-radius: 12px;
+  padding: 32px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  animation: scaleIn 0.3s ease;
+  position: relative;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.advisor-questioner-modal-header {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.advisor-questioner-modal-header h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.2rem;
+  color: var(--text-color);
+}
+
+.advisor-questioner-modal-header p {
+  margin: 0;
+  color: var(--secondary-text-color);
+  font-size: 0.9rem;
+}
+
+.advisor-questioner-modal-body {
+  width: 100%;
+}
+
+.advisor-questioner-modal-desc {
+  margin: 0 0 20px 0;
+  color: var(--secondary-text-color);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.advisor-questioner-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* モバイル対応: 小さい画面では1カラムに */
+@media (max-width: 600px) {
+  .advisor-questioner-list {
+    grid-template-columns: 1fr;
+  }
+
+  /* モバイルでもエージェントは全幅（既にデフォルトで1カラムなので設定は不要だが明示） */
+  .advisor-questioner-btn[data-questioner-id="agent"] {
+    grid-column: 1 / -1;
+  }
+}
+
+/* エージェントボタンは全幅（2つのマッチング支援のため） */
+.advisor-questioner-btn[data-questioner-id="agent"] {
+  grid-column: 1 / -1;
+}
+
+.advisor-questioner-btn {
+  background: var(--card-bg-color);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.advisor-questioner-btn:hover {
+  border-color: var(--primary-color);
+  background: var(--hover-bg-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.advisor-questioner-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 8px;
+}
+
+.advisor-questioner-desc {
+  font-size: 0.875rem;
+  color: var(--secondary-text-color);
+  line-height: 1.4;
+}
+
+.advisor-modal-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(0, 0, 0, 0.06);
+  border: 2px solid rgba(0, 0, 0, 0.3);
+  font-size: 24px;
+  color: #2c3e50;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s;
+  font-weight: 300;
+  line-height: 1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.advisor-modal-close-btn svg {
+  display: block;
+  width: 24px;
+  height: 24px;
+  color: #2c3e50;
+  flex-shrink: 0;
+}
+
+.advisor-modal-close-btn svg path {
+  stroke: #2c3e50 !important;
+  stroke-width: 2.5;
+  fill: none;
+}
+
+.advisor-modal-close-btn:hover {
+  background: var(--accent-hover-bg-color);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  transform: scale(1.05);
+}
+
+.advisor-modal-close-btn:hover svg path {
+  stroke: var(--primary-color);
+}
+
+.advisor-modal-close-btn:active {
+  transform: scale(0.95);
+}
+
+/* ダークモード専用スタイル */
+html[data-theme='dark'] .advisor-modal-close-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: #d1d5db;
+}
+
+html[data-theme='dark'] .advisor-modal-close-btn svg {
+  display: block;
+  width: 24px;
+  height: 24px;
+  color: #d1d5db;
+  flex-shrink: 0;
+}
+
+html[data-theme='dark'] .advisor-modal-close-btn svg path {
+  stroke: #d1d5db !important;
+  stroke-width: 2.5;
+  fill: none;
+}
+
+html[data-theme='dark'] .advisor-modal-close-btn:hover {
+  background: var(--accent-hover-bg-color);
+  border-color: var(--primary-color);
+}
+
+html[data-theme='dark'] .advisor-modal-close-btn:hover svg path {
+  stroke: var(--primary-color);
+}
+
+/* ドラッグハンドル */
+.advisor-chat-drag-handle {
+  cursor: grab;
+  user-select: none;
+}
+
+.advisor-chat-drag-handle:active {
+  cursor: grabbing;
+}
+
+.advisor-chat-drag-icon {
+  color: var(--secondary-text-color);
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  flex-shrink: 0;
+}
+
+.advisor-chat-drag-handle:hover .advisor-chat-drag-icon {
+  opacity: 1;
+}
+
+/* 閉じるボタン */
+.advisor-chat-close-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: var(--secondary-text-color);
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+  padding: 0;
+  line-height: 1;
+}
+
+.advisor-chat-close-btn:hover {
+  background: var(--accent-hover-bg-color);
+  color: var(--text-color);
+}
+
+.advisor-chat-close-btn:active {
+  transform: scale(0.9);
+}
+
+/* リサイズハンドル */
+.advisor-chat-resize-handle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 28px;
+  height: 28px;
+  cursor: nwse-resize;
+  background: linear-gradient(
+    135deg,
+    transparent 0%,
+    transparent 45%,
+    rgba(100, 100, 100, 0.4) 45%,
+    rgba(100, 100, 100, 0.4) 50%,
+    transparent 50%,
+    transparent 55%,
+    rgba(100, 100, 100, 0.4) 55%,
+    rgba(100, 100, 100, 0.4) 60%,
+    transparent 60%,
+    transparent 65%,
+    rgba(100, 100, 100, 0.4) 65%,
+    rgba(100, 100, 100, 0.4) 70%,
+    transparent 70%
+  );
+  opacity: 0.7;
+  transition: all 0.2s;
+  border-bottom-right-radius: 10px;
+}
+
+.advisor-chat-resize-handle:hover {
+  opacity: 1;
+  background: linear-gradient(
+    135deg,
+    transparent 0%,
+    transparent 45%,
+    rgba(100, 100, 100, 0.6) 45%,
+    rgba(100, 100, 100, 0.6) 50%,
+    transparent 50%,
+    transparent 55%,
+    rgba(100, 100, 100, 0.6) 55%,
+    rgba(100, 100, 100, 0.6) 60%,
+    transparent 60%,
+    transparent 65%,
+    rgba(100, 100, 100, 0.6) 65%,
+    rgba(100, 100, 100, 0.6) 70%,
+    transparent 70%
+  );
+}
+
+/* モバイルデバイス向けチャット最適化 */
+@media (max-width: 768px) {
+  /* ページ全体のスクロールを確保 */
+  body {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* チャットボックスのサイズと位置を調整 */
+  .advisor-chat-box.advisor-chat-right,
+  .advisor-chat-box.advisor-chat-left {
+    width: calc(100vw - 20px) !important;
+    max-width: calc(100vw - 20px) !important;
+    right: 10px !important;
+    bottom: 10px !important;
+    left: 10px !important;
+    /* 高さを制限してコンテンツが見えるように */
+    height: 60vh !important;
+    max-height: 60vh !important;
+  }
+
+  /* 折りたたみ時は高さを自動調整（ヘッダーのみ表示） */
+  .advisor-chat-box.advisor-chat-collapsed.advisor-chat-right,
+  .advisor-chat-box.advisor-chat-collapsed.advisor-chat-left {
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  /* 全画面モード（モバイル用 - safe area考慮） */
+  .advisor-chat-box.advisor-chat-fullscreen {
+    /* iPhoneのブラウザUIを避けるため、safe area insetを考慮 */
+    top: max(10px, env(safe-area-inset-top)) !important;
+    bottom: max(10px, env(safe-area-inset-bottom)) !important;
+    left: 10px !important;
+    right: 10px !important;
+    width: calc(100vw - 20px) !important;
+    /* 高さはtopとbottomで自動的に決まる */
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  /* 展開時のチャットボックス */
+  .advisor-chat-box.advisor-chat-expanded {
+    height: 60vh !important;
+    max-height: 60vh !important;
+  }
+
+  /* 入力フィールドのフォントサイズを16px以上にしてiOSのズームを防止 */
+  .advisor-chat-input {
+    font-size: 16px !important;
+    min-height: 44px !important;
+  }
+
+  /* チャットメッセージエリアのスクロールを確保 */
+  .advisor-chat-messages {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* 送信ボタンのタップ領域を確保 */
+  .advisor-chat-send-btn {
+    min-width: 60px;
+    padding: 12px 16px;
+  }
+
+  /* AI分析結果エリアのスクロールを確保（チャットと共存） */
+  .advisor-view-content {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    /* チャットボックスの高さ分、下にパディングを追加（safe area inset も考慮） */
+    padding-bottom: calc(60vh + 20px + max(20px, env(safe-area-inset-bottom))) !important;
+  }
+
+  .advisor-job-content,
+  .advisor-advice-content {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* 小型モバイルデバイス向け */
+@media (max-width: 480px) {
+  .advisor-chat-box.advisor-chat-right,
+  .advisor-chat-box.advisor-chat-left {
+    /* より小さな画面では高さをさらに制限 */
+    height: 50vh !important;
+    max-height: 50vh !important;
+  }
+
+  /* 折りたたみ時は高さを自動調整（ヘッダーのみ表示） */
+  .advisor-chat-box.advisor-chat-collapsed.advisor-chat-right,
+  .advisor-chat-box.advisor-chat-collapsed.advisor-chat-left {
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  /* 全画面モード（小型モバイル用 - safe area考慮） */
+  .advisor-chat-box.advisor-chat-fullscreen {
+    /* iPhoneのブラウザUIを避けるため、safe area insetを考慮 */
+    top: max(10px, env(safe-area-inset-top)) !important;
+    bottom: max(10px, env(safe-area-inset-bottom)) !important;
+    left: 10px !important;
+    right: 10px !important;
+    width: calc(100vw - 20px) !important;
+    /* 高さはtopとbottomで自動的に決まる */
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  .advisor-chat-box.advisor-chat-expanded {
+    height: 50vh !important;
+    max-height: 50vh !important;
+  }
+
+  /* ヘッダーのパディングを削減 */
+  .advisor-chat-header {
+    padding: 8px 12px;
+  }
+
+  /* 入力エリアのパディングを削減 */
+  .advisor-chat-input-wrapper {
+    padding: 8px;
+  }
+
+  /* AI分析結果エリアのパディングを調整（safe area inset も考慮） */
+  .advisor-view-content {
+    padding-bottom: calc(50vh + 20px + max(20px, env(safe-area-inset-bottom))) !important;
+  }
+}
+
+/* ===================================================
+   Help Modal 拡張スタイル
+   =================================================== */
+
+/* より大きなModal */
+.modal-container--wide {
+  max-width: 900px;
+  width: 95%;
+}
+
+/* セクションタイトル */
+.modal-section-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 12px;
+  border-bottom: 2px solid var(--accent-color);
+  padding-bottom: 8px;
+}
+
+/* リードテキスト */
+.modal-lead-text {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--secondary-text-color);
+  margin-bottom: 16px;
+}
+
+/* 機能カードグリッド */
+.feature-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.feature-card {
+  background: var(--card-bg-color);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.feature-card--primary {
+  border-color: #3b82f6;
+}
+
+.feature-card--secondary {
+  border-color: #8b5cf6;
+}
+
+.feature-card--tertiary {
+  border-color: #10b981;
+}
+
+.feature-card-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 12px;
+  color: var(--accent-color);
+}
+
+.feature-card--primary .feature-card-icon {

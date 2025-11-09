@@ -1,0 +1,166 @@
+/*
+ * 06-tables.css
+ * テーブル、配列表示
+ */
+/* テーブル表示 */
+.table-view {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  table-layout: fixed;
+}
+
+.data-table th,
+.data-table td {
+  text-align: left;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  vertical-align: top;
+  box-sizing: border-box;
+}
+
+.data-table th {
+  background: var(--secondary-bg-color);
+  font-weight: 600;
+  color: var(--secondary-text-color);
+}
+
+.data-table tr:hover {
+  background: var(--secondary-bg-color);
+}
+
+.data-table col.col-prop {
+  width: 18%;
+}
+.data-table col.col-value {
+  width: auto;
+}
+.data-table col.col-type {
+  width: 96px;
+}
+
+.data-table td:nth-child(2) {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.data-table th:nth-child(3),
+.data-table td:nth-child(3) {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.property-name {
+  font-weight: 500;
+  color: var(--primary-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.property-value {
+  color: var(--text-color);
+}
+
+.property-type {
+  display: inline-block;
+  padding: 2px 6px;
+  background: var(--secondary-bg-color);
+  border-radius: 3px;
+  font-size: 12px;
+  color: var(--secondary-text-color);
+  margin-left: 8px;
+  font-weight: normal;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 配列表示 */
+.array-list {
+  background: var(--secondary-bg-color);
+  border-radius: 4px;
+  padding: 12px;
+  margin: 8px 0;
+}
+
+.array-list-item {
+  background: var(--card-bg-color);
+  padding: 10px;
+  margin: 6px 0;
+  border-radius: 4px;
+  border: 1px solid var(--primary-color);
+}
+
+.compact-array-table {
+  margin: 8px 0;
+  width: 100%;
+}
+.compact-array-table th {
+  background: var(--bg-color);
+  font-size: 13px;
+  padding: 8px 12px;
+}
+.compact-array-table td {
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+.nested-object {
+  margin-left: 0;
+  padding-left: 16px;
+  border-left: 1px solid var(--border-color);
+  overflow-x: auto;
+}
+
+.nested-object .data-table col.col-prop {
+  width: 32%;
+}
+.nested-object .data-table col.col-value {
+  width: auto;
+}
+.nested-object .data-table col.col-type {
+  width: 96px;
+}
+
+/* JSON表示 */
+.json-view {
+  background: var(--json-bg);
+  border-radius: 6px;
+  padding: 20px;
+  overflow-x: auto;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--json-bracket);
+}
+
+.json-view.hidden,
+.table-view.hidden {
+  display: none;
+}
+
+.json-key {
+  color: var(--json-key);
+}
+.json-string {
+  color: var(--json-string);
+}
+.json-number {
+  color: var(--json-number);
+}
+.json-boolean {
+  color: var(--json-boolean);
+}
+.json-null {
+  color: var(--json-null);
+}
+.json-bracket {
+  color: var(--json-bracket);
+}
+

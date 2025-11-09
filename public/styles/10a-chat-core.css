@@ -1,0 +1,650 @@
+/*
+ * 10-chat.css
+ * チャット機能
+ */
+/* ==========================================
+   Web Advisor Styles
+   ========================================== */
+
+.web-advisor-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin: 20px 0;
+}
+
+.web-advisor-cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.web-advisor-cta-btn:active {
+  transform: translateY(0);
+}
+
+.web-advisor-view {
+  background: var(--card-background);
+  border-radius: 12px;
+  padding: 24px;
+  margin: 20px 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.web-advisor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.web-advisor-header h2 {
+  color: var(--text-color);
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.web-advisor-header .close-btn {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  color: var(--secondary-text-color);
+  cursor: pointer;
+  padding: 4px 8px;
+  transition: color 0.2s;
+}
+
+.web-advisor-header .close-btn:hover {
+  color: var(--text-color);
+}
+
+.status-info,
+.status-success,
+.status-error {
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.status-info {
+  background: #dbeafe;
+  color: #1e40af;
+  border-left: 4px solid #3b82f6;
+}
+
+.status-success {
+  background: #d1fae5;
+  color: #065f46;
+  border-left: 4px solid #10b981;
+}
+
+.status-error {
+  background: #fee2e2;
+  color: #991b1b;
+  border-left: 4px solid #ef4444;
+}
+
+.meta-info-box {
+  background: var(--secondary-background);
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid var(--border-color);
+}
+
+.meta-info-box h4 {
+  color: var(--text-color);
+  margin: 0 0 12px 0;
+  font-size: 1rem;
+}
+
+.meta-item {
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: var(--secondary-text-color);
+}
+
+.meta-item strong {
+  color: var(--text-color);
+  margin-right: 8px;
+}
+
+.advisor-result {
+  min-height: 200px;
+  margin-bottom: 20px;
+}
+
+.markdown-content {
+  background: var(--secondary-background);
+  padding: 20px;
+  border-radius: 8px;
+  line-height: 1.6;
+  color: var(--text-color);
+}
+
+.markdown-content h1 {
+  font-size: 1.8rem;
+  margin: 24px 0 16px 0;
+  color: var(--text-color);
+}
+
+.markdown-content h2 {
+  font-size: 1.5rem;
+  margin: 20px 0 12px 0;
+  color: var(--text-color);
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 8px;
+}
+
+.markdown-content h3 {
+  font-size: 1.2rem;
+  margin: 16px 0 10px 0;
+  color: var(--text-color);
+}
+
+.markdown-content p {
+  margin-bottom: 12px;
+}
+
+.markdown-content ul {
+  margin: 12px 0;
+  padding-left: 24px;
+}
+
+.markdown-content li {
+  margin-bottom: 8px;
+}
+
+.markdown-content strong {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.markdown-content em {
+  font-style: italic;
+}
+
+.advisor-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.advisor-actions button {
+  padding: 10px 20px;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.advisor-actions button:hover {
+  background: var(--primary-hover-color);
+  transform: translateY(-1px);
+}
+
+.advisor-actions button:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+  .web-advisor-view {
+    padding: 16px;
+  }
+
+  .web-advisor-header h2 {
+    font-size: 1.2rem;
+  }
+
+  .advisor-actions {
+    flex-direction: column;
+  }
+
+  .advisor-actions button {
+    width: 100%;
+  }
+}
+
+/* チャット機能スタイル */
+.advisor-chat-questioner-selection {
+  padding: 24px;
+  text-align: center;
+}
+
+.advisor-chat-questioner-title {
+  margin-bottom: 24px;
+}
+
+.advisor-chat-questioner-title h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.1rem;
+  color: var(--text-color);
+}
+
+.advisor-chat-questioner-title p {
+  margin: 0;
+  color: var(--secondary-text-color);
+  font-size: 0.9rem;
+}
+
+.advisor-chat-questioner-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 12px;
+}
+
+.advisor-chat-questioner-btn {
+  padding: 16px;
+  background: var(--card-bg-color);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+}
+
+.advisor-chat-questioner-btn:hover {
+  border-color: var(--primary-color);
+  background: var(--accent-hover-bg-color);
+}
+
+.advisor-chat-questioner-btn:active {
+  transform: scale(0.98);
+}
+
+.advisor-chat-questioner-name {
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 8px;
+}
+
+.advisor-chat-questioner-desc {
+  font-size: 0.85rem;
+  color: var(--secondary-text-color);
+  line-height: 1.4;
+}
+
+.advisor-chat-box {
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  background: var(--card-bg-color);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 550px;
+  max-height: 80vh;
+  max-height: calc(var(--vh, 1vh) * 80); /* モバイルブラウザ対応 */
+  transition: all 0.3s ease;
+}
+
+.advisor-chat-box.advisor-chat-expanded {
+  /* フレックスレイアウトで高さを管理 */
+}
+
+.advisor-chat-box.advisor-chat-collapsed {
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible;
+}
+
+.advisor-chat-box.advisor-chat-collapsed .advisor-chat-messages,
+.advisor-chat-box.advisor-chat-collapsed .advisor-chat-input-wrapper,
+.advisor-chat-box.advisor-chat-collapsed .advisor-chat-resize-handle {
+  display: none;
+}
+
+/* 全画面モード（デスクトップ用） */
+.advisor-chat-box.advisor-chat-fullscreen {
+  position: fixed !important;
+  z-index: 99999 !important; /* advisor-view (9999) より確実に上に表示 */
+  height: calc(100vh - 20px) !important;
+  height: calc(var(--vh, 1vh) * 100 - 20px) !important; /* モバイルブラウザ対応 */
+  max-height: calc(100vh - 20px) !important;
+  max-height: calc(var(--vh, 1vh) * 100 - 20px) !important; /* モバイルブラウザ対応 */
+  top: 10px !important;
+  bottom: 10px !important;
+  left: 10px !important;
+  right: 10px !important;
+  width: calc(100vw - 20px) !important;
+  transform: none !important; /* ドラッグによるtransformをリセット */
+}
+
+.advisor-chat-box.advisor-chat-right {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 400px;
+  max-width: calc(100vw - 40px);
+  z-index: 1000;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.advisor-chat-box.advisor-chat-left {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  width: 400px;
+  max-width: calc(100vw - 40px);
+  z-index: 1000;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.advisor-chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.04));
+  flex-shrink: 0;
+}
+
+.advisor-chat-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.advisor-chat-header-left h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.advisor-chat-questioner-badge {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  background: var(--primary-color);
+  color: var(--primary-text-color);
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.advisor-chat-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.advisor-chat-rate-limit {
+  font-size: 0.85rem;
+  color: var(--secondary-text-color);
+  padding: 4px 12px;
+  background: var(--card-bg-color);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.advisor-chat-messages {
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.01);
+  flex: 1;
+  min-height: 0;
+}
+
+.advisor-chat-welcome {
+  text-align: center;
+  padding: 12px 16px;
+  color: var(--secondary-text-color);
+  font-size: 0.85rem;
+}
+
+.advisor-chat-welcome p {
+  margin: 0;
+}
+
+/* サンプル質問 */
+.advisor-chat-sample-questions {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.advisor-chat-sample-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--secondary-text-color);
+  margin: 0 0 4px 0;
+  text-align: left;
+}
+
+.advisor-chat-sample-btn {
+  background: var(--card-bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  color: var(--text-color);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.advisor-chat-sample-btn:hover {
+  background: var(--hover-bg-color);
+  border-color: var(--primary-color);
+  transform: translateX(4px);
+}
+
+.advisor-chat-sample-btn:active {
+  transform: translateX(2px);
+}
+
+.advisor-chat-message {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  animation: fadeInUp 0.3s ease;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.advisor-chat-message-user {
+  align-items: flex-end;
+}
+
+.advisor-chat-message-assistant {
+  align-items: flex-start;
+}
+
+.advisor-chat-message-label {
+  font-size: 0.75rem;
+  color: var(--secondary-text-color);
+  font-weight: 600;
+  padding: 0 4px;
+}
+
+.advisor-chat-message-content {
+  padding: 12px 16px;
+  border-radius: 12px;
+  max-width: 85%;
+  word-wrap: break-word;
+  line-height: 1.6;
+}
+
+.advisor-chat-message-user .advisor-chat-message-content {
+  background: var(--primary-color);
+  color: var(--primary-text-color);
+  border-bottom-right-radius: 4px;
+}
+
+.advisor-chat-message-assistant .advisor-chat-message-content {
+  background: var(--secondary-bg-color);
+  color: var(--text-color);
+  border-bottom-left-radius: 4px;
+  border: 1px solid var(--border-color);
+}
+
+.advisor-chat-typing {
+  display: inline-block;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.advisor-chat-input-wrapper {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-top: 2px solid rgba(0, 0, 0, 0.1);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.04));
+  flex-shrink: 0;
+}
+
+.advisor-chat-input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  resize: vertical;
+  background: var(--card-bg-color);
+  color: var(--text-color);
+  min-height: 48px;
+  max-height: 120px;
+  transition: border-color 0.2s;
+}
+
+.advisor-chat-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+}
+
+.advisor-chat-position-toggle,
+.advisor-chat-collapse-btn,
+.advisor-chat-reset-btn,
+.advisor-chat-export-btn,
+.advisor-chat-expand-btn {
+  min-width: 42px;
+  height: auto;
+  padding: 4px 2px;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--secondary-text-color);
+  font-size: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  transition: all 0.2s;
+}
+
+.advisor-chat-position-toggle:hover,
+.advisor-chat-collapse-btn:hover,
+.advisor-chat-reset-btn:hover,
+.advisor-chat-export-btn:hover,
+.advisor-chat-expand-btn:hover {
+  background: var(--accent-hover-bg-color);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.advisor-chat-position-toggle:active,
+.advisor-chat-collapse-btn:active,
+.advisor-chat-reset-btn:active,
+.advisor-chat-export-btn:active,
+.advisor-chat-expand-btn:active {
+  transform: scale(0.9);
+}
+
+/* 全画面表示ボタン専用スタイル（ヘッダー左側セクション内で右端に配置） */
+.advisor-chat-expand-btn {
+  margin-left: auto;
+}
+
+/* ボタンラベル（アイコン下の小さなテキスト） */
+.advisor-chat-btn-label {
+  font-size: 9px;
+  line-height: 1;
+  color: var(--secondary-text-color);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.advisor-chat-send-btn {
+  padding: 10px 16px;
+  background: var(--primary-color);
+  color: var(--primary-text-color);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.advisor-chat-send-btn:hover {
+  background: var(--primary-hover-color);
+}
+
+.advisor-chat-send-btn:active {
+  transform: scale(0.95);
+}
+
+.advisor-chat-send-btn:disabled {
+  background: var(--secondary-text-color);
+  cursor: not-allowed;
+}
+
+/* チャットメッセージ内のMarkdown スタイル */
+.advisor-chat-message-content h1,
+.advisor-chat-message-content h2,
+.advisor-chat-message-content h3 {
+  margin-top: 8px;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.advisor-chat-message-content h1 {
+  font-size: 1.1rem;
+}
+
+.advisor-chat-message-content h2 {
+  font-size: 1rem;
+}
+

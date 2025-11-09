@@ -1,0 +1,129 @@
+/*
+ * 01-base.css
+ * 基本スタイル: リセット、変数、タイポグラフィ、ボディ
+ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 14px;
+}
+
+:root {
+  /* Light Theme (Default) */
+  --bg-color: #f5f7fa;
+  --text-color: #2c3e50;
+  --card-bg-color: #ffffff;
+  --header-bg-color: #ffffff;
+  --border-color: #e2e8f0;
+  --primary-color: #5a7ca3;
+  --primary-text-color: #ffffff;
+  --secondary-bg-color: #f8fafc;
+  --secondary-text-color: #64748b;
+  --accent-color: #3b82f6;
+  --link-color: #3b82f6;
+  --link-visited-color: #3b82f6;
+  --error-color: #ef4444;
+  --error-bg-color: #fef2f2;
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --json-bg: #1e293b;
+  --json-key: #7dd3fc;
+  --json-string: #86efac;
+  --json-number: #fbbf24;
+  --json-boolean: #f472b6;
+  --json-null: #94a3b8;
+  --json-bracket: #cbd5e1;
+  --icon-color: #64748b;
+  --value-number-color: #ea580c;
+  --primary-hover-color: #4a6b8a;
+  --primary-shadow-color: rgba(90, 124, 163, 0.2);
+  --accent-hover-bg-color: rgba(59, 130, 246, 0.1);
+  --accent-hover-color: #2563eb;
+  --info-blue-text-color: #1e40af;
+  --info-blue-heading-color: #1e3a8a;
+  --info-yellow-text-color: #92400e;
+  --info-yellow-heading-color: #78350f;
+  --info-green-text-color: #065f46;
+  --info-green-heading-color: #064e3b;
+  --info-orange-text-color: #9a3412;
+  --info-orange-heading-color: #7c2d12;
+  --info-red-text-color: #991b1b;
+  --info-red-heading-color: #7f1d1d;
+}
+
+html[data-theme='dark'] {
+  /* Dark Theme */
+  --bg-color: #111827;
+  --text-color: #d1d5db;
+  --card-bg-color: #1f2937;
+  --header-bg-color: #1f2937;
+  --border-color: #374151;
+  --primary-color: #818cf8;
+  --primary-text-color: #ffffff;
+  --secondary-bg-color: #374151;
+  --secondary-text-color: #9ca3af;
+  --accent-color: #60a5fa;
+  --error-color: #f87171;
+  --error-bg-color: #450a0a;
+  --success-color: #4ade80;
+  --warning-color: #facc15;
+  --json-bg: #0f172a;
+  --json-key: #93c5fd;
+  --json-string: #a7f3d0;
+  --json-number: #fcd34d;
+  --json-boolean: #f9a8d4;
+  --json-null: #9ca3af;
+  --json-bracket: #9ca3af;
+  --icon-color: #9ca3af;
+  --value-number-color: #f97316;
+  --primary-hover-color: #6c75d3;
+  --primary-shadow-color: rgba(129, 140, 248, 0.2);
+  --accent-hover-bg-color: rgba(96, 165, 250, 0.1);
+  --accent-hover-color: #3b82f6;
+  --link-color: #60a5fa;
+  --link-visited-color: #60a5fa;
+  --info-blue-text-color: #93c5fd;
+  --info-blue-heading-color: #60a5fa;
+  --info-yellow-text-color: #fcd34d;
+  --info-yellow-heading-color: #fbbf24;
+  --info-green-text-color: #86efac;
+  --info-green-heading-color: #4ade80;
+  --info-orange-text-color: #fdba74;
+  --info-orange-heading-color: #fb923c;
+  --info-red-text-color: #fca5a5;
+  --info-red-heading-color: #f87171;
+}
+
+body {
+  font-family:
+    'Inter', 'Noto Sans JP',
+    -apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', 'Hiragino Sans',
+    'Hiragino Kaku Gothic ProN', 'BIZ UDPゴシック', 'Yu Gothic UI', Meiryo, sans-serif;
+  background: var(--bg-color);
+  min-height: 100vh;
+  min-height: calc(var(--vh, 1vh) * 100);
+  padding: 20px;
+  color: var(--text-color);
+  font-size: 1rem;
+  font-weight: 400;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+a:-webkit-any-link {
+  color: currentColor;
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
