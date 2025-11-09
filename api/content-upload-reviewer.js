@@ -256,9 +256,7 @@ module.exports = async (req, res) => {
 
     // マッチング分析の場合、jobContentも必要
     if (reviewType === 'matching' && !jobContent) {
-      return res
-        .status(400)
-        .json({ error: 'マッチング分析には求人票（jobContent）が必要です' });
+      return res.status(400).json({ error: 'マッチング分析には求人票（jobContent）が必要です' });
     }
 
     // APIキーの取得: ユーザー提供 > 環境変数
