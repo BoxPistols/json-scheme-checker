@@ -787,11 +787,15 @@ class BlogReviewerManager extends BaseAdvisorManager {
       const reviewText = reviewContent ? reviewContent.innerText : '情報なし';
       const csvLines = [];
       csvLines.push('項目,値');
-      csvLines.push('記事情報（タイトル）,');
+
+      // タイトルを明示的に出力
+      const title = this.currentArticle?.headline || this.currentArticle?.name || this.currentArticle?.title || '不明';
+      csvLines.push(`タイトル,${this.escapeCsvValue(title)}`);
+
+      // 記事情報（詳細）
+      csvLines.push('記事情報,');
       const articleLines = articleText.split('\n').filter(line => line.trim().length > 0);
-      articleLines.slice(0, 1).forEach(line => csvLines.push(`,${this.escapeCsvValue(line)}`)); // 最初の行（タイトル）
-      csvLines.push('記事情報（詳細）,');
-      articleLines.slice(1).forEach(line => csvLines.push(`,${this.escapeCsvValue(line)}`)); // 残りの行（詳細）
+      articleLines.forEach(line => csvLines.push(`,${this.escapeCsvValue(line)}`));
       csvLines.push('AI分析結果,');
       const reviewLines = reviewText.split('\n').filter(line => line.trim().length > 0);
       reviewLines.forEach(line => csvLines.push(`,${this.escapeCsvValue(line)}`));

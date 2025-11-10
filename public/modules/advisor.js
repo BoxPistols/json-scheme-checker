@@ -597,13 +597,14 @@ class AdvisorManager extends BaseAdvisorManager {
 
       csvLines.push('項目,値');
 
-      // 求人情報（セクションヘッダー）
-      csvLines.push('求人情報（タイトル）,');
-      const jobLines = jobText.split('\n').filter(line => line.trim().length > 0);
-      jobLines.slice(0, 1).forEach(line => csvLines.push(`,${this.escapeCsvValue(line)}`)); // 最初の行（タイトル）
+      // タイトルを明示的に出力
+      const title = this.currentJobPosting?.title || '不明';
+      csvLines.push(`タイトル,${this.escapeCsvValue(title)}`);
 
-      csvLines.push('求人情報（詳細）,');
-      jobLines.slice(1).forEach(line => csvLines.push(`,${this.escapeCsvValue(line)}`)); // 残りの行（詳細）
+      // 求人情報（詳細）
+      csvLines.push('求人情報,');
+      const jobLines = jobText.split('\n').filter(line => line.trim().length > 0);
+      jobLines.forEach(line => csvLines.push(`,${this.escapeCsvValue(line)}`));
 
       // AI分析結果
       csvLines.push('AI分析結果,');
