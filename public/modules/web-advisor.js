@@ -635,7 +635,7 @@ class WebAdvisorManager extends BaseAdvisorManager {
       csvLines.push('項目,値');
 
       // タイトルを明示的に出力
-      const title = this.currentMetadata?.title || '不明';
+      const title = (this.currentMetadata?.title?.trim()) || '不明';
       csvLines.push(`タイトル,${this.escapeCsvValue(title)}`);
 
       // ページ情報（詳細）

@@ -598,7 +598,7 @@ class AdvisorManager extends BaseAdvisorManager {
       csvLines.push('項目,値');
 
       // タイトルを明示的に出力
-      const title = this.currentJobPosting?.title || '不明';
+      const title = (this.currentJobPosting?.title?.trim()) || '不明';
       csvLines.push(`タイトル,${this.escapeCsvValue(title)}`);
 
       // 求人情報（詳細）
