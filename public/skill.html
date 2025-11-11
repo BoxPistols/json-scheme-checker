@@ -37,6 +37,81 @@
         .back-link:hover {
             text-decoration: underline;
         }
+
+        /* プレビュー画面 */
+        .skill-preview-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .skill-preview-actions {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        .skill-preview-content {
+            max-width: 100%;
+            overflow-x: auto;
+            line-height: 1.6;
+        }
+        .skill-preview-content h2 {
+            font-size: 1.5rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+        .skill-preview-content h3 {
+            font-size: 1.25rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .skill-preview-content h4 {
+            font-size: 1.1rem;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .skill-preview-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        .skill-preview-content table th,
+        .skill-preview-content table td {
+            border: 1px solid var(--border-color);
+            padding: 0.5rem;
+            text-align: left;
+        }
+        .skill-preview-content table th {
+            background: var(--bg-secondary);
+            font-weight: 600;
+        }
+        .skill-preview-content p {
+            margin: 0.5rem 0;
+        }
+        .skill-preview-content ul,
+        .skill-preview-content ol {
+            margin: 0.5rem 0;
+            padding-left: 2rem;
+        }
+        .skill-preview-content li {
+            margin: 0.25rem 0;
+        }
+        .skill-preview-content strong {
+            font-weight: 600;
+        }
+        .skill-preview-empty {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+        .skill-preview-empty svg {
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
     </style>
 </head>
 <body>
@@ -75,12 +150,21 @@
     <script type="module" src="/modules/skill-sheet-editor.js"></script>
     <script type="module" src="/modules/content-upload-reviewer.js"></script>
 
-    <script>
-        // ページ読み込み後、自動的にスキルシートエディターを表示
+    <script type="module">
+        // ページ読み込み後、スキルシートの状態に応じて表示を切り替え
         window.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 if (window.skillSheetEditor) {
-                    window.skillSheetEditor.showEditor();
+                    // スキルシートが保存されているかチェック
+                    const hasData = !window.skillSheetEditor._isSkillSheetEmpty();
+
+                    if (hasData) {
+                        // 保存済みの場合はプレビューを表示
+                        window.skillSheetEditor.showPreview();
+                    } else {
+                        // 未作成の場合は編集モーダルを開く
+                        window.skillSheetEditor.showEditor();
+                    }
                 }
             }, 100);
         });

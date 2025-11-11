@@ -41,6 +41,9 @@ class SkillSheetEditor {
     if (this.autoSaveTimer) {
       clearTimeout(this.autoSaveTimer);
     }
+
+    // プレビュー画面を表示
+    this.showPreview();
   }
 
   /**
@@ -1038,6 +1041,245 @@ class SkillSheetEditor {
         snackbar.className = 'snackbar';
       }, 3000);
     }
+  }
+
+  /**
+   * プレビュー画面を表示
+   */
+  showPreview() {
+    const container = document.getElementById('skillSheetSection');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    const previewContainer = document.createElement('div');
+    previewContainer.className = 'skill-preview-container';
+
+    // アクションボタン
+    const actions = this._createPreviewActions();
+    previewContainer.appendChild(actions);
+
+    // スキルシート内容
+    const content = this._createPreviewContent();
+    previewContainer.appendChild(content);
+
+    container.appendChild(previewContainer);
+  }
+
+  /**
+   * プレビュー画面のアクションボタンを作成
+   * @returns {HTMLElement}
+   */
+  _createPreviewActions() {
+    const actions = document.createElement('div');
+    actions.className = 'skill-preview-actions';
+
+    // 編集ボタン
+    const editBtn = document.createElement('button');
+    editBtn.className = 'btn-primary';
+    editBtn.innerHTML = `
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem;">
+        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+      </svg>
+      編集
+    `;
+    editBtn.addEventListener('click', () => this.showEditor());
+
+    // エクスポートボタン
+    const exportBtn = document.createElement('button');
+    exportBtn.className = 'btn-secondary';
+    exportBtn.innerHTML = `
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem;">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      エクスポート
+    `;
+    exportBtn.addEventListener('click', () => this.showExportMenu());
+
+    // レビューボタン
+    const reviewBtn = document.createElement('button');
+    reviewBtn.className = 'btn-primary';
+    reviewBtn.innerHTML = `
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem;">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 16v-4M12 8h.01"/>
+      </svg>
+      AIレビュー
+    `;
+    reviewBtn.addEventListener('click', () => this.sendToReview());
+
+    actions.appendChild(editBtn);
+    actions.appendChild(exportBtn);
+    actions.appendChild(reviewBtn);
+
+    return actions;
+  }
+
+  /**
+   * プレビュー画面のコンテンツを作成
+   * @returns {HTMLElement}
+   */
+  _createPreviewContent() {
+    const content = document.createElement('div');
+    content.className = 'skill-preview-content';
+
+    const markdown = this.manager.exportToMarkdown(this.currentSheet);
+
+    // スキルシートが空かチェック
+    const isEmpty = this._isSkillSheetEmpty();
+
+    if (isEmpty) {
+      content.innerHTML = `
+        <div class="skill-preview-empty">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+            <polyline points="10 9 9 9 8 9"/>
+          </svg>
+          <h3>スキルシートがまだ作成されていません</h3>
+          <p>「編集」ボタンをクリックして、スキルシートを作成しましょう。</p>
+        </div>
+      `;
+    } else {
+      // MarkdownをHTMLに変換（簡易的な変換）
+      content.innerHTML = this._convertMarkdownToHtml(markdown);
+    }
+
+    return content;
+  }
+
+  /**
+   * スキルシートが空かチェック
+   * @returns {boolean}
+   */
+  _isSkillSheetEmpty() {
+    const { personalInfo, professionalInfo, skills, profile } = this.currentSheet;
+
+    // 基本的な情報が入力されているかチェック
+    const hasPersonalInfo = personalInfo.name || personalInfo.email;
+    const hasProfessionalInfo = professionalInfo.occupation || professionalInfo.totalExperience;
+    const hasSkills =
+      (skills.programmingLanguages && skills.programmingLanguages.length > 0) ||
+      (skills.frameworks && skills.frameworks.length > 0);
+    const hasProfile = profile.summary || profile.strengths;
+
+    return !hasPersonalInfo && !hasProfessionalInfo && !hasSkills && !hasProfile;
+  }
+
+  /**
+   * MarkdownをHTMLに変換（簡易版）
+   * @param {string} markdown - Markdown文字列
+   * @returns {string} HTML文字列
+   */
+  _convertMarkdownToHtml(markdown) {
+    let html = markdown;
+
+    // エスケープ
+    html = html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    // 見出し
+    html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+    html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+    html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+
+    // 太字
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+    // リスト
+    html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
+    html = html.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
+
+    // テーブル（簡易的な処理）
+    html = html.replace(/\|(.+)\|/g, (match, content) => {
+      const cells = content.split('|').map(cell => cell.trim());
+      return '<tr>' + cells.map(cell => `<td>${cell}</td>`).join('') + '</tr>';
+    });
+    html = html.replace(/(<tr>.*<\/tr>\n?)+/g, '<table>$&</table>');
+
+    // 段落
+    html = html.replace(/\n\n/g, '</p><p>');
+    html = '<p>' + html + '</p>';
+
+    // 空の段落を削除
+    html = html.replace(/<p>\s*<\/p>/g, '');
+
+    return html;
+  }
+
+  /**
+   * エクスポートメニューを表示
+   */
+  showExportMenu() {
+    const formats = [
+      { name: 'Markdown', ext: 'md', method: 'exportToMarkdown' },
+      { name: 'JSON', ext: 'json', method: 'exportToJSON' },
+      { name: 'テキスト', ext: 'txt', method: 'exportToText' },
+    ];
+
+    const menu = document.createElement('div');
+    menu.className = 'export-menu';
+    menu.style.cssText = `
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 10000;
+      min-width: 300px;
+    `;
+
+    const title = document.createElement('h3');
+    title.textContent = 'エクスポート形式を選択';
+    title.style.marginBottom = '1rem';
+
+    menu.appendChild(title);
+
+    formats.forEach(format => {
+      const btn = document.createElement('button');
+      btn.className = 'btn-secondary';
+      btn.style.cssText = 'width: 100%; margin-bottom: 0.5rem;';
+      btn.textContent = format.name;
+      btn.addEventListener('click', () => {
+        this.exportAs(format.method, format.ext);
+        menu.remove();
+      });
+      menu.appendChild(btn);
+    });
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'btn-secondary';
+    closeBtn.style.cssText = 'width: 100%; margin-top: 0.5rem;';
+    closeBtn.textContent = 'キャンセル';
+    closeBtn.addEventListener('click', () => menu.remove());
+    menu.appendChild(closeBtn);
+
+    document.body.appendChild(menu);
+  }
+
+  /**
+   * 指定形式でエクスポート
+   * @param {string} method - エクスポートメソッド名
+   * @param {string} ext - ファイル拡張子
+   */
+  exportAs(method, ext) {
+    const content = this.manager[method](this.currentSheet);
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `skill-sheet.${ext}`;
+    a.click();
+    URL.revokeObjectURL(url);
+    this.showSnackbar(`スキルシートを${ext}形式でダウンロードしました`);
   }
 }
 
