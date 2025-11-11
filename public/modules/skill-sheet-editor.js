@@ -685,15 +685,22 @@ class SkillSheetEditor {
   createWorkExperienceItem(exp, index) {
     const item = document.createElement('div');
     item.className = 'skill-sheet-list-item';
+    const item = document.createElement('div');
+    item.className = 'skill-sheet-list-item';
+    const companyName = this.escapeHtml(exp.companyName || '会社名未記入');
+    const startDate = this.escapeHtml(exp.startDate || '開始日未記入');
+    const endDate = this.escapeHtml(exp.endDate || '現在');
+    const position = this.escapeHtml(exp.position || '未記入');
     item.innerHTML = `
       <div class="list-item-header">
-        <h4>${exp.companyName || '会社名未記入'}</h4>
+        <h4>${companyName}</h4>
         <button class="btn-danger btn-sm" data-action="remove-work" data-index="${index}">削除</button>
       </div>
       <div class="list-item-body">
-        <p><strong>期間:</strong> ${exp.startDate || '開始日未記入'} 〜 ${exp.endDate || '現在'}</p>
-        <p><strong>役職:</strong> ${exp.position || '未記入'}</p>
+        <p><strong>期間:</strong> ${startDate} 〜 ${endDate}</p>
+        <p><strong>役職:</strong> ${position}</p>
       </div>
+    `;
     `;
 
     item.querySelector('[data-action="remove-work"]').addEventListener('click', () => {
