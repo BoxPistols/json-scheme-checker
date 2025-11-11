@@ -107,7 +107,7 @@ class SkillSheetManager {
   createEmptySheet() {
     const now = new Date().toISOString();
     return {
-      ...JSON.parse(JSON.stringify(SKILL_SHEET_TEMPLATE)),
+      ...structuredClone(SKILL_SHEET_TEMPLATE),
       metadata: {
         createdAt: now,
         updatedAt: now,
