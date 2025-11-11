@@ -503,7 +503,7 @@ class SkillSheetEditor {
       input.placeholder = field.placeholder;
     }
 
-input.addEventListener('input', () => this.scheduleAutoSave());
+    input.addEventListener('change', () => this.scheduleAutoSave());
 
     formGroup.appendChild(label);
     formGroup.appendChild(input);
@@ -685,27 +685,41 @@ input.addEventListener('input', () => this.scheduleAutoSave());
   createWorkExperienceItem(exp, index) {
     const item = document.createElement('div');
     item.className = 'skill-sheet-list-item';
-    const item = document.createElement('div');
-    item.className = 'skill-sheet-list-item';
-    const companyName = this.escapeHtml(exp.companyName || '会社名未記入');
-    const startDate = this.escapeHtml(exp.startDate || '開始日未記入');
-    const endDate = this.escapeHtml(exp.endDate || '現在');
-    const position = this.escapeHtml(exp.position || '未記入');
-    item.innerHTML = `
-      <div class="list-item-header">
-        <h4>${companyName}</h4>
-        <button class="btn-danger btn-sm" data-action="remove-work" data-index="${index}">削除</button>
-      </div>
-      <div class="list-item-body">
-        <p><strong>期間:</strong> ${startDate} 〜 ${endDate}</p>
-        <p><strong>役職:</strong> ${position}</p>
-      </div>
-    `;
-    `;
 
-    item.querySelector('[data-action="remove-work"]').addEventListener('click', () => {
-      this.removeWorkExperience(index);
-    });
+    const header = document.createElement('div');
+    header.className = 'list-item-header';
+
+    const h4 = document.createElement('h4');
+    h4.textContent = exp.companyName || '会社名未記入';
+
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'btn-danger btn-sm';
+    removeBtn.textContent = '削除';
+    removeBtn.addEventListener('click', () => this.removeWorkExperience(index));
+
+    header.appendChild(h4);
+    header.appendChild(removeBtn);
+
+    const body = document.createElement('div');
+    body.className = 'list-item-body';
+
+    const periodP = document.createElement('p');
+    const periodStrong = document.createElement('strong');
+    periodStrong.textContent = '期間:';
+    periodP.appendChild(periodStrong);
+    periodP.appendChild(document.createTextNode(` ${exp.startDate || '開始日未記入'} 〜 ${exp.endDate || '現在'}`));
+
+    const positionP = document.createElement('p');
+    const positionStrong = document.createElement('strong');
+    positionStrong.textContent = '役職:';
+    positionP.appendChild(positionStrong);
+    positionP.appendChild(document.createTextNode(` ${exp.position || '未記入'}`));
+
+    body.appendChild(periodP);
+    body.appendChild(positionP);
+
+    item.appendChild(header);
+    item.appendChild(body);
 
     return item;
   }
@@ -719,20 +733,41 @@ input.addEventListener('input', () => this.scheduleAutoSave());
   createProjectItem(proj, index) {
     const item = document.createElement('div');
     item.className = 'skill-sheet-list-item';
-    item.innerHTML = `
-      <div class="list-item-header">
-        <h4>${proj.projectName || 'プロジェクト名未記入'}</h4>
-        <button class="btn-danger btn-sm" data-action="remove-project" data-index="${index}">削除</button>
-      </div>
-      <div class="list-item-body">
-        <p><strong>期間:</strong> ${proj.startDate || '開始日未記入'} 〜 ${proj.endDate || '終了日未記入'}</p>
-        <p><strong>役割:</strong> ${proj.role || '未記入'}</p>
-      </div>
-    `;
 
-    item.querySelector('[data-action="remove-project"]').addEventListener('click', () => {
-      this.removeProject(index);
-    });
+    const header = document.createElement('div');
+    header.className = 'list-item-header';
+
+    const h4 = document.createElement('h4');
+    h4.textContent = proj.projectName || 'プロジェクト名未記入';
+
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'btn-danger btn-sm';
+    removeBtn.textContent = '削除';
+    removeBtn.addEventListener('click', () => this.removeProject(index));
+
+    header.appendChild(h4);
+    header.appendChild(removeBtn);
+
+    const body = document.createElement('div');
+    body.className = 'list-item-body';
+
+    const periodP = document.createElement('p');
+    const periodStrong = document.createElement('strong');
+    periodStrong.textContent = '期間:';
+    periodP.appendChild(periodStrong);
+    periodP.appendChild(document.createTextNode(` ${proj.startDate || '開始日未記入'} 〜 ${proj.endDate || '終了日未記入'}`));
+
+    const roleP = document.createElement('p');
+    const roleStrong = document.createElement('strong');
+    roleStrong.textContent = '役割:';
+    roleP.appendChild(roleStrong);
+    roleP.appendChild(document.createTextNode(` ${proj.role || '未記入'}`));
+
+    body.appendChild(periodP);
+    body.appendChild(roleP);
+
+    item.appendChild(header);
+    item.appendChild(body);
 
     return item;
   }
@@ -747,16 +782,31 @@ input.addEventListener('input', () => this.scheduleAutoSave());
   createSkillItem(skill, category, index) {
     const item = document.createElement('div');
     item.className = 'skill-item';
-    item.innerHTML = `
-      <span class="skill-name">${skill.name}</span>
-      ${skill.experience ? `<span class="skill-experience">${skill.experience}年</span>` : ''}
-      ${skill.level ? `<span class="skill-level">${skill.level}</span>` : ''}
-      <button class="btn-danger btn-sm" data-action="remove-skill" data-category="${category}" data-index="${index}">削除</button>
-    `;
 
-    item.querySelector('[data-action="remove-skill"]').addEventListener('click', () => {
-      this.removeSkill(category, index);
-    });
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'skill-name';
+    nameSpan.textContent = skill.name;
+    item.appendChild(nameSpan);
+
+    if (skill.experience) {
+      const expSpan = document.createElement('span');
+      expSpan.className = 'skill-experience';
+      expSpan.textContent = `${skill.experience}年`;
+      item.appendChild(expSpan);
+    }
+
+    if (skill.level) {
+      const levelSpan = document.createElement('span');
+      levelSpan.className = 'skill-level';
+      levelSpan.textContent = skill.level;
+      item.appendChild(levelSpan);
+    }
+
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'btn-danger btn-sm';
+    removeBtn.textContent = '削除';
+    removeBtn.addEventListener('click', () => this.removeSkill(category, index));
+    item.appendChild(removeBtn);
 
     return item;
   }
@@ -770,20 +820,41 @@ input.addEventListener('input', () => this.scheduleAutoSave());
   createCertificationItem(cert, index) {
     const item = document.createElement('div');
     item.className = 'skill-sheet-list-item';
-    item.innerHTML = `
-      <div class="list-item-header">
-        <h4>${cert.name || '資格名未記入'}</h4>
-        <button class="btn-danger btn-sm" data-action="remove-cert" data-index="${index}">削除</button>
-      </div>
-      <div class="list-item-body">
-        <p><strong>発行機関:</strong> ${cert.organization || '未記入'}</p>
-        <p><strong>取得日:</strong> ${cert.acquisitionDate || '未記入'}</p>
-      </div>
-    `;
 
-    item.querySelector('[data-action="remove-cert"]').addEventListener('click', () => {
-      this.removeCertification(index);
-    });
+    const header = document.createElement('div');
+    header.className = 'list-item-header';
+
+    const h4 = document.createElement('h4');
+    h4.textContent = cert.name || '資格名未記入';
+
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'btn-danger btn-sm';
+    removeBtn.textContent = '削除';
+    removeBtn.addEventListener('click', () => this.removeCertification(index));
+
+    header.appendChild(h4);
+    header.appendChild(removeBtn);
+
+    const body = document.createElement('div');
+    body.className = 'list-item-body';
+
+    const orgP = document.createElement('p');
+    const orgStrong = document.createElement('strong');
+    orgStrong.textContent = '発行機関:';
+    orgP.appendChild(orgStrong);
+    orgP.appendChild(document.createTextNode(` ${cert.organization || '未記入'}`));
+
+    const dateP = document.createElement('p');
+    const dateStrong = document.createElement('strong');
+    dateStrong.textContent = '取得日:';
+    dateP.appendChild(dateStrong);
+    dateP.appendChild(document.createTextNode(` ${cert.acquisitionDate || '未記入'}`));
+
+    body.appendChild(orgP);
+    body.appendChild(dateP);
+
+    item.appendChild(header);
+    item.appendChild(body);
 
     return item;
   }
@@ -943,12 +1014,12 @@ input.addEventListener('input', () => this.scheduleAutoSave());
       window.contentUploadReviewerManager.currentContent = markdown;
       window.contentUploadReviewerManager.showUploadModal();
 
-      window.contentUploadReviewerManager.showUploadModal(() => {
+      setTimeout(() => {
         const textArea = document.getElementById('contentTextArea');
         if (textArea) {
           textArea.value = markdown;
         }
-      });
+      }, 100);
     } else {
       this.showSnackbar('レビュー機能が利用できません');
     }

@@ -244,114 +244,198 @@ class SkillSheetManager {
     let md = '# 職務経歴書\n\n';
 
     // 基本情報
-    md += '## 基本情報\n\n';
-    md += `| 項目 | 内容 |\n`;
-    md += `|------|------|\n`;
-    if (sheet.personalInfo.name) md += `| 氏名 | ${sheet.personalInfo.name} |\n`;
-    if (sheet.personalInfo.nameKana) md += `| フリガナ | ${sheet.personalInfo.nameKana} |\n`;
-    if (sheet.personalInfo.dateOfBirth)
-      md += `| 生年月日 | ${sheet.personalInfo.dateOfBirth} |\n`;
-    if (sheet.personalInfo.age) md += `| 年齢 | ${sheet.personalInfo.age}歳 |\n`;
-    if (sheet.personalInfo.currentResidence)
-      md += `| 居住地 | ${sheet.personalInfo.currentResidence} |\n`;
-    if (sheet.personalInfo.email) md += `| メール | ${sheet.personalInfo.email} |\n`;
-    if (sheet.personalInfo.phone) md += `| 電話番号 | ${sheet.personalInfo.phone} |\n`;
-    md += '\n';
+    md += this._buildBasicInfoSection(sheet.personalInfo);
 
     // プロフェッショナル情報
-    if (
-      sheet.professionalInfo.occupation ||
-      sheet.professionalInfo.totalExperience ||
-      sheet.professionalInfo.currentCompany
-    ) {
-      md += '## プロフェッショナル情報\n\n';
-      if (sheet.professionalInfo.currentCompany)
-        md += `- お勤めの会社: ${sheet.professionalInfo.currentCompany}\n`;
-      if (sheet.professionalInfo.occupation)
-        md += `- 職種: ${sheet.professionalInfo.occupation}\n`;
-      if (sheet.professionalInfo.engineeringRole)
-        md += `- エンジニア職種: ${sheet.professionalInfo.engineeringRole}\n`;
-      if (sheet.professionalInfo.managementRole)
-        md += `- マネジメント職種: ${sheet.professionalInfo.managementRole}\n`;
-      if (sheet.professionalInfo.totalExperience)
-        md += `- 総経験年数: ${sheet.professionalInfo.totalExperience}年\n`;
-      if (sheet.professionalInfo.englishLevel)
-        md += `- 英語力: ${sheet.professionalInfo.englishLevel}\n`;
-      if (sheet.professionalInfo.desiredSalary)
-        md += `- 希望年収: ${sheet.professionalInfo.desiredSalary}\n`;
-      if (sheet.professionalInfo.desiredLocation)
-        md += `- 希望勤務地: ${sheet.professionalInfo.desiredLocation}\n`;
-      md += '\n';
-    }
+    md += this._buildProfessionalInfoSection(sheet.professionalInfo);
 
     // ポートフォリオ・リンク
-    if (
-      sheet.links.github ||
-      sheet.links.portfolio ||
-      sheet.links.linkedin ||
-      sheet.links.blog ||
-      sheet.links.qiita
-    ) {
-      md += '## リンク\n\n';
-      if (sheet.links.github) {
-        md += `- GitHub: ${sheet.links.github}`;
-        if (sheet.links.githubUsername) md += ` (@${sheet.links.githubUsername})`;
-        md += '\n';
-      }
-      if (sheet.links.qiita) {
-        md += `- Qiita: ${sheet.links.qiita}`;
-        if (sheet.links.qiitaUsername) md += ` (@${sheet.links.qiitaUsername})`;
-        md += '\n';
-      }
-      if (sheet.links.portfolio) md += `- ポートフォリオ: ${sheet.links.portfolio}\n`;
-      if (sheet.links.linkedin) md += `- LinkedIn: ${sheet.links.linkedin}\n`;
-      if (sheet.links.blog) md += `- ブログ: ${sheet.links.blog}\n`;
-      if (sheet.links.others && sheet.links.others.length > 0) {
-        sheet.links.others.forEach(link => {
-          if (link.label && link.url) {
-            md += `- ${link.label}: ${link.url}\n`;
-          }
-        });
-      }
-      md += '\n';
-    }
+    md += this._buildLinksSection(sheet.links);
 
-    // 自己PR
-    if (sheet.profile.summary) {
-      md += '## サマリー\n\n';
-      md += `${sheet.profile.summary}\n\n`;
-    }
-
-    if (sheet.profile.personality) {
-      md += '## 人物像\n\n';
-      md += `${sheet.profile.personality}\n\n`;
-    }
-
-    if (sheet.profile.strengths) {
-      md += '## 強み\n\n';
-      md += `${sheet.profile.strengths}\n\n`;
-    }
+    // プロフィール
+    md += this._buildProfileSections(sheet.profile);
 
     // 直近の開発実績
     if (sheet.recentDevelopment) {
-      md += '## 直近の開発実績\n\n';
-      md += `${sheet.recentDevelopment}\n\n`;
+      md += this._buildTextSection('直近の開発実績', sheet.recentDevelopment);
     }
 
     // スキルセット
-    md += '## スキルセット\n\n';
+    md += this._buildSkillsSection(sheet.skills);
 
-    // スキル偏差値・GitHubスキル
-    if (sheet.skills.deviation) {
-      md += `**スキル偏差値**: ${sheet.skills.deviation}\n\n`;
-    }
-    if (sheet.skills.githubSkills) {
-      md += `**GitHubスキル**: ${sheet.skills.githubSkills}\n\n`;
-    }
-    if (sheet.skills.selfAssessment) {
-      md += `**自己申告スキル**: ${sheet.skills.selfAssessment}\n\n`;
+    // 資格・認定
+    md += this._buildCertificationsSection(sheet.certifications);
+
+    // 職務経歴
+    md += this._buildWorkExperienceSection(sheet.workExperience);
+
+    // プロジェクト実績
+    md += this._buildProjectsSection(sheet.projects);
+
+    // キャリア関連
+    md += this._buildCareerGoalsSection(sheet.profile);
+
+    return md;
+  }
+
+  /**
+   * 基本情報セクションを構築
+   * @private
+   */
+  _buildBasicInfoSection(personalInfo) {
+    let md = '## 基本情報\n\n| 項目 | 内容 |\n|------|------|\n';
+
+    const fields = [
+      { key: 'name', label: '氏名' },
+      { key: 'nameKana', label: 'フリガナ' },
+      { key: 'dateOfBirth', label: '生年月日' },
+      { key: 'age', label: '年齢', suffix: '歳' },
+      { key: 'currentResidence', label: '居住地' },
+      { key: 'email', label: 'メール' },
+      { key: 'phone', label: '電話番号' },
+    ];
+
+    fields.forEach(({ key, label, suffix = '' }) => {
+      if (personalInfo[key]) {
+        md += `| ${label} | ${personalInfo[key]}${suffix} |\n`;
+      }
+    });
+
+    return md + '\n';
+  }
+
+  /**
+   * プロフェッショナル情報セクションを構築
+   * @private
+   */
+  _buildProfessionalInfoSection(professionalInfo) {
+    const hasContent = professionalInfo.occupation || professionalInfo.totalExperience ||
+                       professionalInfo.currentCompany;
+    if (!hasContent) return '';
+
+    let md = '## プロフェッショナル情報\n\n';
+
+    const fields = [
+      { key: 'currentCompany', label: 'お勤めの会社' },
+      { key: 'occupation', label: '職種' },
+      { key: 'engineeringRole', label: 'エンジニア職種' },
+      { key: 'managementRole', label: 'マネジメント職種' },
+      { key: 'totalExperience', label: '総経験年数', suffix: '年' },
+      { key: 'englishLevel', label: '英語力' },
+      { key: 'desiredSalary', label: '希望年収' },
+      { key: 'desiredLocation', label: '希望勤務地' },
+    ];
+
+    fields.forEach(({ key, label, suffix = '' }) => {
+      if (professionalInfo[key]) {
+        md += `- ${label}: ${professionalInfo[key]}${suffix}\n`;
+      }
+    });
+
+    return md + '\n';
+  }
+
+  /**
+   * リンクセクションを構築
+   * @private
+   */
+  _buildLinksSection(links) {
+    const hasLinks = links.github || links.portfolio || links.linkedin ||
+                     links.blog || links.qiita;
+    if (!hasLinks) return '';
+
+    let md = '## リンク\n\n';
+
+    // GitHubリンク
+    if (links.github) {
+      md += `- GitHub: ${links.github}`;
+      if (links.githubUsername) md += ` (@${links.githubUsername})`;
+      md += '\n';
     }
 
+    // Qiitaリンク
+    if (links.qiita) {
+      md += `- Qiita: ${links.qiita}`;
+      if (links.qiitaUsername) md += ` (@${links.qiitaUsername})`;
+      md += '\n';
+    }
+
+    // その他のリンク
+    const otherLinks = [
+      { key: 'portfolio', label: 'ポートフォリオ' },
+      { key: 'linkedin', label: 'LinkedIn' },
+      { key: 'blog', label: 'ブログ' },
+    ];
+
+    otherLinks.forEach(({ key, label }) => {
+      if (links[key]) {
+        md += `- ${label}: ${links[key]}\n`;
+      }
+    });
+
+    // カスタムリンク
+    if (links.others && links.others.length > 0) {
+      links.others.forEach(link => {
+        if (link.label && link.url) {
+          md += `- ${link.label}: ${link.url}\n`;
+        }
+      });
+    }
+
+    return md + '\n';
+  }
+
+  /**
+   * プロフィールセクションを構築
+   * @private
+   */
+  _buildProfileSections(profile) {
+    let md = '';
+
+    const sections = [
+      { key: 'summary', title: 'サマリー' },
+      { key: 'personality', title: '人物像' },
+      { key: 'strengths', title: '強み' },
+    ];
+
+    sections.forEach(({ key, title }) => {
+      if (profile[key]) {
+        md += this._buildTextSection(title, profile[key]);
+      }
+    });
+
+    return md;
+  }
+
+  /**
+   * テキストセクションを構築
+   * @private
+   */
+  _buildTextSection(title, content) {
+    return `## ${title}\n\n${content}\n\n`;
+  }
+
+  /**
+   * スキルセクションを構築
+   * @private
+   */
+  _buildSkillsSection(skills) {
+    let md = '## スキルセット\n\n';
+
+    // スキルサマリー
+    const summaryFields = [
+      { key: 'deviation', label: 'スキル偏差値' },
+      { key: 'githubSkills', label: 'GitHubスキル' },
+      { key: 'selfAssessment', label: '自己申告スキル' },
+    ];
+
+    summaryFields.forEach(({ key, label }) => {
+      if (skills[key]) {
+        md += `**${label}**: ${skills[key]}\n\n`;
+      }
+    });
+
+    // スキルカテゴリ
     const skillCategories = [
       { key: 'programmingLanguages', label: 'プログラミング言語' },
       { key: 'frameworks', label: 'フレームワーク・ライブラリ' },
@@ -362,10 +446,10 @@ class SkillSheetManager {
     ];
 
     skillCategories.forEach(({ key, label }) => {
-      const skills = sheet.skills[key];
-      if (skills && skills.length > 0) {
+      const categorySkills = skills[key];
+      if (categorySkills && categorySkills.length > 0) {
         md += `### ${label}\n\n`;
-        skills.forEach(skill => {
+        categorySkills.forEach(skill => {
           md += `- ${skill.name}`;
           if (skill.experience) md += ` (${skill.experience}年)`;
           if (skill.level) md += ` - ${skill.level}`;
@@ -375,84 +459,94 @@ class SkillSheetManager {
       }
     });
 
-    // 資格・認定
-    if (sheet.certifications && sheet.certifications.length > 0) {
-      md += '## 資格・認定\n\n';
-      sheet.certifications.forEach(cert => {
-        md += `### ${cert.name}\n\n`;
-        if (cert.organization) md += `- 発行機関: ${cert.organization}\n`;
-        if (cert.acquisitionDate) md += `- 取得日: ${cert.acquisitionDate}\n`;
-        if (cert.expirationDate) md += `- 有効期限: ${cert.expirationDate}\n`;
-        if (cert.url) md += `- 証明URL: ${cert.url}\n`;
-        md += '\n';
+    return md;
+  }
+
+  /**
+   * 資格・認定セクションを構築
+   * @private
+   */
+  _buildCertificationsSection(certifications) {
+    if (!certifications || certifications.length === 0) return '';
+
+    let md = '## 資格・認定\n\n';
+    certifications.forEach(cert => {
+      md += `### ${cert.name || '資格名未記入'}\n\n`;
+      const fields = [
+        { key: 'organization', label: '発行機関' },
+        { key: 'acquisitionDate', label: '取得日' },
+        { key: 'expirationDate', label: '有効期限' },
+        { key: 'url', label: '証明URL' },
+      ];
+      fields.forEach(({ key, label }) => {
+        if (cert[key]) md += `- ${label}: ${cert[key]}\n`;
       });
-    }
+      md += '\n';
+    });
+    return md;
+  }
 
-    // 職務経歴
-    if (sheet.workExperience && sheet.workExperience.length > 0) {
-      md += '## 職務経歴\n\n';
-      sheet.workExperience.forEach((exp, index) => {
-        md += `### ${index + 1}. ${exp.companyName || '会社名未記入'}\n\n`;
-        if (exp.startDate || exp.endDate) {
-          md += `**期間**: ${exp.startDate || '開始日未記入'} 〜 ${exp.endDate || '現在'}\n\n`;
-        }
-        if (exp.position) md += `**役職**: ${exp.position}\n\n`;
-        if (exp.department) md += `**部署**: ${exp.department}\n\n`;
-        if (exp.responsibilities) {
-          md += `**業務内容**:\n${exp.responsibilities}\n\n`;
-        }
-        if (exp.achievements) {
-          md += `**実績**:\n${exp.achievements}\n\n`;
-        }
-      });
-    }
+  /**
+   * 職務経歴セクションを構築
+   * @private
+   */
+  _buildWorkExperienceSection(workExperience) {
+    if (!workExperience || workExperience.length === 0) return '';
 
-    // プロジェクト実績
-    if (sheet.projects && sheet.projects.length > 0) {
-      md += '## プロジェクト実績\n\n';
-      sheet.projects.forEach((proj, index) => {
-        md += `### ${index + 1}. ${proj.projectName || 'プロジェクト名未記入'}\n\n`;
-        if (proj.startDate || proj.endDate) {
-          md += `**期間**: ${proj.startDate || '開始日未記入'} 〜 ${proj.endDate || '終了日未記入'}\n\n`;
-        }
-        if (proj.role) md += `**役割**: ${proj.role}\n\n`;
-        if (proj.teamSize) md += `**チーム規模**: ${proj.teamSize}名\n\n`;
-        if (proj.description) {
-          md += `**概要**:\n${proj.description}\n\n`;
-        }
-        if (proj.technologies && proj.technologies.length > 0) {
-          md += `**使用技術**: ${proj.technologies.join(', ')}\n\n`;
-        }
-        if (proj.responsibilities) {
-          md += `**担当業務**:\n${proj.responsibilities}\n\n`;
-        }
-        if (proj.achievements) {
-          md += `**成果**:\n${proj.achievements}\n\n`;
-        }
-        if (proj.url) {
-          md += `**URL**: ${proj.url}\n\n`;
-        }
-      });
-    }
+    let md = '## 職務経歴\n\n';
+    workExperience.forEach((exp, index) => {
+      md += `### ${index + 1}. ${exp.companyName || '会社名未記入'}\n\n`;
+      if (exp.startDate || exp.endDate) {
+        md += `**期間**: ${exp.startDate || '開始日未記入'} 〜 ${exp.endDate || '現在'}\n\n`;
+      }
+      if (exp.position) md += `**役職**: ${exp.position}\n\n`;
+      if (exp.department) md += `**部署**: ${exp.department}\n\n`;
+      if (exp.responsibilities) md += `**業務内容**:\n${exp.responsibilities}\n\n`;
+      if (exp.achievements) md += `**実績**:\n${exp.achievements}\n\n`;
+    });
+    return md;
+  }
 
-    // キャリア目標
-    if (sheet.profile.careerGoals) {
-      md += '## キャリア目標\n\n';
-      md += `${sheet.profile.careerGoals}\n\n`;
-    }
+  /**
+   * プロジェクト実績セクションを構築
+   * @private
+   */
+  _buildProjectsSection(projects) {
+    if (!projects || projects.length === 0) return '';
 
-    // この先やってみたいこと
-    if (sheet.profile.futureGoals) {
-      md += '## この先やってみたいこと\n\n';
-      md += `${sheet.profile.futureGoals}\n\n`;
-    }
+    let md = '## プロジェクト実績\n\n';
+    projects.forEach((proj, index) => {
+      md += `### ${index + 1}. ${proj.projectName || 'プロジェクト名未記入'}\n\n`;
+      if (proj.startDate || proj.endDate) {
+        md += `**期間**: ${proj.startDate || '開始日未記入'} 〜 ${proj.endDate || '終了日未記入'}\n\n`;
+      }
+      if (proj.role) md += `**役割**: ${proj.role}\n\n`;
+      if (proj.teamSize) md += `**チーム規模**: ${proj.teamSize}名\n\n`;
+      if (proj.description) md += `**概要**:\n${proj.description}\n\n`;
+      if (proj.technologies && proj.technologies.length > 0) {
+        md += `**使用技術**: ${proj.technologies.join(', ')}\n\n`;
+      }
+      if (proj.responsibilities) md += `**担当業務**:\n${proj.responsibilities}\n\n`;
+      if (proj.achievements) md += `**成果**:\n${proj.achievements}\n\n`;
+      if (proj.url) md += `**URL**: ${proj.url}\n\n`;
+    });
+    return md;
+  }
 
-    // AI活用
-    if (sheet.profile.aiUtilization) {
-      md += '## エンジニアリング領域におけるAI活用\n\n';
-      md += `${sheet.profile.aiUtilization}\n\n`;
-    }
-
+  /**
+   * キャリア関連セクションを構築
+   * @private
+   */
+  _buildCareerGoalsSection(profile) {
+    let md = '';
+    const sections = [
+      { key: 'careerGoals', title: 'キャリア目標' },
+      { key: 'futureGoals', title: 'この先やってみたいこと' },
+      { key: 'aiUtilization', title: 'エンジニアリング領域におけるAI活用' },
+    ];
+    sections.forEach(({ key, title }) => {
+      if (profile[key]) md += this._buildTextSection(title, profile[key]);
+    });
     return md;
   }
 
