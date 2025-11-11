@@ -341,6 +341,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('contentUploadButton')?.addEventListener('click', () => {
     window.contentUploadReviewerManager?.showUploadModal();
   });
+  document.getElementById('mySkillSheetButton')?.addEventListener('click', () => {
+    window.skillSheetEditor?.showEditor();
+  });
   const headerRow = document.querySelector('.header-row');
   if (headerRow) {
     headerRow.addEventListener('click', () => {

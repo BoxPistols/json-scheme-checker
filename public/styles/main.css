@@ -38,7 +38,10 @@
 /* 11. Content Upload Reviewer */
 @import './11-content-upload.css';
 
-/* 12. レスポンシブデザイン */
+/* 12. Skill Sheet Editor */
+@import './12-skill-sheet.css';
+
+/* 13. レスポンシブデザイン */
 @import './12a-responsive-advisor.css';
 @import './12b-responsive-chat.css';
 
