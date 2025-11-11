@@ -249,6 +249,14 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
     fileInput.accept = '.pdf,.csv,.xlsx,.xls,.md,.markdown,.json,.txt';
     fileInput.className = 'file-upload-input-hidden';
     fileInput.dataset.action = 'content-upload-file-select';
+
+    // ファイル選択時のイベントリスナーを追加
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length > 0) {
+        this.handleFileUpload(fileInput.files[0]);
+      }
+    });
+
     const placeholder = this._createFileUploadPlaceholder();
     const fileInfo = this._createFileInfoDisplay();
     uploadArea.appendChild(placeholder);
