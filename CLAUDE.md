@@ -73,11 +73,25 @@ vercel --prod       # 本番デプロイ
 vercel logs         # ログ確認
 ```
 
+### デスクトップアプリ（Electron）
+
+```bash
+pnpm electron:dev          # Electronアプリを開発モードで起動
+pnpm electron:build        # Mac + Windows向けビルド
+pnpm electron:build:mac    # Mac専用ビルド
+pnpm electron:build:win    # Windows専用ビルド
+```
+
+詳細は[ELECTRON.md](./ELECTRON.md)を参照してください。
+
 ## プロジェクト構造
 
 ```plaintext
 json-ld-viewer/
 ├── server.js                 # ローカル開発用Expressサーバー
+├── electron/                 # Electronデスクトップアプリ
+│   ├── main.js              # Electronメインプロセス
+│   └── preload.js           # プリロードスクリプト
 ├── public/
 │   ├── index.html           # Webアプリケーション（フロントエンド）
 │   ├── styles.css           # スタイルシート
@@ -98,6 +112,7 @@ json-ld-viewer/
 │   └── content-upload-reviewer.js # Content Upload Reviewer API
 ├── package.json             # 依存関係・スクリプト
 ├── vercel.json              # Vercelデプロイ設定
+├── ELECTRON.md              # デスクトップアプリドキュメント
 ├── .eslintrc.json           # ESLint設定
 ├── .prettierrc.json         # Prettier設定
 ├── .cursorrules             # Cursor AI設定
