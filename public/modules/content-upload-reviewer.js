@@ -248,7 +248,6 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
     fileInput.id = 'fileInput';
     fileInput.accept = '.pdf,.csv,.xlsx,.xls,.md,.markdown,.json,.txt';
     fileInput.className = 'file-upload-input-hidden';
-    fileInput.dataset.action = 'content-upload-file-select';
 
     // ファイル選択時のイベントリスナーを追加
     fileInput.addEventListener('change', () => {
