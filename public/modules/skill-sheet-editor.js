@@ -503,7 +503,7 @@ class SkillSheetEditor {
       input.placeholder = field.placeholder;
     }
 
-    input.addEventListener('change', () => this.scheduleAutoSave());
+input.addEventListener('input', () => this.scheduleAutoSave());
 
     formGroup.appendChild(label);
     formGroup.appendChild(input);
