@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Skill Sheet - Schema Viewer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles/main.css">
+    <script src="/scripts/theme-init.js"></script>
+    <style>
+        .skill-page-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .skill-page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .skill-page-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        .skill-page-header p {
+            color: var(--text-secondary);
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary-color);
+            text-decoration: none;
+            margin-bottom: 1rem;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        /* プレビュー画面 */
+        .skill-preview-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .skill-preview-actions {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        .skill-preview-content {
+            max-width: 100%;
+            overflow-x: auto;
+            line-height: 1.6;
+        }
+        .skill-preview-content h2 {
+            font-size: 1.5rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+        .skill-preview-content h3 {
+            font-size: 1.25rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .skill-preview-content h4 {
+            font-size: 1.1rem;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .skill-preview-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        .skill-preview-content table th,
+        .skill-preview-content table td {
+            border: 1px solid var(--border-color);
+            padding: 0.5rem;
+            text-align: left;
+        }
+        .skill-preview-content table th {
+            background: var(--bg-secondary);
+            font-weight: 600;
+        }
+        .skill-preview-content p {
+            margin: 0.5rem 0;
+        }
+        .skill-preview-content ul,
+        .skill-preview-content ol {
+            margin: 0.5rem 0;
+            padding-left: 2rem;
+        }
+        .skill-preview-content li {
+            margin: 0.25rem 0;
+        }
+        .skill-preview-content strong {
+            font-weight: 600;
+        }
+        .skill-preview-empty {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+        .skill-preview-empty svg {
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="skill-page-container">
+        <a href="/" class="back-link">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            トップページに戻る
+        </a>
+
+        <div class="skill-page-header">
+            <h1>My Skill Sheet</h1>
+            <p>エンジニア向けのスキルシート（職務経歴書）を作成・管理・レビュー</p>
+            <span class="badge-beta">Beta</span>
+        </div>
+
+        <div id="skillSheetSection"></div>
+    </div>
+
+    <div id="snackbar" class="snackbar"></div>
+
+    <!-- PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+    <script>
+      if (typeof pdfjsLib !== 'undefined') {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
+      }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
+
+    <script src="/utils/file-parser.js"></script>
+    <script src="/modules/debug-mock-data.js"></script>
+    <script src="/modules/base-advisor.js"></script>
+    <script type="module" src="/modules/skill-sheet-manager.js"></script>
+    <script type="module" src="/modules/skill-sheet-editor.js"></script>
+    <script type="module" src="/modules/content-upload-reviewer.js"></script>
+
+    <script type="module">
+        // ページ読み込み後、スキルシートの状態に応じて表示を切り替え
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                if (window.skillSheetEditor) {
+                    // スキルシートが保存されているかチェック
+                    const hasData = !window.skillSheetEditor._isSkillSheetEmpty();
+
+                    if (hasData) {
+                        // 保存済みの場合はプレビューを表示
+                        window.skillSheetEditor.showPreview();
+                    } else {
+                        // 未作成の場合は編集モーダルを開く
+                        window.skillSheetEditor.showEditor();
+                    }
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>

@@ -338,8 +338,22 @@ document.addEventListener('DOMContentLoaded', () => {
     ?.addEventListener('click', closeTwitterCardModal);
   document.getElementById('btnCloseOpenGraphModal')?.addEventListener('click', closeOpenGraphModal);
   document.getElementById('btnHideError')?.addEventListener('click', hideError);
-  document.getElementById('contentUploadButton')?.addEventListener('click', () => {
-    window.contentUploadReviewerManager?.showUploadModal();
+  // ベータ機能の環境判定と表示制御
+  const contentUploadButton = document.getElementById('contentUploadButton');
+  const mySkillSheetButton = document.getElementById('mySkillSheetButton');
+
+  // 開発環境のみベータ機能を表示
+  if (!isLocalhost) {
+    contentUploadButton?.style.setProperty('display', 'none');
+    mySkillSheetButton?.style.setProperty('display', 'none');
+  }
+
+  // ベータ機能のボタンを別URLへのリンクとして動作させる
+  contentUploadButton?.addEventListener('click', () => {
+    window.location.href = '/file';
+  });
+  mySkillSheetButton?.addEventListener('click', () => {
+    window.location.href = '/skill';
   });
   const headerRow = document.querySelector('.header-row');
   if (headerRow) {
