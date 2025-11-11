@@ -936,12 +936,12 @@ class SkillSheetEditor {
       window.contentUploadReviewerManager.currentContent = markdown;
       window.contentUploadReviewerManager.showUploadModal();
 
-      setTimeout(() => {
+      window.contentUploadReviewerManager.showUploadModal(() => {
         const textArea = document.getElementById('contentTextArea');
         if (textArea) {
           textArea.value = markdown;
         }
-      }, 100);
+      });
     } else {
       this.showSnackbar('レビュー機能が利用できません');
     }
