@@ -496,7 +496,7 @@ html[data-theme='dark'] .advisor-modal-close-btn:hover svg path {
 
 /* より大きなModal */
 .modal-container--wide {
-  max-width: 900px;
+  max-width: 1200px;
   width: 95%;
 }
 
