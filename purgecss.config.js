@@ -37,27 +37,27 @@ module.exports = {
 
     // 前方一致パターン（これらで始まるクラスは削除しない）
     greedy: [
-      /^icon-/,           // icon-visible, icon-hidden など
-      /^status-/,         // status-high, status-medium, status-low など
-      /^modal-/,          // modal-overlay, modal-container など
-      /^btn-/,            // btn-primary, btn-secondary など
-      /^tab-/,            // tab-button, tab-content など
-      /^auth-/,           // auth-details, auth-summary など
-      /^advisor-/,        // advisor-card, advisor-header など
-      /^chat-/,           // chat-container, chat-message など
-      /^json-/,           // json-key, json-string など
-      /^schema-/,         // schema-card, schema-header など
-      /^feature-/,        // feature-card, feature-list など
-      /^sample-/,         // sample-link, sample-item など
-      /^collapsible/,     // collapsible, collapsible[open] など
-      /^error-/,          // error-message, error-container など
-      /^loading/,         // loading, loading-spinner など
-      /data-theme/,       // data-theme属性に関連するスタイル
+      /^icon-/, // icon-visible, icon-hidden など
+      /^status-/, // status-high, status-medium, status-low など
+      /^modal-/, // modal-overlay, modal-container など
+      /^btn-/, // btn-primary, btn-secondary など
+      /^tab-/, // tab-button, tab-content など
+      /^auth-/, // auth-details, auth-summary など
+      /^advisor-/, // advisor-card, advisor-header など
+      /^chat-/, // chat-container, chat-message など
+      /^json-/, // json-key, json-string など
+      /^schema-/, // schema-card, schema-header など
+      /^feature-/, // feature-card, feature-list など
+      /^sample-/, // sample-link, sample-item など
+      /^collapsible/, // collapsible, collapsible[open] など
+      /^error-/, // error-message, error-container など
+      /^loading/, // loading, loading-spinner など
+      /data-theme/, // data-theme属性に関連するスタイル
     ],
   },
 
   // デフォルトの抽出パターン（カスタマイズ可能）
-  defaultExtractor: (content) => {
+  defaultExtractor: content => {
     // クラス名を抽出する正規表現
     // class="foo bar", className='baz', classList.add('qux') などに対応
     const broadMatches = content.match(/[^<>"'`\s]*[^<>"'`\s:]/g) || [];

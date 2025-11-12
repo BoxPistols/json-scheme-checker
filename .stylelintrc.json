@@ -1,7 +1,5 @@
 {
-  "extends": [
-    "stylelint-config-standard"
-  ],
+  "extends": ["stylelint-config-standard"],
   "rules": {
     "selector-class-pattern": "^[a-z][a-zA-Z0-9-]*$",
     "no-descending-specificity": null,
@@ -28,9 +26,5 @@
     "alpha-value-notation": "number",
     "color-function-notation": "legacy"
   },
-  "ignoreFiles": [
-    "node_modules/**",
-    "public/styles/dist/**",
-    "**/*.min.css"
-  ]
+  "ignoreFiles": ["node_modules/**", "public/styles/dist/**", "**/*.min.css"]
 }

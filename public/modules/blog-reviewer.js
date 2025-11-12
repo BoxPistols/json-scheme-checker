@@ -789,7 +789,11 @@ class BlogReviewerManager extends BaseAdvisorManager {
       csvLines.push('項目,値');
 
       // タイトルを明示的に出力
-      const title = (this.currentArticle?.headline?.trim()) || (this.currentArticle?.name?.trim()) || (this.currentArticle?.title?.trim()) || '不明';
+      const title =
+        this.currentArticle?.headline?.trim() ||
+        this.currentArticle?.name?.trim() ||
+        this.currentArticle?.title?.trim() ||
+        '不明';
       csvLines.push(`タイトル,${this.escapeCsvValue(title)}`);
 
       // 記事情報（詳細）

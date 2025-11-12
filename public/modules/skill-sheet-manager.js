@@ -309,8 +309,10 @@ class SkillSheetManager {
    * @private
    */
   _buildProfessionalInfoSection(professionalInfo) {
-    const hasContent = professionalInfo.occupation || professionalInfo.totalExperience ||
-                       professionalInfo.currentCompany;
+    const hasContent =
+      professionalInfo.occupation ||
+      professionalInfo.totalExperience ||
+      professionalInfo.currentCompany;
     if (!hasContent) return '';
 
     let md = '## プロフェッショナル情報\n\n';
@@ -340,8 +342,7 @@ class SkillSheetManager {
    * @private
    */
   _buildLinksSection(links) {
-    const hasLinks = links.github || links.portfolio || links.linkedin ||
-                     links.blog || links.qiita;
+    const hasLinks = links.github || links.portfolio || links.linkedin || links.blog || links.qiita;
     if (!hasLinks) return '';
 
     let md = '## リンク\n\n';
