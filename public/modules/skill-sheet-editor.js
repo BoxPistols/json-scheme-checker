@@ -162,8 +162,7 @@ class SkillSheetEditor {
     tabs.forEach((tab, index) => {
       const panel = document.createElement('div');
       panel.id = `tab-${tab.id}`;
-      panel.className =
-        index === 0 ? 'skill-sheet-tab-panel active' : 'skill-sheet-tab-panel';
+      panel.className = index === 0 ? 'skill-sheet-tab-panel active' : 'skill-sheet-tab-panel';
       panel.appendChild(tab.creator());
       contentContainer.appendChild(panel);
     });
@@ -206,7 +205,12 @@ class SkillSheetEditor {
       { id: 'nameKana', label: 'フリガナ', type: 'text' },
       { id: 'dateOfBirth', label: '生年月日', type: 'date' },
       { id: 'age', label: '年齢', type: 'number' },
-      { id: 'gender', label: '性別', type: 'select', options: ['男性', '女性', 'その他', '回答しない'] },
+      {
+        id: 'gender',
+        label: '性別',
+        type: 'select',
+        options: ['男性', '女性', 'その他', '回答しない'],
+      },
       { id: 'email', label: 'メールアドレス', type: 'email' },
       { id: 'phone', label: '電話番号', type: 'tel' },
       { id: 'address', label: '住所', type: 'text' },
@@ -235,7 +239,12 @@ class SkillSheetEditor {
       { id: 'engineeringRole', label: 'エンジニア職種', type: 'text' },
       { id: 'managementRole', label: 'マネジメント職種', type: 'text' },
       { id: 'totalExperience', label: '総経験年数', type: 'number' },
-      { id: 'englishLevel', label: '英語力', type: 'text', placeholder: '例: TOEIC 800点、日常会話レベル' },
+      {
+        id: 'englishLevel',
+        label: '英語力',
+        type: 'text',
+        placeholder: '例: TOEIC 800点、日常会話レベル',
+      },
       { id: 'desiredSalary', label: '希望年収', type: 'text' },
       { id: 'desiredLocation', label: '希望勤務地', type: 'text' },
       { id: 'availableDate', label: '入社可能日', type: 'date' },
@@ -409,7 +418,12 @@ class SkillSheetEditor {
     section.className = 'skill-sheet-section';
 
     const fields = [
-      { id: 'github', label: 'GitHub URL', type: 'url', placeholder: 'https://github.com/username' },
+      {
+        id: 'github',
+        label: 'GitHub URL',
+        type: 'url',
+        placeholder: 'https://github.com/username',
+      },
       { id: 'githubUsername', label: 'GitHubアカウント名', type: 'text', placeholder: 'username' },
       { id: 'qiita', label: 'Qiita URL', type: 'url', placeholder: 'https://qiita.com/username' },
       { id: 'qiitaUsername', label: 'Qiitaアカウント名', type: 'text', placeholder: 'username' },
@@ -442,7 +456,12 @@ class SkillSheetEditor {
       { id: 'achievements', label: '特筆すべき実績', type: 'textarea', rows: 5 },
       { id: 'careerGoals', label: 'キャリア目標', type: 'textarea', rows: 5 },
       { id: 'futureGoals', label: 'この先やってみたいこと', type: 'textarea', rows: 5 },
-      { id: 'aiUtilization', label: 'エンジニアリング領域におけるAI活用', type: 'textarea', rows: 5 },
+      {
+        id: 'aiUtilization',
+        label: 'エンジニアリング領域におけるAI活用',
+        type: 'textarea',
+        rows: 5,
+      },
     ];
 
     fields.forEach(field => {
@@ -650,7 +669,14 @@ class SkillSheetEditor {
    * スキルリストを読み込み
    */
   loadSkillsList() {
-    const categories = ['programmingLanguages', 'frameworks', 'databases', 'infrastructure', 'tools', 'others'];
+    const categories = [
+      'programmingLanguages',
+      'frameworks',
+      'databases',
+      'infrastructure',
+      'tools',
+      'others',
+    ];
 
     categories.forEach(category => {
       const container = document.getElementById(`skillList-${category}`);
@@ -710,7 +736,9 @@ class SkillSheetEditor {
     const periodStrong = document.createElement('strong');
     periodStrong.textContent = '期間:';
     periodP.appendChild(periodStrong);
-    periodP.appendChild(document.createTextNode(` ${exp.startDate || '開始日未記入'} 〜 ${exp.endDate || '現在'}`));
+    periodP.appendChild(
+      document.createTextNode(` ${exp.startDate || '開始日未記入'} 〜 ${exp.endDate || '現在'}`)
+    );
 
     const positionP = document.createElement('p');
     const positionStrong = document.createElement('strong');
@@ -758,7 +786,11 @@ class SkillSheetEditor {
     const periodStrong = document.createElement('strong');
     periodStrong.textContent = '期間:';
     periodP.appendChild(periodStrong);
-    periodP.appendChild(document.createTextNode(` ${proj.startDate || '開始日未記入'} 〜 ${proj.endDate || '終了日未記入'}`));
+    periodP.appendChild(
+      document.createTextNode(
+        ` ${proj.startDate || '開始日未記入'} 〜 ${proj.endDate || '終了日未記入'}`
+      )
+    );
 
     const roleP = document.createElement('p');
     const roleStrong = document.createElement('strong');

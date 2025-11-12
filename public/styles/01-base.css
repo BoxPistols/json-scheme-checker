@@ -136,3 +136,9 @@ a:-webkit-any-link {
   max-width: 1400px;
   margin: 0 auto;
 }
+
+/* details要素のsummaryをクリック可能に見せる */
+summary {
+  cursor: pointer;
+  user-select: none;
+}
