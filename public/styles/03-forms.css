@@ -458,9 +458,10 @@ button:disabled {
   margin-bottom: 16px;
 }
 
-.auth-input {
+/* 共通スタイル */
+.auth-input,
+.auth-password-input {
   width: 100%;
-  padding: 10px 14px;
   font-size: 14px;
   border: 1px solid var(--border-color);
   border-radius: 6px;
@@ -469,7 +470,12 @@ button:disabled {
   color: var(--text-color);
 }
 
-.auth-input:focus {
+.auth-input {
+  padding: 10px 14px;
+}
+
+.auth-input:focus,
+.auth-password-input:focus {
   outline: none;
   border-color: var(--primary-color);
   box-shadow: 0 0 0 2px var(--primary-shadow-color);
@@ -482,20 +488,7 @@ button:disabled {
 }
 
 .auth-password-input {
-  width: 100%;
   padding: 10px 44px 10px 14px;
-  font-size: 14px;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  transition: all 0.2s ease;
-  background-color: var(--bg-color);
-  color: var(--text-color);
-}
-
-.auth-password-input:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px var(--primary-shadow-color);
 }
 
 .auth-toggle-btn {

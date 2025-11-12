@@ -48,6 +48,9 @@
 /* 13. ユーティリティ */
 @import './13-utilities.css';
 
+/* 14. エラーページ */
+@import './14-error-page.css';
+
 /* 既存の個別モジュール */
 @import './design-tokens.css';
 @import './chat-container-query.css';

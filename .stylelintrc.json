@@ -1,0 +1,36 @@
+{
+  "extends": [
+    "stylelint-config-standard"
+  ],
+  "rules": {
+    "selector-class-pattern": "^[a-z][a-zA-Z0-9-]*$",
+    "no-descending-specificity": null,
+    "custom-property-pattern": "^[a-z][a-zA-Z0-9-]*$",
+    "declaration-block-no-redundant-longhand-properties": null,
+    "font-family-name-quotes": "always-where-recommended",
+    "font-family-no-missing-generic-family-keyword": null,
+    "function-url-quotes": "always",
+    "import-notation": "string",
+    "selector-pseudo-class-no-unknown": [
+      true,
+      {
+        "ignorePseudoClasses": ["global", "local"]
+      }
+    ],
+    "at-rule-no-unknown": [
+      true,
+      {
+        "ignoreAtRules": ["tailwind", "apply", "layer", "variants", "responsive", "screen"]
+      }
+    ],
+    "no-invalid-position-at-import-rule": null,
+    "media-feature-range-notation": "prefix",
+    "alpha-value-notation": "number",
+    "color-function-notation": "legacy"
+  },
+  "ignoreFiles": [
+    "node_modules/**",
+    "public/styles/dist/**",
+    "**/*.min.css"
+  ]
+}

@@ -61,6 +61,9 @@ web_modules/
 # Optional stylelint cache
 .stylelintcache
 
+# PurgeCSS output
+public/styles/dist/
+
 # Microbundle cache
 .rpt2_cache/
 .microbundle-cache/

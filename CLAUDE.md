@@ -37,7 +37,11 @@ pnpm dev                 # 開発サーバー起動（nodemon自動再起動）
 pnpm start               # 本番モード起動
 pnpm lint                # ESLint実行
 pnpm lint:fix            # ESLint自動修正
+pnpm lint:css            # Stylelintでcss チェック
+pnpm lint:css:fix        # Stylelintで自動修正
 pnpm format              # Prettier整形
+pnpm check-css           # HTML/CSSクラスの整合性チェック
+pnpm validate            # すべてのコード品質チェック（lint + css）
 ```
 
 ### テスト・確認
@@ -71,6 +75,109 @@ kill $(lsof -t -i:3333)
 vercel              # プレビューデプロイ
 vercel --prod       # 本番デプロイ
 vercel logs         # ログ確認
+```
+
+### CSS品質管理
+
+```bash
+# CSS整合性チェック（HTMLで使用されているクラスがCSSで定義されているか確認）
+pnpm check-css
+
+# CSSリント（スタイル品質チェック）
+pnpm lint:css
+
+# CSS自動修正
+pnpm lint:css:fix
+
+# 未使用CSSの削除（本番ビルド用）
+pnpm purge-css
+
+# すべてのコード品質チェック
+pnpm validate
+```
+
+## CSS品質管理ツール
+
+このプロジェクトでは、3つのツールでCSS品質を管理しています：
+
+### 1. カスタムCSS整合性チェック（`pnpm check-css`）
+
+HTMLとJavaScriptで使用されているクラス名と、CSSで定義されているセレクタを比較し、以下をレポートします：
+
+- HTMLで使用されているがCSSで未定義のクラス（重要）
+- CSSで定義されているがHTMLで未使用のセレクタ（参考）
+
+**実行タイミング**:
+- 新しいコンポーネントを追加した後
+- CSSファイルを大規模に変更した後
+- CIパイプラインで自動実行（推奨）
+
+**実装**: `scripts/check-css-usage.js`
+
+### 2. Stylelint（`pnpm lint:css`）
+
+CSSの構文や品質をチェックします。
+
+**チェック内容**:
+- クラス名の命名規則（kebab-case）
+- セレクタの特異性
+- プロパティの並び順
+- 無効な構文
+
+**実行タイミング**:
+- CSS編集後
+- コミット前
+- CIパイプラインで自動実行
+
+**設定ファイル**: `.stylelintrc.json`, `.stylelintignore`
+
+### 3. PurgeCSS（`pnpm purge-css`）
+
+未使用のCSSを自動削除し、本番ビルドのファイルサイズを最小化します。
+
+**使用ケース**:
+- 本番デプロイ前
+- パフォーマンス最適化
+
+**注意**: セーフリスト（削除してはいけないクラス）は `purgecss.config.js` で設定
+
+**設定ファイル**: `purgecss.config.js`
+
+### CSS品質管理のワークフロー
+
+1. **開発時**: `pnpm check-css` でクラスの整合性を確認
+2. **コミット前**: `pnpm validate` ですべてのチェックを実行
+3. **本番デプロイ前**: `pnpm purge-css` で未使用CSSを削除
+
+### トラブルシューティング
+
+**Q. `pnpm check-css` で未定義クラスが検出された**
+
+A. 以下のいずれかの対応が必要です：
+
+- CSSファイルにスタイル定義を追加
+- HTMLから不要なクラス名を削除
+- 動的に生成されるクラス名の場合、スクリプトを更新
+
+**Q. Stylelintでエラーが出る**
+
+A. 自動修正を試してください：
+
+```bash
+pnpm lint:css:fix
+```
+
+それでも解決しない場合は、`.stylelintrc.json` のルールを確認・調整してください。
+
+**Q. PurgeCSSで必要なCSSが削除された**
+
+A. `purgecss.config.js` のセーフリストに追加してください：
+
+```javascript
+safelist: {
+  standard: ['your-class-name'],
+  greedy: [/^your-prefix-/]
+}
 ```
 
 ## プロジェクト構造
