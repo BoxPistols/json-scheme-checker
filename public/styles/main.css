@@ -38,12 +38,18 @@
 /* 11. Content Upload Reviewer */
 @import './11-content-upload.css';
 
-/* 12. レスポンシブデザイン */
+/* 12. Skill Sheet Editor */
+@import './12-skill-sheet.css';
+
+/* 13. レスポンシブデザイン */
 @import './12a-responsive-advisor.css';
 @import './12b-responsive-chat.css';
 
 /* 13. ユーティリティ */
 @import './13-utilities.css';
+
+/* 14. エラーページ */
+@import './14-error-page.css';
 
 /* 既存の個別モジュール */
 @import './design-tokens.css';

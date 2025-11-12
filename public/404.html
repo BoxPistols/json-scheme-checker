@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - ページが見つかりません | Schema Viewer & AI Advisor</title>
+    <meta name="robots" content="noindex,follow">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/styles/main.css">
+    <script src="/scripts/theme-init.js"></script>
+</head>
+<body>
+    <div class="error-container">
+        <div class="logo-container">
+            <img src="/logo.svg" alt="Schema Viewer ロゴ" class="logo-404">
+            <p class="logo-text">Schema Viewer & AI Advisor</p>
+        </div>
+
+        <svg class="error-illustration" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="100" cy="100" r="80" stroke="var(--primary-color)" stroke-width="4" stroke-dasharray="8 8" opacity="0.3"/>
+            <path d="M70 80 Q100 110 130 80" stroke="var(--primary-color)" stroke-width="6" stroke-linecap="round" fill="none"/>
+            <circle cx="75" cy="75" r="8" fill="var(--primary-color)"/>
+            <circle cx="125" cy="75" r="8" fill="var(--primary-color)"/>
+            <path d="M60 130 L140 130" stroke="var(--primary-color)" stroke-width="6" stroke-linecap="round"/>
+        </svg>
+
+        <h1 class="error-code">404</h1>
+        <h2 class="error-title">ページが見つかりません</h2>
+        <p class="error-description">
+            お探しのページは存在しないか、移動した可能性があります。<br>
+            URLが正しいかご確認いただくか、ホームページからお探しのページをご確認ください。
+        </p>
+
+        <div class="error-actions">
+            <a href="/" class="btn-home">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+                ホームに戻る
+            </a>
+            <button id="back-button" type="button" class="btn-back">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <line x1="19" y1="12" x2="5" y2="12"/>
+                    <polyline points="12 19 5 12 12 5"/>
+                </svg>
+                前のページに戻る
+            </button>
+        </div>
+    </div>
+</body>
+</html>

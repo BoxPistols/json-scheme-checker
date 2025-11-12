@@ -326,6 +326,15 @@ app.post('/api/test-connection', async (req, res) => {
   }
 });
 
+// ベータ機能専用ルート
+app.get('/file', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'file.html'));
+});
+
+app.get('/skill', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'skill.html'));
+});
+
 // ネットワークIPアドレスを取得
 // デバッグモード用のルート
 app.get('/debug', (req, res) => {

@@ -1,0 +1,15 @@
+# Stylelintの除外ファイル
+
+# 依存関係
+node_modules/
+
+# ビルド出力
+public/styles/dist/
+dist/
+
+# 最小化されたファイル
+*.min.css
+
+# バックアップファイル
+*.bak
+*.tmp
