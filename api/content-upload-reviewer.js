@@ -220,6 +220,47 @@ ${skillContent}
 `;
 }
 
+/**
+ * Basic認証をチェック
+ * @param {Object} req - リクエストオブジェクト
+ * @returns {boolean} 認証が成功した場合はtrue
+ */
+function checkAuth(req) {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith('Basic ')) {
+    return false;
+  }
+
+  try {
+    const base64Credentials = authHeader.split(' ')[1];
+    const credentials = Buffer.from(base64Credentials, 'base64').toString('utf-8');
+    const [username, password] = credentials.split(':');
+
+    const validUsername = process.env.UPLOAD_AUTH_USERNAME;
+    const validPassword = process.env.UPLOAD_AUTH_PASSWORD;
+
+    // 環境変数が設定されていない場合は認証をスキップ（開発環境用）
+    if (!validUsername || !validPassword) {
+      console.warn('[ContentUploadReviewer API] 認証情報が環境変数に設定されていません');
+      return true;
+    }
+
+    const isValid = username === validUsername && password === validPassword;
+
+    if (!isValid) {
+      console.log(
+        `[ContentUploadReviewer API] 認証失敗: username=${username}, password=***`
+      );
+    }
+
+    return isValid;
+  } catch (error) {
+    console.error('[ContentUploadReviewer API] 認証エラー:', error.message);
+    return false;
+  }
+}
+
 module.exports = async (req, res) => {
   // CORSヘッダー
   const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['*'];
@@ -228,7 +269,7 @@ module.exports = async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', origin || '*');
   }
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
@@ -236,6 +277,11 @@ module.exports = async (req, res) => {
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  // 認証チェック
+  if (!checkAuth(req)) {
+    return res.status(401).json({ error: '認証が必要です' });
   }
 
   try {
