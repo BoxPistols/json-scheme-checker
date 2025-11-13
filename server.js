@@ -4,14 +4,53 @@ const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 const path = require('path');
+const compression = require('compression');
 const { decodeHtmlBuffer } = require('./lib/charset-decoder');
+const {
+  getProxyConfig,
+  getExtractConfig,
+  normalizeLocalhostUrl,
+} = require('./lib/axios-config');
 
 const app = express();
 const PORT = process.env.PORT || 3333;
+const NODE_ENV = process.env.NODE_ENV || 'development';
+const IS_PRODUCTION = NODE_ENV === 'production';
 
-// CORS設定 - すべてのオリジンを許可
-app.use(cors());
-app.use(express.json());
+// レスポンス圧縮を有効化（パフォーマンス向上）
+app.use(compression());
+
+// CORS設定
+const corsOptions = IS_PRODUCTION
+  ? {
+      origin: process.env.ALLOWED_ORIGINS
+        ? process.env.ALLOWED_ORIGINS.split(',')
+        : ['https://json-ld-view.vercel.app'],
+      credentials: true,
+    }
+  : {}; // 開発環境ではすべてのオリジンを許可
+
+app.use(cors(corsOptions));
+app.use(express.json({ limit: '10mb' })); // JSONペイロードサイズ制限を追加
+
+// APIハンドラーをキャッシュ（パフォーマンス向上）
+const advisorHandler = require('./api/advisor');
+const blogReviewerHandler = require('./api/blog-reviewer');
+const webAdvisorHandler = require('./api/web-advisor');
+const sessionHandler = require('./api/web-advisor-session');
+const chatHandler = require('./api/chat');
+const contentUploadReviewerHandler = require('./api/content-upload-reviewer');
+const testConnectionHandler = require('./api/test-connection');
+
+// ロギングヘルパー
+const logger = {
+  info: (...args) => {
+    if (!IS_PRODUCTION || process.env.ENABLE_LOGGING === 'true') {
+      console.log(...args);
+    }
+  },
+  error: (...args) => console.error(...args),
+};
 
 // 静的ファイルの提供
 app.use(express.static(path.join(__dirname, 'public')));
@@ -24,53 +63,42 @@ app.get('/proxy', async (req, res) => {
     return res.status(400).json({ error: 'URL parameter is required' });
   }
 
+  // URLバリデーション
   try {
-    console.log(`\n=== Request Details ===`);
-    console.log(`URL: ${url}`);
-    console.log(`Username: ${username || '(none)'}`);
-    console.log(`Password: ${password ? '***' : '(none)'}`);
+    new URL(url);
+  } catch (e) {
+    return res.status(400).json({ error: 'Invalid URL format' });
+  }
+
+  try {
+    logger.info(`\n=== Request Details ===`);
+    logger.info(`URL: ${url}`);
+    logger.info(`Username: ${username || '(none)'}`);
+    logger.info(`Password: ${password ? '***' : '(none)'}`);
 
     // localhostをIPv4に変換（IPv6の問題を回避）
-    let targetUrl = url;
-    if (url.includes('localhost:')) {
-      targetUrl = url.replace('localhost:', '127.0.0.1:');
-      console.log(`Converting localhost to IPv4: ${targetUrl}`);
+    const targetUrl = normalizeLocalhostUrl(url);
+    if (targetUrl !== url) {
+      logger.info(`Converting localhost to IPv4: ${targetUrl}`);
     }
 
-    const headers = {
-      'User-Agent':
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-      Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-      'Accept-Language': 'ja,en-US;q=0.9,en;q=0.8',
-    };
+    // 共通設定を使用
+    const config = getProxyConfig({ username, password });
 
-    // Basic認証が必要な場合
     if (username && password) {
-      const auth = Buffer.from(`${username}:${password}`).toString('base64');
-      headers['Authorization'] = `Basic ${auth}`;
-      console.log(`Auth header: Basic ${auth.substring(0, 10)}...`);
-      console.log('Using Basic Authentication for user:', username);
+      logger.info('Using Basic Authentication for user:', username);
     } else {
-      console.log('No authentication provided');
+      logger.info('No authentication provided');
     }
 
-    const response = await axios.get(targetUrl, {
-      headers,
-      timeout: 30000,
-      maxRedirects: 5,
-      responseType: 'arraybuffer', // バイナリデータとして取得
-      validateStatus: function (status) {
-        return status >= 200 && status < 500;
-      },
-      // IPv6とIPv4の両方を試す（デフォルト動作）
-    });
+    const response = await axios.get(targetUrl, config);
 
-    console.log(`Response status: ${response.status}`);
-    console.log(`Content-Type: ${response.headers['content-type']}`);
+    logger.info(`Response status: ${response.status}`);
+    logger.info(`Content-Type: ${response.headers['content-type']}`);
 
     // 401エラーの場合は明確なエラーを返す
     if (response.status === 401) {
-      console.log('Authentication failed - 401 Unauthorized');
+      logger.info('Authentication failed - 401 Unauthorized');
       return res.status(401).json({
         error: 'Authentication failed',
         message: 'Basic認証が失敗しました。ユーザー名とパスワードを確認してください。',
@@ -83,25 +111,32 @@ app.get('/proxy', async (req, res) => {
 
     // HTMLコンテンツを返す（UTF-8）
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    // キャッシュ制御ヘッダーを追加（パフォーマンス向上）
+    res.setHeader('Cache-Control', 'public, max-age=300'); // 5分間キャッシュ
     res.status(200).send(decodedHtml);
   } catch (error) {
-    console.error('Proxy error:', error.message);
+    logger.error('Proxy error:', error.message);
 
     if (error.code === 'ECONNREFUSED') {
       return res.status(503).json({
-        error: 'Connection refused. The target server may be down.',
+        error: 'Connection refused',
+        message: IS_PRODUCTION
+          ? 'The target server may be down.'
+          : `Connection refused: ${error.message}`,
       });
     }
 
-    if (error.code === 'ETIMEDOUT') {
+    if (error.code === 'ETIMEDOUT' || error.code === 'ECONNABORTED') {
       return res.status(504).json({
-        error: 'Request timeout. The target server took too long to respond.',
+        error: 'Request timeout',
+        message: 'The target server took too long to respond.',
       });
     }
 
+    // 本番環境では詳細なエラーメッセージを隠す
     res.status(500).json({
       error: 'Failed to fetch the requested URL',
-      message: error.message,
+      message: IS_PRODUCTION ? 'Internal server error' : error.message,
     });
   }
 });
@@ -114,16 +149,18 @@ app.post('/extract-jsonld', async (req, res) => {
     return res.status(400).json({ error: 'URL is required' });
   }
 
+  // URLバリデーション
   try {
-    console.log(`Extracting JSON-LD from: ${url}`);
+    new URL(url);
+  } catch (e) {
+    return res.status(400).json({ error: 'Invalid URL format' });
+  }
 
-    const response = await axios.get(url, {
-      headers: {
-        'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-      },
-      timeout: 30000,
-    });
+  try {
+    logger.info(`Extracting JSON-LD from: ${url}`);
+
+    const config = getExtractConfig();
+    const response = await axios.get(url, config);
 
     const html = response.data;
 
@@ -139,7 +176,7 @@ app.post('/extract-jsonld', async (req, res) => {
         const parsed = JSON.parse(jsonContent);
         matches.push(parsed);
       } catch (e) {
-        console.error('Failed to parse JSON-LD:', e);
+        logger.error('Failed to parse JSON-LD:', e.message);
       }
     }
 
@@ -149,10 +186,10 @@ app.post('/extract-jsonld', async (req, res) => {
       count: matches.length,
     });
   } catch (error) {
-    console.error('Error extracting JSON-LD:', error.message);
+    logger.error('Error extracting JSON-LD:', error.message);
     res.status(500).json({
       error: 'Failed to extract JSON-LD',
-      message: error.message,
+      message: IS_PRODUCTION ? 'Internal server error' : error.message,
     });
   }
 });
@@ -244,34 +281,44 @@ app.get('/', (req, res) => {
 // Advisor APIエンドポイント（ローカル開発用）
 app.post('/api/advisor', async (req, res) => {
   try {
-    const advisorHandler = require('./api/advisor');
     await advisorHandler(req, res);
   } catch (error) {
-    console.error('Advisor API error:', error);
-    res.status(500).json({ error: 'Internal server error', details: error.message });
+    logger.error('Advisor API error:', error);
+    if (!res.headersSent) {
+      res.status(500).json({
+        error: 'Internal server error',
+        details: IS_PRODUCTION ? undefined : error.message,
+      });
+    }
   }
 });
 
 // Blog Reviewer APIエンドポイント（ローカル開発用）
 app.post('/api/blog-reviewer', async (req, res) => {
   try {
-    const blogReviewerHandler = require('./api/blog-reviewer');
     await blogReviewerHandler(req, res);
   } catch (error) {
-    console.error('Blog Reviewer API error:', error);
-    res.status(500).json({ error: 'Internal server error', details: error.message });
+    logger.error('Blog Reviewer API error:', error);
+    if (!res.headersSent) {
+      res.status(500).json({
+        error: 'Internal server error',
+        details: IS_PRODUCTION ? undefined : error.message,
+      });
+    }
   }
 });
 
 // Web Advisor APIエンドポイント（ローカル開発用）
 app.get('/api/web-advisor', async (req, res) => {
   try {
-    const webAdvisorHandler = require('./api/web-advisor');
     await webAdvisorHandler(req, res);
   } catch (error) {
-    console.error('Web Advisor API error:', error);
+    logger.error('Web Advisor API error:', error);
     if (!res.headersSent) {
-      res.status(500).json({ error: 'Internal server error', details: error.message });
+      res.status(500).json({
+        error: 'Internal server error',
+        details: IS_PRODUCTION ? undefined : error.message,
+      });
     }
   }
 });
@@ -279,12 +326,14 @@ app.get('/api/web-advisor', async (req, res) => {
 // Web Advisor セッション発行（APIキー等を安全に受け取る）
 app.post('/api/web-advisor/session', express.json(), async (req, res) => {
   try {
-    const sessionHandler = require('./api/web-advisor-session');
     await sessionHandler(req, res);
   } catch (error) {
-    console.error('Web Advisor Session API error:', error);
+    logger.error('Web Advisor Session API error:', error);
     if (!res.headersSent) {
-      res.status(500).json({ error: 'Internal server error', details: error.message });
+      res.status(500).json({
+        error: 'Internal server error',
+        details: IS_PRODUCTION ? undefined : error.message,
+      });
     }
   }
 });
@@ -292,12 +341,14 @@ app.post('/api/web-advisor/session', express.json(), async (req, res) => {
 // Chat APIエンドポイント（ローカル開発用）
 app.post('/api/chat', async (req, res) => {
   try {
-    const chatHandler = require('./api/chat');
     await chatHandler(req, res);
   } catch (error) {
-    console.error('Chat API error:', error);
+    logger.error('Chat API error:', error);
     if (!res.headersSent) {
-      res.status(500).json({ error: 'Internal server error', details: error.message });
+      res.status(500).json({
+        error: 'Internal server error',
+        details: IS_PRODUCTION ? undefined : error.message,
+      });
     }
   }
 });
@@ -305,12 +356,14 @@ app.post('/api/chat', async (req, res) => {
 // Content Upload Reviewer APIエンドポイント（ローカル開発用）
 app.post('/api/content-upload-reviewer', async (req, res) => {
   try {
-    const contentUploadReviewerHandler = require('./api/content-upload-reviewer');
     await contentUploadReviewerHandler(req, res);
   } catch (error) {
-    console.error('Content Upload Reviewer API error:', error);
+    logger.error('Content Upload Reviewer API error:', error);
     if (!res.headersSent) {
-      res.status(500).json({ error: 'Internal server error', details: error.message });
+      res.status(500).json({
+        error: 'Internal server error',
+        details: IS_PRODUCTION ? undefined : error.message,
+      });
     }
   }
 });
@@ -318,11 +371,15 @@ app.post('/api/content-upload-reviewer', async (req, res) => {
 // MyAPI 接続テスト（ローカル開発用）
 app.post('/api/test-connection', async (req, res) => {
   try {
-    const handler = require('./api/test-connection');
-    await handler(req, res);
+    await testConnectionHandler(req, res);
   } catch (error) {
-    console.error('Test Connection API error:', error);
-    res.status(500).json({ ok: false, error: error.message });
+    logger.error('Test Connection API error:', error);
+    if (!res.headersSent) {
+      res.status(500).json({
+        ok: false,
+        error: IS_PRODUCTION ? 'Internal server error' : error.message,
+      });
+    }
   }
 });
 
