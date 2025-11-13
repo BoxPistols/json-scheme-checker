@@ -310,8 +310,6 @@ class AdvisorManager extends BaseAdvisorManager {
             this.isStreaming = false;
             this.recordUsage();
             this.updateProgress(100, '完了');
-            // プログレスバーとスケルトンを非表示
-            this.ensureAnalysisCleanup('advisor');
             // キャッシュに保存
             this.perspectiveCache[mode] = {
               content: fullText,
@@ -375,9 +373,6 @@ class AdvisorManager extends BaseAdvisorManager {
       }
       console.log('[Advisor] fetchAdvice completed');
     } catch (error) {
-      // 強制クリーンアップ
-      this.ensureAnalysisCleanup('advisor');
-
       // AbortError（キャンセル）なら詳細を異なるように処理
       if (error.name === 'AbortError') {
         console.log('[Advisor] 分析がキャンセルされました');

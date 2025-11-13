@@ -1002,15 +1002,6 @@ class BaseAdvisorManager {
    * @param {string} message - 表示するメッセージ（デフォルト: 分析が完了しました）
    */
   showAnalysisCompleteNotification(analyzerType, message = '分析が完了しました') {
-    const prefixMap = {
-      advisor: 'advisor',
-      'blog-reviewer': 'blogReviewer',
-      'web-advisor': 'webAdvisor',
-      'content-upload-reviewer': 'contentUploadReviewer',
-    };
-    const prefix = prefixMap[analyzerType] || analyzerType;
-    const contentId = `${prefix}AdviceContent` || `${prefix}ReviewContent` || `${prefix}Content`;
-
     const notification = document.createElement('div');
     notification.className = 'analysis-complete-notification';
     notification.innerHTML = `

@@ -462,7 +462,6 @@ class WebAdvisorManager extends BaseAdvisorManager {
             case 'done':
               console.log('[WebAdvisor-SSE-onmessage] Analysis complete');
               this.updateProgress(100, '完了');
-              this.ensureAnalysisCleanup('web-advisor');
               this.recordUsage();
               this.showAnalysisCompleteNotification('web-advisor');
               this.scrollToFooter();
@@ -470,7 +469,6 @@ class WebAdvisorManager extends BaseAdvisorManager {
               break;
             case 'error':
               console.log('[WebAdvisor-SSE-onmessage] Error:', data.message);
-              this.ensureAnalysisCleanup('web-advisor');
               md.innerHTML = `<div class="advisor-error"><p>${this.escapeHtml(data.message || '分析に失敗しました')}</p></div>`;
               es.close();
               break;
@@ -486,14 +484,12 @@ class WebAdvisorManager extends BaseAdvisorManager {
       es.onerror = () => {
         console.log('[WebAdvisor-SSE-onerror] Connection error, isStreaming:', this.isStreaming);
         if (this.isStreaming) {
-          this.ensureAnalysisCleanup('web-advisor');
           md.innerHTML = '<div class="advisor-error"><p>接続に失敗しました</p></div>';
         }
         es.close();
       };
     } catch (err) {
       console.log('[WebAdvisor-fetchAnalysis] Error:', err.message);
-      this.ensureAnalysisCleanup('web-advisor');
       const md = document.getElementById('webAdvisorMarkdown');
       if (md) {
         md.innerHTML = `<div class="advisor-error"><p>${this.escapeHtml(err.message || '分析開始に失敗しました')}</p></div>`;

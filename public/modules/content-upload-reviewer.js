@@ -728,7 +728,6 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
       }
       await this.processStreamingResponse(response);
     } catch (error) {
-      this.ensureAnalysisCleanup('content-upload-reviewer');
       if (error.name === 'AbortError') {
         this.showError('レビューがキャンセルされました');
       } else {

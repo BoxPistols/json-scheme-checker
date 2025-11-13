@@ -525,7 +525,6 @@ class BlogReviewerManager extends BaseAdvisorManager {
               if (data === '[DONE]') {
                 this.isStreaming = false;
                 this.updateProgress(100, '完了');
-                this.ensureAnalysisCleanup('blog-reviewer');
                 this.recordUsage();
                 this.showAnalysisCompleteNotification('blog-reviewer');
                 break;
@@ -585,8 +584,6 @@ class BlogReviewerManager extends BaseAdvisorManager {
         delete window.ANALYSIS_STATE.abortControllers['blog-reviewer'];
       }
     } catch (error) {
-      this.ensureAnalysisCleanup('blog-reviewer');
-
       if (error.name === 'AbortError') {
         console.log('[BlogReviewer] 分析がキャンセルされました');
         const md = document.getElementById('blogReviewerMarkdown');
