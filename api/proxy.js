@@ -11,8 +11,12 @@ module.exports = async (req, res) => {
     : ['*'];
 
   const origin = req.headers.origin;
-  if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin || '*');
+  if (allowedOrigins.includes('*')) {
+    // ワイルドカード許可
+    res.setHeader('Access-Control-Allow-Origin', '*');
+  } else if (origin && allowedOrigins.includes(origin)) {
+    // 許可されたオリジンのみ許可
+    res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Access-Control-Allow-Credentials', 'true');
   }
 
