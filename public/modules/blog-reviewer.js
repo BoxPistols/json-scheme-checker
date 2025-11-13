@@ -797,12 +797,10 @@ class BlogReviewerManager extends BaseAdvisorManager {
       csvLines.push(`タイトル,${this.escapeCsvValue(title)}`);
 
       // 記事情報（詳細）
-      csvLines.push('記事情報,');
-      const articleLines = articleText.split('\n').filter(line => line.trim().length > 0);
-      articleLines.forEach(line => csvLines.push(`,${this.escapeCsvValue(line)}`));
-      csvLines.push('AI分析結果,');
-      const reviewLines = reviewText.split('\n').filter(line => line.trim().length > 0);
-      reviewLines.forEach(line => csvLines.push(`,${this.escapeCsvValue(line)}`));
+      csvLines.push(`記事情報,${this.escapeCsvValue(articleText)}`);
+
+      // AI分析結果
+      csvLines.push(`AI分析結果,${this.escapeCsvValue(reviewText)}`);
       csvLines.push(','); // 空行
       csvLines.push(`使用モデル,${this.model}`);
       csvLines.push(`入力トークン数,${this.currentUsage.prompt_tokens}`);
@@ -876,8 +874,143 @@ class BlogReviewerManager extends BaseAdvisorManager {
       const articleContent = document.getElementById('blogReviewerArticleContent');
       const reviewContent = document.querySelector('.advisor-markdown');
       const articleText = articleContent ? articleContent.innerText : '情報なし';
-      const reviewText = reviewContent ? reviewContent.innerText : '情報なし';
-      const htmlContent = ` <!DOCTYPE html> <html lang="ja"> <head> <meta charset="UTF-8"> <title>ブログ記事レビュー結果エクスポート</title> <style> body { font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif; margin: 20px; line-height: 1.6; color: #1a1a1a; background-color: #ffffff; } h1 { text-align: center; border-bottom: 2px solid #5a7ca3; padding-bottom: 10px; color: #5a7ca3; } .section { margin: 30px 0; page-break-inside: avoid; } .section h2 { border-left: 4px solid #5a7ca3; padding-left: 10px; margin-top: 0; color: #2c3e50; } .content { background-color: #fafafa; padding: 15px; border: 1px solid #e0e0e0; border-radius: 4px; white-space: pre-wrap; word-wrap: break-word; font-size: 13px; color: #1a1a1a; } .footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: 11px; color: #666; } .footer .metadata { margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0; font-size: 10px; color: #888; } .footer .metadata p { margin: 4px 0; } @media print { body { margin: 0; } .section { page-break-inside: avoid; } } </style> </head> <body> <h1>ブログ記事レビュー結果エクスポート</h1>  <div class="section"> <h2>記事情報</h2> <div class="content">${this.escapeHtml(articleText)}</div> </div>  <div class="section"> <h2>AI分析結果</h2> <div class="content">${this.escapeHtml(reviewText)}</div> </div>  <div class="footer"> <p>このドキュメントは自動生成されました。</p> <p>ブラウザの「印刷」機能から「PDFに保存」を選択してダウンロードしてください。</p> <div class="metadata"> <p>エクスポート日時: ${timestamp}</p> <p>使用モデル: ${this.model} | トークン使用数: 入力 ${this.currentUsage.prompt_tokens}、出力 ${this.currentUsage.completion_tokens}</p> </div> </div>  <script> </script> </body> </html> `;
+      // マークダウンのHTML構造を保持
+      const reviewHtml = reviewContent ? reviewContent.innerHTML : '<p>情報なし</p>';
+      const htmlContent = `
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ブログ記事レビュー結果エクスポート</title>
+  <style>
+    body {
+      font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif;
+      margin: 20px;
+      line-height: 1.6;
+      color: #1a1a1a;
+      background-color: #ffffff;
+    }
+    h1 {
+      text-align: center;
+      border-bottom: 2px solid #5a7ca3;
+      padding-bottom: 10px;
+      color: #5a7ca3;
+    }
+    .section {
+      margin: 30px 0;
+      page-break-inside: avoid;
+    }
+    .section h2 {
+      border-left: 4px solid #5a7ca3;
+      padding-left: 10px;
+      margin-top: 0;
+      color: #2c3e50;
+    }
+    .content {
+      background-color: #fafafa;
+      padding: 15px;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-size: 13px;
+      color: #1a1a1a;
+      line-height: 1.8;
+    }
+    .content h1, .content h2, .content h3, .content h4, .content h5, .content h6 {
+      margin-top: 1.5em;
+      margin-bottom: 0.5em;
+      color: #2c3e50;
+      font-weight: bold;
+    }
+    .content h1 { font-size: 1.5em; }
+    .content h2 { font-size: 1.3em; }
+    .content h3 { font-size: 1.15em; }
+    .content h4 { font-size: 1.05em; }
+    .content p {
+      margin: 0.8em 0;
+    }
+    .content ul, .content ol {
+      margin: 0.8em 0;
+      padding-left: 2em;
+    }
+    .content li {
+      margin: 0.3em 0;
+    }
+    .content strong {
+      font-weight: bold;
+      color: #1a1a1a;
+    }
+    .content code {
+      background: #f0f0f0;
+      padding: 0.2em 0.4em;
+      border-radius: 3px;
+      font-family: monospace;
+      font-size: 0.9em;
+    }
+    .content pre {
+      background: #f0f0f0;
+      padding: 1em;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    .content blockquote {
+      border-left: 3px solid #5a7ca3;
+      padding-left: 1em;
+      margin: 1em 0;
+      color: #666;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #e0e0e0;
+      font-size: 11px;
+      color: #666;
+    }
+    .footer .metadata {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #e0e0e0;
+      font-size: 10px;
+      color: #888;
+    }
+    .footer .metadata p {
+      margin: 4px 0;
+    }
+    @media print {
+      body { margin: 0; }
+      .section { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <h1>ブログ記事レビュー結果エクスポート</h1>
+
+  <div class="section">
+    <h2>記事情報</h2>
+    <div class="content" style="white-space: pre-wrap;">${this.escapeHtml(articleText)}</div>
+  </div>
+
+  <div class="section">
+    <h2>AI分析結果</h2>
+    <div class="content">${reviewHtml}</div>
+  </div>
+
+  <div class="footer">
+    <p>このドキュメントは自動生成されました。</p>
+    <p>ブラウザの「印刷」機能から「PDFに保存」を選択してダウンロードしてください。</p>
+    <div class="metadata">
+      <p>エクスポート日時: ${timestamp}</p>
+      <p>使用モデル: ${this.model} | トークン使用数: 入力 ${this.currentUsage.prompt_tokens}、出力 ${this.currentUsage.completion_tokens}</p>
+    </div>
+  </div>
+
+  <script>
+  </script>
+</body>
+</html>
+      `;
       const previewHtml = htmlContent;
       const dateStr = new Date().toISOString().split('T')[0];
       const filename = `blog_review_${dateStr}.html`;

@@ -639,13 +639,10 @@ class WebAdvisorManager extends BaseAdvisorManager {
       csvLines.push(`タイトル,${this.escapeCsvValue(title)}`);
 
       // ページ情報（詳細）
-      csvLines.push('ページ情報,');
-      const metadataLines = metadataText.split('\n').filter(line => line.trim().length > 0);
-      metadataLines.forEach(line => csvLines.push(`,${this.escapeCsvValue(line)}`));
+      csvLines.push(`ページ情報,${this.escapeCsvValue(metadataText)}`);
 
-      csvLines.push('AI分析結果,');
-      const analysisLines = analysisText.split('\n').filter(line => line.trim().length > 0);
-      analysisLines.forEach(line => csvLines.push(`,${this.escapeCsvValue(line)}`));
+      // AI分析結果
+      csvLines.push(`AI分析結果,${this.escapeCsvValue(analysisText)}`);
 
       csvLines.push(','); // 空行
       csvLines.push(`使用モデル,${this.currentModel}`);
@@ -746,7 +743,8 @@ class WebAdvisorManager extends BaseAdvisorManager {
       const analysisContent = document.querySelector('.advisor-markdown');
 
       const metadataText = metadataContent ? metadataContent.innerText : '情報なし';
-      const analysisText = analysisContent ? analysisContent.innerText : '情報なし';
+      // マークダウンのHTML構造を保持
+      const analysisHtml = analysisContent ? analysisContent.innerHTML : '<p>情報なし</p>';
 
       const htmlContent = `
 <!DOCTYPE html>
@@ -787,6 +785,50 @@ class WebAdvisorManager extends BaseAdvisorManager {
       word-wrap: break-word;
       font-size: 13px;
       color: #1a1a1a;
+      line-height: 1.8;
+    }
+    .content h1, .content h2, .content h3, .content h4, .content h5, .content h6 {
+      margin-top: 1.5em;
+      margin-bottom: 0.5em;
+      color: #2c3e50;
+      font-weight: bold;
+    }
+    .content h1 { font-size: 1.5em; }
+    .content h2 { font-size: 1.3em; }
+    .content h3 { font-size: 1.15em; }
+    .content h4 { font-size: 1.05em; }
+    .content p {
+      margin: 0.8em 0;
+    }
+    .content ul, .content ol {
+      margin: 0.8em 0;
+      padding-left: 2em;
+    }
+    .content li {
+      margin: 0.3em 0;
+    }
+    .content strong {
+      font-weight: bold;
+      color: #1a1a1a;
+    }
+    .content code {
+      background: #f0f0f0;
+      padding: 0.2em 0.4em;
+      border-radius: 3px;
+      font-family: monospace;
+      font-size: 0.9em;
+    }
+    .content pre {
+      background: #f0f0f0;
+      padding: 1em;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    .content blockquote {
+      border-left: 3px solid #5a7ca3;
+      padding-left: 1em;
+      margin: 1em 0;
+      color: #666;
     }
     .footer {
       text-align: center;
@@ -817,12 +859,12 @@ class WebAdvisorManager extends BaseAdvisorManager {
 
   <div class="section">
     <h2>対象ページ情報</h2>
-    <div class="content">${this.escapeHtml(metadataText)}</div>
+    <div class="content" style="white-space: pre-wrap;">${this.escapeHtml(metadataText)}</div>
   </div>
 
   <div class="section">
     <h2>AI分析結果</h2>
-    <div class="content">${this.escapeHtml(analysisText)}</div>
+    <div class="content">${analysisHtml}</div>
   </div>
 
   <div class="footer">

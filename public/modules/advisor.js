@@ -602,14 +602,10 @@ class AdvisorManager extends BaseAdvisorManager {
       csvLines.push(`タイトル,${this.escapeCsvValue(title)}`);
 
       // 求人情報（詳細）
-      csvLines.push('求人情報,');
-      const jobLines = jobText.split('\n').filter(line => line.trim().length > 0);
-      jobLines.forEach(line => csvLines.push(`,${this.escapeCsvValue(line)}`));
+      csvLines.push(`求人情報,${this.escapeCsvValue(jobText)}`);
 
       // AI分析結果
-      csvLines.push('AI分析結果,');
-      const adviceLines = adviceText.split('\n').filter(line => line.trim().length > 0);
-      adviceLines.forEach(line => csvLines.push(`,${this.escapeCsvValue(line)}`));
+      csvLines.push(`AI分析結果,${this.escapeCsvValue(adviceText)}`);
 
       // メタデータ（最下部）
       csvLines.push(','); // 空行
@@ -654,10 +650,10 @@ class AdvisorManager extends BaseAdvisorManager {
     for (let i = 1; i < csvLines.length; i++) {
       const cells = this.parseCsvLine(csvLines[i]);
       html += '<tr>';
-      cells.forEach((cell, index) => {
-        // 空のセル（インデント用）は特別なスタイルを適用
-        const className = cell.trim() === '' && index === 0 ? 'csv-cell-indent' : '';
-        html += `<td class="${className}">${this.escapeHtml(cell)}</td>`;
+      cells.forEach(cell => {
+        // 長いテキストは省略表示
+        const displayText = cell.length > 200 ? cell.substring(0, 200) + '...' : cell;
+        html += `<td>${this.escapeHtml(displayText).replace(/\n/g, '<br>')}</td>`;
       });
       html += '</tr>';
     }
@@ -724,7 +720,8 @@ class AdvisorManager extends BaseAdvisorManager {
       const adviceContent = document.querySelector('.advisor-markdown');
 
       const jobText = jobContent ? jobContent.innerText : '情報なし';
-      const adviceText = adviceContent ? adviceContent.innerText : '情報なし';
+      // マークダウンのHTML構造を保持
+      const adviceHtml = adviceContent ? adviceContent.innerHTML : '<p>情報なし</p>';
 
       // HTML形式のPDF（ブラウザで印刷→PDFで保存）
       const htmlContent = `
@@ -766,6 +763,50 @@ class AdvisorManager extends BaseAdvisorManager {
       word-wrap: break-word;
       font-size: 13px;
       color: #1a1a1a;
+      line-height: 1.8;
+    }
+    .content h1, .content h2, .content h3, .content h4, .content h5, .content h6 {
+      margin-top: 1.5em;
+      margin-bottom: 0.5em;
+      color: #2c3e50;
+      font-weight: bold;
+    }
+    .content h1 { font-size: 1.5em; }
+    .content h2 { font-size: 1.3em; }
+    .content h3 { font-size: 1.15em; }
+    .content h4 { font-size: 1.05em; }
+    .content p {
+      margin: 0.8em 0;
+    }
+    .content ul, .content ol {
+      margin: 0.8em 0;
+      padding-left: 2em;
+    }
+    .content li {
+      margin: 0.3em 0;
+    }
+    .content strong {
+      font-weight: bold;
+      color: #1a1a1a;
+    }
+    .content code {
+      background: #f0f0f0;
+      padding: 0.2em 0.4em;
+      border-radius: 3px;
+      font-family: monospace;
+      font-size: 0.9em;
+    }
+    .content pre {
+      background: #f0f0f0;
+      padding: 1em;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    .content blockquote {
+      border-left: 3px solid #5a7ca3;
+      padding-left: 1em;
+      margin: 1em 0;
+      color: #666;
     }
     .footer {
       text-align: center;
@@ -796,12 +837,12 @@ class AdvisorManager extends BaseAdvisorManager {
 
   <div class="section">
     <h2>求人情報</h2>
-    <div class="content">${this.escapeHtml(jobText)}</div>
+    <div class="content" style="white-space: pre-wrap;">${this.escapeHtml(jobText)}</div>
   </div>
 
   <div class="section">
     <h2>AI分析結果</h2>
-    <div class="content">${this.escapeHtml(adviceText)}</div>
+    <div class="content">${adviceHtml}</div>
   </div>
 
   <div class="footer">
