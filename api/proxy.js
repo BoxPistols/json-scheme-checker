@@ -82,8 +82,11 @@ module.exports = async (req, res) => {
 
     // HTMLコンテンツを返す（UTF-8）
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    // キャッシュ制御ヘッダーを追加
-    res.setHeader('Cache-Control', 'public, max-age=300'); // 5分間キャッシュ
+    // 認証情報がある場合はプライベートキャッシュ、ない場合はパブリックキャッシュ
+    const cacheControl = (username && password)
+      ? 'private, max-age=300'
+      : 'public, max-age=300';
+    res.setHeader('Cache-Control', cacheControl); // 5分間キャッシュ
     res.status(200).send(decodedHtml);
   } catch (error) {
     logger.error('Proxy error:', error.message);
