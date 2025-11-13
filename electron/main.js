@@ -62,7 +62,11 @@ function createMenu() {
               { role: 'delete', label: '削除' },
               { role: 'selectAll', label: 'すべて選択' },
             ]
-          : [{ role: 'delete', label: '削除' }, { type: 'separator' }, { role: 'selectAll', label: 'すべて選択' }]),
+          : [
+              { role: 'delete', label: '削除' },
+              { type: 'separator' },
+              { role: 'selectAll', label: 'すべて選択' },
+            ]),
       ],
     },
 
@@ -123,7 +127,12 @@ function createMenu() {
         { role: 'minimize', label: '最小化' },
         { role: 'zoom', label: 'ズーム' },
         ...(isMac
-          ? [{ type: 'separator' }, { role: 'front', label: 'すべてを前面に' }, { type: 'separator' }, { role: 'window', label: 'ウィンドウ' }]
+          ? [
+              { type: 'separator' },
+              { role: 'front', label: 'すべてを前面に' },
+              { type: 'separator' },
+              { role: 'window', label: 'ウィンドウ' },
+            ]
           : [{ role: 'close', label: '閉じる' }]),
       ],
     },
@@ -221,7 +230,7 @@ function startExpressServer() {
         resolve();
       });
 
-      server.on('error', (error) => {
+      server.on('error', error => {
         if (error.code === 'EADDRINUSE') {
           console.error(`ポート ${PORT} は既に使用されています。`);
           app.quit();
@@ -270,6 +279,6 @@ app.on('before-quit', () => {
   }
 });
 
-process.on('uncaughtException', (error) => {
+process.on('uncaughtException', error => {
   console.error('予期しないエラー:', error);
 });
