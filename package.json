@@ -64,7 +64,6 @@
       "lib/**/*",
       "public/**/*",
       "api/**/*",
-      "node_modules/**/*",
       "package.json"
     ],
     "directories": {

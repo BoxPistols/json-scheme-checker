@@ -1,4 +1,4 @@
-const { app, BrowserWindow, shell, Menu } = require('electron');
+const { app, BrowserWindow, shell, Menu, dialog } = require('electron');
 const path = require('path');
 
 let mainWindow = null;
@@ -156,7 +156,6 @@ function createMenu() {
 
             const message = `JSON-LD Schema Viewer v${version}\n\nElectron: ${electronVersion}\nChrome: ${chromeVersion}\nNode.js: ${nodeVersion}`;
 
-            const { dialog } = require('electron');
             dialog.showMessageBox(mainWindow, {
               type: 'info',
               title: 'バージョン情報',
@@ -205,39 +204,43 @@ function createWindow() {
     }
   });
 
-  // Expressサーバーが起動するまで待機
-  setTimeout(() => {
-    mainWindow.loadURL(`http://localhost:${PORT}`);
-  }, 1000);
+  // サーバーは既に起動済みなので、すぐにロード
+  mainWindow.loadURL(`http://localhost:${PORT}`);
 
   // 開発者ツール（必要に応じてコメントアウト）
   // mainWindow.webContents.openDevTools();
 }
 
 function startExpressServer() {
-  try {
-    expressApp = require('../server.js');
+  return new Promise((resolve, reject) => {
+    try {
+      expressApp = require('../server.js');
 
-    server = expressApp.listen(PORT, '127.0.0.1', () => {
-      console.log(`JSON-LD Proxy Server started on http://localhost:${PORT}`);
-    });
+      server = expressApp.listen(PORT, '127.0.0.1', () => {
+        console.log(`JSON-LD Proxy Server started on http://localhost:${PORT}`);
+        resolve();
+      });
 
-    server.on('error', (error) => {
-      if (error.code === 'EADDRINUSE') {
-        console.error(`ポート ${PORT} は既に使用されています。`);
-        app.quit();
-      } else {
-        console.error('サーバーエラー:', error);
-      }
-    });
-  } catch (error) {
-    console.error('Expressサーバーの起動に失敗しました:', error);
-    app.quit();
-  }
+      server.on('error', (error) => {
+        if (error.code === 'EADDRINUSE') {
+          console.error(`ポート ${PORT} は既に使用されています。`);
+          app.quit();
+          reject(error);
+        } else {
+          console.error('サーバーエラー:', error);
+          reject(error);
+        }
+      });
+    } catch (error) {
+      console.error('Expressサーバーの起動に失敗しました:', error);
+      app.quit();
+      reject(error);
+    }
+  });
 }
 
-app.whenReady().then(() => {
-  startExpressServer();
+app.whenReady().then(async () => {
+  await startExpressServer();
   createMenu();
   createWindow();
 
