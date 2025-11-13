@@ -1,19 +1,9 @@
 const axios = require('axios');
 const { decodeHtmlBuffer } = require('../lib/charset-decoder');
 const { getProxyConfig, normalizeLocalhostUrl } = require('../lib/axios-config');
+const logger = require('../lib/logger');
 
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
-
-// ロギングヘルパー
-const logger = {
-  info: (...args) => {
-    if (!IS_PRODUCTION || process.env.ENABLE_LOGGING === 'true') {
-      console.log(...args);
-    }
-  },
-  error: (...args) => console.error(...args),
-};
-
 module.exports = async (req, res) => {
   // CORS設定
   const allowedOrigins = IS_PRODUCTION
