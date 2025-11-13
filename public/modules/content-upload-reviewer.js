@@ -728,6 +728,7 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
       }
       await this.processStreamingResponse(response);
     } catch (error) {
+      this.ensureAnalysisCleanup('content-upload-reviewer');
       if (error.name === 'AbortError') {
         this.showError('レビューがキャンセルされました');
       } else {
@@ -735,9 +736,7 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
       }
       this.closeReviewView();
     } finally {
-      setAnalysisInactive('content-upload-reviewer');
-      this.isStreaming = false;
-      delete window.ANALYSIS_STATE.abortControllers['content-upload-reviewer'];
+      this.ensureAnalysisCleanup('content-upload-reviewer');
     }
   }
 
@@ -805,6 +804,8 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
     if (analysisContent && analysisText) {
       analysisContent.innerHTML = this.renderMarkdownCommon(analysisText);
     }
+
+    this.showAnalysisCompleteNotification('content-upload-reviewer');
   }
 
   parseReviewResponse(fullText) {

@@ -997,6 +997,91 @@ class BaseAdvisorManager {
   }
 
   /**
+   * 分析完了の通知を表示する共通メソッド
+   * @param {string} analyzerType - アナライザータイプ
+   * @param {string} message - 表示するメッセージ（デフォルト: 分析が完了しました）
+   */
+  showAnalysisCompleteNotification(analyzerType, message = '分析が完了しました') {
+    const prefixMap = {
+      advisor: 'advisor',
+      'blog-reviewer': 'blogReviewer',
+      'web-advisor': 'webAdvisor',
+      'content-upload-reviewer': 'contentUploadReviewer',
+    };
+    const prefix = prefixMap[analyzerType] || analyzerType;
+    const contentId = `${prefix}AdviceContent` || `${prefix}ReviewContent` || `${prefix}Content`;
+
+    const notification = document.createElement('div');
+    notification.className = 'analysis-complete-notification';
+    notification.innerHTML = `
+      <div class="notification-content">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9 12l2 2 4-4"/>
+        </svg>
+        <span>${message}</span>
+      </div>
+    `;
+
+    notification.style.cssText = `
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 16px 24px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 10000;
+      animation: slideInUp 0.3s ease-out;
+      font-size: 14px;
+      font-weight: 500;
+    `;
+
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+      notification.style.animation = 'fadeOut 0.3s ease-out';
+      setTimeout(() => notification.remove(), 300);
+    }, 3000);
+  }
+
+  /**
+   * 分析処理の強制クリーンアップ（プログレスバー、スケルトン、フラグをリセット）
+   * @param {string} analyzerType - アナライザータイプ
+   */
+  ensureAnalysisCleanup(analyzerType) {
+    const prefixMap = {
+      advisor: 'advisor',
+      'blog-reviewer': 'blogReviewer',
+      'web-advisor': 'webAdvisor',
+      'content-upload-reviewer': 'contentUploadReviewer',
+    };
+    const prefix = prefixMap[analyzerType] || analyzerType;
+
+    const progressContainer = document.getElementById(`${prefix}ProgressContainer`);
+    const skeletonLoader = document.getElementById(`${prefix}SkeletonLoader`);
+
+    if (progressContainer) {
+      progressContainer.style.display = 'none';
+    }
+
+    if (skeletonLoader) {
+      skeletonLoader.style.display = 'none';
+    }
+
+    this.isStreaming = false;
+    setAnalysisInactive(analyzerType);
+
+    const controller = window.ANALYSIS_STATE.abortControllers[analyzerType];
+    if (controller) {
+      delete window.ANALYSIS_STATE.abortControllers[analyzerType];
+    }
+
+    console.log(`[${analyzerType}] 強制クリーンアップ完了`);
+  }
+
+  /**
    * フローティングチャットボタンを表示
    * @param {string} containerId - ボタンを配置するコンテナID
    * @param {object} config - チャット設定
