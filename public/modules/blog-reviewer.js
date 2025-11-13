@@ -463,10 +463,8 @@ class BlogReviewerManager extends BaseAdvisorManager {
         this.isStreaming = false;
         abortController.abort();
         this.updateProgress(100, '完了');
-        const progressContainer = document.getElementById('blogReviewerProgressContainer');
-        if (progressContainer) {
-          progressContainer.style.display = 'none';
-        }
+        this.ensureAnalysisCleanup('blog-reviewer');
+        this.showAnalysisCompleteNotification('blog-reviewer', '分析がタイムアウトしました（一部取得）');
         alert('分析がタイムアウトしました。取得できた範囲で結果を表示しています。');
       }
     }, 180000); // 180秒
@@ -527,11 +525,8 @@ class BlogReviewerManager extends BaseAdvisorManager {
               if (data === '[DONE]') {
                 this.isStreaming = false;
                 this.updateProgress(100, '完了');
-                const progressContainer = document.getElementById('blogReviewerProgressContainer');
-                if (progressContainer) {
-                  progressContainer.style.display = 'none';
-                }
                 this.recordUsage();
+                this.showAnalysisCompleteNotification('blog-reviewer');
                 break;
               }
               try {
@@ -589,14 +584,6 @@ class BlogReviewerManager extends BaseAdvisorManager {
         delete window.ANALYSIS_STATE.abortControllers['blog-reviewer'];
       }
     } catch (error) {
-      const progressContainer = document.getElementById('blogReviewerProgressContainer');
-      const skeletonLoader = document.getElementById('blogReviewerSkeletonLoader');
-      if (progressContainer) {
-        progressContainer.style.display = 'none';
-      }
-      if (skeletonLoader) {
-        skeletonLoader.style.display = 'none';
-      }
       if (error.name === 'AbortError') {
         console.log('[BlogReviewer] 分析がキャンセルされました');
         const md = document.getElementById('blogReviewerMarkdown');
@@ -616,6 +603,7 @@ class BlogReviewerManager extends BaseAdvisorManager {
       }
     } finally {
       clearTimeout(timeoutId);
+      this.ensureAnalysisCleanup('blog-reviewer');
     }
   }
 

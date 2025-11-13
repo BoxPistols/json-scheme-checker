@@ -255,10 +255,8 @@ class AdvisorManager extends BaseAdvisorManager {
         this.isStreaming = false;
         abortController.abort();
         this.updateProgress(100, '完了');
-        const progressContainer = document.getElementById('advisorProgressContainer');
-        if (progressContainer) {
-          progressContainer.style.display = 'none';
-        }
+        this.ensureAnalysisCleanup('advisor');
+        this.showAnalysisCompleteNotification('advisor', '分析がタイムアウトしました（一部取得）');
         alert('分析がタイムアウトしました。取得できた範囲で結果を表示しています。');
       }
     }, 180000); // 180秒
@@ -312,11 +310,6 @@ class AdvisorManager extends BaseAdvisorManager {
             this.isStreaming = false;
             this.recordUsage();
             this.updateProgress(100, '完了');
-            // プログレスバーとスケルトンを非表示
-            const progressContainer = document.getElementById('advisorProgressContainer');
-            if (progressContainer) {
-              progressContainer.style.display = 'none';
-            }
             // キャッシュに保存
             this.perspectiveCache[mode] = {
               content: fullText,
@@ -327,6 +320,8 @@ class AdvisorManager extends BaseAdvisorManager {
             this.showExportButtons();
             // チャットボックスを表示
             this.initChatBox();
+            // 完了通知を表示
+            this.showAnalysisCompleteNotification('advisor');
             // フッターまでスムーズスクロール
             this.scrollToFooter();
             break;
@@ -378,16 +373,6 @@ class AdvisorManager extends BaseAdvisorManager {
       }
       console.log('[Advisor] fetchAdvice completed');
     } catch (error) {
-      // プログレスバーとスケルトン非表示
-      const progressContainer = document.getElementById('advisorProgressContainer');
-      const skeletonLoader = document.getElementById('advisorSkeletonLoader');
-      if (progressContainer) {
-        progressContainer.style.display = 'none';
-      }
-      if (skeletonLoader) {
-        skeletonLoader.style.display = 'none';
-      }
-
       // AbortError（キャンセル）なら詳細を異なるように処理
       if (error.name === 'AbortError') {
         console.log('[Advisor] 分析がキャンセルされました');
@@ -406,9 +391,7 @@ class AdvisorManager extends BaseAdvisorManager {
       // タイムアウトタイマーをクリア
       clearTimeout(timeoutId);
       // 必ずクリーンアップ
-      this.isStreaming = false;
-      setAnalysisInactive('advisor');
-      delete window.ANALYSIS_STATE.abortControllers['advisor'];
+      this.ensureAnalysisCleanup('advisor');
     }
   }
 

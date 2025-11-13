@@ -348,10 +348,8 @@ class WebAdvisorManager extends BaseAdvisorManager {
           this.eventSource = null;
         }
         this.updateProgress(100, '完了');
-        const progressContainer = document.getElementById('webAdvisorProgressContainer');
-        if (progressContainer) {
-          progressContainer.style.display = 'none';
-        }
+        this.ensureAnalysisCleanup('web-advisor');
+        this.showAnalysisCompleteNotification('web-advisor', '分析がタイムアウトしました（一部取得）');
         alert('分析がタイムアウトしました。取得できた範囲で結果を表示しています。');
       }
     }, 180000); // 180秒
@@ -464,22 +462,13 @@ class WebAdvisorManager extends BaseAdvisorManager {
             case 'done':
               console.log('[WebAdvisor-SSE-onmessage] Analysis complete');
               this.updateProgress(100, '完了');
-              const doneProgressContainer = document.getElementById('webAdvisorProgressContainer');
-              if (doneProgressContainer) doneProgressContainer.style.display = 'none';
-              this.isStreaming = false;
               this.recordUsage();
+              this.showAnalysisCompleteNotification('web-advisor');
               this.scrollToFooter();
-              setAnalysisInactive('web-advisor'); // グローバル状態をクリア
               es.close();
               break;
             case 'error':
               console.log('[WebAdvisor-SSE-onmessage] Error:', data.message);
-              const errProgressContainer = document.getElementById('webAdvisorProgressContainer');
-              const errSkeletonLoader = document.getElementById('webAdvisorSkeletonLoader');
-              if (errProgressContainer) errProgressContainer.style.display = 'none';
-              if (errSkeletonLoader) errSkeletonLoader.style.display = 'none';
-              this.isStreaming = false;
-              setAnalysisInactive('web-advisor'); // グローバル状態をクリア
               md.innerHTML = `<div class="advisor-error"><p>${this.escapeHtml(data.message || '分析に失敗しました')}</p></div>`;
               es.close();
               break;
@@ -495,30 +484,19 @@ class WebAdvisorManager extends BaseAdvisorManager {
       es.onerror = () => {
         console.log('[WebAdvisor-SSE-onerror] Connection error, isStreaming:', this.isStreaming);
         if (this.isStreaming) {
-          const errorProgressContainer = document.getElementById('webAdvisorProgressContainer');
-          const errorSkeletonLoader = document.getElementById('webAdvisorSkeletonLoader');
-          if (errorProgressContainer) errorProgressContainer.style.display = 'none';
-          if (errorSkeletonLoader) errorSkeletonLoader.style.display = 'none';
-          this.isStreaming = false;
-          setAnalysisInactive('web-advisor'); // グローバル状態をクリア
           md.innerHTML = '<div class="advisor-error"><p>接続に失敗しました</p></div>';
         }
         es.close();
       };
     } catch (err) {
       console.log('[WebAdvisor-fetchAnalysis] Error:', err.message);
-      const catchProgressContainer = document.getElementById('webAdvisorProgressContainer');
-      const catchSkeletonLoader = document.getElementById('webAdvisorSkeletonLoader');
-      if (catchProgressContainer) catchProgressContainer.style.display = 'none';
-      if (catchSkeletonLoader) catchSkeletonLoader.style.display = 'none';
-      this.isStreaming = false;
-      setAnalysisInactive('web-advisor'); // グローバル状態をクリア
       const md = document.getElementById('webAdvisorMarkdown');
       if (md) {
         md.innerHTML = `<div class="advisor-error"><p>${this.escapeHtml(err.message || '分析開始に失敗しました')}</p></div>`;
       }
     } finally {
       clearTimeout(timeoutId);
+      this.ensureAnalysisCleanup('web-advisor');
     }
   }
 
