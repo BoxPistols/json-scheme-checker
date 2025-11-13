@@ -23,7 +23,7 @@ app.use(compression());
 // CORS設定
 const corsOptions = IS_PRODUCTION
   ? {
-      origin: process.env.ALLOWED_ORIGINS
+      origin: process.env.ALLOWED_ORIGINS && process.env.ALLOWED_ORIGINS.trim()
         ? process.env.ALLOWED_ORIGINS.split(',')
         : ['https://json-ld-view.vercel.app'],
       credentials: true,
