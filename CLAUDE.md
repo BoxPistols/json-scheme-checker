@@ -37,11 +37,7 @@ pnpm dev                 # 開発サーバー起動（nodemon自動再起動）
 pnpm start               # 本番モード起動
 pnpm lint                # ESLint実行
 pnpm lint:fix            # ESLint自動修正
-pnpm lint:css            # Stylelintでcss チェック
-pnpm lint:css:fix        # Stylelintで自動修正
 pnpm format              # Prettier整形
-pnpm check-css           # HTML/CSSクラスの整合性チェック
-pnpm validate            # すべてのコード品質チェック（lint + css）
 ```
 
 ### テスト・確認
@@ -76,6 +72,17 @@ vercel              # プレビューデプロイ
 vercel --prod       # 本番デプロイ
 vercel logs         # ログ確認
 ```
+
+### デスクトップアプリ（Electron）
+
+```bash
+pnpm electron:dev          # Electronアプリを開発モードで起動
+pnpm electron:build        # Mac + Windows向けビルド
+pnpm electron:build:mac    # Mac専用ビルド
+pnpm electron:build:win    # Windows専用ビルド
+```
+
+詳細は[ELECTRON.md](./ELECTRON.md)を参照してください。
 
 ### CSS品質管理
 
@@ -189,6 +196,9 @@ safelist: {
 ```plaintext
 json-ld-viewer/
 ├── server.js                 # ローカル開発用Expressサーバー
+├── electron/                 # Electronデスクトップアプリ
+│   ├── main.js              # Electronメインプロセス
+│   └── preload.js           # プリロードスクリプト
 ├── public/
 │   ├── index.html           # Webアプリケーション（フロントエンド）
 │   ├── styles.css           # スタイルシート
@@ -209,6 +219,7 @@ json-ld-viewer/
 │   └── content-upload-reviewer.js # Content Upload Reviewer API
 ├── package.json             # 依存関係・スクリプト
 ├── vercel.json              # Vercelデプロイ設定
+├── ELECTRON.md              # デスクトップアプリドキュメント
 ├── .eslintrc.json           # ESLint設定
 ├── .prettierrc.json         # Prettier設定
 ├── .cursorrules             # Cursor AI設定
@@ -306,39 +317,6 @@ json-ld-viewer/
 3. スキルシートをテキストまたはファイルでアップロード
 4. レビュー開始
 5. マッチング度スコア、ギャップ分析、キャリアアップ提案を確認
-
-#### 5. My Skill Sheet（新機能）
-
-エンジニア向けのスキルシート（職務経歴書）を作成・管理・レビューできる機能です。
-
-- **対象**: エンジニア、技術職の求職者
-- **機能**:
-  - **構造化フォーム入力**: タブ形式で整理された入力フォーム
-  - **ローカルストレージ保存**: ブラウザに自動保存、複数バージョンの履歴管理
-  - **エクスポート機能**: Markdown、JSON、テキスト形式でダウンロード
-  - **AIレビュー連携**: 作成したスキルシートを直接Content Upload Reviewerに送信してレビュー可能
-  - **求人マッチング**: 求人票とのマッチング分析が可能
-- **入力項目**:
-  - 基本情報（氏名、生年月日、居住地、連絡先）
-  - プロフェッショナル情報（職種、経験年数、希望条件、英語力）
-  - 学歴
-  - 職務経歴（複数登録可能）
-  - プロジェクト実績（複数登録可能、役割・使用技術付き）
-  - スキルセット（言語、FW、DB、インフラ、ツール別）
-  - GitHubスキル、スキル偏差値、自己申告スキル
-  - 資格・認定（複数登録可能）
-  - ポートフォリオリンク（GitHub、Qiita、Portfolio、LinkedIn、Blog）
-  - プロフィール（サマリー、人物像、強み、キャリア目標、AI活用）
-- **実装**: `public/modules/skill-sheet-manager.js`, `public/modules/skill-sheet-editor.js`
-
-### My Skill Sheet の使い方
-
-1. **ボタンをクリック**: ヘッダーの「My Skill Sheet」ボタンをクリック
-2. **タブを切り替え**: 8つのタブ（基本情報、プロフェッショナル、職務経歴、プロジェクト実績、スキル、資格、リンク、プロフィール）を切り替えて入力
-3. **自動保存**: 入力内容は自動的にローカルストレージに保存
-4. **エクスポート**: 完成したスキルシートをMarkdown、JSON、テキスト形式でダウンロード
-5. **AIレビュー**: 「レビューする」ボタンでContent Upload Reviewerに送信し、AIによる改善提案を取得
-6. **求人マッチング**: レビュー画面で「求人×スキルシートマッチング」を選択し、求人票URLまたはテキストを入力してマッチング分析
 
 ## アーキテクチャの重要ポイント
 

@@ -1,0 +1,26 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 -->
+  <rect width="512" height="512" rx="128" fill="#2563eb"/>
+
+  <!-- JSON-LD シンボル -->
+  <!-- 左括弧 -->
+  <path d="M 150 140 Q 120 140 120 170 L 120 342 Q 120 372 150 372"
+        stroke="#ffffff" stroke-width="20" fill="none" stroke-linecap="round"/>
+
+  <!-- 右括弧 -->
+  <path d="M 362 140 Q 392 140 392 170 L 392 342 Q 392 372 362 372"
+        stroke="#ffffff" stroke-width="20" fill="none" stroke-linecap="round"/>
+
+  <!-- JSON-LD テキスト -->
+  <text x="256" y="280" font-family="Arial, sans-serif" font-size="120"
+        font-weight="bold" fill="#ffffff" text-anchor="middle">LD</text>
+
+  <!-- スキーマ接続線 -->
+  <circle cx="256" cy="380" r="8" fill="#60a5fa"/>
+  <line x1="256" y1="380" x2="220" y2="420" stroke="#60a5fa" stroke-width="3"/>
+  <line x1="256" y1="380" x2="256" y2="420" stroke="#60a5fa" stroke-width="3"/>
+  <line x1="256" y1="380" x2="292" y2="420" stroke="#60a5fa" stroke-width="3"/>
+  <circle cx="220" cy="420" r="6" fill="#60a5fa"/>
+  <circle cx="256" cy="420" r="6" fill="#60a5fa"/>
+  <circle cx="292" cy="420" r="6" fill="#60a5fa"/>
+</svg>

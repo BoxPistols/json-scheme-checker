@@ -459,7 +459,19 @@ Article/BlogPostingスキーマが検出されたブログ記事を、SEOとコ�
 
 ## クイックスタート（開発者向け）
 
-### ローカル開発
+### デスクトップアプリとして起動（推奨）
+
+```bash
+# 依存関係インストール
+pnpm install
+
+# Electronアプリを起動
+pnpm electron:dev
+```
+
+Mac/Windowsのネイティブアプリとして起動します。詳細は[ELECTRON.md](./ELECTRON.md)を参照してください。
+
+### ローカル開発（Webアプリ）
 
 ```bash
 # 依存関係インストール
@@ -493,12 +505,16 @@ Vercelダッシュボードで環境変数を設定してください。
 
 - **バックエンド**: Node.js + Express + Axios
 - **フロントエンド**: Vanilla JavaScript + CSS3 + HTML5
+- **デスクトップアプリ**: Electron（Mac/Windows対応）
 - **AI機能**: OpenAI GPT-5 nano
 
 ## プロジェクト構成
 
 ```text
 ├── server.js                    # Express プロキシサーバー
+├── electron/                    # Electronデスクトップアプリ
+│   ├── main.js                  # メインプロセス
+│   └── preload.js               # プリロードスクリプト
 ├── public/
 │   ├── index.html               # Webアプリケーション
 │   ├── web-advisor-demo.html    # Webアドバイザーデモ
@@ -510,6 +526,7 @@ Vercelダッシュボードで環境変数を設定してください。
 │   ├── advisor.js               # JobPosting AI分析エンドポイント
 │   └── web-advisor.js           # Webアドバイザー（汎用）エンドポイント
 ├── vercel.json                  # Vercel設定
+├── ELECTRON.md                  # デスクトップアプリドキュメント
 └── .env.example                 # 環境変数テンプレート
 ```
 

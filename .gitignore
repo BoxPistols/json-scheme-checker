@@ -43,6 +43,10 @@ build/Release
 node_modules/
 jspm_packages/
 
+# Electron build output
+dist/
+dist-electron/
+
 # Lock files (using pnpm)
 package-lock.json
 
