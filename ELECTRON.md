@@ -151,7 +151,7 @@ CI/CD環境でビルドする場合、以下のサービスを利用できます
 2. SVGをPNG（512x512px）に変換
 3. PNGを各プラットフォーム形式（ICNS、ICO）に変換
 
-詳細な手順と推奨ツールは `public/ICON_GUIDE.md` を参照してください。
+詳細な手順と推奨ツールは [`public/ICON_GUIDE.md`](./public/ICON_GUIDE.md) を参照してください。
 
 ### デフォルトアイコン
 
