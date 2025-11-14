@@ -559,10 +559,61 @@ vercel dev       # ローカルテスト推奨
 
 ## 認証機能の取り扱い
 
+### 基本認証（プロキシ機能）
+
+プロキシ機能でBasic認証が必要なサイトにアクセスする際の認証情報管理：
+
 - パスワードを平文でログに記録しない（ログでは `password ? '***' : '(none)'` 使用）
 - ローカルストレージのみに保存（サーバーサイドには保存しない）
 - ユーザーの明示的なアクションで削除
 - localStorageキー: `jsonld_basic_auth`、`jsonld_auth_{domain}`
+
+### Content Upload Reviewer の認証
+
+Content Upload Reviewer機能は本番環境で認証が必要です。
+
+#### 環境変数の設定
+
+**ローカル環境**:
+
+`.env` ファイルを作成し、以下を設定：
+
+```bash
+# Content Upload Reviewer の認証情報
+UPLOAD_AUTH_USERNAME=admin
+UPLOAD_AUTH_PASSWORD=your_secure_password_here
+```
+
+**Vercel環境**:
+
+Vercelダッシュボードで環境変数を設定：
+
+1. Vercelプロジェクトページにアクセス
+2. Settings → Environment Variables
+3. 以下の変数を追加：
+   - `UPLOAD_AUTH_USERNAME`: 管理者ユーザー名
+   - `UPLOAD_AUTH_PASSWORD`: 強力なパスワード
+
+#### 認証の動作
+
+1. **初回アクセス時**: 認証ダイアログが表示され、ユーザー名とパスワードを入力
+2. **認証成功後**: 認証情報がlocalStorageに保存され、以降は自動ログイン
+3. **ログアウト**: 設定モーダルから認証情報を削除可能
+
+**localStorageキー**: `jsonld_upload_auth`
+
+#### セキュリティ
+
+- 認証情報は環境変数で管理（コードに含めない）
+- APIリクエスト時にBasic認証ヘッダーを付与
+- 認証失敗時は401エラーを返す
+- パスワードはサーバーログに記録されない
+
+#### 詳細ドキュメント
+
+将来的な認証方式（JWT、セッションベース等）については以下を参照：
+
+- [認証システムガイド](./.ai-docs/shared/11_AUTHENTICATION_GUIDE.md)
 
 ## Git ワークフロー
 
