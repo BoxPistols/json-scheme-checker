@@ -249,9 +249,7 @@ function checkAuth(req) {
     const isValid = username === validUsername && password === validPassword;
 
     if (!isValid) {
-      console.log(
-        `[ContentUploadReviewer API] 認証失敗: username=${username}, password=***`
-      );
+      console.log(`[ContentUploadReviewer API] 認証失敗: username=${username}, password=***`);
     }
 
     return isValid;
