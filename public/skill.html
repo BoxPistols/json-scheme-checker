@@ -146,13 +146,29 @@
     <script src="/utils/file-parser.js"></script>
     <script src="/modules/debug-mock-data.js"></script>
     <script src="/modules/base-advisor.js"></script>
-    <script type="module" src="/modules/skill-sheet-manager.js"></script>
-    <script type="module" src="/modules/skill-sheet-editor.js"></script>
-    <script type="module" src="/modules/content-upload-reviewer.js"></script>
 
     <script type="module">
-        // ページ読み込み後、スキルシートの状態に応じて表示を切り替え
-        window.addEventListener('DOMContentLoaded', () => {
+        import { isAuthenticated, isAuthRequired } from '/utils/auth.js';
+        import { showAuthDialog } from '/components/auth/AuthDialog.js';
+
+        // ページ読み込み後、認証チェックを実行
+        window.addEventListener('DOMContentLoaded', async () => {
+            // 認証が必要な環境（本番環境）でかつ認証されていない場合
+            if (isAuthRequired() && !isAuthenticated()) {
+                const authResult = await showAuthDialog();
+                if (!authResult) {
+                    // 認証キャンセル時はトップページにリダイレクト
+                    window.location.href = '/';
+                    return;
+                }
+            }
+
+            // 認証成功後、必要なモジュールを読み込む
+            await import('/modules/skill-sheet-manager.js');
+            await import('/modules/skill-sheet-editor.js');
+            await import('/modules/content-upload-reviewer.js');
+
+            // スキルシートの状態に応じて表示を切り替え
             setTimeout(() => {
                 if (window.skillSheetEditor) {
                     // スキルシートが保存されているかチェック

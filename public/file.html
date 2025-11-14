@@ -71,11 +71,26 @@
     <script src="/utils/file-parser.js"></script>
     <script src="/modules/debug-mock-data.js"></script>
     <script src="/modules/base-advisor.js"></script>
-    <script type="module" src="/modules/content-upload-reviewer.js"></script>
+    <script type="module">
+        import { isAuthenticated, isAuthRequired } from '/utils/auth.js';
+        import { showAuthDialog } from '/components/auth/AuthDialog.js';
 
-    <script>
-        // ページ読み込み後、自動的にアップロードモーダルを表示
-        window.addEventListener('DOMContentLoaded', () => {
+        // ページ読み込み後、認証チェックを実行
+        window.addEventListener('DOMContentLoaded', async () => {
+            // 認証が必要な環境（本番環境）でかつ認証されていない場合
+            if (isAuthRequired() && !isAuthenticated()) {
+                const authResult = await showAuthDialog();
+                if (!authResult) {
+                    // 認証キャンセル時はトップページにリダイレクト
+                    window.location.href = '/';
+                    return;
+                }
+            }
+
+            // 認証成功後、Content Upload Reviewerモジュールを読み込む
+            const module = await import('/modules/content-upload-reviewer.js');
+
+            // アップロードモーダルを表示
             setTimeout(() => {
                 if (window.contentUploadReviewerManager) {
                     window.contentUploadReviewerManager.showUploadModal();

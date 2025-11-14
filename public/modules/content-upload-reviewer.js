@@ -3,6 +3,8 @@ import { FileUpload } from '../components/form/FileUpload.js';
 import { Tabs } from '../components/common/Tabs.js';
 import { RadioGroup } from '../components/form/RadioGroup.js';
 import { Preview } from '../components/common/Preview.js';
+import { getAuthCredentials } from '../utils/auth.js';
+import { showAuthDialog } from '../components/auth/AuthDialog.js';
 const BaseAdvisorManager = window.BaseAdvisorManager || globalThis.BaseAdvisorManager;
 class ContentUploadReviewerManager extends BaseAdvisorManager {
   constructor() {
@@ -714,32 +716,41 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
       if (this.currentReviewType === 'matching' && jobContent) {
         requestBody.jobContent = jobContent;
       }
-      const headers = {
-        'Content-Type': 'application/json',
-      };
 
-      // 認証情報を取得
-      const authCredentials = this.getAuthCredentials();
-      if (authCredentials) {
-        headers['Authorization'] = `Basic ${authCredentials}`;
-      }
+      // 認証ループ: スタックオーバーフローを防ぐため、再帰ではなくwhileループを使用
+      let authenticated = false;
+      let response = null;
 
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify(requestBody),
-        signal: controller.signal,
-      });
+      while (!authenticated) {
+        const headers = {
+          'Content-Type': 'application/json',
+        };
 
-      // 401エラーの場合は認証ダイアログを表示
-      if (response.status === 401) {
-        const authSuccess = await this.showAuthDialog();
-        if (authSuccess) {
-          // 認証成功後、再度APIを呼び出す
-          return this.callReviewAPI(content, jobContent);
-        } else {
-          throw new Error('認証が必要です');
+        // 認証情報を取得
+        const authCredentials = getAuthCredentials();
+        if (authCredentials) {
+          headers['Authorization'] = `Basic ${authCredentials}`;
         }
+
+        response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify(requestBody),
+          signal: controller.signal,
+        });
+
+        // 401エラーの場合は認証ダイアログを表示
+        if (response.status === 401) {
+          const authResult = await showAuthDialog();
+          if (!authResult) {
+            throw new Error('認証が必要です');
+          }
+          // 認証情報を更新してループを継続
+          continue;
+        }
+
+        // 認証成功、ループを抜ける
+        authenticated = true;
       }
 
       if (!response.ok) {
@@ -891,185 +902,6 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
         snackbar.className = 'snackbar';
       }, 3000);
     }
-  }
-
-  /**
-   * 認証情報をlocalStorageから取得
-   * @returns {string|null} Base64エンコードされた認証情報
-   */
-  getAuthCredentials() {
-    return localStorage.getItem('jsonld_upload_auth');
-  }
-
-  /**
-   * 認証情報をlocalStorageに保存
-   * @param {string} username - ユーザー名
-   * @param {string} password - パスワード
-   */
-  saveAuthCredentials(username, password) {
-    const credentials = btoa(`${username}:${password}`);
-    localStorage.setItem('jsonld_upload_auth', credentials);
-  }
-
-  /**
-   * 認証情報をlocalStorageから削除
-   */
-  clearAuthCredentials() {
-    localStorage.removeItem('jsonld_upload_auth');
-  }
-
-  /**
-   * 認証ダイアログを表示
-   * @returns {Promise<boolean>} 認証成功時はtrue、キャンセル時はfalse
-   */
-  showAuthDialog() {
-    return new Promise((resolve) => {
-      const existingDialog = document.getElementById('uploadAuthDialog');
-      if (existingDialog) {
-        existingDialog.remove();
-      }
-
-      const dialog = this.createAuthDialog();
-      document.body.appendChild(dialog);
-      dialog.style.display = 'flex';
-
-      const usernameInput = document.getElementById('uploadAuthUsername');
-      const passwordInput = document.getElementById('uploadAuthPassword');
-      const loginBtn = document.getElementById('uploadAuthLogin');
-      const cancelBtn = document.getElementById('uploadAuthCancel');
-
-      const cleanup = () => {
-        dialog.remove();
-      };
-
-      const handleLogin = async () => {
-        const username = usernameInput.value.trim();
-        const password = passwordInput.value;
-
-        if (!username || !password) {
-          this.showError('ユーザー名とパスワードを入力してください');
-          return;
-        }
-
-        // 認証情報を保存
-        this.saveAuthCredentials(username, password);
-
-        cleanup();
-        resolve(true);
-      };
-
-      const handleCancel = () => {
-        cleanup();
-        resolve(false);
-      };
-
-      loginBtn.addEventListener('click', handleLogin);
-      cancelBtn.addEventListener('click', handleCancel);
-
-      // Escapeキーでキャンセル
-      const handleEscape = (e) => {
-        if (e.key === 'Escape') {
-          handleCancel();
-          document.removeEventListener('keydown', handleEscape);
-        }
-      };
-      document.addEventListener('keydown', handleEscape);
-
-      // モーダル外クリックでキャンセル
-      dialog.addEventListener('click', (e) => {
-        if (e.target === dialog) {
-          handleCancel();
-        }
-      });
-
-      // フォーカスを設定
-      setTimeout(() => usernameInput.focus(), 100);
-    });
-  }
-
-  /**
-   * 認証ダイアログのHTMLを作成
-   * @returns {HTMLElement} ダイアログ要素
-   */
-  createAuthDialog() {
-    const overlay = document.createElement('div');
-    overlay.id = 'uploadAuthDialog';
-    overlay.className = 'modal-overlay';
-    overlay.style.display = 'flex';
-
-    const container = document.createElement('div');
-    container.className = 'modal-container';
-    container.style.maxWidth = '400px';
-
-    const header = document.createElement('div');
-    header.className = 'modal-header';
-    const title = document.createElement('h2');
-    title.textContent = '認証が必要です';
-    header.appendChild(title);
-
-    const body = document.createElement('div');
-    body.className = 'modal-body';
-
-    const infoText = document.createElement('p');
-    infoText.textContent = 'Content Upload Reviewerを使用するには認証が必要です。';
-    infoText.style.marginBottom = '1rem';
-    body.appendChild(infoText);
-
-    const usernameGroup = document.createElement('div');
-    usernameGroup.style.marginBottom = '1rem';
-    const usernameLabel = document.createElement('label');
-    usernameLabel.textContent = 'ユーザー名';
-    usernameLabel.style.display = 'block';
-    usernameLabel.style.marginBottom = '0.5rem';
-    const usernameInput = document.createElement('input');
-    usernameInput.type = 'text';
-    usernameInput.id = 'uploadAuthUsername';
-    usernameInput.className = 'input-field';
-    usernameInput.style.width = '100%';
-    usernameGroup.appendChild(usernameLabel);
-    usernameGroup.appendChild(usernameInput);
-    body.appendChild(usernameGroup);
-
-    const passwordGroup = document.createElement('div');
-    passwordGroup.style.marginBottom = '1rem';
-    const passwordLabel = document.createElement('label');
-    passwordLabel.textContent = 'パスワード';
-    passwordLabel.style.display = 'block';
-    passwordLabel.style.marginBottom = '0.5rem';
-    const passwordInput = document.createElement('input');
-    passwordInput.type = 'password';
-    passwordInput.id = 'uploadAuthPassword';
-    passwordInput.className = 'input-field';
-    passwordInput.style.width = '100%';
-    passwordGroup.appendChild(passwordLabel);
-    passwordGroup.appendChild(passwordInput);
-    body.appendChild(passwordGroup);
-
-    const footer = document.createElement('div');
-    footer.className = 'modal-footer';
-    footer.style.display = 'flex';
-    footer.style.gap = '0.5rem';
-    footer.style.justifyContent = 'flex-end';
-
-    const cancelBtn = document.createElement('button');
-    cancelBtn.id = 'uploadAuthCancel';
-    cancelBtn.className = 'btn btn-secondary';
-    cancelBtn.textContent = 'キャンセル';
-
-    const loginBtn = document.createElement('button');
-    loginBtn.id = 'uploadAuthLogin';
-    loginBtn.className = 'btn btn-primary';
-    loginBtn.textContent = 'ログイン';
-
-    footer.appendChild(cancelBtn);
-    footer.appendChild(loginBtn);
-
-    container.appendChild(header);
-    container.appendChild(body);
-    container.appendChild(footer);
-    overlay.appendChild(container);
-
-    return overlay;
   }
 }
 window.ContentUploadReviewerManager = ContentUploadReviewerManager;

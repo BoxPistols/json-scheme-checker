@@ -226,6 +226,7 @@ ${skillContent}
  * @returns {boolean} 認証が成功した場合はtrue
  */
 function checkAuth(req) {
+  const crypto = require('crypto');
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Basic ')) {
@@ -246,12 +247,22 @@ function checkAuth(req) {
       return true;
     }
 
-    const isValid = username === validUsername && password === validPassword;
+    // タイミング攻撃を緩和するため、crypto.timingSafeEqualを使用
+    const usernameMatches = username === validUsername;
+
+    const passwordBuffer = Buffer.from(password);
+    const validPasswordBuffer = Buffer.from(validPassword);
+
+    // パスワードの長さが異なる場合も同じ時間で処理するため、長さチェックを先に行う
+    const passwordMatches =
+      passwordBuffer.length === validPasswordBuffer.length &&
+      crypto.timingSafeEqual(passwordBuffer, validPasswordBuffer);
+
+    const isValid = usernameMatches && passwordMatches;
 
     if (!isValid) {
-      console.log(
-        `[ContentUploadReviewer API] 認証失敗: username=${username}, password=***`
-      );
+      // ユーザー名列挙攻撃を防ぐため、認証失敗ログにユーザー名を含めない
+      console.log('[ContentUploadReviewer API] 認証失敗');
     }
 
     return isValid;
