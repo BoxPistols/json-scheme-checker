@@ -11,17 +11,32 @@
 
 html {
   font-size: 14px;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 :root {
   /* Light Theme (Default) */
   --bg-color: #f5f7fa;
   --text-color: #2c3e50;
-  --card-bg-color: #ffffff;
-  --header-bg-color: #ffffff;
+  --card-bg-color: #fff;
+  --header-bg-color: #fff;
   --border-color: #e2e8f0;
   --primary-color: #5a7ca3;
-  --primary-text-color: #ffffff;
+  --primary-text-color: #fff;
   --secondary-bg-color: #f8fafc;
   --secondary-text-color: #64748b;
   --accent-color: #3b82f6;
@@ -64,7 +79,7 @@ html[data-theme='dark'] {
   --header-bg-color: #1f2937;
   --border-color: #374151;
   --primary-color: #818cf8;
-  --primary-text-color: #ffffff;
+  --primary-text-color: #fff;
   --secondary-bg-color: #374151;
   --secondary-text-color: #9ca3af;
   --accent-color: #60a5fa;
@@ -101,7 +116,7 @@ html[data-theme='dark'] {
 
 body {
   font-family:
-    'Inter',
+    Inter,
     'Noto Sans JP',
     -apple-system,
     BlinkMacSystemFont,
@@ -124,12 +139,12 @@ body {
     background-color 0.3s ease,
     color 0.3s ease;
   -webkit-font-smoothing: antialiased;
-  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
 
-a:-webkit-any-link {
-  color: currentColor;
+a:any-link {
+  color: currentcolor;
 }
 
 .container {
@@ -137,8 +152,81 @@ a:-webkit-any-link {
   margin: 0 auto;
 }
 
+/* 画像要素のレスポンシブ対応 */
+img {
+  max-width: 640px;
+  width: 100%;
+  height: auto;
+  display: block;
+  vertical-align: baseline;
+}
+
+/* ロゴなど固定サイズの画像は除外 */
+.logo-xl,
+.icon-inline,
+.btn-icon-inline,
+.feature-card-icon img,
+.utility-card-icon img {
+  max-width: none;
+  width: auto;
+  display: inline-block;
+}
+
 /* details要素のsummaryをクリック可能に見せる */
 summary {
   cursor: pointer;
   user-select: none;
+}
+
+/* アクセシビリティ: フォーカス可視化 */
+*:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* タッチデバイス向けの改善 */
+@media (pointer: coarse) {
+  button,
+  a,
+  summary,
+  .sample-link,
+  .tab-button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* レスポンシブタイポグラフィ */
+@media (max-width: 768px) {
+  html {
+    font-size: 13px;
+  }
+
+  h1 {
+    font-size: 1.35rem;
+  }
+}
+
+@media (max-width: 480px) {
+  html {
+    font-size: 12px;
+  }
+
+  body {
+    padding: 12px;
+  }
+}
+
+/* 高コントラストモード対応 */
+@media (prefers-contrast: high) {
+  :root {
+    --border-color: #000;
+    --primary-color: #0056b3;
+  }
+
+  html[data-theme='dark'] {
+    --border-color: #fff;
+    --primary-color: #60a5fa;
+  }
 }

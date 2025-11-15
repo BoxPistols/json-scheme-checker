@@ -70,6 +70,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -94,6 +95,7 @@
     opacity: 0;
     transform: scale(0.9);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -106,7 +108,7 @@
 }
 
 .advisor-questioner-modal-header h3 {
-  margin: 0 0 8px 0;
+  margin: 0 0 8px;
   font-size: 1.2rem;
   color: var(--text-color);
 }
@@ -122,7 +124,7 @@
 }
 
 .advisor-questioner-modal-desc {
-  margin: 0 0 20px 0;
+  margin: 0 0 20px;
   color: var(--secondary-text-color);
   font-size: 0.9rem;
   line-height: 1.5;
@@ -376,6 +378,7 @@ html[data-theme='dark'] .advisor-modal-close-btn:hover svg path {
     right: 10px !important;
     bottom: 10px !important;
     left: 10px !important;
+
     /* 高さを制限してコンテンツが見えるように */
     height: 60vh !important;
     max-height: 60vh !important;
@@ -396,6 +399,7 @@ html[data-theme='dark'] .advisor-modal-close-btn:hover svg path {
     left: 10px !important;
     right: 10px !important;
     width: calc(100vw - 20px) !important;
+
     /* 高さはtopとbottomで自動的に決まる */
     height: auto !important;
     max-height: none !important;
@@ -429,6 +433,7 @@ html[data-theme='dark'] .advisor-modal-close-btn:hover svg path {
   .advisor-view-content {
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch;
+
     /* チャットボックスの高さ分、下にパディングを追加（safe area inset も考慮） */
     padding-bottom: calc(60vh + 20px + max(20px, env(safe-area-inset-bottom))) !important;
   }
@@ -464,6 +469,7 @@ html[data-theme='dark'] .advisor-modal-close-btn:hover svg path {
     left: 10px !important;
     right: 10px !important;
     width: calc(100vw - 20px) !important;
+
     /* 高さはtopとbottomで自動的に決まる */
     height: auto !important;
     max-height: none !important;

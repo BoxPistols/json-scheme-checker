@@ -178,7 +178,7 @@
 }
 
 .job-description p {
-  margin: 0 0 12px 0;
+  margin: 0 0 12px;
   line-height: 1.7;
 }
 
@@ -270,6 +270,7 @@
   100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.7;
   }
@@ -279,6 +280,7 @@
   0% {
     transform: translateX(-100%);
   }
+
   100% {
     transform: translateX(100%);
   }
@@ -291,7 +293,7 @@
   background: var(--card-bg-color);
   z-index: 10;
   padding: 12px 24px;
-  margin: -24px -24px 16px -24px;
+  margin: -24px -24px 16px;
   border-bottom: 1px solid var(--border-color);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
@@ -332,6 +334,7 @@
   0% {
     background-position: 200% 0;
   }
+
   100% {
     background-position: -200% 0;
   }
@@ -498,6 +501,7 @@
   .advisor-job-content,
   .advisor-advice-content {
     padding: 16px;
+
     /* モバイル時はアコーディオン機能を有効化 */
     max-height: 0;
     padding-top: 0;
@@ -525,7 +529,7 @@
 
   /* プログレスコンテナのモバイル調整 */
   .advisor-progress-container {
-    margin: -16px -16px 16px -16px;
+    margin: -16px -16px 16px;
     padding: 12px 16px;
   }
 

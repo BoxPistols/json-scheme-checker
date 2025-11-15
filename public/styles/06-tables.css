@@ -2,6 +2,7 @@
  * 06-tables.css
  * テーブル、配列表示
  */
+
 /* テーブル表示 */
 .table-view {
   overflow-x: auto;
@@ -36,9 +37,11 @@
 .data-table col.col-prop {
   width: 18%;
 }
+
 .data-table col.col-value {
   width: auto;
 }
+
 .data-table col.col-type {
   width: 96px;
 }
@@ -101,11 +104,13 @@
   margin: 8px 0;
   width: 100%;
 }
+
 .compact-array-table th {
   background: var(--bg-color);
   font-size: 13px;
   padding: 8px 12px;
 }
+
 .compact-array-table td {
   padding: 8px 12px;
   font-size: 14px;
@@ -121,9 +126,11 @@
 .nested-object .data-table col.col-prop {
   width: 32%;
 }
+
 .nested-object .data-table col.col-value {
   width: auto;
 }
+
 .nested-object .data-table col.col-type {
   width: 96px;
 }
@@ -134,7 +141,7 @@
   border-radius: 6px;
   padding: 20px;
   overflow-x: auto;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-family: Monaco, Menlo, 'Ubuntu Mono', monospace;
   font-size: 13px;
   line-height: 1.6;
   color: var(--json-bracket);
@@ -148,18 +155,23 @@
 .json-key {
   color: var(--json-key);
 }
+
 .json-string {
   color: var(--json-string);
 }
+
 .json-number {
   color: var(--json-number);
 }
+
 .json-boolean {
   color: var(--json-boolean);
 }
+
 .json-null {
   color: var(--json-null);
 }
+
 .json-bracket {
   color: var(--json-bracket);
 }
