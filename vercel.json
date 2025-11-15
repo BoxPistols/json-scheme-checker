@@ -17,6 +17,9 @@
     },
     "api/web-advisor.js": {
       "maxDuration": 60
+    },
+    "api/seo-bigword-analyzer.js": {
+      "maxDuration": 60
     }
   },
   "routes": [
