@@ -343,8 +343,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const mySkillSheetButton = document.getElementById('mySkillSheetButton');
 
   // 認証状態をチェックして表示を制御
-  const AUTH_STORAGE_KEY = 'jsonld_upload_auth';
-  const isAuthenticated = !!localStorage.getItem(AUTH_STORAGE_KEY);
+  const UPLOAD_AUTH_STORAGE_KEY = 'jsonld_upload_auth';
+  const isAuthenticated = !!localStorage.getItem(UPLOAD_AUTH_STORAGE_KEY);
 
   // 開発環境（localhost）または認証済みユーザーにベータ機能を表示
   if (!isLocalhost && !isAuthenticated) {
