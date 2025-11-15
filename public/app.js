@@ -342,8 +342,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const contentUploadButton = document.getElementById('contentUploadButton');
   const mySkillSheetButton = document.getElementById('mySkillSheetButton');
 
-  // 開発環境のみベータ機能を表示
-  if (!isLocalhost) {
+  // 認証状態をチェックして表示を制御
+  const AUTH_STORAGE_KEY = 'jsonld_upload_auth';
+  const isAuthenticated = !!localStorage.getItem(AUTH_STORAGE_KEY);
+
+  // 開発環境（localhost）または認証済みユーザーにベータ機能を表示
+  if (!isLocalhost && !isAuthenticated) {
     contentUploadButton?.style.setProperty('display', 'none');
     mySkillSheetButton?.style.setProperty('display', 'none');
   }
