@@ -1,0 +1,22 @@
+{
+  "name": "Schema Viewer & AI Advisor",
+  "short_name": "Schema Viewer",
+  "description": "Web構造化データの可視化、AIアドバイザーで求人やブログ記事のレビュー、SEO最適化支援",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f7fa",
+  "theme_color": "#5a7ca3",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "utilities", "developer tools"],
+  "lang": "ja",
+  "dir": "ltr",
+  "scope": "/"
+}

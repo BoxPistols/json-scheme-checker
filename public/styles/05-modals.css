@@ -2,6 +2,7 @@
  * 05-modals.css
  * モーダルダイアログ
  */
+
 /*
  * SEO / タブ関連
  */
@@ -124,6 +125,7 @@ html[data-theme='dark'] .score-breakdown > div {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -391,8 +393,10 @@ html[data-theme='dark'] .score-breakdown > div {
 .port-input:focus {
   outline: none;
   border-color: var(--primary-color);
+
   /* Fallback for browsers that do not support color-mix() */
   box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2); /* fallback using primary color with 20% opacity */
+
   /* Enhanced effect for browsers that support color-mix() */
   box-shadow: 0 0 0 2px var(--primary-shadow-color);
 }
@@ -726,15 +730,19 @@ html[data-theme='dark'] .score-breakdown > div {
 .modal-info-box--blue h4 {
   color: var(--info-blue-heading-color);
 }
+
 .modal-info-box--yellow h4 {
   color: var(--info-yellow-heading-color);
 }
+
 .modal-info-box--green h4 {
   color: var(--info-green-heading-color);
 }
+
 .modal-info-box--orange h4 {
   color: var(--info-orange-heading-color);
 }
+
 .modal-info-box--red h4 {
   color: var(--info-red-heading-color);
 }

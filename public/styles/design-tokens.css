@@ -19,7 +19,6 @@
   --grid-columns-auto-sm: repeat(auto-fit, minmax(150px, 1fr));
   --grid-columns-auto-md: repeat(auto-fit, minmax(200px, 1fr));
   --grid-columns-auto-lg: repeat(auto-fit, minmax(250px, 1fr));
-
   --grid-gap-xs: 4px;
   --grid-gap-sm: 8px;
   --grid-gap-md: 12px;

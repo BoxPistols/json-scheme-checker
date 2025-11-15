@@ -2,6 +2,7 @@
  * 08-guidance.css
  * ガイダンス、学習セクション
  */
+
 /* ガイダンス関連のスタイル */
 
 .guidance-section {
@@ -249,7 +250,7 @@
   color: var(--json-key);
   padding: 12px 16px;
   border-radius: 4px;
-  font-family: 'Courier New', 'Monaco', monospace;
+  font-family: 'Courier New', Monaco, monospace;
   font-size: 1rem;
   line-height: 1.6;
   overflow-x: auto;
@@ -312,7 +313,7 @@
   color: var(--json-bracket);
   padding: 14px 16px;
   border-radius: 4px;
-  font-family: 'Courier New', 'Monaco', monospace;
+  font-family: 'Courier New', Monaco, monospace;
   font-size: 1rem;
   line-height: 1.6;
   overflow-x: auto;
