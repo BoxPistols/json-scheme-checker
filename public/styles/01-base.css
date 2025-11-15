@@ -155,7 +155,7 @@ a:any-link {
 /* 画像要素のレスポンシブ対応 */
 img {
   max-width: 640px;
-  width: 100%;
+  width: auto;
   height: auto;
   display: block;
   vertical-align: baseline;
