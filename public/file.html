@@ -52,9 +52,207 @@
             <h1>コンテンツアップロード & レビュー</h1>
             <p>ファイルやテキストをアップロードして、AIによるレビュー・校閲を受けられます</p>
             <span class="badge-beta">Beta</span>
+            <div style="margin-top: 1rem;">
+                <button type="button" class="btn-guide" id="btnDataHelp">
+                    データの取扱について
+                </button>
+            </div>
         </div>
 
         <div id="uploadSection"></div>
+    </div>
+
+    <!-- データ取扱ヘルプModal -->
+    <div id="dataHelpModal" class="modal-overlay">
+        <div class="modal-container modal-container--wide">
+            <div class="modal-header modal-header--sticky">
+                <h2>コンテンツアップロード - データの取扱について</h2>
+            </div>
+            <div class="modal-body">
+                <!-- 重要なお知らせ -->
+                <section class="modal-section">
+                    <div class="modal-info-box modal-info-box--red">
+                        <h3>重要: アップロードデータの取扱</h3>
+                        <p>
+                            アップロードしたファイルやテキストは、<strong>AIレビュー処理のためにのみ使用</strong>されます。データはサーバーに永続保存されず、処理完了後は自動的に破棄されます。
+                        </p>
+                    </div>
+                </section>
+
+                <!-- データ処理の流れ -->
+                <section class="modal-section">
+                    <h3 class="modal-section-title">データ処理の流れ</h3>
+                    <table class="modal-table modal-table--striped">
+                        <thead>
+                            <tr>
+                                <th class="table-col-quarter">ステップ</th>
+                                <th>処理内容</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>1. アップロード</strong></td>
+                                <td>ファイルまたはテキストをブラウザから送信</td>
+                            </tr>
+                            <tr>
+                                <td><strong>2. 解析</strong></td>
+                                <td>サーバー側でファイルを解析し、テキスト抽出（PDF、CSV、Excelなど）</td>
+                            </tr>
+                            <tr>
+                                <td><strong>3. AI処理</strong></td>
+                                <td>OpenAI APIにテキストを送信し、レビュー・校閲を実行</td>
+                            </tr>
+                            <tr>
+                                <td><strong>4. 結果返却</strong></td>
+                                <td>AIレビュー結果をブラウザに返す</td>
+                            </tr>
+                            <tr>
+                                <td><strong>5. データ破棄</strong></td>
+                                <td>サーバー側で一時ファイルとデータを自動削除</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- データ保存について -->
+                <section class="modal-section">
+                    <h3 class="modal-section-title">データ保存について</h3>
+                    <table class="modal-table modal-table--striped">
+                        <thead>
+                            <tr>
+                                <th class="table-col-quarter">項目</th>
+                                <th>詳細</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>サーバー保存</strong></td>
+                                <td>なし（処理完了後、即座に削除）</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ブラウザ保存</strong></td>
+                                <td>なし（レビュー結果のみブラウザに表示）</td>
+                            </tr>
+                            <tr>
+                                <td><strong>第三者共有</strong></td>
+                                <td>なし（OpenAI APIへの送信のみ）</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ログ記録</strong></td>
+                                <td>リクエスト情報のみ（ファイル内容は記録されません）</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- OpenAI APIとのデータ共有 -->
+                <section class="modal-section">
+                    <h3 class="modal-section-title">OpenAI APIとのデータ共有</h3>
+                    <div class="modal-info-box modal-info-box--yellow">
+                        <h4>重要: AIレビューのためのデータ送信</h4>
+                        <p>
+                            アップロードしたコンテンツは、レビュー処理のために<strong>OpenAI API</strong>に送信されます。OpenAIのデータ取扱ポリシーに従い、以下の点にご注意ください:
+                        </p>
+                        <ul class="list-spaced">
+                            <li><strong>データの利用目的:</strong> AIモデルによるテキスト分析・レビューのみ</li>
+                            <li><strong>データ保持期間:</strong> OpenAIは送信データをモデル改善に使用しません（2023年3月以降）</li>
+                            <li><strong>プライバシー:</strong> 機密情報や個人情報を含むファイルのアップロードは推奨しません</li>
+                        </ul>
+                    </div>
+                    <div class="modal-info-box modal-info-box--blue">
+                        <h4>参考: OpenAI データ取扱ポリシー</h4>
+                        <p>
+                            OpenAI APIは、2023年3月1日以降、送信されたデータをモデルの改善に使用しません。詳細は<a href="https://openai.com/policies/api-data-usage-policies" target="_blank" rel="noopener noreferrer" class="link-accent">OpenAI公式ポリシー</a>をご確認ください。
+                        </p>
+                    </div>
+                </section>
+
+                <!-- 推奨事項 -->
+                <section class="modal-section">
+                    <h3 class="modal-section-title">推奨事項</h3>
+                    <div class="modal-info-box modal-info-box--green">
+                        <h4>安全にご利用いただくために</h4>
+                        <ul class="list-spaced">
+                            <li><strong>機密情報を含まない:</strong> 個人情報、パスワード、APIキーなどを含むファイルはアップロードしないでください</li>
+                            <li><strong>公開可能なコンテンツのみ:</strong> ブログ記事、求人票、スキルシートなど、外部に公開しても問題ないコンテンツの利用を推奨します</li>
+                            <li><strong>結果のダウンロード:</strong> レビュー結果は画面に表示されるのみです。必要に応じてコピーまたはダウンロードしてください</li>
+                            <li><strong>My API設定:</strong> 独自のOpenAI APIキーを設定することで、データの管理を自己責任で行えます</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- セキュリティ対策 -->
+                <section class="modal-section">
+                    <h3 class="modal-section-title">セキュリティ対策</h3>
+                    <table class="modal-table modal-table--striped">
+                        <thead>
+                            <tr>
+                                <th class="table-col-quarter">対策</th>
+                                <th>詳細</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>HTTPS通信</strong></td>
+                                <td>すべてのデータ送信は暗号化されています</td>
+                            </tr>
+                            <tr>
+                                <td><strong>一時ファイル削除</strong></td>
+                                <td>サーバー側で処理完了後、即座に一時ファイルを削除</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ファイルサイズ制限</strong></td>
+                                <td>大容量ファイルの送信を防ぎ、サーバー負荷を軽減</td>
+                            </tr>
+                            <tr>
+                                <td><strong>レート制限</strong></td>
+                                <td>無料利用は50回/24時間まで（不正利用を防止）</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- よくある質問 -->
+                <section class="modal-section">
+                    <h3 class="modal-section-title">よくある質問</h3>
+                    <div class="modal-subsection">
+                        <h4 class="modal-subsection-title">Q1: アップロードしたファイルは保存されますか？</h4>
+                        <p>
+                            <strong>A:</strong> いいえ、サーバーには保存されません。AIレビュー処理が完了すると、即座にファイルは削除されます。
+                        </p>
+                    </div>
+                    <div class="modal-subsection">
+                        <h4 class="modal-subsection-title">Q2: レビュー結果は保存されますか？</h4>
+                        <p>
+                            <strong>A:</strong> いいえ、レビュー結果はブラウザに表示されるのみで、サーバーには保存されません。必要に応じて、コピーまたはダウンロードしてください。
+                        </p>
+                    </div>
+                    <div class="modal-subsection">
+                        <h4 class="modal-subsection-title">Q3: OpenAI APIに送信されるデータは何ですか？</h4>
+                        <p>
+                            <strong>A:</strong> アップロードしたファイルから抽出されたテキスト内容と、レビュー指示（プロンプト）が送信されます。ファイル名やメタデータは送信されません。
+                        </p>
+                    </div>
+                    <div class="modal-subsection">
+                        <h4 class="modal-subsection-title">Q4: 機密情報を含むファイルをアップロードしても大丈夫ですか？</h4>
+                        <p>
+                            <strong>A:</strong> 推奨しません。OpenAI APIにデータが送信されるため、機密情報や個人情報を含むファイルのアップロードは避けてください。
+                        </p>
+                    </div>
+                    <div class="modal-subsection">
+                        <h4 class="modal-subsection-title">Q5: My APIキーを使用すると、データの扱いは変わりますか？</h4>
+                        <p>
+                            <strong>A:</strong> いいえ、データ処理の流れは同じです。ただし、独自のAPIキーを使用することで、OpenAIアカウント上でのデータ管理を自己責任で行えます。
+                        </p>
+                    </div>
+                </section>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal-close" id="btnCloseDataHelp">
+                    閉じる
+                </button>
+            </div>
+        </div>
     </div>
 
     <div id="snackbar" class="snackbar"></div>
@@ -74,6 +272,46 @@
     <script type="module" src="/modules/content-upload-reviewer.js"></script>
 
     <script>
+        // データヘルプモーダルの制御
+        window.addEventListener('DOMContentLoaded', () => {
+            const btnDataHelp = document.getElementById('btnDataHelp');
+            const btnCloseDataHelp = document.getElementById('btnCloseDataHelp');
+            const dataHelpModal = document.getElementById('dataHelpModal');
+
+            function showDataHelpModal() {
+                if (dataHelpModal) {
+                    dataHelpModal.style.display = 'flex';
+                    dataHelpModal.setAttribute('aria-hidden', 'false');
+                    document.body.style.overflow = 'hidden';
+                }
+            }
+
+            function closeDataHelpModal() {
+                if (dataHelpModal) {
+                    dataHelpModal.style.display = 'none';
+                    dataHelpModal.setAttribute('aria-hidden', 'true');
+                    document.body.style.overflow = '';
+                }
+            }
+
+            btnDataHelp?.addEventListener('click', showDataHelpModal);
+            btnCloseDataHelp?.addEventListener('click', closeDataHelpModal);
+
+            // モーダル背景クリックで閉じる
+            dataHelpModal?.addEventListener('click', (e) => {
+                if (e.target === dataHelpModal) {
+                    closeDataHelpModal();
+                }
+            });
+
+            // Escキーで閉じる
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && dataHelpModal?.style.display === 'flex') {
+                    closeDataHelpModal();
+                }
+            });
+        });
+
         // ページ読み込み後、自動的にアップロードモーダルを表示
         window.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {

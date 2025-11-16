@@ -338,22 +338,40 @@ document.addEventListener('DOMContentLoaded', () => {
     ?.addEventListener('click', closeTwitterCardModal);
   document.getElementById('btnCloseOpenGraphModal')?.addEventListener('click', closeOpenGraphModal);
   document.getElementById('btnHideError')?.addEventListener('click', hideError);
-  // ベータ機能の環境判定と表示制御
+
+  /**
+   * 隠しモード機能: ベータ機能（コンテンツアップロード、My Skill Sheet）の表示制御
+   *
+   * URL に ?admin=true を追加することで、以下の機能にアクセス可能になります:
+   * - コンテンツをアップロード: ファイルやテキストをAIでレビュー
+   * - My Skill Sheet: スキルシート（職務経歴書）の作成・編集
+   *
+   * 使い方:
+   * https://json-ld-view.vercel.app/?admin=true
+   *
+   * admin=true が指定されていない場合、ボタンは完全に非表示になります。
+   */
   const contentUploadButton = document.getElementById('contentUploadButton');
   const mySkillSheetButton = document.getElementById('mySkillSheetButton');
 
-  // 開発環境のみベータ機能を表示
-  if (!isLocalhost) {
+  // URLクエリパラメータで admin=true が指定されているか確認
+  const urlParams = new URLSearchParams(window.location.search);
+  const isAdminMode = urlParams.get('admin') === 'true';
+
+  // 隠しモードが有効でない場合は非表示
+  if (!isAdminMode) {
     contentUploadButton?.style.setProperty('display', 'none');
     mySkillSheetButton?.style.setProperty('display', 'none');
   }
 
-  // ベータ機能のボタンを別URLへのリンクとして動作させる
+  // ベータ機能のボタンを別URLへのリンクとして動作させる（admin モードを維持）
   contentUploadButton?.addEventListener('click', () => {
-    window.location.href = '/file';
+    const targetUrl = isAdminMode ? '/file?admin=true' : '/file';
+    window.location.href = targetUrl;
   });
   mySkillSheetButton?.addEventListener('click', () => {
-    window.location.href = '/skill';
+    const targetUrl = isAdminMode ? '/skill?admin=true' : '/skill';
+    window.location.href = targetUrl;
   });
   const headerRow = document.querySelector('.header-row');
   if (headerRow) {
