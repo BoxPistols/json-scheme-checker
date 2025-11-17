@@ -340,38 +340,48 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnHideError')?.addEventListener('click', hideError);
 
   /**
-   * 隠しモード機能: ベータ機能（コンテンツアップロード、My Skill Sheet）の表示制御
+   * 隠しモード機能: ベータ機能（コンテンツアップロード、My Skill Sheet、レジュメビルダー）の表示制御
    *
-   * URL に ?admin=true を追加することで、以下の機能にアクセス可能になります:
-   * - コンテンツをアップロード: ファイルやテキストをAIでレビュー
-   * - My Skill Sheet: スキルシート（職務経歴書）の作成・編集
+   * URL に ?user=xxx を追加することで、以下の機能にアクセス可能になります:
+   * - ?user=file: コンテンツをアップロード（ファイルやテキストをAIでレビュー）
+   * - ?user=skill: My Skill Sheet（スキルシート・職務経歴書の作成・編集）
+   * - ?user=resume: レジュメビルダー（プロジェクト経験の対話形式作成）
    *
    * 使い方:
-   * https://json-ld-view.vercel.app/?admin=true
+   * https://json-ld-view.vercel.app/?user=file
+   * https://json-ld-view.vercel.app/?user=skill
+   * https://json-ld-view.vercel.app/?user=resume
    *
-   * admin=true が指定されていない場合、ボタンは完全に非表示になります。
+   * user パラメータが指定されていない場合、ボタンは完全に非表示になります。
    */
   const contentUploadButton = document.getElementById('contentUploadButton');
   const mySkillSheetButton = document.getElementById('mySkillSheetButton');
+  const resumeBuilderButton = document.getElementById('resumeBuilderButton');
 
-  // URLクエリパラメータで admin=true が指定されているか確認
+  // URLクエリパラメータで user=xxx が指定されているか確認
   const urlParams = new URLSearchParams(window.location.search);
-  const isAdminMode = urlParams.get('admin') === 'true';
+  const userMode = urlParams.get('user');
 
-  // 隠しモードが有効でない場合は非表示
-  if (!isAdminMode) {
+  // 各機能ボタンの表示制御
+  if (userMode !== 'file') {
     contentUploadButton?.style.setProperty('display', 'none');
+  }
+  if (userMode !== 'skill') {
     mySkillSheetButton?.style.setProperty('display', 'none');
   }
+  if (userMode !== 'resume') {
+    resumeBuilderButton?.style.setProperty('display', 'none');
+  }
 
-  // ベータ機能のボタンを別URLへのリンクとして動作させる（admin モードを維持）
+  // ベータ機能のボタンをクリック時の動作
   contentUploadButton?.addEventListener('click', () => {
-    const targetUrl = isAdminMode ? '/file?admin=true' : '/file';
-    window.location.href = targetUrl;
+    window.contentUploadReviewerManager?.showUploadModal();
   });
   mySkillSheetButton?.addEventListener('click', () => {
-    const targetUrl = isAdminMode ? '/skill?admin=true' : '/skill';
-    window.location.href = targetUrl;
+    window.location.href = '/skill?user=skill';
+  });
+  resumeBuilderButton?.addEventListener('click', () => {
+    window.resumeBuilderManager?.showResumeBuilderModal();
   });
   const headerRow = document.querySelector('.header-row');
   if (headerRow) {
