@@ -363,14 +363,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const userMode = urlParams.get('user');
 
   // 各機能ボタンの表示制御
-  if (userMode !== 'file') {
-    contentUploadButton?.style.setProperty('display', 'none');
-  }
-  if (userMode !== 'skill') {
-    mySkillSheetButton?.style.setProperty('display', 'none');
-  }
-  if (userMode !== 'resume') {
-    resumeBuilderButton?.style.setProperty('display', 'none');
+  const buttons = {
+    file: contentUploadButton,
+    skill: mySkillSheetButton,
+    resume: resumeBuilderButton,
+  };
+
+  for (const mode in buttons) {
+    if (userMode !== mode) {
+      buttons[mode]?.style.setProperty('display', 'none');
+    }
   }
 
   // ベータ機能のボタンをクリック時の動作
