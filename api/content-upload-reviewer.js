@@ -1,4 +1,5 @@
 const OpenAI = require('openai');
+const crypto = require('crypto');
 
 // 定数定義
 const MAX_CONTENT_LENGTH = 500 * 1024; // 500KB
@@ -226,7 +227,6 @@ ${skillContent}
  * @returns {boolean} 認証が成功した場合はtrue
  */
 function checkAuth(req) {
-  const crypto = require('crypto');
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Basic ')) {
@@ -247,13 +247,15 @@ function checkAuth(req) {
       return true;
     }
 
-    // タイミング攻撃を緩和するため、crypto.timingSafeEqualを使用
-    const usernameMatches = username === validUsername;
+    // タイミング攻撃対策のため、crypto.timingSafeEqual を使用
+    const usernameBuffer = Buffer.from(username);
+    const validUsernameBuffer = Buffer.from(validUsername);
+    const usernameMatches =
+      usernameBuffer.length === validUsernameBuffer.length &&
+      crypto.timingSafeEqual(usernameBuffer, validUsernameBuffer);
 
     const passwordBuffer = Buffer.from(password);
     const validPasswordBuffer = Buffer.from(validPassword);
-
-    // パスワードの長さが異なる場合も同じ時間で処理するため、長さチェックを先に行う
     const passwordMatches =
       passwordBuffer.length === validPasswordBuffer.length &&
       crypto.timingSafeEqual(passwordBuffer, validPasswordBuffer);
