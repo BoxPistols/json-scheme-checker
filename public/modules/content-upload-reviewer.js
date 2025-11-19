@@ -659,7 +659,7 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
             </div>
             <div class="review-analysis" id="reviewAnalysis" style="display: none;">
               <h3>分析結果</h3>
-              <div id="analysisContent"></div>
+              <div id="analysis-content"></div>
             </div>
             <div class="review-usage-panel" id="reviewUsagePanel" style="display: none;"></div>
           </div>
@@ -768,7 +768,7 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
     const statusEl = document.getElementById('reviewStatus');
     const diffContainer = document.getElementById('reviewDiffContainer');
     const analysisEl = document.getElementById('reviewAnalysis');
-    const analysisContent = document.getElementById('analysisContent');
+    const analysis-content = document.getElementById('analysis-content');
     const revisedContent = document.getElementById('revisedContent');
     while (true) {
       const { done, value } = await reader.read();
@@ -800,8 +800,8 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
               if (revisedContent && revisedText) {
                 revisedContent.innerHTML = this.renderMarkdownCommon(revisedText);
               }
-              if (analysisContent && analysisText) {
-                analysisContent.innerHTML = this.renderMarkdownCommon(analysisText);
+              if (analysis-content && analysisText) {
+                analysis-content.innerHTML = this.renderMarkdownCommon(analysisText);
               }
             }
             if (parsed.usage) {
@@ -820,8 +820,8 @@ class ContentUploadReviewerManager extends BaseAdvisorManager {
     if (revisedContent && revisedText) {
       revisedContent.innerHTML = this.renderMarkdownCommon(revisedText);
     }
-    if (analysisContent && analysisText) {
-      analysisContent.innerHTML = this.renderMarkdownCommon(analysisText);
+    if (analysis-content && analysisText) {
+      analysis-content.innerHTML = this.renderMarkdownCommon(analysisText);
     }
 
     this.showAnalysisCompleteNotification('content-upload-reviewer');

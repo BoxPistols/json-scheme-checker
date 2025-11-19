@@ -381,16 +381,6 @@
   box-sizing: border-box;
 }
 
-.advisor-api-key-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.advisor-api-key-wrapper .advisor-input {
-  flex: 1;
-}
-
 .advisor-label {
   display: block;
   margin-bottom: 6px;
@@ -400,35 +390,6 @@
   display: flex;
   gap: 12px;
   justify-content: center;
-}
-
-.advisor-btn-primary,
-.advisor-btn-secondary {
-  padding: 10px 24px;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: opacity 0.2s ease;
-  border: none;
-}
-
-.advisor-btn-primary {
-  background: var(--accent-color);
-  color: white;
-}
-
-.advisor-btn-primary:hover {
-  opacity: 0.9;
-}
-
-.advisor-btn-secondary {
-  background: var(--secondary-bg-color);
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
-}
-
-.advisor-btn-secondary:hover {
-  opacity: 0.8;
 }
 
 /* Mode Selection Buttons */
