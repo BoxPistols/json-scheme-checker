@@ -344,10 +344,10 @@
 
 .error-message.active {
   display: block;
-  animation: slideDown 0.3s ease-out;
+  animation: slide-down 0.3s ease-out;
 }
 
-@keyframes slideDown {
+@keyframes slide-down {
   from {
     opacity: 0;
     transform: translateY(-10px);
