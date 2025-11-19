@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>隠しモード動作確認</title>
+  <style>
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .test-section {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    h1 {
+      color: #333;
+      border-bottom: 3px solid #5a7ca3;
+      padding-bottom: 10px;
+    }
+    h2 {
+      color: #5a7ca3;
+      margin-top: 0;
+    }
+    .test-link {
+      display: inline-block;
+      padding: 12px 24px;
+      margin: 10px 5px;
+      background: #5a7ca3;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      transition: background 0.3s;
+    }
+    .test-link:hover {
+      background: #4a6c93;
+    }
+    .test-link.danger {
+      background: #d9534f;
+    }
+    .test-link.danger:hover {
+      background: #c9302c;
+    }
+    code {
+      background: #f0f0f0;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+    }
+    .expected {
+      background: #d4edda;
+      border-left: 4px solid #28a745;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 4px;
+    }
+    .expected h3 {
+      margin-top: 0;
+      color: #155724;
+    }
+    ul {
+      line-height: 1.8;
+    }
+  </style>
+</head>
+<body>
+  <h1>隠しモード機能 - 動作確認テスト</h1>
+
+  <div class="test-section">
+    <h2>テスト1: 通常アクセス（隠しモードOFF）</h2>
+    <p>通常のURLでアクセスすると、ベータ機能ボタンは表示されません。</p>
+    <a href="http://localhost:3333/" target="_blank" class="test-link">
+      通常アクセスでテスト
+    </a>
+    <div class="expected">
+      <h3>期待される動作:</h3>
+      <ul>
+        <li>「コンテンツをアップロード」ボタンが非表示</li>
+        <li>「My Skill Sheet」ボタンが非表示</li>
+        <li>URL入力欄の下に何も表示されない</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="test-section">
+    <h2>テスト2: 隠しモード（admin=true）</h2>
+    <p>URLに <code>?admin=true</code> を追加すると、ベータ機能が表示されます。</p>
+    <a href="http://localhost:3333/?admin=true" target="_blank" class="test-link">
+      隠しモードでテスト
+    </a>
+    <div class="expected">
+      <h3>期待される動作:</h3>
+      <ul>
+        <li>「コンテンツをアップロード BETA」ボタンが表示される</li>
+        <li>「My Skill Sheet BETA」ボタンが表示される</li>
+        <li>両ボタンをクリックすると、それぞれ <code>/file?admin=true</code> と <code>/skill?admin=true</code> に遷移する</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="test-section">
+    <h2>テスト3: 無効なパラメータ</h2>
+    <p>admin=false や admin=1 など、正確でない値では機能が有効にならないことを確認します。</p>
+    <a href="http://localhost:3333/?admin=false" target="_blank" class="test-link danger">
+      admin=false でテスト
+    </a>
+    <a href="http://localhost:3333/?admin=1" target="_blank" class="test-link danger">
+      admin=1 でテスト
+    </a>
+    <div class="expected">
+      <h3>期待される動作:</h3>
+      <ul>
+        <li>どちらの場合も、ベータ機能ボタンは非表示</li>
+        <li><code>admin=true</code> のみが有効</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="test-section">
+    <h2>実装詳細</h2>
+    <p>隠しモード機能は以下のように実装されています:</p>
+    <ul>
+      <li><strong>トリガー:</strong> URLクエリパラメータ <code>?admin=true</code></li>
+      <li><strong>対象機能:</strong>
+        <ul>
+          <li>コンテンツをアップロード（/file）</li>
+          <li>My Skill Sheet（/skill）</li>
+        </ul>
+      </li>
+      <li><strong>デフォルト動作:</strong> ボタンは <code>display: none</code> で完全非表示</li>
+      <li><strong>遷移時の動作:</strong> admin モードは遷移先URLにも引き継がれる</li>
+    </ul>
+  </div>
+
+  <div class="test-section">
+    <h2>使用方法</h2>
+    <p>本番環境（Vercel）でも同様に動作します:</p>
+    <code style="display: block; padding: 15px; background: #f8f9fa; border-radius: 4px; margin: 10px 0;">
+      https://json-ld-view.vercel.app/?admin=true
+    </code>
+    <p>このURLをブックマークしておくと、常に隠しモードでアクセスできます。</p>
+  </div>
+</body>
+</html>

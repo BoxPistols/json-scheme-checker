@@ -2,13 +2,14 @@
  * 07-json-display.css
  * JSON表示スタイル
  */
+
 /* JSON表示 */
 .json-view {
   background: var(--json-bg);
   border-radius: 6px;
   padding: 20px;
   overflow-x: auto;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-family: Monaco, Menlo, 'Ubuntu Mono', monospace;
   font-size: 13px;
   line-height: 1.6;
   color: var(--json-bracket);
@@ -22,18 +23,23 @@
 .json-key {
   color: var(--json-key);
 }
+
 .json-string {
   color: var(--json-string);
 }
+
 .json-number {
   color: var(--json-number);
 }
+
 .json-boolean {
   color: var(--json-boolean);
 }
+
 .json-null {
   color: var(--json-null);
 }
+
 .json-bracket {
   color: var(--json-bracket);
 }

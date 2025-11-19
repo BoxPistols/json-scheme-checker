@@ -2,6 +2,7 @@
  * 04-buttons.css
  * ボタンスタイル
  */
+
 /*
  * 結果表示
  */
@@ -161,9 +162,11 @@
 .data-table col.col-prop {
   width: 18%;
 }
+
 .data-table col.col-value {
   width: auto;
 }
+
 .data-table col.col-type {
   width: 96px;
 }
@@ -226,11 +229,13 @@
   margin: 8px 0;
   width: 100%;
 }
+
 .compact-array-table th {
   background: var(--bg-color);
   font-size: 13px;
   padding: 8px 12px;
 }
+
 .compact-array-table td {
   padding: 8px 12px;
   font-size: 14px;
@@ -246,9 +251,11 @@
 .nested-object .data-table col.col-prop {
   width: 32%;
 }
+
 .nested-object .data-table col.col-value {
   width: auto;
 }
+
 .nested-object .data-table col.col-type {
   width: 96px;
 }
@@ -259,7 +266,7 @@
   border-radius: 6px;
   padding: 20px;
   overflow-x: auto;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-family: Monaco, Menlo, 'Ubuntu Mono', monospace;
   font-size: 13px;
   line-height: 1.6;
   color: var(--json-bracket);
@@ -273,18 +280,23 @@
 .json-key {
   color: var(--json-key);
 }
+
 .json-string {
   color: var(--json-string);
 }
+
 .json-number {
   color: var(--json-number);
 }
+
 .json-boolean {
   color: var(--json-boolean);
 }
+
 .json-null {
   color: var(--json-null);
 }
+
 .json-bracket {
   color: var(--json-bracket);
 }
@@ -332,14 +344,15 @@
 
 .error-message.active {
   display: block;
-  animation: slideDown 0.3s ease-out;
+  animation: slide-down 0.3s ease-out;
 }
 
-@keyframes slideDown {
+@keyframes slide-down {
   from {
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -373,6 +386,7 @@
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
@@ -394,12 +408,14 @@
   flex-direction: column;
   gap: 2px;
 }
+
 .stat-label {
   color: var(--secondary-text-color);
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
+
 .stat-value {
   font-weight: 600;
   font-size: 18px;
@@ -424,6 +440,7 @@
   cursor: pointer;
   user-select: none;
 }
+
 .expandable::before {
   content: '▼';
   display: inline-block;
@@ -431,14 +448,17 @@
   transition: transform 0.2s;
   font-size: 12px;
 }
+
 .expandable.collapsed::before {
   content: '▶';
   transform: rotate(0deg);
 }
+
 .nested-content {
   display: block;
   margin-top: 8px;
 }
+
 .nested-content.collapsed {
   display: none;
 }
@@ -448,6 +468,7 @@
   text-decoration: none;
   word-break: break-all;
 }
+
 .url-value:hover {
   text-decoration: underline;
 }
@@ -457,6 +478,7 @@
   align-items: center;
   gap: 8px;
 }
+
 .image-thumb {
   width: 48px;
   height: 48px;

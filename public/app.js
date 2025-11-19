@@ -338,26 +338,43 @@ document.addEventListener('DOMContentLoaded', () => {
     ?.addEventListener('click', closeTwitterCardModal);
   document.getElementById('btnCloseOpenGraphModal')?.addEventListener('click', closeOpenGraphModal);
   document.getElementById('btnHideError')?.addEventListener('click', hideError);
-  // ベータ機能の環境判定と表示制御
+
+  /**
+   * 隠しモード機能: ベータ機能（コンテンツアップロード、My Skill Sheet）の表示制御
+   *
+   * URL に ?admin=true を追加することで、以下の機能にアクセス可能になります:
+   * - コンテンツをアップロード: ファイルやテキストをAIでレビュー
+   * - My Skill Sheet: スキルシート（職務経歴書）の作成・編集
+   *
+   * 使い方:
+   * https://json-ld-view.vercel.app/?admin=true
+   *
+   * admin=true が指定されていない場合、ボタンは完全に非表示になります。
+   */
   const contentUploadButton = document.getElementById('contentUploadButton');
   const mySkillSheetButton = document.getElementById('mySkillSheetButton');
 
-  // 認証状態をチェックして表示を制御
-  const UPLOAD_AUTH_STORAGE_KEY = 'jsonld_upload_auth';
-  const isAuthenticated = !!localStorage.getItem(UPLOAD_AUTH_STORAGE_KEY);
+  // URLクエリパラメータで隠しモード（user=file, user=skill, user=resume）を確認
+  const urlParams = new URLSearchParams(window.location.search);
+  const userMode = urlParams.get('user'); // 'file', 'skill', 'resume' のいずれか
+  const isFileMode = userMode === 'file';
+  const isSkillMode = userMode === 'skill';
+  const isResumeMode = userMode === 'resume';
 
-  // 開発環境（localhost）または認証済みユーザーにベータ機能を表示
-  if (!isLocalhost && !isAuthenticated) {
+  // 隠しモードが有効でない場合は非表示
+  if (!isFileMode && !isSkillMode && !isResumeMode) {
     contentUploadButton?.style.setProperty('display', 'none');
     mySkillSheetButton?.style.setProperty('display', 'none');
   }
 
-  // ベータ機能のボタンを別URLへのリンクとして動作させる
+  // Content Upload Button: ?user=file でアクセス
   contentUploadButton?.addEventListener('click', () => {
-    window.location.href = '/file';
+    window.location.href = '/?user=file';
   });
+
+  // My Skill Sheet Button: ?user=skill でアクセス
   mySkillSheetButton?.addEventListener('click', () => {
-    window.location.href = '/skill';
+    window.location.href = '/?user=skill';
   });
   const headerRow = document.querySelector('.header-row');
   if (headerRow) {
