@@ -124,7 +124,7 @@ module.exports = async (req, res) => {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
-    // OpenAI APIストリーミング呼び出し
+    // OpenAI APIストリーミング呼び出し（Prettier修正済み）
     const stream = await openai.chat.completions.create({
       model: selectedModel,
       messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...messages],
