@@ -127,10 +127,7 @@ module.exports = async (req, res) => {
     // OpenAI APIストリーミング呼び出し
     const stream = await openai.chat.completions.create({
       model: selectedModel,
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        ...messages,
-      ],
+      messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...messages],
       stream: true,
       temperature: 0.7,
       max_tokens: 2000,
