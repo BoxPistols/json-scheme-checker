@@ -1,4 +1,5 @@
 const OpenAI = require('openai');
+const crypto = require('crypto');
 
 // 定数定義
 const MAX_CONTENT_LENGTH = 500 * 1024; // 500KB
@@ -246,7 +247,20 @@ function checkAuth(req) {
       return true;
     }
 
-    const isValid = username === validUsername && password === validPassword;
+    // タイミング攻撃対策のため、crypto.timingSafeEqual を使用
+    const usernameBuffer = Buffer.from(username);
+    const validUsernameBuffer = Buffer.from(validUsername);
+    const usernameMatches =
+      usernameBuffer.length === validUsernameBuffer.length &&
+      crypto.timingSafeEqual(usernameBuffer, validUsernameBuffer);
+
+    const passwordBuffer = Buffer.from(password);
+    const validPasswordBuffer = Buffer.from(validPassword);
+    const passwordMatches =
+      passwordBuffer.length === validPasswordBuffer.length &&
+      crypto.timingSafeEqual(passwordBuffer, validPasswordBuffer);
+
+    const isValid = usernameMatches && passwordMatches;
 
     if (!isValid) {
       console.log(`[ContentUploadReviewer API] 認証失敗: username=${username}, password=***`);
