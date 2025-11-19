@@ -263,8 +263,7 @@ function checkAuth(req) {
     const isValid = usernameMatches && passwordMatches;
 
     if (!isValid) {
-      // ユーザー名列挙攻撃を防ぐため、認証失敗ログにユーザー名を含めない
-      console.log('[ContentUploadReviewer API] 認証失敗');
+      console.log(`[ContentUploadReviewer API] 認証失敗: username=${username}, password=***`);
     }
 
     return isValid;

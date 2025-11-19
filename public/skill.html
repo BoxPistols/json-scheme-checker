@@ -127,9 +127,222 @@
             <h1>My Skill Sheet</h1>
             <p>エンジニア向けのスキルシート（職務経歴書）を作成・管理・レビュー</p>
             <span class="badge-beta">Beta</span>
+            <div style="margin-top: 1rem;">
+                <button type="button" class="btn-guide" id="btnDataHelp">
+                    データの取扱について
+                </button>
+            </div>
         </div>
 
         <div id="skillSheetSection"></div>
+    </div>
+
+    <!-- データ取扱ヘルプModal -->
+    <div id="dataHelpModal" class="modal-overlay">
+        <div class="modal-container modal-container--wide">
+            <div class="modal-header modal-header--sticky">
+                <h2>My Skill Sheet - データの取扱について</h2>
+            </div>
+            <div class="modal-body">
+                <!-- 重要なお知らせ -->
+                <section class="modal-section">
+                    <div class="modal-info-box modal-info-box--red">
+                        <h3>重要: データはブラウザにのみ保存されます</h3>
+                        <p>
+                            My Skill Sheetのデータは、<strong>あなたのブラウザのLocalStorage</strong>に保存されます。サーバーには一切送信・保存されません。
+                        </p>
+                    </div>
+                </section>
+
+                <!-- データ保存の仕組み -->
+                <section class="modal-section">
+                    <h3 class="modal-section-title">データ保存の仕組み</h3>
+                    <table class="modal-table modal-table--striped">
+                        <thead>
+                            <tr>
+                                <th class="table-col-quarter">項目</th>
+                                <th>詳細</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>保存場所</strong></td>
+                                <td>ブラウザのLocalStorage（端末内のローカルストレージ）</td>
+                            </tr>
+                            <tr>
+                                <td><strong>保存キー</strong></td>
+                                <td>
+                                    メインデータ: <code>jsonld_skill_sheet</code><br>
+                                    履歴データ: <code>jsonld_skill_sheet_history</code> (最大10件)
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>容量制限</strong></td>
+                                <td>約5-10MB（ブラウザによる）</td>
+                            </tr>
+                            <tr>
+                                <td><strong>有効期限</strong></td>
+                                <td>期限なし（手動削除するまで永続）</td>
+                            </tr>
+                            <tr>
+                                <td><strong>スコープ</strong></td>
+                                <td>ドメインごと（<code>json-ld-view.vercel.app</code>）</td>
+                            </tr>
+                            <tr>
+                                <td><strong>セキュリティ</strong></td>
+                                <td>同一オリジンからのみアクセス可能</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- メリットとデメリット -->
+                <section class="modal-section">
+                    <h3 class="modal-section-title">メリットとデメリット</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                        <div class="modal-info-box modal-info-box--green">
+                            <h4>メリット</h4>
+                            <ul class="list-spaced">
+                                <li>サーバー不要で高速動作</li>
+                                <li>オフラインでも編集可能</li>
+                                <li>プライバシー保護（データはローカルのみ）</li>
+                                <li>外部への情報漏洩リスクなし</li>
+                            </ul>
+                        </div>
+                        <div class="modal-info-box modal-info-box--yellow">
+                            <h4>デメリット</h4>
+                            <ul class="list-spaced">
+                                <li>ブラウザ・端末固有（別の端末では見れない）</li>
+                                <li>ブラウザキャッシュクリアで消える可能性</li>
+                                <li>自動バックアップなし</li>
+                                <li>複数デバイス間で同期されない</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- データ削除のリスク -->
+                <section class="modal-section">
+                    <h3 class="modal-section-title">データが削除される可能性のある操作</h3>
+                    <div class="modal-info-box modal-info-box--red">
+                        <h4>以下の操作を行うと、データが失われます</h4>
+                        <ul class="list-spaced">
+                            <li><strong>ブラウザのキャッシュ・Cookie削除:</strong> LocalStorageも一緒に削除される可能性があります</li>
+                            <li><strong>ブラウザのプライベートモード:</strong> セッション終了時にデータが削除されます</li>
+                            <li><strong>ブラウザの再インストール:</strong> すべてのローカルデータが削除されます</li>
+                            <li><strong>OSの初期化:</strong> ブラウザデータを含むすべてが削除されます</li>
+                            <li><strong>ブラウザの開発者ツールでLocalStorageを手動削除:</strong> 誤操作で削除される可能性があります</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- バックアップ方法 -->
+                <section class="modal-section">
+                    <h3 class="modal-section-title">データのバックアップ方法</h3>
+                    <div class="modal-subsection">
+                        <h4 class="modal-subsection-title">方法1: ブラウザの開発者ツールでコピー（推奨）</h4>
+                        <ol class="modal-ordered-list">
+                            <li><strong>Chrome/Edge:</strong> F12キー → 「Application」タブ → 「Local Storage」 → <code>https://json-ld-view.vercel.app</code></li>
+                            <li><strong>Firefox:</strong> F12キー → 「ストレージ」タブ → 「ローカルストレージ」 → <code>https://json-ld-view.vercel.app</code></li>
+                            <li><strong>Safari:</strong> 開発メニュー → Webインスペクタ → 「Storage」 → 「Local Storage」</li>
+                            <li>キー <code>jsonld_skill_sheet</code> の値をコピー</li>
+                            <li>テキストエディタに貼り付けて <code>.json</code> ファイルとして保存</li>
+                        </ol>
+                    </div>
+
+                    <div class="modal-subsection">
+                        <h4 class="modal-subsection-title">方法2: エクスポート機能（将来実装予定）</h4>
+                        <p>
+                            現在、JSON形式でのエクスポート・インポート機能の実装を検討中です。実装されれば、ボタン一つで簡単にバックアップを取得できるようになります。
+                        </p>
+                    </div>
+                </section>
+
+                <!-- データの復元方法 -->
+                <section class="modal-section">
+                    <h3 class="modal-section-title">データの復元方法</h3>
+                    <div class="modal-subsection">
+                        <h4 class="modal-subsection-title">バックアップから復元する</h4>
+                        <ol class="modal-ordered-list">
+                            <li>ブラウザの開発者ツールを開く（F12キー）</li>
+                            <li>「Application」→「Local Storage」→ <code>https://json-ld-view.vercel.app</code> を選択</li>
+                            <li>キー <code>jsonld_skill_sheet</code> をクリック</li>
+                            <li>保存しておいたJSONデータを値欄に貼り付け</li>
+                            <li>ページをリロード</li>
+                        </ol>
+                    </div>
+
+                    <div class="modal-subsection">
+                        <h4 class="modal-subsection-title">履歴から復元する</h4>
+                        <p>
+                            最新10件の変更履歴が自動保存されています。誤って削除・編集した場合は、履歴から復元できる可能性があります（編集画面の「履歴」機能を利用）。
+                        </p>
+                    </div>
+                </section>
+
+                <!-- 推奨事項 -->
+                <section class="modal-section">
+                    <h3 class="modal-section-title">推奨事項</h3>
+                    <div class="modal-info-box modal-info-box--blue">
+                        <h4>データを失わないために</h4>
+                        <ul class="list-spaced">
+                            <li>定期的に開発者ツールからバックアップを取得してください</li>
+                            <li>重要な情報を入力した後は、必ずバックアップを保存してください</li>
+                            <li>ブラウザのキャッシュクリアを行う前に、必ずバックアップを取得してください</li>
+                            <li>複数のデバイスで使用する場合は、手動でデータをコピーしてください</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- プライバシーとセキュリティ -->
+                <section class="modal-section">
+                    <h3 class="modal-section-title">プライバシーとセキュリティ</h3>
+                    <div class="modal-info-box modal-info-box--green">
+                        <h4>あなたのデータは安全です</h4>
+                        <ul class="list-spaced">
+                            <li><strong>サーバーに送信されません:</strong> すべてのデータはブラウザ内のみで管理されます</li>
+                            <li><strong>外部からアクセス不可:</strong> 同一オリジン（ドメイン）からのみアクセス可能です</li>
+                            <li><strong>暗号化:</strong> ブラウザのLocalStorageは、OSレベルで保護されています</li>
+                            <li><strong>第三者への共有なし:</strong> あなたのデータは誰にも共有されません</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- よくある質問 -->
+                <section class="modal-section">
+                    <h3 class="modal-section-title">よくある質問</h3>
+                    <div class="modal-subsection">
+                        <h4 class="modal-subsection-title">Q1: 別のブラウザでもデータを見られますか？</h4>
+                        <p>
+                            <strong>A:</strong> いいえ、LocalStorageはブラウザごとに独立しています。Chrome、Firefox、Safariなど、異なるブラウザ間でデータは共有されません。バックアップを取得して、手動で移行する必要があります。
+                        </p>
+                    </div>
+                    <div class="modal-subsection">
+                        <h4 class="modal-subsection-title">Q2: スマホとPCでデータを同期できますか？</h4>
+                        <p>
+                            <strong>A:</strong> 現時点では自動同期機能はありません。バックアップをクラウドストレージ（Google Drive、Dropboxなど）に保存し、各デバイスで手動復元してください。
+                        </p>
+                    </div>
+                    <div class="modal-subsection">
+                        <h4 class="modal-subsection-title">Q3: データはいつまで保存されますか？</h4>
+                        <p>
+                            <strong>A:</strong> LocalStorageには有効期限がないため、手動削除するまで永続的に保存されます。ただし、ブラウザのキャッシュクリアなどで削除される可能性があります。
+                        </p>
+                    </div>
+                    <div class="modal-subsection">
+                        <h4 class="modal-subsection-title">Q4: データが消えてしまった場合、復旧できますか？</h4>
+                        <p>
+                            <strong>A:</strong> バックアップを取得していない場合、復旧は困難です。履歴機能（最新10件）が残っている場合は、そこから復元できる可能性があります。定期的なバックアップを強く推奨します。
+                        </p>
+                    </div>
+                </section>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal-close" id="btnCloseDataHelp">
+                    閉じる
+                </button>
+            </div>
+        </div>
     </div>
 
     <div id="snackbar" class="snackbar"></div>
@@ -146,6 +359,48 @@
     <script src="/utils/file-parser.js"></script>
     <script src="/modules/debug-mock-data.js"></script>
     <script src="/modules/base-advisor.js"></script>
+
+    <script>
+        // データヘルプモーダルの制御
+        window.addEventListener('DOMContentLoaded', () => {
+            const btnDataHelp = document.getElementById('btnDataHelp');
+            const btnCloseDataHelp = document.getElementById('btnCloseDataHelp');
+            const dataHelpModal = document.getElementById('dataHelpModal');
+
+            function showDataHelpModal() {
+                if (dataHelpModal) {
+                    dataHelpModal.style.display = 'flex';
+                    dataHelpModal.setAttribute('aria-hidden', 'false');
+                    document.body.style.overflow = 'hidden';
+                }
+            }
+
+            function closeDataHelpModal() {
+                if (dataHelpModal) {
+                    dataHelpModal.style.display = 'none';
+                    dataHelpModal.setAttribute('aria-hidden', 'true');
+                    document.body.style.overflow = '';
+                }
+            }
+
+            btnDataHelp?.addEventListener('click', showDataHelpModal);
+            btnCloseDataHelp?.addEventListener('click', closeDataHelpModal);
+
+            // モーダル背景クリックで閉じる
+            dataHelpModal?.addEventListener('click', (e) => {
+                if (e.target === dataHelpModal) {
+                    closeDataHelpModal();
+                }
+            });
+
+            // Escキーで閉じる
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && dataHelpModal?.style.display === 'flex') {
+                    closeDataHelpModal();
+                }
+            });
+        });
+    </script>
 
     <script type="module">
         import { isAuthenticated, isAuthRequired } from '/utils/auth.js';

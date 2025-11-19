@@ -88,6 +88,7 @@
   .advisor-chat-questioner-badge {
     font-size: var(--font-size-xs, 0.7rem);
     padding: 2px 6px;
+
     /* 2行目に移動 */
     grid-column: 1 / -1;
   }

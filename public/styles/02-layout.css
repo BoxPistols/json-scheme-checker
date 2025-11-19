@@ -2,6 +2,7 @@
  * 02-layout.css
  * レイアウト: ヘッダー、コンテナ、入力セクション
  */
+
 /*
  * ヘッダー
  */
@@ -15,6 +16,7 @@ header {
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
 .header-row {
   display: flex;
   align-items: center;
@@ -26,10 +28,12 @@ header {
 .header-row:hover {
   opacity: 0.8;
 }
+
 .logo-xl {
   width: 48px;
   height: 48px;
 }
+
 .heading-reset {
   margin: 0;
 }
@@ -99,6 +103,7 @@ h1 {
   100% {
     box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
   }
+
   50% {
     box-shadow: 0 4px 20px rgba(255, 107, 107, 0.6);
   }

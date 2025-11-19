@@ -338,22 +338,52 @@ document.addEventListener('DOMContentLoaded', () => {
     ?.addEventListener('click', closeTwitterCardModal);
   document.getElementById('btnCloseOpenGraphModal')?.addEventListener('click', closeOpenGraphModal);
   document.getElementById('btnHideError')?.addEventListener('click', hideError);
-  // ベータ機能の環境判定と表示制御
+
+  /**
+   * 隠しモード機能: ベータ機能（コンテンツアップロード、My Skill Sheet、レジュメビルダー）の表示制御
+   *
+   * URL に ?user=xxx を追加することで、以下の機能にアクセス可能になります:
+   * - ?user=file: コンテンツをアップロード（ファイルやテキストをAIでレビュー）
+   * - ?user=skill: My Skill Sheet（スキルシート・職務経歴書の作成・編集）
+   * - ?user=resume: レジュメビルダー（プロジェクト経験の対話形式作成）
+   *
+   * 使い方:
+   * https://json-ld-view.vercel.app/?user=file
+   * https://json-ld-view.vercel.app/?user=skill
+   * https://json-ld-view.vercel.app/?user=resume
+   *
+   * user パラメータが指定されていない場合、ボタンは完全に非表示になります。
+   */
   const contentUploadButton = document.getElementById('contentUploadButton');
   const mySkillSheetButton = document.getElementById('mySkillSheetButton');
+  const resumeBuilderButton = document.getElementById('resumeBuilderButton');
 
-  // 開発環境のみベータ機能を表示
-  if (!isLocalhost) {
-    contentUploadButton?.style.setProperty('display', 'none');
-    mySkillSheetButton?.style.setProperty('display', 'none');
+  // URLクエリパラメータで user=xxx が指定されているか確認
+  const urlParams = new URLSearchParams(window.location.search);
+  const userMode = urlParams.get('user');
+
+  // 各機能ボタンの表示制御
+  const buttons = {
+    file: contentUploadButton,
+    skill: mySkillSheetButton,
+    resume: resumeBuilderButton,
+  };
+
+  for (const mode in buttons) {
+    if (userMode !== mode) {
+      buttons[mode]?.style.setProperty('display', 'none');
+    }
   }
 
-  // ベータ機能のボタンを別URLへのリンクとして動作させる
+  // ベータ機能のボタンをクリック時の動作
   contentUploadButton?.addEventListener('click', () => {
-    window.location.href = '/file';
+    window.contentUploadReviewerManager?.showUploadModal();
   });
   mySkillSheetButton?.addEventListener('click', () => {
-    window.location.href = '/skill';
+    window.location.href = '/skill?user=skill';
+  });
+  resumeBuilderButton?.addEventListener('click', () => {
+    window.resumeBuilderManager?.showResumeBuilderModal();
   });
   const headerRow = document.querySelector('.header-row');
   if (headerRow) {

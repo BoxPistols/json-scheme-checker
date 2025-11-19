@@ -2,6 +2,7 @@
  * 08-guidance.css
  * ガイダンス、学習セクション
  */
+
 /* ガイダンス関連のスタイル */
 
 .guidance-section {
@@ -122,16 +123,16 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-.recommendation-card.recommendation-priority-高 {
+.recommendation-card.recommendation-priority-high {
   border-color: var(--error-color);
   background: linear-gradient(90deg, var(--error-bg-color) 0%, var(--card-bg-color) 100%);
 }
 
-.recommendation-card.recommendation-priority-中 {
+.recommendation-card.recommendation-priority-medium {
   border-color: var(--warning-color);
 }
 
-.recommendation-card.recommendation-priority-低 {
+.recommendation-card.recommendation-priority-low {
   border-color: var(--success-color);
 }
 
@@ -151,17 +152,17 @@
   white-space: nowrap;
 }
 
-.recommendation-card.recommendation-priority-高 .priority-badge {
+.recommendation-card.recommendation-priority-high .priority-badge {
   background: var(--error-color);
   color: white;
 }
 
-.recommendation-card.recommendation-priority-中 .priority-badge {
+.recommendation-card.recommendation-priority-medium .priority-badge {
   background: var(--warning-color);
   color: #000;
 }
 
-.recommendation-card.recommendation-priority-低 .priority-badge {
+.recommendation-card.recommendation-priority-low .priority-badge {
   background: var(--success-color);
   color: white;
 }
@@ -243,22 +244,6 @@
   font-size: 0.8em;
 }
 
-/* 実装例コードブロック */
-.recommendation-example {
-  background: var(--json-bg);
-  color: var(--json-key);
-  padding: 12px 16px;
-  border-radius: 4px;
-  font-family: 'Courier New', 'Monaco', monospace;
-  font-size: 1rem;
-  line-height: 1.6;
-  overflow-x: auto;
-  border: 1px solid var(--border-color);
-  margin: 8px 0;
-  white-space: pre-wrap;
-  word-break: break-all;
-}
-
 /* 学習ガイドセクション */
 .learning-section {
   margin-bottom: 24px;
@@ -312,7 +297,7 @@
   color: var(--json-bracket);
   padding: 14px 16px;
   border-radius: 4px;
-  font-family: 'Courier New', 'Monaco', monospace;
+  font-family: 'Courier New', Monaco, monospace;
   font-size: 1rem;
   line-height: 1.6;
   overflow-x: auto;
