@@ -354,24 +354,27 @@ document.addEventListener('DOMContentLoaded', () => {
   const contentUploadButton = document.getElementById('contentUploadButton');
   const mySkillSheetButton = document.getElementById('mySkillSheetButton');
 
-  // URLクエリパラメータで admin=true が指定されているか確認
+  // URLクエリパラメータで隠しモード（user=file, user=skill, user=resume）を確認
   const urlParams = new URLSearchParams(window.location.search);
-  const isAdminMode = urlParams.get('admin') === 'true';
+  const userMode = urlParams.get('user'); // 'file', 'skill', 'resume' のいずれか
+  const isFileMode = userMode === 'file';
+  const isSkillMode = userMode === 'skill';
+  const isResumeMode = userMode === 'resume';
 
   // 隠しモードが有効でない場合は非表示
-  if (!isAdminMode) {
+  if (!isFileMode && !isSkillMode && !isResumeMode) {
     contentUploadButton?.style.setProperty('display', 'none');
     mySkillSheetButton?.style.setProperty('display', 'none');
   }
 
-  // ベータ機能のボタンを別URLへのリンクとして動作させる（admin モードを維持）
+  // Content Upload Button: ?user=file でアクセス
   contentUploadButton?.addEventListener('click', () => {
-    const targetUrl = isAdminMode ? '/file?admin=true' : '/file';
-    window.location.href = targetUrl;
+    window.location.href = '/?user=file';
   });
+
+  // My Skill Sheet Button: ?user=skill でアクセス
   mySkillSheetButton?.addEventListener('click', () => {
-    const targetUrl = isAdminMode ? '/skill?admin=true' : '/skill';
-    window.location.href = targetUrl;
+    window.location.href = '/?user=skill';
   });
   const headerRow = document.querySelector('.header-row');
   if (headerRow) {
