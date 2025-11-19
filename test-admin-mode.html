@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>隠しモード動作確認</title>
+  <title>隠しモード動作確認（user パラメータ版）</title>
   <style>
     body {
       font-family: 'Noto Sans JP', sans-serif;
@@ -70,7 +70,7 @@
   </style>
 </head>
 <body>
-  <h1>隠しモード機能 - 動作確認テスト</h1>
+  <h1>隠しモード機能 - 動作確認テスト（user パラメータ版）</h1>
 
   <div class="test-section">
     <h2>テスト1: 通常アクセス（隠しモードOFF）</h2>
@@ -83,41 +83,74 @@
       <ul>
         <li>「コンテンツをアップロード」ボタンが非表示</li>
         <li>「My Skill Sheet」ボタンが非表示</li>
+        <li>「レジュメビルダー」ボタンが非表示</li>
         <li>URL入力欄の下に何も表示されない</li>
       </ul>
     </div>
   </div>
 
   <div class="test-section">
-    <h2>テスト2: 隠しモード（admin=true）</h2>
-    <p>URLに <code>?admin=true</code> を追加すると、ベータ機能が表示されます。</p>
-    <a href="http://localhost:3333/?admin=true" target="_blank" class="test-link">
-      隠しモードでテスト
+    <h2>テスト2: 隠しモード（user=file）</h2>
+    <p>URLに <code>?user=file</code> を追加すると、コンテンツアップロード機能が表示されます。</p>
+    <a href="http://localhost:3333/?user=file" target="_blank" class="test-link">
+      user=file でテスト
     </a>
     <div class="expected">
       <h3>期待される動作:</h3>
       <ul>
-        <li>「コンテンツをアップロード BETA」ボタンが表示される</li>
-        <li>「My Skill Sheet BETA」ボタンが表示される</li>
-        <li>両ボタンをクリックすると、それぞれ <code>/file?admin=true</code> と <code>/skill?admin=true</code> に遷移する</li>
+        <li>「コンテンツをアップロード BETA」ボタンのみ表示される</li>
+        <li>他のベータ機能ボタンは非表示</li>
+        <li>ボタンをクリックすると、アップロードモーダルが開く</li>
       </ul>
     </div>
   </div>
 
   <div class="test-section">
-    <h2>テスト3: 無効なパラメータ</h2>
-    <p>admin=false や admin=1 など、正確でない値では機能が有効にならないことを確認します。</p>
-    <a href="http://localhost:3333/?admin=false" target="_blank" class="test-link danger">
-      admin=false でテスト
-    </a>
-    <a href="http://localhost:3333/?admin=1" target="_blank" class="test-link danger">
-      admin=1 でテスト
+    <h2>テスト3: 隠しモード（user=skill）</h2>
+    <p>URLに <code>?user=skill</code> を追加すると、My Skill Sheet機能が表示されます。</p>
+    <a href="http://localhost:3333/?user=skill" target="_blank" class="test-link">
+      user=skill でテスト
     </a>
     <div class="expected">
       <h3>期待される動作:</h3>
       <ul>
-        <li>どちらの場合も、ベータ機能ボタンは非表示</li>
-        <li><code>admin=true</code> のみが有効</li>
+        <li>「My Skill Sheet BETA」ボタンのみ表示される</li>
+        <li>他のベータ機能ボタンは非表示</li>
+        <li>ボタンをクリックすると、<code>/skill?user=skill</code> に遷移する</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="test-section">
+    <h2>テスト4: 隠しモード（user=resume）</h2>
+    <p>URLに <code>?user=resume</code> を追加すると、レジュメビルダー機能が表示されます。</p>
+    <a href="http://localhost:3333/?user=resume" target="_blank" class="test-link">
+      user=resume でテスト
+    </a>
+    <div class="expected">
+      <h3>期待される動作:</h3>
+      <ul>
+        <li>「レジュメビルダー BETA」ボタンのみ表示される</li>
+        <li>他のベータ機能ボタンは非表示</li>
+        <li>ボタンをクリックすると、レジュメビルダーモーダルが開く</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="test-section">
+    <h2>テスト5: 無効なパラメータ</h2>
+    <p>user=admin や user=test など、定義されていない値では機能が有効にならないことを確認します。</p>
+    <a href="http://localhost:3333/?user=admin" target="_blank" class="test-link danger">
+      user=admin でテスト
+    </a>
+    <a href="http://localhost:3333/?user=test" target="_blank" class="test-link danger">
+      user=test でテスト
+    </a>
+    <div class="expected">
+      <h3>期待される動作:</h3>
+      <ul>
+        <li>どちらの場合も、すべてのベータ機能ボタンは非表示</li>
+        <li><code>user=file</code>、<code>user=skill</code>、<code>user=resume</code> のみが有効</li>
       </ul>
     </div>
   </div>
@@ -126,15 +159,16 @@
     <h2>実装詳細</h2>
     <p>隠しモード機能は以下のように実装されています:</p>
     <ul>
-      <li><strong>トリガー:</strong> URLクエリパラメータ <code>?admin=true</code></li>
+      <li><strong>トリガー:</strong> URLクエリパラメータ <code>?user=xxx</code></li>
       <li><strong>対象機能:</strong>
         <ul>
-          <li>コンテンツをアップロード（/file）</li>
-          <li>My Skill Sheet（/skill）</li>
+          <li><code>?user=file</code>: コンテンツアップロード</li>
+          <li><code>?user=skill</code>: My Skill Sheet</li>
+          <li><code>?user=resume</code>: レジュメビルダー</li>
         </ul>
       </li>
       <li><strong>デフォルト動作:</strong> ボタンは <code>display: none</code> で完全非表示</li>
-      <li><strong>遷移時の動作:</strong> admin モードは遷移先URLにも引き継がれる</li>
+      <li><strong>セキュリティ:</strong> 各機能は独立した鍵で管理され、推測されにくい</li>
     </ul>
   </div>
 
@@ -142,9 +176,15 @@
     <h2>使用方法</h2>
     <p>本番環境（Vercel）でも同様に動作します:</p>
     <code style="display: block; padding: 15px; background: #f8f9fa; border-radius: 4px; margin: 10px 0;">
-      https://json-ld-view.vercel.app/?admin=true
+      https://json-ld-view.vercel.app/?user=file
     </code>
-    <p>このURLをブックマークしておくと、常に隠しモードでアクセスできます。</p>
+    <code style="display: block; padding: 15px; background: #f8f9fa; border-radius: 4px; margin: 10px 0;">
+      https://json-ld-view.vercel.app/?user=skill
+    </code>
+    <code style="display: block; padding: 15px; background: #f8f9fa; border-radius: 4px; margin: 10px 0;">
+      https://json-ld-view.vercel.app/?user=resume
+    </code>
+    <p>これらのURLをブックマークしておくと、常に隠しモードでアクセスできます。</p>
   </div>
 </body>
 </html>
