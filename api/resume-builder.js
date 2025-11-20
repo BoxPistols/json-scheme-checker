@@ -133,7 +133,6 @@ module.exports = async (req, res) => {
       max_tokens: 2000,
     });
 
-    let fullText = '';
     let usage = null;
 
     // ストリーミングデータを処理
@@ -141,7 +140,6 @@ module.exports = async (req, res) => {
       const delta = chunk.choices[0]?.delta;
 
       if (delta?.content) {
-        fullText += delta.content;
         res.write(
           `data: ${JSON.stringify({
             content: delta.content,
