@@ -85,7 +85,8 @@ StatsCard.storyName = '統計カード';
 export const FeatureCard = () => {
   const container = document.createElement('div');
   container.className = 'feature-cards';
-  container.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;';
+  container.style.cssText =
+    'display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;';
 
   const features = [
     {

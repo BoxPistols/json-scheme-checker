@@ -44,7 +44,7 @@ export const Primary = {
   args: {
     label: '取得',
   },
-  render: (args) => {
+  render: args => {
     const button = createButton(args);
     button.id = 'fetchButton';
     button.style.cssText = `
@@ -79,7 +79,7 @@ export const Copy = {
   args: {
     label: 'コピー',
   },
-  render: (args) => {
+  render: args => {
     const button = createButton(args);
     button.className = 'copy-button';
     return button;
@@ -91,7 +91,7 @@ export const ModalClose = {
   args: {
     label: '閉じる',
   },
-  render: (args) => {
+  render: args => {
     const button = createButton(args);
     button.className = 'btn-modal-close';
     return button;
@@ -103,7 +103,7 @@ export const MyAPI = {
   args: {
     label: 'My API',
   },
-  render: (args) => {
+  render: args => {
     const button = createButton(args);
     button.className = 'btn-my-api';
     return button;
@@ -115,7 +115,7 @@ export const Guide = {
   args: {
     label: 'Help',
   },
-  render: (args) => {
+  render: args => {
     const button = createButton(args);
     button.className = 'btn-guide';
     return button;
@@ -149,7 +149,7 @@ export const Disabled = {
     label: '無効',
     disabled: true,
   },
-  render: (args) => {
+  render: args => {
     const button = createButton(args);
     button.style.cssText = `
       padding: 12px 24px;
@@ -177,7 +177,12 @@ export const AllVariants = () => {
   `;
 
   const variants = [
-    { label: 'プライマリボタン', id: 'fetchButton', style: 'padding: 12px 24px; background: var(--primary-color); color: var(--primary-text-color); border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer;' },
+    {
+      label: 'プライマリボタン',
+      id: 'fetchButton',
+      style:
+        'padding: 12px 24px; background: var(--primary-color); color: var(--primary-text-color); border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer;',
+    },
     { label: 'コピーボタン', className: 'copy-button' },
     { label: 'My API', className: 'btn-my-api' },
     { label: 'Help', className: 'btn-guide' },

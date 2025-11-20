@@ -16,7 +16,7 @@ export const SchemaType = () => {
 
   const types = ['JobPosting', 'Article', 'Organization', 'WebPage', 'BreadcrumbList'];
 
-  types.forEach((type) => {
+  types.forEach(type => {
     const badge = document.createElement('span');
     badge.className = 'schema-type';
     badge.textContent = type;
@@ -39,7 +39,7 @@ export const DocPill = () => {
     { label: 'JobPost', icon: 'J' },
   ];
 
-  links.forEach(({ label, icon }) => {
+  links.forEach(({ label }) => {
     const pill = document.createElement('a');
     pill.className = 'doc-pill';
     pill.href = '#';
@@ -138,7 +138,7 @@ export const PropertyType = () => {
 
   const types = ['string', 'number', 'boolean', 'object', 'array', 'null'];
 
-  types.forEach((type) => {
+  types.forEach(type => {
     const badge = document.createElement('span');
     badge.className = 'property-type';
     badge.textContent = type;
@@ -169,7 +169,7 @@ export const AllVariants = () => {
   // スキーマタイプ
   const schemaTypes = document.createElement('div');
   schemaTypes.style.cssText = 'display: flex; gap: 8px; flex-wrap: wrap;';
-  ['JobPosting', 'Article', 'Organization'].forEach((type) => {
+  ['JobPosting', 'Article', 'Organization'].forEach(type => {
     const badge = document.createElement('span');
     badge.className = 'schema-type';
     badge.textContent = type;
@@ -187,7 +187,7 @@ export const AllVariants = () => {
   // プロパティタイプ
   const propTypes = document.createElement('div');
   propTypes.style.cssText = 'display: flex; gap: 8px; flex-wrap: wrap;';
-  ['string', 'number', 'boolean', 'object'].forEach((type) => {
+  ['string', 'number', 'boolean', 'object'].forEach(type => {
     const badge = document.createElement('span');
     badge.className = 'property-type';
     badge.textContent = type;

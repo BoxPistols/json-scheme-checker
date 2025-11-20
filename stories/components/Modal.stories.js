@@ -2,7 +2,7 @@
  * モーダルコンポーネントのストーリー
  */
 
-import { expect, userEvent, within } from '@storybook/test';
+import { expect, within } from '@storybook/test';
 
 export default {
   title: 'コンポーネント/モーダル',

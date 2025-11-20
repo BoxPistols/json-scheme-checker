@@ -199,7 +199,7 @@ export const Checkbox = () => {
   container.style.cssText = 'display: flex; flex-direction: column; gap: 12px;';
 
   const items = ['オプション1', 'オプション2', 'オプション3'];
-  items.forEach((item) => {
+  items.forEach(item => {
     const label = document.createElement('label');
     label.style.cssText = `
       display: flex;
