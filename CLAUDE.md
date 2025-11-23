@@ -255,15 +255,15 @@ json-ld-viewer/
 ├── api/                      # Vercelサーバーレス関数
 │   ├── proxy.js
 │   ├── health.js
-│   ├── advisor.js                    # JobPosting Advisor API
-│   ├── blog-reviewer.js              # Blog Reviewer API
-│   ├── web-advisor.js                # Web Advisor API
-│   ├── content-upload-reviewer.js    # Content Upload Reviewer API
-│   ├── chat.js                       # Chat API
-│   ├── resume-builder.js             # Resume Builder API
-│   ├── test-connection.js            # Connection Test API
-│   ├── web-advisor-session.js        # Web Advisor Session API
-│   └── web-advisor-session-store.js  # Session Store
+│   ├── advisor.js                   # JobPosting Advisor API
+│   ├── blog-reviewer.js             # Blog Reviewer API
+│   ├── web-advisor.js               # Web Advisor API
+│   ├── content-upload-reviewer.js   # Content Upload Reviewer API
+│   ├── chat.js                      # Chat API
+│   ├── resume-builder.js            # Resume Builder API
+│   ├── test-connection.js           # Connection Test API
+│   ├── web-advisor-session.js       # Web Advisor Session API
+│   └── web-advisor-session-store.js # Session Store
 ├── tests/                    # テスト
 │   ├── unit/                # ユニットテスト
 │   ├── integration/         # 統合テスト
