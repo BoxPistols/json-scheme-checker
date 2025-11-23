@@ -1,0 +1,599 @@
+name: AI Auto Fix System
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  pull_request_review:
+    types: [submitted]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  detect-issues:
+    name: 問題検出
+    runs-on: ubuntu-latest
+    outputs:
+      has_lint_errors: ${{ steps.detect.outputs.lint_errors }}
+      has_format_errors: ${{ steps.detect.outputs.format_errors }}
+      has_css_errors: ${{ steps.detect.outputs.css_errors }}
+      has_test_failures: ${{ steps.detect.outputs.test_failures }}
+      has_conflicts: ${{ steps.detect.outputs.conflicts }}
+      has_server_errors: ${{ steps.detect.outputs.server_errors }}
+      gemini_high_priority: ${{ steps.gemini-check.outputs.gemini_high }}
+      should_run_fix: ${{ steps.decision.outputs.should_run }}
+
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        continue-on-error: true
+
+      - name: Detect Issues
+        id: detect
+        continue-on-error: true
+        run: |
+          echo "検出された問題を確認中..."
+
+          # ESLint check
+          echo "## ESLint Check" > lint.log
+          if ! pnpm lint >> lint.log 2>&1; then
+            echo "lint_errors=true" >> $GITHUB_OUTPUT
+            echo "警告: Lintエラーが検出されました"
+          fi
+
+          # Format check
+          echo "## Format Check" > format.log
+          if ! pnpm format:check >> format.log 2>&1; then
+            echo "format_errors=true" >> $GITHUB_OUTPUT
+            echo "警告: フォーマットエラーが検出されました"
+          fi
+
+          # CSS check
+          echo "## CSS Check" > css.log
+          if ! pnpm lint:css >> css.log 2>&1; then
+            echo "css_errors=true" >> $GITHUB_OUTPUT
+            echo "警告: CSSエラーが検出されました"
+          fi
+
+          # Test check
+          echo "## Test Check" > test.log
+          if ! pnpm test >> test.log 2>&1; then
+            echo "test_failures=true" >> $GITHUB_OUTPUT
+            echo "警告: テスト失敗が検出されました"
+          fi
+
+          # Server health check
+          echo "## Server Health Check" > server.log
+          timeout 15s pnpm start &
+          sleep 8
+          if ! curl -f http://localhost:3333/health >> server.log 2>&1; then
+            echo "server_errors=true" >> $GITHUB_OUTPUT
+            echo "警告: サーバー起動エラーが検出されました"
+          fi
+          pkill -f "node server.js" || true
+
+          # Conflict check
+          echo "## Conflict Check" > conflict.log
+          git fetch origin ${{ github.base_ref }}
+          BASE_SHA=$(git merge-base HEAD origin/${{ github.base_ref }})
+          if git merge-tree $BASE_SHA HEAD origin/${{ github.base_ref }} | grep -q '<<<<<<<'; then
+            echo "conflicts=true" >> $GITHUB_OUTPUT
+            echo "警告: マージコンフリクトが検出されました"
+          fi
+
+      - name: Check Gemini Review Priority
+        id: gemini-check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            try {
+              const reviews = await github.rest.pulls.listReviews({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+              });
+
+              const geminiReview = reviews.data.find(r =>
+                r.user.login.toLowerCase().includes('gemini') ||
+                r.body.toLowerCase().includes('gemini')
+              );
+
+              if (geminiReview) {
+                console.log('確認: Geminiレビューが見つかりました');
+
+                // Priority High チェック
+                if (/priority:?\s*high/i.test(geminiReview.body)) {
+                  core.setOutput('gemini_high', 'true');
+                  console.log('重要: 優先度の高い問題が見つかりました');
+                }
+
+                // レビューコメントを保存
+                const fs = require('fs');
+                fs.writeFileSync('gemini_review.txt', geminiReview.body);
+              }
+            } catch (error) {
+              console.log('情報: レビューがまだありません または エラー:', error.message);
+            }
+
+      - name: Decide if fix is needed
+        id: decision
+        run: |
+          if [ "${{ steps.detect.outputs.lint_errors }}" = "true" ] || \
+             [ "${{ steps.detect.outputs.format_errors }}" = "true" ] || \
+             [ "${{ steps.detect.outputs.css_errors }}" = "true" ] || \
+             [ "${{ steps.detect.outputs.test_failures }}" = "true" ] || \
+             [ "${{ steps.detect.outputs.server_errors }}" = "true" ] || \
+             [ "${{ steps.detect.outputs.conflicts }}" = "true" ] || \
+             [ "${{ steps.gemini-check.outputs.gemini_high }}" = "true" ]; then
+            echo "should_run=true" >> $GITHUB_OUTPUT
+            echo "自動修正が必要です"
+          else
+            echo "should_run=false" >> $GITHUB_OUTPUT
+            echo "確認: 問題は検出されませんでした"
+          fi
+
+      - name: Upload Logs
+        if: steps.decision.outputs.should_run == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue-logs
+          path: |
+            lint.log
+            format.log
+            css.log
+            test.log
+            server.log
+            conflict.log
+            gemini_review.txt
+          retention-days: 7
+
+  auto-fix-simple:
+    name: 簡単な修正（Lint/Format/CSS）
+    needs: detect-issues
+    if: |
+      needs.detect-issues.outputs.should_run_fix == 'true' &&
+      (needs.detect-issues.outputs.has_lint_errors == 'true' ||
+       needs.detect-issues.outputs.has_format_errors == 'true' ||
+       needs.detect-issues.outputs.has_css_errors == 'true')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Auto-fix Lint, Format, and CSS
+        run: |
+          echo "自動修正を実行中..."
+          pnpm lint:fix || true
+          pnpm format || true
+          pnpm lint:css:fix || true
+
+      - name: Commit fixes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if [ -n "$(git status --porcelain)" ]; then
+            git add .
+            git commit -m "自動修正: Lint、Format、CSSの修正"
+            git push
+            echo "確認: Lint/Format/CSS修正がコミットされました"
+          else
+            echo "情報: コミットする変更がありません"
+          fi
+
+  ai-fix-complex:
+    name: AI修正（Claude）
+    needs: [detect-issues, auto-fix-simple]
+    if: |
+      always() &&
+      needs.detect-issues.outputs.should_run_fix == 'true' &&
+      (needs.detect-issues.outputs.has_test_failures == 'true' ||
+       needs.detect-issues.outputs.has_server_errors == 'true' ||
+       needs.detect-issues.outputs.has_conflicts == 'true' ||
+       needs.detect-issues.outputs.gemini_high_priority == 'true')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Download Logs
+        uses: actions/download-artifact@v4
+        with:
+          name: issue-logs
+
+      - name: Get PR diff and context
+        id: context
+        run: |
+          echo "コンテキストを収集中..."
+
+          # PR diff
+          git fetch origin ${{ github.base_ref }}
+          git diff origin/${{ github.base_ref }}...HEAD > pr_diff.txt
+
+          # Package.json info
+          cat package.json | jq '{name, version, dependencies, devDependencies, scripts}' > package_info.json
+
+          echo "コンテキストの収集が完了しました"
+
+      - name: Get Gemini Review Comments
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            try {
+              // Get PR reviews
+              const reviews = await github.rest.pulls.listReviews({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+              });
+
+              // Get review comments
+              const comments = await github.rest.pulls.listReviewComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+              });
+
+              // Filter Gemini comments
+              const geminiReviews = reviews.data
+                .filter(r => r.user.login.toLowerCase().includes('gemini') ||
+                            r.body.toLowerCase().includes('gemini'))
+                .map(r => r.body)
+                .join('\n\n---\n\n');
+
+              const geminiComments = comments.data
+                .filter(c => c.user.login.toLowerCase().includes('gemini') ||
+                            c.body.toLowerCase().includes('gemini'))
+                .map(c => `**ファイル**: ${c.path}\n**行**: ${c.line}\n**コメント**:\n${c.body}`)
+                .join('\n\n---\n\n');
+
+              const allGemini = [geminiReviews, geminiComments]
+                .filter(Boolean)
+                .join('\n\n========\n\n');
+
+              fs.writeFileSync('gemini_all_comments.txt', allGemini || 'Geminiコメントは見つかりませんでした');
+              console.log('確認: Geminiコメントを保存しました');
+
+            } catch (error) {
+              console.log('警告: コメント取得エラー:', error.message);
+              fs.writeFileSync('gemini_all_comments.txt', 'コメントの取得に失敗しました');
+            }
+
+      - name: AI Analysis and Fix with Claude
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          echo "Claudeによる分析と修正プラン作成中..."
+
+          # プロンプト作成
+          cat > fix_request.json << 'EOFPROMPT'
+          {
+            "model": "claude-sonnet-4-20250514",
+            "max_tokens": 16000,
+            "system": "あなたは経験豊富な日本のフルスタックエンジニアです。以下の技術スタックに精通しています:\n- Node.js + Express.js\n- Vanilla JavaScript（TypeScriptは使用していません）\n- Vercelサーバーレス関数\n- Axios, Cheerio, OpenAI API\n- ESLint, Prettier, Stylelint\n- Vitest（テストフレームワーク）\n\n修正の原則:\n1. CI/CDテスト合格が最優先\n2. サーバー起動エラーは必ず解消\n3. マージ可能な状態にする\n4. 既存のコードスタイル・アーキテクチャを維持\n5. 不確実な修正は別Issueに切り出す\n6. Gemini Priority Highは優先対応\n\n必ずJSON形式で回答してください。",
+            "messages": [{
+              "role": "user",
+              "content": ""
+            }]
+          }
+          EOFPROMPT
+
+          # コンテンツ構築
+          CONTENT="以下の問題を分析し、修正計画を立ててください。\n\n"
+
+          CONTENT+="# プロジェクト情報\n\`\`\`json\n$(cat package_info.json)\n\`\`\`\n\n"
+
+          CONTENT+="# ESLint Errors\n\`\`\`\n$(cat lint.log 2>/dev/null || echo 'なし')\n\`\`\`\n\n"
+
+          CONTENT+="# Format Errors\n\`\`\`\n$(cat format.log 2>/dev/null || echo 'なし')\n\`\`\`\n\n"
+
+          CONTENT+="# CSS Errors\n\`\`\`\n$(cat css.log 2>/dev/null || echo 'なし')\n\`\`\`\n\n"
+
+          CONTENT+="# Test Failures\n\`\`\`\n$(cat test.log 2>/dev/null || echo 'なし')\n\`\`\`\n\n"
+
+          CONTENT+="# Server Errors\n\`\`\`\n$(cat server.log 2>/dev/null || echo 'なし')\n\`\`\`\n\n"
+
+          CONTENT+="# Merge Conflicts\n\`\`\`\n$(cat conflict.log 2>/dev/null || echo 'なし')\n\`\`\`\n\n"
+
+          CONTENT+="# Gemini Review Comments\n$(cat gemini_all_comments.txt 2>/dev/null || echo 'なし')\n\n"
+
+          CONTENT+="# PR Diff (最初の1000行)\n\`\`\`diff\n$(head -n 1000 pr_diff.txt)\n\`\`\`\n\n"
+
+          CONTENT+="# 指示\n\n"
+          CONTENT+="以下のJSON形式で修正計画を作成してください:\n\n"
+          CONTENT+="\`\`\`json\n"
+          CONTENT+="{\n"
+          CONTENT+='  "analysis": "問題の分析と診断",\n'
+          CONTENT+='  "should_fix_now": true/false,\n'
+          CONTENT+='  "fix_strategy": "修正戦略の説明",\n'
+          CONTENT+='  "fixes": [\n'
+          CONTENT+='    {\n'
+          CONTENT+='      "file": "src/components/Example.js",\n'
+          CONTENT+='      "action": "modify|create|delete",\n'
+          CONTENT+='      "content": "修正後の完全なファイル内容（必ず全体を含む）",\n'
+          CONTENT+='      "reason": "この修正が必要な理由",\n'
+          CONTENT+='      "priority": "high|medium|low"\n'
+          CONTENT+='    }\n'
+          CONTENT+='  ],\n'
+          CONTENT+='  "create_issues": [\n'
+          CONTENT+='    {\n'
+          CONTENT+='      "title": "後で対応すべきタスクのタイトル",\n'
+          CONTENT+='      "body": "詳細な説明とコンテキスト",\n'
+          CONTENT+='      "labels": ["technical-debt", "needs-review"]\n'
+          CONTENT+='    }\n'
+          CONTENT+='  ],\n'
+          CONTENT+='  "summary_ja": "何を修正したか、なぜそうしたかの日本語要約",\n'
+          CONTENT+='  "risks": "この修正に関する潜在的なリスクや注意点"\n'
+          CONTENT+="}\n"
+          CONTENT+="\`\`\`\n\n"
+          CONTENT+="重要:\n"
+          CONTENT+="- 修正後はCI/CDテストが通ること\n"
+          CONTENT+="- サーバーが正常に起動すること\n"
+          CONTENT+="- 既存の設計パターンを維持すること\n"
+          CONTENT+="- 不確実な場合はcreate_issuesで別タスク化\n"
+          CONTENT+="- 必ずJSONのみを返すこと（説明文は不要）"
+
+          # JSONに挿入
+          jq --arg content "$CONTENT" '.messages[0].content = $content' fix_request.json > fix_request_final.json
+
+          # Claude API呼び出し
+          echo "Claude APIに送信中..."
+          curl -s https://api.anthropic.com/v1/messages \
+            -H "content-type: application/json" \
+            -H "x-api-key: $ANTHROPIC_API_KEY" \
+            -H "anthropic-version: 2023-06-01" \
+            -d @fix_request_final.json > claude_response.json
+
+          # レスポンス確認
+          if [ $? -ne 0 ]; then
+            echo "エラー: Claude API呼び出しに失敗しました"
+            exit 1
+          fi
+
+          # JSONを抽出
+          cat claude_response.json | jq -r '.content[0].text' > response_text.txt
+
+          # コードブロックからJSON抽出
+          if grep -q '```json' response_text.txt; then
+            sed -n '/```json/,/```/p' response_text.txt | sed '1d;$d' > ai_fix_plan.json
+          else
+            # JSONが直接返された場合
+            cat response_text.txt > ai_fix_plan.json
+          fi
+
+          echo "確認: Claude応答を受信しました"
+          cat ai_fix_plan.json | jq .
+
+      - name: Apply AI Fixes
+        id: apply-fixes
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            let plan;
+            try {
+              const planText = fs.readFileSync('ai_fix_plan.json', 'utf8');
+              plan = JSON.parse(planText);
+            } catch (error) {
+              console.error('エラー: 修正プランの解析に失敗しました:', error);
+              core.setFailed('修正プランのJSON形式が不正です');
+              return;
+            }
+
+            console.log('修正プラン分析:', plan.analysis);
+            console.log('戦略:', plan.fix_strategy);
+
+            let appliedFixes = [];
+
+            if (plan.should_fix_now && plan.fixes && plan.fixes.length > 0) {
+              console.log(`\n${plan.fixes.length}件の修正を適用中...`);
+
+              for (const fix of plan.fixes) {
+                try {
+                  const filePath = fix.file;
+                  console.log(`\n処理: ${fix.action.toUpperCase()}: ${filePath}`);
+                  console.log(`   理由: ${fix.reason}`);
+                  console.log(`   優先度: ${fix.priority}`);
+
+                  if (fix.action === 'delete') {
+                    if (fs.existsSync(filePath)) {
+                      fs.unlinkSync(filePath);
+                      appliedFixes.push(`確認: 削除: ${filePath}`);
+                    }
+                  } else if (fix.action === 'create' || fix.action === 'modify') {
+                    // ディレクトリ作成
+                    const dir = path.dirname(filePath);
+                    if (!fs.existsSync(dir)) {
+                      fs.mkdirSync(dir, { recursive: true });
+                    }
+
+                    // ファイル書き込み
+                    fs.writeFileSync(filePath, fix.content, 'utf8');
+                    appliedFixes.push(`確認: ${fix.action === 'create' ? '作成' : '更新'}: ${filePath}`);
+                  }
+
+                } catch (error) {
+                  console.error(`エラー: ${fix.file}への修正適用に失敗しました:`, error);
+                  appliedFixes.push(`エラー: 失敗: ${fix.file} - ${error.message}`);
+                }
+              }
+            } else {
+              console.log('情報: 即座の修正は不要です、または別途対応が決定されました');
+            }
+
+            // Issueの作成
+            if (plan.create_issues && plan.create_issues.length > 0) {
+              console.log(`\n${plan.create_issues.length}件のIssueを作成中...`);
+
+              for (const issue of plan.create_issues) {
+                try {
+                  const created = await github.rest.issues.create({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    title: issue.title,
+                    body: issue.body + `\n\n---\n\n_AI自動修正システムにより作成_\n_関連PR: #${context.issue.number}_`,
+                    labels: issue.labels || ['ai-generated', 'needs-review'],
+                  });
+
+                  console.log(`確認: Issue作成: ${issue.title} (#${created.data.number})`);
+                  appliedFixes.push(`情報: Issue #${created.data.number}: ${issue.title}`);
+
+                } catch (error) {
+                  console.error(`エラー: Issue作成に失敗しました:`, error);
+                }
+              }
+            }
+
+            // PRにコメント
+            const commentBody = `## AI自動修正レポート
+
+### 分析結果
+${plan.analysis}
+
+### 修正戦略
+${plan.fix_strategy}
+
+### 実施した修正
+${appliedFixes.length > 0 ? appliedFixes.map(f => `- ${f}`).join('\n') : '_修正なし_'}
+
+### 要約
+${plan.summary_ja}
+
+${plan.risks ? `### 注意事項\n${plan.risks}` : ''}
+
+${plan.create_issues && plan.create_issues.length > 0 ? `\n### 作成されたIssue\n${plan.create_issues.map(i => `- ${i.title}`).join('\n')}` : ''}
+
+---
+_Powered by Claude Sonnet 4_`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: commentBody
+            });
+
+            core.setOutput('fixes_applied', appliedFixes.length > 0);
+
+      - name: Verify Fixes
+        if: steps.apply-fixes.outputs.fixes_applied == 'true'
+        run: |
+          echo "修正を検証中..."
+
+          # 再度チェック
+          echo "ESLintを実行中..."
+          pnpm lint || echo "警告: Lintにまだ問題があります"
+
+          echo "フォーマットチェックを実行中..."
+          pnpm format:check || echo "警告: フォーマットにまだ問題があります"
+
+          echo "テストを実行中..."
+          pnpm test || echo "警告: テストがまだ失敗しています"
+
+          echo "サーバー起動チェックを実行中..."
+          timeout 15s pnpm start &
+          sleep 8
+          curl -f http://localhost:3333/health || echo "警告: サーバーがまだ起動しません"
+          pkill -f "node server.js" || true
+
+      - name: Commit and Push
+        if: steps.apply-fixes.outputs.fixes_applied == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if [ -n "$(git status --porcelain)" ]; then
+            git add .
+            git commit -m "AI修正: Claudeによる問題解決
+
+- テスト失敗の修正
+- サーバーエラーの修正
+- Gemini優先度の高いレビューへの対応
+
+Claudeによる自動修正"
+
+            git push
+
+            echo "確認: 変更がコミットされプッシュされました"
+          else
+            echo "情報: コミットする変更がありません"
+          fi
+
+      - name: Request Re-review
+        if: steps.apply-fixes.outputs.fixes_applied == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // レビューを再リクエスト
+            try {
+              await github.rest.pulls.requestReviewers({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+                reviewers: [context.payload.pull_request.user.login]
+              });
+              console.log('確認: 再レビューをリクエストしました');
+            } catch (error) {
+              console.log('情報: 再レビューをリクエストできませんでした:', error.message);
+            }
