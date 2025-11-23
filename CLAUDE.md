@@ -22,6 +22,13 @@ WebサイトのJSON-LD構造化データを抽出・可視化するツール。C
 - `.ai-docs/shared/PROJECT_OVERVIEW.md` - 完全なアーキテクチャ、技術スタック、技術詳細
 - `.ai-docs/shared/DEVELOPMENT_WORKFLOW.md` - コマンド、ワークフロー、トラブルシューティング
 
+プロジェクト固有のドキュメント：
+
+- `TESTING-GUIDE.md` - テスト実行ガイド（Vitest、セキュリティテスト、統合テスト）
+- `STORYBOOK.md` - UIコンポーネントライブラリ（Storybook）
+- `ELECTRON.md` - デスクトップアプリケーション（Electron）
+- `DEVELOPMENT.md` - 開発ワークフロー詳細
+
 その他：
 
 - `.cursorrules` - Cursor AI設定
@@ -38,11 +45,20 @@ pnpm start               # 本番モード起動
 pnpm lint                # ESLint実行
 pnpm lint:fix            # ESLint自動修正
 pnpm format              # Prettier整形
+pnpm format:check        # Prettier整形チェック（修正なし）
+pnpm fix                 # すべてのフォーマットとリントを自動修正
 ```
 
 ### テスト・確認
 
 ```bash
+# 自動テスト（Vitest）
+pnpm test                # すべてのテストを実行
+pnpm test:watch          # 監視モード（ファイル変更時に自動再実行）
+pnpm test:summary        # 詳細サマリー付きテスト実行（推奨）
+pnpm test:security       # セキュリティテストのみ実行
+
+# 手動確認
 # ヘルスチェック
 curl http://localhost:3333/health
 
@@ -83,6 +99,16 @@ pnpm electron:build:win    # Windows専用ビルド
 ```
 
 詳細は[ELECTRON.md](./ELECTRON.md)を参照してください。
+
+### Storybook（UIコンポーネント）
+
+```bash
+pnpm storybook              # Storybookを起動（localhost:6006）
+pnpm build-storybook        # 本番用ビルド
+pnpm test-storybook         # ストーリーのテストを実行
+```
+
+詳細は[STORYBOOK.md](./STORYBOOK.md)を参照してください。
 
 ### CSS品質管理
 
@@ -201,29 +227,65 @@ json-ld-viewer/
 │   └── preload.js           # プリロードスクリプト
 ├── public/
 │   ├── index.html           # Webアプリケーション（フロントエンド）
-│   ├── styles.css           # スタイルシート
+│   ├── styles/              # スタイルシート
+│   │   └── main.css
 │   ├── modules/             # フロントエンド用モジュール
-│   │   ├── advisor.js       # JobPosting Advisor
-│   │   ├── blog-reviewer.js # Blog Reviewer
-│   │   ├── web-advisor.js   # Web Advisor
+│   │   ├── advisor.js                # JobPosting Advisor
+│   │   ├── blog-reviewer.js          # Blog Reviewer
+│   │   ├── web-advisor.js            # Web Advisor
 │   │   ├── content-upload-reviewer.js # Content Upload Reviewer
-│   │   └── base-advisor.js  # 共通基底クラス
+│   │   ├── resume-builder.js         # Resume Builder
+│   │   ├── skill-sheet-editor.js     # Skill Sheet Editor
+│   │   ├── skill-sheet-manager.js    # Skill Sheet Manager
+│   │   ├── seo-analyzer.js           # SEO Analyzer
+│   │   ├── guidance-provider.js      # Guidance Provider
+│   │   ├── base-advisor.js           # 共通基底クラス
+│   │   ├── ui-renderer.js            # UI Renderer
+│   │   ├── meta-extractor.js         # Meta Tag Extractor
+│   │   ├── og-extractor.js           # Open Graph Extractor
+│   │   ├── twitter-extractor.js      # Twitter Card Extractor
+│   │   └── schema-requirements.js    # Schema Requirements
 │   └── utils/               # ユーティリティ
-│       └── file-parser.js   # ファイルパース機能
+│       ├── file-parser.js   # ファイルパース機能
+│       ├── auth.js          # 認証ヘルパー
+│       ├── constants.js     # 定数定義
+│       ├── formatters.js    # フォーマッター
+│       ├── htmlHelpers.js   # HTML操作ヘルパー
+│       └── validators.js    # バリデーション
 ├── api/                      # Vercelサーバーレス関数
 │   ├── proxy.js
 │   ├── health.js
-│   ├── advisor.js           # JobPosting Advisor API
-│   ├── blog-reviewer.js     # Blog Reviewer API
-│   ├── web-advisor.js       # Web Advisor API
-│   └── content-upload-reviewer.js # Content Upload Reviewer API
+│   ├── advisor.js                   # JobPosting Advisor API
+│   ├── blog-reviewer.js             # Blog Reviewer API
+│   ├── web-advisor.js               # Web Advisor API
+│   ├── content-upload-reviewer.js   # Content Upload Reviewer API
+│   ├── chat.js                      # Chat API
+│   ├── resume-builder.js            # Resume Builder API
+│   ├── test-connection.js           # Connection Test API
+│   ├── web-advisor-session.js       # Web Advisor Session API
+│   └── web-advisor-session-store.js # Session Store
+├── tests/                    # テスト
+│   ├── unit/                # ユニットテスト
+│   ├── integration/         # 統合テスト
+│   ├── setup/               # テストセットアップ
+│   ├── test-summary.js      # テストサマリー
+│   └── verify-security.js   # セキュリティ検証
+├── stories/                  # Storybook
+│   ├── components/          # UIコンポーネントストーリー
+│   └── design-tokens/       # デザイントークン
+├── .storybook/               # Storybook設定
+│   ├── main.js
+│   └── preview.js
 ├── package.json             # 依存関係・スクリプト
 ├── vercel.json              # Vercelデプロイ設定
 ├── ELECTRON.md              # デスクトップアプリドキュメント
+├── STORYBOOK.md             # Storybookドキュメント
+├── TESTING-GUIDE.md         # テストガイド
 ├── .eslintrc.json           # ESLint設定
 ├── .prettierrc.json         # Prettier設定
+├── .stylelintrc.json        # Stylelint設定
 ├── .cursorrules             # Cursor AI設定
-└── .ai-docs/                # AIMyAPI向けドキュメント
+└── .ai-docs/                # AI向けドキュメント
 ```
 
 ## AI Advisor機能
@@ -317,6 +379,90 @@ json-ld-viewer/
 3. スキルシートをテキストまたはファイルでアップロード
 4. レビュー開始
 5. マッチング度スコア、ギャップ分析、キャリアアップ提案を確認
+
+#### 5. Resume Builder
+
+エンジニア向けの履歴書・職務経歴書作成支援機能。
+
+- **対象**: エンジニアのスキルシートや職務経歴書
+- **機能**:
+  - 職務経歴の整理とフォーマット
+  - スキルセットの可視化
+  - プロジェクト経験の効果的な表現
+  - 技術スタックの明確化
+- **実装**: `public/modules/resume-builder.js`, `api/resume-builder.js`
+
+#### 6. SEO Analyzer
+
+Webページの包括的なSEO分析機能。
+
+- **対象**: 任意のWebページ
+- **機能**:
+  - メタタグ分析（title、description、keywords）
+  - Open Graph（OGP）分析
+  - Twitter Card分析
+  - 構造化データ（JSON-LD）分析
+  - ページパフォーマンス評価
+  - SEO改善提案
+- **実装**: `public/modules/seo-analyzer.js`
+
+#### 7. Chat機能
+
+AI対話機能による質問応答。
+
+- **対象**: ユーザーの質問
+- **機能**:
+  - リアルタイムAI対話
+  - コンテキストを保持した会話
+  - マークダウンレンダリング
+- **実装**: `api/chat.js`
+
+## Storybook（UIコンポーネントライブラリ）
+
+このプロジェクトには**Storybook**が統合されており、すべてのUIコンポーネントを可視化、テスト、ドキュメント化できます。
+
+### 起動方法
+
+```bash
+pnpm storybook              # Storybookを起動（localhost:6006）
+pnpm build-storybook        # 本番用ビルド
+pnpm test-storybook         # ストーリーのテストを実行
+```
+
+### 利用可能なストーリー
+
+#### デザイントークン
+- **カラー**: ライト/ダークテーマ対応の全カラートークン
+
+#### コンポーネント
+1. **ボタン** - プライマリボタン、コピーボタン、APIキー設定ボタン等
+2. **カード** - 基本カード、スキーマカード、統計カード、機能カード
+3. **フォーム** - URL入力、Basic認証、検索、テキストエリア、セレクトボックス
+4. **バッジ** - スキーマタイプバッジ、ドキュメントピル、APIステータスチップ
+5. **モーダル** - 基本モーダル、ガイドモーダル、情報ボックス付きモーダル
+6. **タブ** - 基本タブ、全タブナビゲーション、ビュー切り替えタブ
+7. **テーブル** - データテーブル、ネストされたオブジェクト表示、ストライプテーブル
+
+### アドオン
+
+- **Controls**: プロパティの動的変更
+- **Actions**: イベントのロギング
+- **Docs**: 自動ドキュメント生成
+- **Viewport**: レスポンシブテスト
+- **Backgrounds**: 背景色の切り替え
+- **Interactions**: 自動インタラクションテスト
+- **A11y**: アクセシビリティ問題の検出
+
+### インタラクションテスト
+
+一部のストーリーには `@storybook/test` を使用したインタラクションテストが含まれています：
+
+- Button.stories.js - ボタンのホバーとクリック
+- Form.stories.js - フォーム入力とボタンクリック
+- Modal.stories.js - モーダル表示の確認
+- Tab.stories.js - タブ切り替え
+
+詳細は[STORYBOOK.md](./STORYBOOK.md)を参照してください。
 
 ## アーキテクチャの重要ポイント
 
@@ -494,7 +640,52 @@ vercel dev       # ローカルテスト推奨
 
 ### テスト
 
-本プロジェクトには現在、自動テストは導入されていません。機能の検証は手動テストに依存します。
+本プロジェクトには、**Vitest**を使用した包括的な自動テストが導入されています。
+
+#### 自動テスト（Vitest）
+
+**クイックスタート**:
+
+```bash
+pnpm test                # すべてのテストを実行
+pnpm test:summary        # 詳細サマリー付きテスト実行（推奨）
+pnpm test:watch          # 監視モード（ファイル変更時に自動再実行）
+pnpm test:security       # セキュリティテストのみ実行
+```
+
+**テスト構成**:
+
+1. **ユニットテスト** (`tests/unit/`)
+   - `ai-advisor-button-submit.test.js` - Advisorボタンの表示とloading確認
+   - `app-schema-detection.test.js` - スキーマ型の自動判定ロジック
+   - `advisor-export.test.js` - エクスポート機能のテスト
+   - `rate-limit.test.js` - レート制限のテスト
+   - `content-upload-reviewer-*.test.js` - Content Upload Reviewer関連テスト
+   - その他多数（modal、chat、responsive等）
+
+2. **統合テスト** (`tests/integration/`)
+   - `real-url-schema-detection.test.js` - 実際のURLでのスキーマ抽出テスト
+   - `web-advisor-security.test.js` - SSRF対策、sessionToken検証
+   - `proxy.test.js` - プロキシ機能のテスト
+   - `cors-options.test.js` - CORS設定のテスト
+   - `extract-jsonld.test.js` - JSON-LD抽出のテスト
+   - その他多数
+
+**テスト対象URL** (統合テスト):
+
+| タイプ | URL | スキーマ | ボタン |
+| ------ | --- | ------- | ------ |
+| 求人 | https://freelance.levtech.jp/project/detail/28421/ | JobPosting | 求人/求職アドバイスを受ける |
+| ブログ | https://www.engineer-factory.com/media/skill/4878/ | BlogPosting | ブログ記事レビュー |
+| Web | https://levtech.jp/media/article/focus/detail_680/ | WebPage | Webページ分析を受ける |
+
+**セキュリティテスト**:
+
+- SSRF対策（プライベートIPブロック）
+- sessionToken検証
+- レート制限（24時間で10リクエスト/認証なし）
+
+詳細は[TESTING-GUIDE.md](./TESTING-GUIDE.md)を参照してください。
 
 #### 手動テストの手順
 
@@ -528,34 +719,34 @@ vercel dev       # ローカルテスト推奨
 4. **ブラウザでの動作確認**:
    - `http://localhost:3333` にアクセスします。
    - 様々なURL（Basic認証が必要なサイトも含む）を入力し、JSON-LDが正しく抽出・表示されることを確認します。
-   - ブラウザのMyAPIツールでコンソールエラーが発生していないか確認します。
-
-#### 将来的な展望
-
-プロジェクトの安定性を高めるため、将来的には以下のような自動テストの導入が考えられます。
-
-- **Jest** や **Vitest** を用いた単体テスト・結合テスト
-- プロキシサーバーのエンドポイントに対するAPIテスト
+   - ブラウザの開発者ツールでコンソールエラーが発生していないか確認します。
 
 ## テスト・デプロイ前チェックリスト
 
 ### 新機能追加時
 
 - [ ] ローカル環境でテスト (`pnpm dev`)
+- [ ] 自動テストが通る (`pnpm test:summary`)
+- [ ] Lintエラーがない (`pnpm lint`)
+- [ ] CSS品質チェック通過 (`pnpm validate`)
 - [ ] Vercel環境でテスト (`vercel dev` または本番デプロイ)
 - [ ] エラーハンドリング追加
 - [ ] コンソールログで動作確認
-- [ ] README.md 更新（必要に応じて）
+- [ ] 関連ドキュメント更新（必要に応じて）
 
 ### デプロイ前
 
 - [ ] `pnpm start` でローカル起動確認
+- [ ] すべてのテストが通る (`pnpm test`)
+- [ ] セキュリティテスト通過 (`pnpm test:security`)
+- [ ] リントとフォーマット確認 (`pnpm lint && pnpm format:check`)
 - [ ] サンプルURLでJSON-LD抽出成功
 - [ ] Basic認証が動作確認
 - [ ] モバイル表示確認（レスポンシブ）
-- [ ] コンソールエラーがない
+- [ ] ブラウザコンソールエラーがない
 - [ ] `vercel.json` が正しい
 - [ ] すべてのAPIルートにCORSヘッダーがある
+- [ ] 環境変数の設定確認（Vercelダッシュボード）
 
 ## 認証機能の取り扱い
 
@@ -812,29 +1003,48 @@ MCPサーバーの詳細な使用方法、ベストプラクティス、トラ�
 1. 要件を確認
 2. Context7で関連ライブラリのドキュメントを取得
 3. 実装
-4. code-reviewスキルで品質確認
-5. コミット
+4. テストを書く（tests/unit/またはtests/integration/）
+5. pnpm test:watchで監視モードで開発
+6. pnpm lintでコード品質確認
+7. code-reviewスキルで品質確認（オプション）
+8. コミット
 ```
 
 ### 2. デプロイ前
 
 ```
-1. deploy-checkスキルで全体確認
-2. 問題があれば修正
-3. 再度deploy-checkで確認
-4. デプロイ実行
+1. pnpm test:summaryで全テスト実行
+2. pnpm validateでコード品質確認
+3. deploy-checkスキルで全体確認（オプション）
+4. 問題があれば修正
+5. 再度確認
+6. デプロイ実行
 ```
 
 ### 3. API変更時
 
 ```
 1. APIを変更
-2. api-checkスキルで一貫性確認
-3. 問題があれば修正
-4. ドキュメントを更新
-5. コミット
+2. 対応するテストを更新/追加
+3. pnpm testでテスト実行
+4. api-checkスキルで一貫性確認（オプション）
+5. 問題があれば修正
+6. ドキュメントを更新
+7. コミット
+```
+
+### 4. UIコンポーネント開発時
+
+```
+1. Storybookでストーリーを作成
+2. pnpm storybookで開発
+3. インタラクションテストを追加
+4. アクセシビリティチェック（A11yアドオン）
+5. レスポンシブ確認（Viewportアドオン）
+6. 実装に反映
+7. コミット
 ```
 
 ---
 
-最終更新: 2025-11-02
+最終更新: 2025-11-23
