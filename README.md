@@ -501,6 +501,40 @@ vercel --prod
 
 Vercelダッシュボードで環境変数を設定してください。
 
+### AI自動修正システム（GitHub Actions）
+
+PRの作成・更新時に自動的に問題を検出し、修正します。
+
+#### 主な機能
+
+- ESLint、フォーマット、CSS、テストの自動チェック
+- 簡単な問題は自動修正
+- 複雑な問題はClaude AIが分析して修正提案
+- PRに詳細なレポートを自動投稿
+
+#### セットアップ
+
+詳細な手順は以下のドキュメントを参照：
+
+```bash
+# メインのセットアップガイド
+cat GITHUB_UI_SETUP_GUIDE.md
+
+# または、ドキュメント一覧を確認
+cat SETUP_INDEX.md
+```
+
+必要な設定（5-10分）:
+1. Claude APIキーの取得と登録
+2. GitHub Actionsの権限設定
+
+動作テスト:
+```bash
+./test-ai-autofix.sh
+```
+
+詳細: [AI自動修正システムのドキュメント](./SETUP_INDEX.md)
+
 ## 技術スタック
 
 - **バックエンド**: Node.js + Express + Axios
