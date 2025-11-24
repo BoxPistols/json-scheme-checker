@@ -204,7 +204,7 @@ curl https://api.anthropic.com/v1/messages \
   -H "x-api-key: $ANTHROPIC_API_KEY" \
   -H "anthropic-version: 2023-06-01" \
   -H "content-type: application/json" \
-  -d '{"model":"claude-sonnet-4-20250514","max_tokens":100,"messages":[{"role":"user","content":"test"}]}'
+  -d '{"model":"claude-3-5-haiku-20241022","max_tokens":100,"messages":[{"role":"user","content":"test"}]}'
 ```
 
 ### 問題3: 修正が適用されない
@@ -262,13 +262,13 @@ on:
 `.github/workflows/ai-auto-fix.yml` の `AI Analysis and Fix with Claude` ステップで：
 
 ```yaml
-"model": "claude-sonnet-4-20250514",  # ← ここを変更
+"model": "claude-3-5-haiku-20241022",  # ← ここを変更
 ```
 
-利用可能なモデル：
-- `claude-sonnet-4-20250514` (推奨、最新)
-- `claude-3-5-sonnet-20241022` (高速)
-- `claude-opus-4-20250514` (最高品質、低速)
+利用可能なモデル（コード修正に最適化）：
+- `claude-3-5-haiku-20241022` (推奨、安定版、$0.80/$4 per MTok)
+- `claude-4-5-haiku-latest` (最新、高速、$1/$5 per MTok)
+- `claude-3-5-sonnet-20241022` (高品質、やや高コスト)
 
 ### 自動コミットの無効化
 

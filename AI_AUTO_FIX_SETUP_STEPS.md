@@ -90,14 +90,28 @@ ls -la .github/workflows/ai-auto-fix.yml
 2. わざとエラーを含むファイルを作成：
    ```bash
    cat > test-error.js << 'EOF'
-   // ESLintエラーのテスト
-   const unused = "test";
+   // わざとESLintエラーを含むテストファイル
 
+   // 未使用の変数
+   const unused = "test";
+   const anotherUnused = 123;
+
+   // 未使用の関数
    function unusedFunc() {
-     console.log("unused")
+     console.log("This function is never called")
    }
 
-   export default test;
+   // セミコロンなし（Prettierエラー）
+   const test = "no semicolon"
+
+   // インデントエラー
+   function badIndent() {
+       console.log("bad indent")
+         console.log("very bad indent")
+   }
+
+   // 未定義の変数を使用
+   export default undefinedVariable;
    EOF
    ```
 

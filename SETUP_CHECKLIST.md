@@ -57,6 +57,7 @@
 
 - [ ] 以下のコマンドを実行した：
   ```bash
+  chmod +x ./test-ai-autofix.sh
   ./test-ai-autofix.sh
   ```
 
