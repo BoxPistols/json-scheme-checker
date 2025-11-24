@@ -68,7 +68,7 @@ https://console.anthropic.com/settings/keys
     "lint:css": "stylelint 'public/styles/**/*.css'",
     "lint:css:fix": "stylelint 'public/styles/**/*.css' --fix",
     "test": "vitest run",
-    "validate": "npm run lint && npm run lint:css && npm run check-css"
+    "validate": "npm run format:check && npm run lint && npm run lint:css && npm run check-css"
   }
 }
 ```
