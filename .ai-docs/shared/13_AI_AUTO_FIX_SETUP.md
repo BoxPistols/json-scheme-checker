@@ -267,7 +267,7 @@ on:
 
 利用可能なモデル（コード修正に最適化）：
 - `claude-3-5-haiku-20241022` (推奨、安定版、$0.80/$4 per MTok)
-- `claude-4-5-haiku-latest` (最新、高速、$1/$5 per MTok)
+- `claude-haiku-4-5` (最新、ハイブリッド、$1/$5 per MTok)
 - `claude-3-5-sonnet-20241022` (高品質、やや高コスト)
 
 ### 自動コミットの無効化
