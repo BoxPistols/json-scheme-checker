@@ -349,7 +349,10 @@ class WebAdvisorManager extends BaseAdvisorManager {
         }
         this.updateProgress(100, '完了');
         this.ensureAnalysisCleanup('web-advisor');
-        this.showAnalysisCompleteNotification('web-advisor', '分析がタイムアウトしました（一部取得）');
+        this.showAnalysisCompleteNotification(
+          'web-advisor',
+          '分析がタイムアウトしました（一部取得）'
+        );
         alert('分析がタイムアウトしました。取得できた範囲で結果を表示しています。');
       }
     }, 180000); // 180秒

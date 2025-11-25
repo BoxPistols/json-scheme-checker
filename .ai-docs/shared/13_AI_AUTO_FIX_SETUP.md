@@ -147,16 +147,19 @@ GitHub UIから手動で実行することもできます：
 AI自動修正システムは以下の優先順位で問題に対応します：
 
 ### 高優先度
+
 - Gemini Priority Highのレビューコメント
 - サーバー起動エラー
 - テスト失敗
 - マージコンフリクト
 
 ### 中優先度
+
 - ESLintエラー
 - CSSエラー
 
 ### 低優先度
+
 - フォーマットエラー
 
 ## レポートの見方
@@ -195,6 +198,7 @@ Powered by Claude Sonnet 4
 ### 問題1: ワークフローが起動しない
 
 **確認事項：**
+
 1. `.github/workflows/ai-auto-fix.yml` が正しい場所に配置されているか
 2. GitHub Actionsの権限が正しく設定されているか（Settings → Actions → General）
 3. PRを作成または更新したか
@@ -202,11 +206,13 @@ Powered by Claude Sonnet 4
 ### 問題2: Claude Code認証エラー
 
 **確認事項：**
+
 1. `CLAUDE_CODE_OAUTH_TOKEN` シークレットが正しく設定されているか
 2. トークンが有効期限内か（必要に応じて `claude setup-token` で再生成）
 3. Claude Pro/Max購読がアクティブか
 
 **検証方法（ローカル）：**
+
 ```bash
 # トークンの再生成
 claude setup-token
@@ -218,11 +224,13 @@ claude --version
 ### 問題3: 修正が適用されない
 
 **確認事項：**
+
 1. GitHub Actions → 失敗したワークフロー → 各ステップのログを確認
 2. "AI Analysis and Fix with Claude Code" ステップでエラーがないか確認
 3. claude-code-actionのログを確認
 
 **デバッグ方法：**
+
 - ワークフローの実行ログをダウンロード
 - `issue-logs` アーティファクトをダウンロードして内容を確認
 - claude-code-actionの出力を確認
@@ -230,11 +238,13 @@ claude --version
 ### 問題4: サーバー起動チェックの失敗
 
 **原因：**
+
 - ポート3333が使用中
 - 依存関係のインストールに失敗
 - 環境変数が設定されていない
 
 **対処法：**
+
 1. ローカルで `pnpm install` を実行して依存関係を確認
 2. ローカルで `pnpm start` を実行してサーバーが起動するか確認
 3. 必要な環境変数がGitHub Secretsに設定されているか確認
@@ -242,6 +252,7 @@ claude --version
 ### 問題5: テスト失敗
 
 **対処法：**
+
 1. ローカルで `pnpm test` を実行してテストが通るか確認
 2. テストコードに問題がないか確認
 3. テストに必要な依存関係がインストールされているか確認
@@ -258,7 +269,7 @@ on:
     types: [opened, synchronize, reopened]
   pull_request_review:
     types: [submitted]
-  workflow_dispatch:  # 手動実行
+  workflow_dispatch: # 手動実行
   # 特定のラベルが付いた時だけ実行する例
   # pull_request:
   #   types: [labeled]
@@ -274,6 +285,7 @@ on:
 ```
 
 利用可能なモデル：
+
 - `claude-sonnet-4-20250514` (推奨、最新)
 - `claude-3-5-sonnet-20241022` (高速)
 - `claude-opus-4-20250514` (最高品質、低速)

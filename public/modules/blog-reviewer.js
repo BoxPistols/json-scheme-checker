@@ -464,7 +464,10 @@ class BlogReviewerManager extends BaseAdvisorManager {
         abortController.abort();
         this.updateProgress(100, '完了');
         this.ensureAnalysisCleanup('blog-reviewer');
-        this.showAnalysisCompleteNotification('blog-reviewer', '分析がタイムアウトしました（一部取得）');
+        this.showAnalysisCompleteNotification(
+          'blog-reviewer',
+          '分析がタイムアウトしました（一部取得）'
+        );
         alert('分析がタイムアウトしました。取得できた範囲で結果を表示しています。');
       }
     }, 180000); // 180秒

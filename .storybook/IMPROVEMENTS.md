@@ -28,11 +28,13 @@
 #### 1. インラインスタイルの排除
 
 **現状の問題:**
+
 - HTMLに多数のインラインスタイル（`style="..."`）が存在
 - デザインの一貫性を保つのが困難
 - メンテナンス性が低い
 
 **改善策:**
+
 - インラインスタイルをすべてCSSクラスに置き換え
 - デザイントークンを活用したスタイル定義
 - ユーティリティクラスの作成（例: `.flex`, `.gap-md`, `.p-lg`）
@@ -41,14 +43,10 @@
 
 ```html
 <!-- Before -->
-<div style="padding: 20px; background: var(--card-bg-color); border-radius: 8px;">
-  コンテンツ
-</div>
+<div style="padding: 20px; background: var(--card-bg-color); border-radius: 8px;">コンテンツ</div>
 
 <!-- After -->
-<div class="card p-lg">
-  コンテンツ
-</div>
+<div class="card p-lg">コンテンツ</div>
 ```
 
 ```css
@@ -66,11 +64,13 @@
 #### 2. 共通UIコンポーネントの抽出
 
 **現状の問題:**
+
 - 同じUIパターンがHTML内で重複
 - DRY原則に違反
 - 変更時に複数箇所を修正する必要がある
 
 **改善策:**
+
 - 再利用可能なコンポーネントファイルを作成
 - `public/components/` ディレクトリを作成
 - コンポーネントファクトリーパターンの活用
@@ -98,7 +98,7 @@ import { createButton } from './components/Button.js';
 const fetchButton = createButton({
   label: '取得',
   onClick: handleFetch,
-  variant: 'primary'
+  variant: 'primary',
 });
 ```
 

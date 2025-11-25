@@ -64,6 +64,7 @@ Easily visualize and validate JSON-LD structured data from any website.
 3. After a few seconds, the extracted JSON-LD data will be displayed on the screen
 
 **Expected Results**:
+
 - JSON-LD schema types are displayed (e.g., Organization, Article, JobPosting)
 - Data is formatted in an easy-to-read table format
 - Thumbnail images are displayed if image URLs are present
@@ -82,6 +83,7 @@ Easily visualize and validate JSON-LD structured data from any website.
 3. The copied data can be pasted into any text editor
 
 **Troubleshooting**:
+
 - **"JSON-LD not found" message**: The page does not contain JSON-LD structured data
 - **Timeout error**: The target site may be slow to respond. Try again or test with a different URL
 - **CORS error**: If an error appears in the browser console, reload the page and try again
@@ -110,6 +112,7 @@ You can also extract JSON-LD data from sites that require Basic Authentication (
 3. If authentication succeeds, JSON-LD data will be displayed
 
 **Expected Results**:
+
 - Authentication succeeds and JSON-LD data is displayed normally
 - Authentication information is automatically saved in local storage (per domain)
 - Authentication information is auto-filled when accessing the same domain next time
@@ -122,11 +125,13 @@ You can also extract JSON-LD data from sites that require Basic Authentication (
 4. A confirmation message is displayed
 
 **Security Notes**:
+
 - Authentication information is stored only in the browser's local storage
 - It is not sent to or stored on the server
 - Passwords are not recorded in plain text in server logs
 
 **Troubleshooting**:
+
 - **"401 Unauthorized" error**: Username or password is incorrect
 - **Authentication information not saved**: Check if you are using browser private mode
 
@@ -135,6 +140,7 @@ You can also extract JSON-LD data from sites that require Basic Authentication (
 You can also verify JSON-LD extraction on localhost sites during development. Since Vercel environment cannot access localhost, you need to run the tool locally.
 
 **Prerequisites**:
+
 - Node.js v18 or higher installed
 - pnpm installed (`npm install -g pnpm`)
 - The localhost site you want to verify is running
@@ -170,12 +176,14 @@ You can also verify JSON-LD extraction on localhost sites during development. Si
 3. The tool automatically accesses the localhost site via proxy
 
 **Expected Results**:
+
 - JSON-LD data is successfully extracted from the localhost site
 - No CORS restrictions
 
 **Step 4: Test from Mobile Devices on LAN (Optional)**
 
 1. Check your IP address in terminal
+
    ```bash
    # Mac/Linux
    ifconfig | grep "inet " | grep -v 127.0.0.1
@@ -183,11 +191,13 @@ You can also verify JSON-LD extraction on localhost sites during development. Si
    # Windows
    ipconfig
    ```
+
 2. Open `http://<your-ip>:3333` in mobile device browser
    - Example: `http://192.168.1.100:3333`
 3. You can verify localhost sites from other devices on the same LAN
 
 **Troubleshooting**:
+
 - **Port 3333 in use**: Check process with `lsof -i :3333` and kill with `kill $(lsof -t -i:3333)`
 - **Localhost connection error**: Verify that the target localhost site is running
 - **IPv6 error**: The tool automatically converts `localhost` to `127.0.0.1`, but if problems occur, use the IP address directly
@@ -197,6 +207,7 @@ You can also verify JSON-LD extraction on localhost sites during development. Si
 AI automatically analyzes and provides advice for job postings where JobPosting schema is detected. Free version allows 50 uses per 24 hours.
 
 **Prerequisites**:
+
 - URL of a job posting page containing JobPosting schema
 - Free version: Less than 50 uses within 24 hours
 - Or custom OpenAI API key configured (unlimited)
@@ -209,6 +220,7 @@ AI automatically analyzes and provides advice for job postings where JobPosting 
 4. Verify JobPosting schema is included (@type: "JobPosting")
 
 **Expected Results**:
+
 - Job information is displayed in table format
 - Fields such as job title, salary, location, employment type are displayed
 - "AI Job Posting Advisor" button is automatically displayed
@@ -251,6 +263,7 @@ Choose from the following three:
 5. When analysis completes, token usage and cost are displayed (when using My API)
 
 **Expected Results (Employer Perspective Example)**:
+
 - Analysis of job posting strengths and weaknesses
 - Specific improvement proposals (bullet points)
 - Keyword suggestions to enhance appeal
@@ -284,6 +297,7 @@ Export buttons appear when analysis is complete:
   - OpenAI API charges apply
 
 **Troubleshooting**:
+
 - **"AI Job Posting Advisor" button not displayed**: No JobPosting schema included. Try a different job posting page
 - **"Rate limit reached"**: Try again after 24 hours or configure your own API key
 - **Analysis stops midway**: Possible network error. Click the button again
@@ -317,6 +331,7 @@ Create and manage engineering resumes (skill sheets).
 Configure your own OpenAI API key to use all features without rate limits.
 
 **Quick Guide**:
+
 1. Click "My API" button in header
 2. Enter OpenAI API key (format: `sk-...`)
 3. Select model (Free: gpt-5-nano/gpt-4.1-nano, My API: gpt-5/gpt-4.1/gpt-4o/o3 series)
@@ -324,6 +339,7 @@ Configure your own OpenAI API key to use all features without rate limits.
 5. Usage and cost displayed after each AI analysis
 
 **Benefits**:
+
 - No rate limits
 - Access to high-performance models
 - Real-time cost management
@@ -419,12 +435,12 @@ Rate limits are managed on the browser side (localStorage). Each advisor has ind
 
 ## Troubleshooting
 
-| Issue | Solution |
-| --------------------- | ----------------------------------------------------- |
-| CORS error | Verify server is running, check with `/health` |
-| Localhost access fails | Use local environment instead of Vercel, verify port number |
-| Timeout | Target site slow to respond, check network |
-| AI features not working | Set OpenAI API key, verify environment variables |
+| Issue                   | Solution                                                    |
+| ----------------------- | ----------------------------------------------------------- |
+| CORS error              | Verify server is running, check with `/health`              |
+| Localhost access fails  | Use local environment instead of Vercel, verify port number |
+| Timeout                 | Target site slow to respond, check network                  |
+| AI features not working | Set OpenAI API key, verify environment variables            |
 
 ## AI Assistant (Claude Code) Utilization
 
