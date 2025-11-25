@@ -53,7 +53,7 @@ claude setup-token
 
 生成されたトークンをGitHub Secretsに登録してください。
 
-**注意**: このシステムはClaude Pro/Max購読者向けです。API課金を使用したい場合は、`anthropics/claude-code-action`の代わりに直接Claude APIを呼び出す方式に変更してください。
+**注意**: このシステムはClaude Pro/Max購読者向けです。API課金を使用したい場合は、`anthropics/claude-code-action`の代わりに直接Claude APIを呼び出す方式（例：`curl`コマンドやSDKを利用したカスタムスクリプト）に変更してください。
 
 ### Step 3: GitHub Actionsの権限設定
 
