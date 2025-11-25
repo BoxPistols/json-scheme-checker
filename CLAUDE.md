@@ -432,9 +432,11 @@ pnpm test-storybook         # ストーリーのテストを実行
 ### 利用可能なストーリー
 
 #### デザイントークン
+
 - **カラー**: ライト/ダークテーマ対応の全カラートークン
 
 #### コンポーネント
+
 1. **ボタン** - プライマリボタン、コピーボタン、APIキー設定ボタン等
 2. **カード** - 基本カード、スキーマカード、統計カード、機能カード
 3. **フォーム** - URL入力、Basic認証、検索、テキストエリア、セレクトボックス
@@ -673,11 +675,11 @@ pnpm test:security       # セキュリティテストのみ実行
 
 **テスト対象URL** (統合テスト):
 
-| タイプ | URL | スキーマ | ボタン |
-| ------ | --- | ------- | ------ |
-| 求人 | https://freelance.levtech.jp/project/detail/28421/ | JobPosting | 求人/求職アドバイスを受ける |
-| ブログ | https://www.engineer-factory.com/media/skill/4878/ | BlogPosting | ブログ記事レビュー |
-| Web | https://levtech.jp/media/article/focus/detail_680/ | WebPage | Webページ分析を受ける |
+| タイプ | URL                                                | スキーマ    | ボタン                      |
+| ------ | -------------------------------------------------- | ----------- | --------------------------- |
+| 求人   | https://freelance.levtech.jp/project/detail/28421/ | JobPosting  | 求人/求職アドバイスを受ける |
+| ブログ | https://www.engineer-factory.com/media/skill/4878/ | BlogPosting | ブログ記事レビュー          |
+| Web    | https://levtech.jp/media/article/focus/detail_680/ | WebPage     | Webページ分析を受ける       |
 
 **セキュリティテスト**:
 
@@ -859,9 +861,11 @@ PRの作成・更新時に自動的に問題を検出し、可能な限り自動
 
 必要な設定：
 
-1. GitHub Secretsに `ANTHROPIC_API_KEY` を追加
+1. GitHub Secretsに `CLAUDE_CODE_OAUTH_TOKEN` を追加（`claude setup-token`で生成）
 2. GitHub Actionsの権限を "Read and write permissions" に設定
 3. `.github/workflows/ai-auto-fix.yml` が存在することを確認
+
+**注意**: このシステムはClaude Pro/Max購読者向けです。
 
 ### 修正の段階
 

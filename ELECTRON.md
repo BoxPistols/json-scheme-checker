@@ -63,22 +63,22 @@ pnpm electron:dev
 
 主要なショートカットキー一覧：
 
-| 操作                     | Mac               | Windows/Linux       |
-| ------------------------ | ----------------- | ------------------- |
-| 新しいウィンドウ         | Cmd+N             | Ctrl+N              |
-| ホームに戻る             | Cmd+H             | Ctrl+H              |
-| 再読み込み               | Cmd+R             | Ctrl+R              |
-| 強制再読み込み           | Cmd+Shift+R       | Ctrl+Shift+R        |
-| 開発者ツール             | Cmd+Alt+I         | Ctrl+Shift+I        |
-| 拡大                     | Cmd++             | Ctrl++              |
-| 縮小                     | Cmd+-             | Ctrl+-              |
-| 実際のサイズ             | Cmd+0             | Ctrl+0              |
-| フルスクリーン           | Ctrl+Cmd+F        | F11                 |
-| 終了                     | Cmd+Q             | Ctrl+Q              |
-| ウィンドウを閉じる       | Cmd+W             | Ctrl+W              |
-| コピー                   | Cmd+C             | Ctrl+C              |
-| 貼り付け                 | Cmd+V             | Ctrl+V              |
-| すべて選択               | Cmd+A             | Ctrl+A              |
+| 操作               | Mac         | Windows/Linux |
+| ------------------ | ----------- | ------------- |
+| 新しいウィンドウ   | Cmd+N       | Ctrl+N        |
+| ホームに戻る       | Cmd+H       | Ctrl+H        |
+| 再読み込み         | Cmd+R       | Ctrl+R        |
+| 強制再読み込み     | Cmd+Shift+R | Ctrl+Shift+R  |
+| 開発者ツール       | Cmd+Alt+I   | Ctrl+Shift+I  |
+| 拡大               | Cmd++       | Ctrl++        |
+| 縮小               | Cmd+-       | Ctrl+-        |
+| 実際のサイズ       | Cmd+0       | Ctrl+0        |
+| フルスクリーン     | Ctrl+Cmd+F  | F11           |
+| 終了               | Cmd+Q       | Ctrl+Q        |
+| ウィンドウを閉じる | Cmd+W       | Ctrl+W        |
+| コピー             | Cmd+C       | Ctrl+C        |
+| 貼り付け           | Cmd+V       | Ctrl+V        |
+| すべて選択         | Cmd+A       | Ctrl+A        |
 
 ## アプリのビルド
 
@@ -97,6 +97,7 @@ pnpm electron:build:mac
 ```
 
 生成されるファイル：
+
 - `dist/JSON-LD Schema Viewer-1.0.0.dmg` - macOS向けDMGインストーラー
 - `dist/JSON-LD Schema Viewer-1.0.0-mac.zip` - macOS向けZIPファイル
 
@@ -107,6 +108,7 @@ pnpm electron:build:win
 ```
 
 生成されるファイル：
+
 - `dist/JSON-LD Schema Viewer Setup 1.0.0.exe` - Windows向けNSISインストーラー
 - `dist/JSON-LD Schema Viewer 1.0.0.exe` - Windows向けポータブル実行ファイル
 
@@ -133,6 +135,7 @@ brew install wine-stable
 ### クロスプラットフォームビルド
 
 CI/CD環境でビルドする場合、以下のサービスを利用できます：
+
 - GitHub Actions
 - CircleCI
 - Travis CI
@@ -198,12 +201,14 @@ kill $(lsof -t -i:3333)
 ビルド時にエラーが発生する場合：
 
 1. 依存関係を再インストール：
+
    ```bash
    rm -rf node_modules
    pnpm install
    ```
 
 2. キャッシュをクリア：
+
    ```bash
    rm -rf dist
    rm -rf ~/.electron

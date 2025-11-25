@@ -12,7 +12,7 @@
 html {
   font-size: 14px;
   scroll-behavior: smooth;
-  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
 
@@ -141,7 +141,7 @@ body {
     background-color 0.3s ease,
     color 0.3s ease;
   -webkit-font-smoothing: antialiased;
-  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
 

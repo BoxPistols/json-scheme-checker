@@ -43,34 +43,39 @@ API側で認証チェック
 #### 2. クライアント側実装
 
 **認証情報の保存先**:
+
 - localStorageキー: `jsonld_upload_auth`
 - 形式: Base64エンコード（`username:password`）
 
 **認証ダイアログ**:
+
 - モーダル形式で表示
 - ユーザー名とパスワードを入力
 - 認証情報の記憶機能（localStorage）
 - ログアウト機能
 
 **API呼び出し時**:
+
 ```javascript
 const authHeader = localStorage.getItem('jsonld_upload_auth');
 fetch('/api/content-upload-reviewer', {
   headers: {
-    'Authorization': `Basic ${authHeader}`
-  }
+    Authorization: `Basic ${authHeader}`,
+  },
 });
 ```
 
 #### 3. サーバー側実装
 
 **環境変数**:
+
 ```bash
 UPLOAD_AUTH_USERNAME=admin
 UPLOAD_AUTH_PASSWORD=your_secure_password
 ```
 
 **認証チェック**:
+
 ```javascript
 function checkAuth(req, res) {
   const authHeader = req.headers.authorization;
@@ -92,6 +97,7 @@ function checkAuth(req, res) {
 #### 4. メリット・デメリット
 
 **メリット**:
+
 - 実装が簡単でメンテナンスしやすい
 - ステートレス設計を維持
 - 既存のBasic認証の仕組みを再利用
@@ -99,6 +105,7 @@ function checkAuth(req, res) {
 - Vercelのサーバーレス環境と相性が良い
 
 **デメリット**:
+
 - 認証情報がlocalStorageに保存される（XSSリスク）
 - トークンの有効期限管理ができない
 - 複数ユーザーの管理が困難
@@ -158,11 +165,7 @@ export default async function handler(req, res) {
   }
 
   // JWTトークンを発行（有効期限: 30日）
-  const token = jwt.sign(
-    { username, role: 'user' },
-    process.env.JWT_SECRET,
-    { expiresIn: '30d' }
-  );
+  const token = jwt.sign({ username, role: 'user' }, process.env.JWT_SECRET, { expiresIn: '30d' });
 
   res.status(200).json({ token });
 }
@@ -200,7 +203,7 @@ async function login(username, password) {
   const response = await fetch('/api/auth', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password })
+    body: JSON.stringify({ username, password }),
   });
 
   if (response.ok) {
@@ -219,9 +222,9 @@ async function callAPI(endpoint, data) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify(data)
+    body: JSON.stringify(data),
   });
 
   if (response.status === 401) {
@@ -296,12 +299,13 @@ API側でセッションを検証
 Vercelのサーバーレス環境ではメモリ内セッションが使えないため、外部ストアが必要です。
 
 **オプションA: Redis（推奨）**:
+
 ```javascript
 // utils/session-store.js
 import { createClient } from 'redis';
 
 const redisClient = createClient({
-  url: process.env.REDIS_URL
+  url: process.env.REDIS_URL,
 });
 
 redisClient.connect();
@@ -310,7 +314,7 @@ export async function createSession(userId, data) {
   const sessionId = crypto.randomUUID();
   await redisClient.setEx(
     `session:${sessionId}`,
-    60 * 60 * 24 * 30,  // 30日間
+    60 * 60 * 24 * 30, // 30日間
     JSON.stringify(data)
   );
   return sessionId;
@@ -327,6 +331,7 @@ export async function deleteSession(sessionId) {
 ```
 
 **オプションB: Vercel KV（Vercel環境専用）**:
+
 ```javascript
 import { kv } from '@vercel/kv';
 
@@ -350,8 +355,10 @@ export default async function handler(req, res) {
 
   const { username, password } = req.body;
 
-  if (username !== process.env.UPLOAD_AUTH_USERNAME ||
-      password !== process.env.UPLOAD_AUTH_PASSWORD) {
+  if (
+    username !== process.env.UPLOAD_AUTH_USERNAME ||
+    password !== process.env.UPLOAD_AUTH_PASSWORD
+  ) {
     return res.status(401).json({ error: 'Invalid credentials' });
   }
 
@@ -359,7 +366,10 @@ export default async function handler(req, res) {
   const sessionId = await createSession(username, { username, role: 'user' });
 
   // Cookieに保存
-  res.setHeader('Set-Cookie', `sessionId=${sessionId}; HttpOnly; Secure; SameSite=Strict; Max-Age=2592000; Path=/`);
+  res.setHeader(
+    'Set-Cookie',
+    `sessionId=${sessionId}; HttpOnly; Secure; SameSite=Strict; Max-Age=2592000; Path=/`
+  );
   res.status(200).json({ success: true });
 }
 ```
@@ -488,6 +498,7 @@ pnpm add @vercel/kv
 ### Option 1から Option 2への移行
 
 1. **段階的な移行**:
+
    ```
    Phase 1: JWT認証の実装（Basic認証と並行稼働）
    Phase 2: フロントエンドをJWTに切り替え

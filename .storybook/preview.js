@@ -60,7 +60,7 @@ export const parameters = {
 
 // グローバルデコレータ
 export const decorators = [
-  (Story) => {
+  Story => {
     const wrapper = document.createElement('div');
     wrapper.style.padding = '20px';
     wrapper.style.minHeight = '100px';

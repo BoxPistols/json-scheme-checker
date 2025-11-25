@@ -25,6 +25,7 @@
 ### Step 2: GitHub Secretsの設定
 
 1. GitHubリポジトリページを開く
+
    ```
    https://github.com/BoxPistols/json-scheme-checker
    ```
@@ -66,6 +67,7 @@
 ```
 
 確認方法:
+
 ```bash
 ls -la .github/workflows/ai-auto-fix.yml
 ```
@@ -83,11 +85,13 @@ ls -la .github/workflows/ai-auto-fix.yml
 ### 方法1: テストPRで確認
 
 1. テストブランチを作成：
+
    ```bash
    git checkout -b test/ai-autofix-verification
    ```
 
 2. わざとエラーを含むファイルを作成：
+
    ```bash
    cat > test-error.js << 'EOF'
    // ESLintエラーのテスト
@@ -102,6 +106,7 @@ ls -la .github/workflows/ai-auto-fix.yml
    ```
 
 3. コミット＆プッシュ：
+
    ```bash
    git add test-error.js
    git commit -m "テスト: AI自動修正システムの動作確認"
@@ -165,40 +170,48 @@ ls -la .github/workflows/ai-auto-fix.yml
 ### エラー1: ワークフローが起動しない
 
 確認項目：
+
 - `.github/workflows/ai-auto-fix.yml` が存在するか
 - PRが作成または更新されたか
 - GitHub Actionsが有効になっているか
 
 対処法：
+
 1. Settings → Actions → General → 「Allow all actions and reusable workflows」を確認
 
 ### エラー2: "ANTHROPIC_API_KEY not found"
 
 確認項目：
+
 - SecretがANTHROPIC_API_KEYという名前で設定されているか（大文字小文字に注意）
 - Secretの値が正しいか
 
 対処法：
+
 1. Settings → Secrets and variables → Actions で再確認
 2. 必要に応じて削除して再作成
 
 ### エラー3: "Permission denied"
 
 確認項目：
+
 - Workflow permissionsが「Read and write permissions」になっているか
 - 「Allow GitHub Actions to create and approve pull requests」がチェックされているか
 
 対処法：
+
 1. Settings → Actions → General → Workflow permissions で設定を確認
 
 ### エラー4: Claude APIエラー
 
 確認項目：
+
 - APIキーが有効か
 - API利用制限に達していないか
 - インターネット接続は正常か
 
 対処法：
+
 1. https://console.anthropic.com/ でAPIキーとクレジットを確認
 2. 必要に応じて新しいAPIキーを生成
 

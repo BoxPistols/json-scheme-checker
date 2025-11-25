@@ -5,11 +5,7 @@
 export default {
   stories: ['../stories/**/*.stories.@(js|jsx|ts|tsx|mdx)'],
 
-  addons: [
-    '@storybook/addon-essentials',
-    '@storybook/addon-interactions',
-    '@storybook/addon-a11y',
-  ],
+  addons: ['@storybook/addon-essentials', '@storybook/addon-interactions', '@storybook/addon-a11y'],
 
   framework: {
     name: '@storybook/html-vite',
@@ -24,7 +20,7 @@ export default {
     disableTelemetry: true,
   },
 
-  viteFinal: async (config) => {
+  viteFinal: async config => {
     return config;
   },
 };

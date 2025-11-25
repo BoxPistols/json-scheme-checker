@@ -16,8 +16,7 @@ class ResumeBuilderManager extends BaseAdvisorManager {
       },
       actionHandlers: {
         'resume-builder-close-developer-prompt': () => this.closeModal('developerPrompt'),
-        'resume-builder-toggle-developer-key-visibility': () =>
-          this.toggleDeveloperKeyVisibility(),
+        'resume-builder-toggle-developer-key-visibility': () => this.toggleDeveloperKeyVisibility(),
         'resume-builder-save-developer-key': () => this.saveDeveloperKey(),
         'resume-builder-test-developer-connection': () => this.testDeveloperConnection(),
         'resume-builder-reset-developer-settings': () => this.resetDeveloperSettings(),
@@ -49,8 +48,7 @@ class ResumeBuilderManager extends BaseAdvisorManager {
 
   getSelectedModel() {
     return (
-      localStorage.getItem('jsonld_resume_builder_model') ||
-      window.ADVISOR_CONST.DEFAULT_MODEL
+      localStorage.getItem('jsonld_resume_builder_model') || window.ADVISOR_CONST.DEFAULT_MODEL
     );
   }
 
@@ -240,10 +238,7 @@ class ResumeBuilderManager extends BaseAdvisorManager {
   }
 
   startNewConversation() {
-    if (
-      this.messages.length > 0 &&
-      !confirm('現在の会話をクリアして新規作成しますか？')
-    ) {
+    if (this.messages.length > 0 && !confirm('現在の会話をクリアして新規作成しますか？')) {
       return;
     }
 

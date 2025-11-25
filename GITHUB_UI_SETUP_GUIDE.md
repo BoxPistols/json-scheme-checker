@@ -66,6 +66,7 @@ URL: https://console.anthropic.com/
    - アカウントがない場合: 「Sign Up」から新規登録
 
 **新規登録の場合:**
+
 - Googleアカウントでのサインアップを推奨
 - メールアドレスと名前を入力
 - 利用規約に同意
@@ -82,6 +83,7 @@ URL: https://console.anthropic.com/settings/keys
 2. または上記URLに直接アクセス
 
 **画面の確認事項:**
+
 - ページタイトル: "API Keys"
 - 説明文: "Create and manage API keys"
 - 「Create Key」ボタンが表示されている
@@ -93,6 +95,7 @@ URL: https://console.anthropic.com/settings/keys
 1. 「Create Key」ボタンをクリック
 
 2. モーダルウィンドウが表示される
+
    ```
    ┌─────────────────────────────────────┐
    │ Create API Key                      │
@@ -107,6 +110,7 @@ URL: https://console.anthropic.com/settings/keys
    ```
 
 3. 「Name」欄に以下を入力:
+
    ```
    GitHub Actions AI Auto Fix
    ```
@@ -123,6 +127,7 @@ URL: https://console.anthropic.com/settings/keys
 **重要: この手順は一度しか実行できません**
 
 画面に表示される内容:
+
 ```
 ┌─────────────────────────────────────────────┐
 │ API Key Created                             │
@@ -152,11 +157,13 @@ URL: https://console.anthropic.com/settings/keys
    - または次のステップですぐにGitHubに貼り付け
 
 **確認事項:**
+
 - キーは `sk-ant-api03-` で始まる
 - 長さは約100文字程度
 - 英数字とハイフンのみで構成
 
 **注意事項:**
+
 - このキーは二度と表示されません
 - 紛失した場合は新しいキーを作成する必要があります
 - キーは秘密情報です。公開しないでください
@@ -174,6 +181,7 @@ GitHub Actions AI Auto Fix        Just now       Never
 ```
 
 確認事項:
+
 - キー名が表示されている
 - "Created" が "Just now" または最近の日時
 - キーの実際の値は表示されない（これは正常）
@@ -191,6 +199,7 @@ URL: https://github.com/BoxPistols/json-scheme-checker/settings/secrets/actions
 **または、手動で移動:**
 
 1. GitHubでリポジトリページを開く
+
    ```
    https://github.com/BoxPistols/json-scheme-checker
    ```
@@ -202,6 +211,7 @@ URL: https://github.com/BoxPistols/json-scheme-checker/settings/secrets/actions
 4. 「Actions」をクリック
 
 **画面の確認事項:**
+
 - ページタイトル: "Actions secrets and variables"
 - タブ: "Secrets" が選択されている
 - 「New repository secret」ボタンが表示されている
@@ -244,12 +254,14 @@ ANTHROPIC_API_KEY
 ```
 
 **重要な注意事項:**
+
 - 正確にこの通り入力してください
 - すべて大文字
-- アンダースコア（_）を含む
+- アンダースコア（\_）を含む
 - スペースなし
 
 **よくある間違い:**
+
 - ❌ `anthropic_api_key` (小文字)
 - ❌ `ANTHROPIC_APIKEY` (アンダースコアなし)
 - ❌ `ANTHROPIC-API-KEY` (ハイフンを使用)
@@ -265,11 +277,13 @@ sk-ant-api03-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
 **確認事項:**
+
 - `sk-ant-` で始まっている
 - 改行やスペースが含まれていない
 - 完全にコピーされている
 
 **入力例:**
+
 ```
 Name:
 ANTHROPIC_API_KEY
@@ -303,11 +317,13 @@ ANTHROPIC_API_KEY       now
 ```
 
 **確認事項:**
+
 - 「ANTHROPIC_API_KEY」が表示されている
 - "Updated" が "now" または最近の時刻
 - Secretの値は表示されない（セキュリティのため）
 
 **緑色の成功メッセージが表示される:**
+
 ```
 ✓ Secret "ANTHROPIC_API_KEY" created.
 ```
@@ -327,6 +343,7 @@ URL: https://github.com/BoxPistols/json-scheme-checker/settings/actions
 **または、手動で移動:**
 
 1. GitHubでリポジトリページを開く
+
    ```
    https://github.com/BoxPistols/json-scheme-checker
    ```
@@ -338,6 +355,7 @@ URL: https://github.com/BoxPistols/json-scheme-checker/settings/actions
 4. 「General」をクリック
 
 **画面の確認事項:**
+
 - ページタイトル: "Actions permissions"
 - 複数のセクションが表示されている
 - "Workflow permissions" セクションが存在する
@@ -357,6 +375,7 @@ URL: https://github.com/BoxPistols/json-scheme-checker/settings/actions
    - "Fork pull request workflows from outside collaborators" セクションの下
 
 **セクションの見た目:**
+
 ```
 ┌────────────────────────────────────────────────┐
 │ Workflow permissions                           │
@@ -397,6 +416,7 @@ URL: https://github.com/BoxPistols/json-scheme-checker/settings/actions
 ```
 
 **選択後の状態:**
+
 ```
 ○ Read repository contents and packages permissions
 
@@ -418,12 +438,14 @@ URL: https://github.com/BoxPistols/json-scheme-checker/settings/actions
 **設定内容の説明:**
 
 このオプションを有効にすると:
+
 - ワークフローがPRを作成できる
 - ワークフローがPRを承認できる（オプション）
 - ワークフローがPRにコメントできる
 - AI自動修正で必要 ✅
 
 **チェック後の状態:**
+
 ```
 ● Read and write permissions
 
@@ -440,6 +462,7 @@ URL: https://github.com/BoxPistols/json-scheme-checker/settings/actions
 2. 「Save」ボタンをクリック
 
 **ボタンの位置:**
+
 ```
 ┌────────────────────────────────────┐
 │                                    │
@@ -455,6 +478,7 @@ URL: https://github.com/BoxPistols/json-scheme-checker/settings/actions
 **成功した場合の表示:**
 
 ページ上部に緑色のメッセージが表示されます:
+
 ```
 ✓ Workflow permissions updated.
 ```
@@ -462,6 +486,7 @@ URL: https://github.com/BoxPistols/json-scheme-checker/settings/actions
 **設定内容の確認:**
 
 「Workflow permissions」セクションを再度確認:
+
 ```
 ● Read and write permissions
 ☑ Allow GitHub Actions to create and approve pull requests
@@ -515,6 +540,7 @@ ls -la .github/workflows/ai-auto-fix.yml
 ```
 
 出力例:
+
 ```
 -rw-r--r-- 1 user user 15234 Nov 23 12:34 .github/workflows/ai-auto-fix.yml
 ```
@@ -529,6 +555,7 @@ git log --oneline -5
 ```
 
 出力に以下のようなコミットが含まれていることを確認:
+
 ```
 2de593d ドキュメント: AI自動修正システムのセットアップ支援ツールを追加
 3c9e0a5 ドキュメント: AI自動修正システムのセットアップ手順書を追加
@@ -545,9 +572,11 @@ de339dd 機能: AI自動修正システムを追加
 ### 間違い1: Secret名のスペルミス
 
 **症状:**
+
 - ワークフローが "ANTHROPIC_API_KEY not found" エラーで失敗する
 
 **原因:**
+
 - Secret名が `ANTHROPIC_API_KEY` と完全一致していない
 - 大文字小文字が間違っている
 - スペースやタイポがある
@@ -555,9 +584,11 @@ de339dd 機能: AI自動修正システムを追加
 **対処法:**
 
 1. Secretsページで既存のSecretを削除
+
    ```
    https://github.com/BoxPistols/json-scheme-checker/settings/secrets/actions
    ```
+
    - Secret名の右側の「Delete」をクリック
 
 2. 正しい名前で再作成
@@ -566,10 +597,12 @@ de339dd 機能: AI自動修正システムを追加
 ### 間違い2: APIキーのコピーミス
 
 **症状:**
+
 - ワークフローが "Invalid API key" エラーで失敗する
 - Anthropic APIから401エラーが返る
 
 **原因:**
+
 - APIキーの一部がコピーされていない
 - 改行やスペースが含まれている
 - 間違ったキーをコピーした
@@ -577,6 +610,7 @@ de339dd 機能: AI自動修正システムを追加
 **対処法:**
 
 1. Anthropic Consoleで新しいAPIキーを作成
+
    ```
    https://console.anthropic.com/settings/keys
    ```
@@ -589,16 +623,19 @@ de339dd 機能: AI自動修正システムを追加
 ### 間違い3: Actions権限が不足
 
 **症状:**
+
 - ワークフローが "Permission denied" エラーで失敗する
 - コミットやプッシュができない
 
 **原因:**
+
 - 「Read and write permissions」が選択されていない
 - Saveボタンを押し忘れた
 
 **対処法:**
 
 1. Actions設定ページを再確認
+
    ```
    https://github.com/BoxPistols/json-scheme-checker/settings/actions
    ```
@@ -612,15 +649,18 @@ de339dd 機能: AI自動修正システムを追加
 ### 間違い4: PRチェックボックスが未チェック
 
 **症状:**
+
 - ワークフローがPRを作成できない
 - "Resource not accessible by integration" エラー
 
 **原因:**
+
 - 「Allow GitHub Actions to create and approve pull requests」にチェックが入っていない
 
 **対処法:**
 
 1. Actions設定ページで確認
+
    ```
    https://github.com/BoxPistols/json-scheme-checker/settings/actions
    ```
@@ -636,9 +676,11 @@ de339dd 機能: AI自動修正システムを追加
 ### 問題1: Secretsページが表示されない
 
 **症状:**
+
 - Settings → Secrets and variables → Actions が存在しない
 
 **原因:**
+
 - リポジトリの管理者権限がない
 - リポジトリがプライベートで、権限が制限されている
 
@@ -650,16 +692,19 @@ de339dd 機能: AI自動修正システムを追加
 ### 問題2: Claude APIキーが作成できない
 
 **症状:**
+
 - 「Create Key」をクリックしてもエラーになる
 - "Billing information required" と表示される
 
 **原因:**
+
 - Anthropicアカウントに支払い情報が登録されていない
 - APIクレジットが不足している
 
 **対処法:**
 
 1. Billing設定ページに移動
+
    ```
    https://console.anthropic.com/settings/billing
    ```
@@ -673,23 +718,28 @@ de339dd 機能: AI自動修正システムを追加
 ### 問題3: ワークフローが起動しない
 
 **症状:**
+
 - PRを作成してもワークフローが実行されない
 
 **原因:**
+
 - ワークフローファイルが正しくプッシュされていない
 - GitHub Actionsが無効になっている
 
 **対処法:**
 
 1. ワークフローファイルの存在を確認
+
    ```bash
    git ls-files .github/workflows/ai-auto-fix.yml
    ```
 
 2. GitHub Actionsが有効か確認
+
    ```
    Settings → Actions → General → Actions permissions
    ```
+
    「Allow all actions and reusable workflows」を選択
 
 3. リポジトリをリフレッシュして再試行
@@ -697,14 +747,17 @@ de339dd 機能: AI自動修正システムを追加
 ### 問題4: 設定後もエラーが続く
 
 **症状:**
+
 - すべて設定したのにワークフローがエラーになる
 
 **診断手順:**
 
 1. GitHub Actionsのログを確認
+
    ```
    https://github.com/BoxPistols/json-scheme-checker/actions
    ```
+
    - 失敗したワークフローをクリック
    - エラーメッセージを確認
 
@@ -745,6 +798,7 @@ Error: Resource not accessible by integration
 ```
 
 このスクリプトは自動的に:
+
 1. テストブランチを作成（test/ai-autofix-YYYYMMDD-HHMMSS）
 2. わざとエラーを含むファイルを作成
 3. コミット＆プッシュ
@@ -759,6 +813,7 @@ https://github.com/BoxPistols/json-scheme-checker/compare/test/ai-autofix-XXXXXX
 ```
 
 または、GitHub UIで:
+
 1. リポジトリページを開く
 2. "Compare & pull request" ボタンをクリック
 3. タイトル: "テスト: AI自動修正システムの動作確認"
@@ -768,6 +823,7 @@ https://github.com/BoxPistols/json-scheme-checker/compare/test/ai-autofix-XXXXXX
 ### ステップ3: ワークフローの実行を確認
 
 1. Actionsタブを開く
+
    ```
    https://github.com/BoxPistols/json-scheme-checker/actions
    ```
@@ -806,6 +862,7 @@ https://github.com/BoxPistols/json-scheme-checker/compare/test/ai-autofix-XXXXXX
 すべての項目にチェックが入っていることを確認してください:
 
 #### Claude APIキーの設定
+
 - [ ] Anthropic Consoleにアクセスした
 - [ ] 新しいAPIキーを作成した
 - [ ] APIキーをコピーした
@@ -813,6 +870,7 @@ https://github.com/BoxPistols/json-scheme-checker/compare/test/ai-autofix-XXXXXX
 - [ ] Secret名が `ANTHROPIC_API_KEY` と正確に一致している
 
 #### GitHub Actions権限設定
+
 - [ ] Actions設定ページにアクセスした
 - [ ] 「Read and write permissions」を選択した
 - [ ] 「Allow GitHub Actions to create and approve pull requests」にチェックした
@@ -820,6 +878,7 @@ https://github.com/BoxPistols/json-scheme-checker/compare/test/ai-autofix-XXXXXX
 - [ ] 設定が保存されたことを確認した
 
 #### 動作確認
+
 - [ ] `./test-ai-autofix.sh` を実行した
 - [ ] テストPRを作成した
 - [ ] ワークフローが正常に実行された
@@ -830,6 +889,7 @@ https://github.com/BoxPistols/json-scheme-checker/compare/test/ai-autofix-XXXXXX
 すべてのチェック項目が完了していれば、AI自動修正システムは使用可能です。
 
 今後、PRを作成するたびに自動的に:
+
 1. 問題を検出
 2. 簡単な修正を自動適用
 3. 複雑な問題をClaude AIが分析

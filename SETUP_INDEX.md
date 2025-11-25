@@ -7,6 +7,7 @@
 ### 1. まずはこれを読む
 
 **GITHUB_UI_SETUP_GUIDE.md** - GitHub UIでの設定手順（最重要）
+
 ```
 目的: GitHub UIで実施する2つの設定を体系的に説明
 対象: セットアップ担当者（必読）
@@ -22,6 +23,7 @@
 ### 2. 設定完了後に読む
 
 **SETUP_CHECKLIST.md** - セットアップチェックリスト
+
 ```
 目的: 設定が正しく完了したか確認
 対象: セットアップ担当者
@@ -35,6 +37,7 @@
 ### 3. より詳しく知りたい場合
 
 **AI_AUTO_FIX_SETUP_STEPS.md** - 詳細なセットアップ手順書
+
 ```
 目的: セットアップ全体の詳細な説明
 対象: セットアップ担当者、システム管理者
@@ -48,6 +51,7 @@
 ```
 
 **.ai-docs/shared/13_AI_AUTO_FIX_SETUP.md** - 包括的なガイド
+
 ```
 目的: システム全体の包括的な説明
 対象: 開発者、システム管理者
@@ -62,6 +66,7 @@
 ```
 
 **CLAUDE.md** - プロジェクト全体のガイド（AI自動修正システムのセクション）
+
 ```
 目的: プロジェクト全体の開発ガイド
 対象: 開発者、Claude Code
@@ -157,18 +162,19 @@ cat GITHUB_UI_SETUP_GUIDE.md
 
 ### ファイル一覧
 
-| ファイル名 | 場所 | サイズ | 対象読者 |
-|-----------|------|--------|---------|
-| GITHUB_UI_SETUP_GUIDE.md | ルート | 大 | セットアップ担当者 |
-| SETUP_CHECKLIST.md | ルート | 中 | セットアップ担当者 |
-| AI_AUTO_FIX_SETUP_STEPS.md | ルート | 中 | セットアップ担当者 |
-| 13_AI_AUTO_FIX_SETUP.md | .ai-docs/shared/ | 大 | 開発者 |
-| CLAUDE.md | ルート | 大 | 開発者、Claude Code |
-| test-ai-autofix.sh | ルート | 小 | セットアップ担当者 |
+| ファイル名                 | 場所             | サイズ | 対象読者            |
+| -------------------------- | ---------------- | ------ | ------------------- |
+| GITHUB_UI_SETUP_GUIDE.md   | ルート           | 大     | セットアップ担当者  |
+| SETUP_CHECKLIST.md         | ルート           | 中     | セットアップ担当者  |
+| AI_AUTO_FIX_SETUP_STEPS.md | ルート           | 中     | セットアップ担当者  |
+| 13_AI_AUTO_FIX_SETUP.md    | .ai-docs/shared/ | 大     | 開発者              |
+| CLAUDE.md                  | ルート           | 大     | 開発者、Claude Code |
+| test-ai-autofix.sh         | ルート           | 小     | セットアップ担当者  |
 
 ### 各ドキュメントの役割
 
 #### GITHUB_UI_SETUP_GUIDE.md
+
 ```
 役割: メインのセットアップガイド
 特徴:
@@ -180,6 +186,7 @@ cat GITHUB_UI_SETUP_GUIDE.md
 ```
 
 #### SETUP_CHECKLIST.md
+
 ```
 役割: チェックリスト
 特徴:
@@ -190,6 +197,7 @@ cat GITHUB_UI_SETUP_GUIDE.md
 ```
 
 #### AI_AUTO_FIX_SETUP_STEPS.md
+
 ```
 役割: ステップバイステップガイド
 特徴:
@@ -200,6 +208,7 @@ cat GITHUB_UI_SETUP_GUIDE.md
 ```
 
 #### .ai-docs/shared/13_AI_AUTO_FIX_SETUP.md
+
 ```
 役割: 包括的なドキュメント
 特徴:
@@ -211,6 +220,7 @@ cat GITHUB_UI_SETUP_GUIDE.md
 ```
 
 #### CLAUDE.md
+
 ```
 役割: プロジェクト全体のガイド
 特徴:
@@ -221,6 +231,7 @@ cat GITHUB_UI_SETUP_GUIDE.md
 ```
 
 #### test-ai-autofix.sh
+
 ```
 役割: 動作テスト自動化スクリプト
 特徴:
@@ -239,15 +250,19 @@ cat GITHUB_UI_SETUP_GUIDE.md
 セットアップ完了後、以下を確認してください：
 
 1. **Secrets確認**
+
    ```
    https://github.com/BoxPistols/json-scheme-checker/settings/secrets/actions
    ```
+
    - [ ] ANTHROPIC_API_KEY が存在する
 
 2. **Actions権限確認**
+
    ```
    https://github.com/BoxPistols/json-scheme-checker/settings/actions
    ```
+
    - [ ] Read and write permissions が選択されている
    - [ ] Allow GitHub Actions to... がチェックされている
 
@@ -255,6 +270,7 @@ cat GITHUB_UI_SETUP_GUIDE.md
    ```bash
    ./test-ai-autofix.sh
    ```
+
    - [ ] テストブランチが作成された
    - [ ] PRを作成してワークフローが実行された
    - [ ] 自動修正が適用された
@@ -290,6 +306,7 @@ A: はい。セットアップ完了後に作成されるすべてのPRで自動
 ### 問題が解決しない場合
 
 1. **GitHub Actionsのログを確認**
+
    ```
    https://github.com/BoxPistols/json-scheme-checker/actions
    ```
@@ -308,6 +325,7 @@ A: はい。セットアップ完了後に作成されるすべてのPRで自動
 ## ドキュメントの更新履歴
 
 ### 2025-11-23
+
 - GITHUB_UI_SETUP_GUIDE.md 作成（v1.0）
 - SETUP_INDEX.md 作成（v1.0）
 - SETUP_CHECKLIST.md 作成

@@ -118,7 +118,7 @@ function hideError() {
  * @returns {Promise<{username: string, password: string}|null>} 認証成功時は認証情報、キャンセル時はnull
  */
 export async function showAuthDialog() {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     const content = createAuthDialogContent();
 
     let modalElement = null;
@@ -180,7 +180,7 @@ export async function showAuthDialog() {
     const usernameInput = document.getElementById('authUsername');
     const passwordInput = document.getElementById('authPassword');
 
-    const handleEnter = (e) => {
+    const handleEnter = e => {
       if (e.key === 'Enter') {
         handleLogin();
       }
