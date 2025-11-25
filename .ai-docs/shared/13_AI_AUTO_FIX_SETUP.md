@@ -40,12 +40,20 @@ AI自動修正システムは、GitHub ActionsとClaude AIを使用して、PR�
 3. 以下のシークレットを追加：
 
 ```
-Name: ANTHROPIC_API_KEY
-Secret: sk-ant-... (あなたのClaude APIキー)
+Name: CLAUDE_CODE_OAUTH_TOKEN
+Secret: (claude setup-token で生成したトークン)
 ```
 
-Claude APIキーは以下から取得できます：
-https://console.anthropic.com/settings/keys
+**トークンの取得方法（Claude Pro/Max購読者向け）:**
+
+```bash
+# ローカル環境でClaude Codeがインストールされている状態で実行
+claude setup-token
+```
+
+生成されたトークンをGitHub Secretsに登録してください。
+
+**注意**: このシステムはClaude Pro/Max購読者向けです。API課金を使用したい場合は、`anthropics/claude-code-action`の代わりに直接Claude APIを呼び出す方式に変更してください。
 
 ### Step 3: GitHub Actionsの権限設定
 
@@ -191,33 +199,33 @@ Powered by Claude Sonnet 4
 2. GitHub Actionsの権限が正しく設定されているか（Settings → Actions → General）
 3. PRを作成または更新したか
 
-### 問題2: Claude APIエラー
+### 問題2: Claude Code認証エラー
 
 **確認事項：**
-1. `ANTHROPIC_API_KEY` シークレットが正しく設定されているか
-2. APIキーが有効で、使用制限に達していないか
-3. APIキーの権限が正しいか
+1. `CLAUDE_CODE_OAUTH_TOKEN` シークレットが正しく設定されているか
+2. トークンが有効期限内か（必要に応じて `claude setup-token` で再生成）
+3. Claude Pro/Max購読がアクティブか
 
 **検証方法（ローカル）：**
 ```bash
-curl https://api.anthropic.com/v1/messages \
-  -H "x-api-key: $ANTHROPIC_API_KEY" \
-  -H "anthropic-version: 2023-06-01" \
-  -H "content-type: application/json" \
-  -d '{"model":"claude-sonnet-4-20250514","max_tokens":100,"messages":[{"role":"user","content":"test"}]}'
+# トークンの再生成
+claude setup-token
+
+# Claude Codeの動作確認
+claude --version
 ```
 
 ### 問題3: 修正が適用されない
 
 **確認事項：**
 1. GitHub Actions → 失敗したワークフロー → 各ステップのログを確認
-2. "Apply AI Fixes" ステップでエラーがないか確認
-3. Claudeのレスポンスが正しいJSON形式か確認
+2. "AI Analysis and Fix with Claude Code" ステップでエラーがないか確認
+3. claude-code-actionのログを確認
 
 **デバッグ方法：**
 - ワークフローの実行ログをダウンロード
 - `issue-logs` アーティファクトをダウンロードして内容を確認
-- Claude APIレスポンスの内容を確認
+- claude-code-actionの出力を確認
 
 ### 問題4: サーバー起動チェックの失敗
 

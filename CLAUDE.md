@@ -859,9 +859,11 @@ PRの作成・更新時に自動的に問題を検出し、可能な限り自動
 
 必要な設定：
 
-1. GitHub Secretsに `ANTHROPIC_API_KEY` を追加
+1. GitHub Secretsに `CLAUDE_CODE_OAUTH_TOKEN` を追加（`claude setup-token`で生成）
 2. GitHub Actionsの権限を "Read and write permissions" に設定
 3. `.github/workflows/ai-auto-fix.yml` が存在することを確認
+
+**注意**: このシステムはClaude Pro/Max購読者向けです。
 
 ### 修正の段階
 
