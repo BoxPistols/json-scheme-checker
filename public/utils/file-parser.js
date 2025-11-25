@@ -312,4 +312,9 @@ class FileParser {
 }
 
 // グローバルに公開
-window.FileParser = FileParser;
+if (typeof window !== 'undefined') {
+  window.FileParser = FileParser;
+}
+
+// ESモジュールとしてエクスポート
+export default FileParser;

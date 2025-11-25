@@ -1,0 +1,1242 @@
+# 検出された問題
+
+## ESLint Errors
+```
+## ESLint Check
+
+> json-ld-proxy-server@1.0.0 lint /home/runner/work/json-scheme-checker/json-scheme-checker
+> eslint .
+```
+
+## Format Errors
+```
+## Format Check
+
+> json-ld-proxy-server@1.0.0 format:check /home/runner/work/json-scheme-checker/json-scheme-checker
+> prettier --check "**/*.{js,json,md}"
+
+Checking formatting...
+[[33mwarn[39m] .ai-docs/shared/11_AUTHENTICATION_GUIDE.md
+[[33mwarn[39m] .ai-docs/shared/12_TESTING_ARCHITECTURE.md
+[[33mwarn[39m] .ai-docs/shared/13_AI_AUTO_FIX_SETUP.md
+[[33mwarn[39m] .claude/commands/test-resume-builder.md
+[[33mwarn[39m] .storybook/design-tokens-analysis.md
+[[33mwarn[39m] .storybook/IMPROVEMENTS.md
+[[33mwarn[39m] .storybook/main.js
+[[33mwarn[39m] .storybook/preview.js
+[[33mwarn[39m] AI_AUTO_FIX_SETUP_STEPS.md
+[[33mwarn[39m] CLAUDE.md
+[[33mwarn[39m] DEVELOPMENT.md
+[[33mwarn[39m] ELECTRON.md
+[[33mwarn[39m] GITHUB_UI_SETUP_GUIDE.md
+[[33mwarn[39m] public/components/auth/AuthDialog.js
+[[33mwarn[39m] public/modules/blog-reviewer.js
+[[33mwarn[39m] public/modules/resume-builder.js
+[[33mwarn[39m] public/modules/web-advisor.js
+[[33mwarn[39m] README.en.md
+[[33mwarn[39m] README.md
+[[33mwarn[39m] SETUP_CHECKLIST.md
+[[33mwarn[39m] SETUP_INDEX.md
+[[33mwarn[39m] Code style issues found in 21 files. Run Prettier with --write to fix.
+ ELIFECYCLE  Command failed with exit code 1.
+```
+
+## CSS Errors
+```
+## CSS Check
+
+> json-ld-proxy-server@1.0.0 lint:css /home/runner/work/json-scheme-checker/json-scheme-checker
+> stylelint 'public/styles/**/*.css'
+
+
+public/styles/01-base.css
+   [2m15:3[22m  [31m[31m✖[39m  Unexpected vendor-prefixed property "-webkit-text-size-adjust"  [2mproperty-no-vendor-prefix[22m
+  [2m144:3[22m  [31m[31m✖[39m  Unexpected vendor-prefixed property "-webkit-text-size-adjust"  [2mproperty-no-vendor-prefix[22m
+
+public/styles/15-resume-builder.css
+   [2m40:12[22m  [31m[31m✖[39m  Expected keyframe name "fadeInUp" to be kebab-case                      [2mkeyframes-name-pattern[22m
+   [2m45:3[22m   [31m[31m✖[39m  Expected empty line before rule                                         [2mrule-empty-line-before[22m
+  [2m268:3[22m   [31m[31m✖[39m  Unexpected duplicate selector ".chat-messages", first used at line 262  [2mno-duplicate-selectors[22m
+
+[31m✖[39m 5 problems ([31m5 errors[39m, [33m0 warnings[39m)
+  3 errors potentially fixable with the "--fix" option.
+
+ ELIFECYCLE  Command failed with exit code 2.
+```
+
+## Test Failures
+```
+## Test Check
+
+> json-ld-proxy-server@1.0.0 test /home/runner/work/json-scheme-checker/json-scheme-checker
+> vitest run
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90m/home/runner/work/json-scheme-checker/json-scheme-checker[39m
+
+ [32m✓[39m tests/integration/real-url-schema-detection.test.js [2m([22m[2m11 tests[22m[2m)[22m[90m 68[2mms[22m[39m
+ [32m✓[39m tests/unit/advisor-export.test.js [2m([22m[2m23 tests[22m[2m)[22m[90m 199[2mms[22m[39m
+[90mstdout[2m | tests/unit/chat-ui-improvements.test.js[2m > [22m[2mチャットUI改善: フローティングボタン[2m > [22m[2mフローティングチャットボタンがレンダリングされる
+[22m[39m[BaseAdvisor] Floating chat button created: advisorFloatingChatBtn-advisor-1764109274230
+
+[90mstdout[2m | tests/unit/chat-ui-improvements.test.js[2m > [22m[2mチャットUI改善: フローティングボタン[2m > [22m[2mフローティングボタンにチャットアイコンSVGが含まれる
+[22m[39m[BaseAdvisor] Floating chat button created: advisorFloatingChatBtn-advisor-1764109274255
+
+[90mstdout[2m | tests/unit/chat-ui-improvements.test.js[2m > [22m[2mチャットUI改善: チャットボックスレンダリング[2m > [22m[2mチャットボックスがレンダリングされる
+[22m[39m[BaseAdvisor] renderChatBoxCommon called for: testChatContainer
+
+[90mstdout[2m | tests/unit/chat-ui-improvements.test.js[2m > [22m[2mチャットUI改善: チャットボックスレンダリング[2m > [22m[2mドラッグハンドルが存在する
+[22m[39m[BaseAdvisor] renderChatBoxCommon called for: testChatContainer
+
+[90mstdout[2m | tests/unit/chat-ui-improvements.test.js[2m > [22m[2mチャットUI改善: チャットボックスレンダリング[2m > [22m[2mリサイズハンドルが存在する
+[22m[39m[BaseAdvisor] renderChatBoxCommon called for: testChatContainer
+
+[90mstdout[2m | tests/unit/chat-ui-improvements.test.js[2m > [22m[2mチャットUI改善: チャットボックスレンダリング[2m > [22m[2m閉じるボタンが存在する
+[22m[39m[BaseAdvisor] renderChatBoxCommon called for: testChatContainer
+
+[90mstdout[2m | tests/unit/chat-ui-improvements.test.js[2m > [22m[2mチャットUI改善: チャットボックスレンダリング[2m > [22m[2mウェルカムメッセージが短縮されている
+[22m[39m[BaseAdvisor] renderChatBoxCommon called for: testChatContainer
+
+[90mstdout[2m | tests/unit/chat-ui-improvements.test.js[2m > [22m[2mチャットUI改善: チャットボックスレンダリング[2m > [22m[2m入力エリアのサイズが適切に設定されている
+[22m[39m[BaseAdvisor] renderChatBoxCommon called for: testChatContainer
+
+[90mstdout[2m | tests/unit/chat-ui-improvements.test.js[2m > [22m[2mチャットUI改善: チャットボックスレンダリング[2m > [22m[2m質問者バッジが表示される
+[22m[39m[BaseAdvisor] renderChatBoxCommon called for: testChatContainer
+
+[90mstdout[2m | tests/unit/chat-ui-improvements.test.js[2m > [22m[2mチャットUI改善: UI制御機能[2m > [22m[2m閉じるボタンをクリックするとチャットボックスが消える
+[22m[39m[BaseAdvisor] renderChatBoxCommon called for: testChatContainer
+[BaseAdvisor] Saving floating chat button HTML
+[BaseAdvisor] Floating chat button created: advisorFloatingChatBtn-advisor-1764109274445
+
+[90mstdout[2m | tests/unit/chat-ui-improvements.test.js[2m > [22m[2mチャットUI改善: UI制御機能[2m > [22m[2m閉じるボタンをクリックするとフローティングボタンが再表示される
+[22m[39m[BaseAdvisor] renderChatBoxCommon called for: testChatContainer
+[BaseAdvisor] Saving floating chat button HTML
+[BaseAdvisor] Floating chat button created: advisorFloatingChatBtn-advisor-1764109274470
+
+[90mstdout[2m | tests/unit/chat-ui-improvements.test.js[2m > [22m[2mチャットUI改善: UI制御機能[2m > [22m[2m折りたたみボタンをクリックするとチャットが折りたたまれる
+[22m[39m[BaseAdvisor] renderChatBoxCommon called for: testChatContainer
+[BaseAdvisor] Saving floating chat button HTML
+
+[90mstdout[2m | tests/unit/chat-ui-improvements.test.js[2m > [22m[2mチャットUI改善: ローカルストレージ[2m > [22m[2m保存された位置が復元される
+[22m[39m[BaseAdvisor] renderChatBoxCommon called for: testChatContainer
+
+[90mstdout[2m | tests/unit/chat-ui-improvements.test.js[2m > [22m[2mチャットUI改善: ローカルストレージ[2m > [22m[2m保存されたサイズが復元される
+[22m[39m[BaseAdvisor] renderChatBoxCommon called for: testChatContainer
+
+ [31m❯[39m tests/unit/chat-ui-improvements.test.js [2m([22m[2m18 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[33m 319[2mms[22m[39m
+[31m   [31m×[31m チャットUI改善: UI制御機能[2m > [22m閉じるボタンをクリックするとフローティングボタンが再表示される[90m 38[2mms[22m[31m[39m
+[31m     → expected 'none' to be 'flex' // Object.is equality[39m
+[31m   [31m×[31m チャットUI改善: ローカルストレージ[2m > [22m保存された位置が復元される[90m 22[2mms[22m[31m[39m
+[31m     → expected '' to be 'fixed' // Object.is equality[39m
+ [32m✓[39m tests/unit/web-advisor-fallback-template.test.js [2m([22m[2m14 tests[22m[2m)[22m[90m 11[2mms[22m[39m
+ [31m❯[39m tests/unit/content-upload-reviewer-integration.test.js [2m([22m[2m30 tests[22m[2m | [22m[31m7 failed[39m[2m)[22m[90m 126[2mms[22m[39m
+[31m   [31m×[31m Content Upload Reviewer - Integration Tests[2m > [22mマッチングフィールドの表示切替[2m > [22mtoggleMatchingFieldsでマッチングフィールドの表示を切り替え[90m 16[2mms[22m[31m[39m
+[31m     → expected 'none' to be 'block' // Object.is equality[39m
+[31m   [31m×[31m Content Upload Reviewer - Integration Tests[2m > [22mES6モジュールエクスポート[2m > [22mContentUploadReviewerManagerがエクスポートされている[90m 4[2mms[22m[31m[39m
+[31m     → expected undefined to be defined[39m
+[31m   [31m×[31m Content Upload Reviewer - Integration Tests[2m > [22mES6モジュールエクスポート[2m > [22mデフォルトエクスポートが定義されている[90m 2[2mms[22m[31m[39m
+[31m     → expected undefined to be defined[39m
+[31m   [31m×[31m Content Upload Reviewer - Integration Tests[2m > [22mHTML特殊文字のエスケープ[2m > [22m引用符もエスケープされる[90m 2[2mms[22m[31m[39m
+[31m     → expected 'これは"引用符"と\'シングルクォート\'です' to contain '&quot;'[39m
+[31m   [31m×[31m Content Upload Reviewer - Integration Tests[2m > [22mdownloadFile (BaseAdvisorManagerから継承)[2m > [22mdownloadFileメソッドが使用可能[90m 3[2mms[22m[31m[39m
+[31m     → expected [Function] to not throw an error but 'TypeError: URL.createObjectURL is not…' was thrown[39m
+[31m   [31m×[31m Content Upload Reviewer - Integration Tests[2m > [22m入力タブの切り替え[2m > [22mswitchInputTabでタブが切り替わる[90m 3[2mms[22m[31m[39m
+[31m     → expected 'block' to be 'none' // Object.is equality[39m
+[31m   [31m×[31m Content Upload Reviewer - Integration Tests[2m > [22mダウンロード機能[2m > [22mdownloadRevisedTextで校閲済みテキストをダウンロード[90m 23[2mms[22m[31m[39m
+[31m     → URL.createObjectURL is not a function[39m
+ [32m✓[39m tests/unit/ai-advisor-button-submit.test.js [2m([22m[2m12 tests[22m[2m)[22m[90m 55[2mms[22m[39m
+ [32m✓[39m tests/unit/app-schema-detection.test.js [2m([22m[2m20 tests[22m[2m)[22m[90m 10[2mms[22m[39m
+ [32m✓[39m tests/unit/web-advisor-render-markdown.test.js [2m([22m[2m16 tests[22m[2m)[22m[90m 28[2mms[22m[39m
+[90mstdout[2m | tests/integration/sample-questions-integration.test.js[2m > [22m[2mサンプル質問機能: 統合テスト[2m > [22m[2mサンプル質問ボタンをクリックすると sendChatMessageCommon が呼ばれる
+[22m[39m[BaseAdvisor] renderChatBoxCommon called for: testChatContainer
+
+[90mstdout[2m | tests/integration/sample-questions-integration.test.js[2m > [22m[2mサンプル質問機能: 統合テスト[2m > [22m[2mサンプル質問ボタンをクリックすると正しい質問が送信される
+[22m[39m[BaseAdvisor] renderChatBoxCommon called for: testChatContainer
+
+[90mstdout[2m | tests/integration/sample-questions-integration.test.js[2m > [22m[2mサンプル質問機能: 統合テスト[2m > [22m[2m複数のサンプル質問ボタンがそれぞれ異なる質問を送信する
+[22m[39m[BaseAdvisor] renderChatBoxCommon called for: testChatContainer
+
+[90mstdout[2m | tests/integration/sample-questions-integration.test.js[2m > [22m[2mサンプル質問機能: 統合テスト[2m > [22m[2mサンプル質問ボタンをクリック後、入力欄がクリアされる
+[22m[39m[BaseAdvisor] renderChatBoxCommon called for: testChatContainer
+
+[90mstdout[2m | tests/integration/sample-questions-integration.test.js[2m > [22m[2m質問者選択からチャット開始までの統合フロー[2m > [22m[2m質問者を選択すると適切なサンプル質問が表示されるチャットボックスがレンダリングされる
+[22m[39m[BaseAdvisor] showQuestionerModal called with config: {
+  type: [32m'advisor'[39m,
+  containerId: [32m'testContainer'[39m,
+  context: {},
+  chatMessagesId: [32m'testChatMessages'[39m,
+  chatInputId: [32m'testChatInput'[39m,
+  chatSendBtnId: [32m'testChatSendBtn'[39m
+}
+[BaseAdvisor] Questioner personas: [
+  {
+    id: [32m'employer'[39m,
+    name: [32m'採用側（企業担当者）'[39m,
+    description: [32m'採用成功を目指す採用担当者や経営者。求人内容の最適化、人材マッチング率向上を重視。'[39m
+  },
+  {
+    id: [32m'applicant'[39m,
+    name: [32m'応募者側'[39m,
+    description: [32m'求職者。職務経歴書の作成、面接対策、アピールポイント強化を必要とする。'[39m
+  },
+  {
+    id: [32m'agent'[39m,
+    name: [32m'エージェント'[39m,
+    description: [32m'人材紹介エージェント。マッチング率向上、営業戦略、市場分析が重点。'[39m
+  }
+]
+[BaseAdvisor] renderChatBoxCommon called for: testContainer
+
+[90mstdout[2m | tests/integration/sample-questions-integration.test.js[2m > [22m[2mエスケープ処理の統合テスト[2m > [22m[2mサンプル質問に特殊文字が含まれていても正しくエスケープされる
+[22m[39m[BaseAdvisor] renderChatBoxCommon called for: testChatContainer
+
+ [32m✓[39m tests/integration/sample-questions-integration.test.js [2m([22m[2m6 tests[22m[2m)[22m[90m 204[2mms[22m[39m
+ [32m✓[39m tests/unit/web-advisor-prompt-generic.test.js [2m([22m[2m11 tests[22m[2m)[22m[90m 6[2mms[22m[39m
+ [32m✓[39m tests/unit/web-advisor-button-exclusivity.test.js [2m([22m[2m5 tests[22m[2m)[22m[90m 30[2mms[22m[39m
+ [32m✓[39m tests/unit/advisor-modal-layout.test.js [2m([22m[2m18 tests[22m[2m)[22m[90m 239[2mms[22m[39m
+ [32m✓[39m tests/unit/content-upload-reviewer-parse-response.test.js [2m([22m[2m14 tests[22m[2m)[22m[90m 13[2mms[22m[39m
+[90mstdout[2m | tests/unit/questioner-modal-layout.test.js[2m > [22m[2m質問者選択モーダル: レイアウト[2m > [22m[2mモーダルに質問者ボタンが3つ表示される（advisor）
+[22m[39m[BaseAdvisor] showQuestionerModal called with config: { type: [32m'advisor'[39m, containerId: [32m'testContainer'[39m, context: {} }
+[BaseAdvisor] Questioner personas: [
+  {
+    id: [32m'employer'[39m,
+    name: [32m'採用側（企業担当者）'[39m,
+    description: [32m'採用成功を目指す採用担当者や経営者。求人内容の最適化、人材マッチング率向上を重視。'[39m
+  },
+  {
+    id: [32m'applicant'[39m,
+    name: [32m'応募者側'[39m,
+    description: [32m'求職者。職務経歴書の作成、面接対策、アピールポイント強化を必要とする。'[39m
+  },
+  {
+    id: [32m'agent'[39m,
+    name: [32m'エージェント'[39m,
+    description: [32m'人材紹介エージェント。マッチング率向上、営業戦略、市場分析が重点。'[39m
+  }
+]
+
+[90mstdout[2m | tests/unit/questioner-modal-layout.test.js[2m > [22m[2m質問者選択モーダル: レイアウト[2m > [22m[2m採用側ボタンに正しい data 属性が設定される
+[22m[39m[BaseAdvisor] showQuestionerModal called with config: { type: [32m'advisor'[39m, containerId: [32m'testContainer'[39m, context: {} }
+[BaseAdvisor] Questioner personas: [
+  {
+    id: [32m'employer'[39m,
+    name: [32m'採用側（企業担当者）'[39m,
+    description: [32m'採用成功を目指す採用担当者や経営者。求人内容の最適化、人材マッチング率向上を重視。'[39m
+  },
+  {
+    id: [32m'applicant'[39m,
+    name: [32m'応募者側'[39m,
+    description: [32m'求職者。職務経歴書の作成、面接対策、アピールポイント強化を必要とする。'[39m
+  },
+  {
+    id: [32m'agent'[39m,
+    name: [32m'エージェント'[39m,
+    description: [32m'人材紹介エージェント。マッチング率向上、営業戦略、市場分析が重点。'[39m
+  }
+]
+
+[90mstdout[2m | tests/unit/questioner-modal-layout.test.js[2m > [22m[2m質問者選択モーダル: レイアウト[2m > [22m[2m応募側ボタンに正しい data 属性が設定される
+[22m[39m[BaseAdvisor] showQuestionerModal called with config: { type: [32m'advisor'[39m, containerId: [32m'testContainer'[39m, context: {} }
+[BaseAdvisor] Questioner personas: [
+  {
+    id: [32m'employer'[39m,
+    name: [32m'採用側（企業担当者）'[39m,
+    description: [32m'採用成功を目指す採用担当者や経営者。求人内容の最適化、人材マッチング率向上を重視。'[39m
+  },
+  {
+    id: [32m'applicant'[39m,
+    name: [32m'応募者側'[39m,
+    description: [32m'求職者。職務経歴書の作成、面接対策、アピールポイント強化を必要とする。'[39m
+  },
+  {
+    id: [32m'agent'[39m,
+    name: [32m'エージェント'[39m,
+    description: [32m'人材紹介エージェント。マッチング率向上、営業戦略、市場分析が重点。'[39m
+  }
+]
+
+[90mstdout[2m | tests/unit/questioner-modal-layout.test.js[2m > [22m[2m質問者選択モーダル: レイアウト[2m > [22m[2mエージェントボタンに正しい data 属性が設定される
+[22m[39m[BaseAdvisor] showQuestionerModal called with config: { type: [32m'advisor'[39m, containerId: [32m'testContainer'[39m, context: {} }
+[BaseAdvisor] Questioner personas: [
+  {
+    id: [32m'employer'[39m,
+    name: [32m'採用側（企業担当者）'[39m,
+    description: [32m'採用成功を目指す採用担当者や経営者。求人内容の最適化、人材マッチング率向上を重視。'[39m
+  },
+  {
+    id: [32m'applicant'[39m,
+    name: [32m'応募者側'[39m,
+    description: [32m'求職者。職務経歴書の作成、面接対策、アピールポイント強化を必要とする。'[39m
+  },
+  {
+    id: [32m'agent'[39m,
+    name: [32m'エージェント'[39m,
+    description: [32m'人材紹介エージェント。マッチング率向上、営業戦略、市場分析が重点。'[39m
+  }
+]
+
+[90mstdout[2m | tests/unit/questioner-modal-layout.test.js[2m > [22m[2m質問者選択モーダル: レイアウト[2m > [22m[2mエージェントボタンは grid-column 全幅のスタイルを持つ
+[22m[39m[BaseAdvisor] showQuestionerModal called with config: { type: [32m'advisor'[39m, containerId: [32m'testContainer'[39m, context: {} }
+[BaseAdvisor] Questioner personas: [
+  {
+    id: [32m'employer'[39m,
+    name: [32m'採用側（企業担当者）'[39m,
+    description: [32m'採用成功を目指す採用担当者や経営者。求人内容の最適化、人材マッチング率向上を重視。'[39m
+  },
+  {
+    id: [32m'applicant'[39m,
+    name: [32m'応募者側'[39m,
+    description: [32m'求職者。職務経歴書の作成、面接対策、アピールポイント強化を必要とする。'[39m
+  },
+  {
+    id: [32m'agent'[39m,
+    name: [32m'エージェント'[39m,
+    description: [32m'人材紹介エージェント。マッチング率向上、営業戦略、市場分析が重点。'[39m
+  }
+]
+
+[90mstdout[2m | tests/unit/questioner-modal-layout.test.js[2m > [22m[2m質問者選択モーダル: レイアウト[2m > [22m[2mモーダルに閉じるボタンが表示される
+[22m[39m[BaseAdvisor] showQuestionerModal called with config: { type: [32m'advisor'[39m, containerId: [32m'testContainer'[39m, context: {} }
+[BaseAdvisor] Questioner personas: [
+  {
+    id: [32m'employer'[39m,
+    name: [32m'採用側（企業担当者）'[39m,
+    description: [32m'採用成功を目指す採用担当者や経営者。求人内容の最適化、人材マッチング率向上を重視。'[39m
+  },
+  {
+    id: [32m'applicant'[39m,
+    name: [32m'応募者側'[39m,
+    description: [32m'求職者。職務経歴書の作成、面接対策、アピールポイント強化を必要とする。'[39m
+  },
+  {
+    id: [32m'agent'[39m,
+    name: [32m'エージェント'[39m,
+    description: [32m'人材紹介エージェント。マッチング率向上、営業戦略、市場分析が重点。'[39m
+  }
+]
+
+[90mstdout[2m | tests/unit/questioner-modal-layout.test.js[2m > [22m[2m質問者選択モーダル: レイアウト[2m > [22m[2mモーダルに説明文が表示される
+[22m[39m[BaseAdvisor] showQuestionerModal called with config: { type: [32m'advisor'[39m, containerId: [32m'testContainer'[39m, context: {} }
+[BaseAdvisor] Questioner personas: [
+  {
+    id: [32m'employer'[39m,
+    name: [32m'採用側（企業担当者）'[39m,
+    description: [32m'採用成功を目指す採用担当者や経営者。求人内容の最適化、人材マッチング率向上を重視。'[39m
+  },
+  {
+    id: [32m'applicant'[39m,
+    name: [32m'応募者側'[39m,
+    description: [32m'求職者。職務経歴書の作成、面接対策、アピールポイント強化を必要とする。'[39m
+  },
+  {
+    id: [32m'agent'[39m,
+    name: [32m'エージェント'[39m,
+    description: [32m'人材紹介エージェント。マッチング率向上、営業戦略、市場分析が重点。'[39m
+  }
+]
+
+[90mstdout[2m | tests/unit/questioner-modal-layout.test.js[2m > [22m[2m質問者選択モーダル: レイアウト[2m > [22m[2m質問者ボタンに名前と説明が表示される
+[22m[39m[BaseAdvisor] showQuestionerModal called with config: { type: [32m'advisor'[39m, containerId: [32m'testContainer'[39m, context: {} }
+[BaseAdvisor] Questioner personas: [
+  {
+    id: [32m'employer'[39m,
+    name: [32m'採用側（企業担当者）'[39m,
+    description: [32m'採用成功を目指す採用担当者や経営者。求人内容の最適化、人材マッチング率向上を重視。'[39m
+  },
+  {
+    id: [32m'applicant'[39m,
+    name: [32m'応募者側'[39m,
+    description: [32m'求職者。職務経歴書の作成、面接対策、アピールポイント強化を必要とする。'[39m
+  },
+  {
+    id: [32m'agent'[39m,
+    name: [32m'エージェント'[39m,
+    description: [32m'人材紹介エージェント。マッチング率向上、営業戦略、市場分析が重点。'[39m
+  }
+]
+
+[90mstdout[2m | tests/unit/questioner-modal-layout.test.js[2m > [22m[2m質問者選択モーダル: イベント処理[2m > [22m[2m閉じるボタンをクリックするとモーダルが削除される
+[22m[39m[BaseAdvisor] showQuestionerModal called with config: { type: [32m'advisor'[39m, containerId: [32m'testContainer'[39m, context: {} }
+[BaseAdvisor] Questioner personas: [
+  {
+    id: [32m'employer'[39m,
+    name: [32m'採用側（企業担当者）'[39m,
+    description: [32m'採用成功を目指す採用担当者や経営者。求人内容の最適化、人材マッチング率向上を重視。'[39m
+  },
+  {
+    id: [32m'applicant'[39m,
+    name: [32m'応募者側'[39m,
+    description: [32m'求職者。職務経歴書の作成、面接対策、アピールポイント強化を必要とする。'[39m
+  },
+  {
+    id: [32m'agent'[39m,
+    name: [32m'エージェント'[39m,
+    description: [32m'人材紹介エージェント。マッチング率向上、営業戦略、市場分析が重点。'[39m
+  }
+]
+
+[90mstdout[2m | tests/unit/questioner-modal-layout.test.js[2m > [22m[2m質問者選択モーダル: イベント処理[2m > [22m[2mオーバーレイをクリックするとモーダルが閉じる
+[22m[39m[BaseAdvisor] showQuestionerModal called with config: { type: [32m'advisor'[39m, containerId: [32m'testContainer'[39m, context: {} }
+[BaseAdvisor] Questioner personas: [
+  {
+    id: [32m'employer'[39m,
+    name: [32m'採用側（企業担当者）'[39m,
+    description: [32m'採用成功を目指す採用担当者や経営者。求人内容の最適化、人材マッチング率向上を重視。'[39m
+  },
+  {
+    id: [32m'applicant'[39m,
+    name: [32m'応募者側'[39m,
+    description: [32m'求職者。職務経歴書の作成、面接対策、アピールポイント強化を必要とする。'[39m
+  },
+  {
+    id: [32m'agent'[39m,
+    name: [32m'エージェント'[39m,
+    description: [32m'人材紹介エージェント。マッチング率向上、営業戦略、市場分析が重点。'[39m
+  }
+]
+
+[90mstdout[2m | tests/unit/questioner-modal-layout.test.js[2m > [22m[2m質問者選択モーダル: イベント処理[2m > [22m[2mEscape キーでモーダルが閉じる
+[22m[39m[BaseAdvisor] showQuestionerModal called with config: { type: [32m'advisor'[39m, containerId: [32m'testContainer'[39m, context: {} }
+[BaseAdvisor] Questioner personas: [
+  {
+    id: [32m'employer'[39m,
+    name: [32m'採用側（企業担当者）'[39m,
+    description: [32m'採用成功を目指す採用担当者や経営者。求人内容の最適化、人材マッチング率向上を重視。'[39m
+  },
+  {
+    id: [32m'applicant'[39m,
+    name: [32m'応募者側'[39m,
+    description: [32m'求職者。職務経歴書の作成、面接対策、アピールポイント強化を必要とする。'[39m
+  },
+  {
+    id: [32m'agent'[39m,
+    name: [32m'エージェント'[39m,
+    description: [32m'人材紹介エージェント。マッチング率向上、営業戦略、市場分析が重点。'[39m
+  }
+]
+
+ [32m✓[39m tests/unit/questioner-modal-layout.test.js [2m([22m[2m11 tests[22m[2m)[22m[90m 114[2mms[22m[39m
+ [31m❯[39m tests/unit/content-upload-reviewer-api-url.test.js [2m([22m[2m12 tests[22m[2m | [22m[31m12 failed[39m[2m)[22m[90m 21[2mms[22m[39m
+[31m   [31m×[31m Content Upload Reviewer - API URL[2m > [22mgetApiUrl (BaseAdvisorManagerから継承)[2m > [22mVercel環境では /api/content-upload-reviewer を返す[90m 10[2mms[22m[31m[39m
+[31m     → Cannot redefine property: hostname[39m
+[31m   [31m×[31m Content Upload Reviewer - API URL[2m > [22mgetApiUrl (BaseAdvisorManagerから継承)[2m > [22mlocalhost環境では http://localhost:3333/api/content-upload-reviewer を返す[90m 1[2mms[22m[31m[39m
+[31m     → Cannot redefine property: hostname[39m
+[31m   [31m×[31m Content Upload Reviewer - API URL[2m > [22mgetApiUrl (BaseAdvisorManagerから継承)[2m > [22m127.0.0.1環境では http://localhost:3333/api/content-upload-reviewer を返す[90m 1[2mms[22m[31m[39m
+[31m     → Cannot redefine property: hostname[39m
+[31m   [31m×[31m Content Upload Reviewer - API URL[2m > [22mgetApiUrl (BaseAdvisorManagerから継承)[2m > [22mLAN環境ではIPアドレスを使用したURLを返す[90m 1[2mms[22m[31m[39m
+[31m     → Cannot redefine property: hostname[39m
+[31m   [31m×[31m Content Upload Reviewer - API URL[2m > [22mgetApiUrl (BaseAdvisorManagerから継承)[2m > [22m異なるエンドポイント名に対応[90m 1[2mms[22m[31m[39m
+[31m     → Cannot redefine property: hostname[39m
+[31m   [31m×[31m Content Upload Reviewer - API URL[2m > [22mgetProxyUrl[2m > [22mVercel環境では /proxy を使用[90m 1[2mms[22m[31m[39m
+[31m     → Cannot redefine property: hostname[39m
+[31m   [31m×[31m Content Upload Reviewer - API URL[2m > [22mgetProxyUrl[2m > [22mlocalhost環境では http://localhost:3333/proxy を使用[90m 1[2mms[22m[31m[39m
+[31m     → Cannot redefine property: hostname[39m
+[31m   [31m×[31m Content Upload Reviewer - API URL[2m > [22mgetProxyUrl[2m > [22mLAN環境ではIPアドレスを使用[90m 1[2mms[22m[31m[39m
+[31m     → Cannot redefine property: hostname[39m
+[31m   [31m×[31m Content Upload Reviewer - API URL[2m > [22mgetProxyUrl[2m > [22mURLが正しくエンコードされる[90m 1[2mms[22m[31m[39m
+[31m     → Cannot redefine property: hostname[39m
+[31m   [31m×[31m Content Upload Reviewer - API URL[2m > [22m環境判定ロジック[2m > [22mvercel.appを含むホスト名をVercel環境と判定[90m 1[2mms[22m[31m[39m
+[31m     → Cannot redefine property: hostname[39m
+[31m   [31m×[31m Content Upload Reviewer - API URL[2m > [22m環境判定ロジック[2m > [22mlocalhost と 127.0.0.1 をローカル環境と判定[90m 1[2mms[22m[31m[39m
+[31m     → Cannot redefine property: hostname[39m
+[31m   [31m×[31m Content Upload Reviewer - API URL[2m > [22m環境判定ロジック[2m > [22mその他のホスト名をLAN環境と判定[90m 1[2mms[22m[31m[39m
+[31m     → Cannot redefine property: hostname[39m
+[90mstdout[2m | tests/unit/sample-questions.test.js[2m > [22m[2mサンプル質問機能: UI レンダリング[2m > [22m[2mサンプル質問ボタンがレンダリングされる（questioner あり）
+[22m[39m[BaseAdvisor] renderChatBoxCommon called for: testChatContainer
+
+[90mstdout[2m | tests/unit/sample-questions.test.js[2m > [22m[2mサンプル質問機能: UI レンダリング[2m > [22m[2mサンプル質問ボタンが表示されない（questioner なし）
+[22m[39m[BaseAdvisor] renderChatBoxCommon called for: testChatContainer
+
+[90mstdout[2m | tests/unit/sample-questions.test.js[2m > [22m[2mサンプル質問機能: UI レンダリング[2m > [22m[2mサンプル質問ボタンに正しい data 属性が設定される
+[22m[39m[BaseAdvisor] renderChatBoxCommon called for: testChatContainer
+
+[90mstdout[2m | tests/unit/sample-questions.test.js[2m > [22m[2mサンプル質問機能: UI レンダリング[2m > [22m[2mサンプル質問ラベルが表示される
+[22m[39m[BaseAdvisor] renderChatBoxCommon called for: testChatContainer
+
+ [32m✓[39m tests/unit/sample-questions.test.js [2m([22m[2m13 tests[22m[2m)[22m[90m 170[2mms[22m[39m
+[90mstdout[2m | tests/unit/advisor-user-mode.test.js[2m > [22m[2mAdvisor User Mode Management[2m > [22m[2mMode Switching Restrictions[2m > [22m[2m採用側を選んだユーザーは応募者モードに切り替えられない
+[22m[39m[Test] 別のユーザータイプへの切り替えは禁止
+
+[90mstdout[2m | tests/unit/advisor-user-mode.test.js[2m > [22m[2mAdvisor User Mode Management[2m > [22m[2mMode Switching Restrictions[2m > [22m[2m採用側を選んだユーザーはエージェントモードに切り替えられない
+[22m[39m[Test] 別のユーザータイプへの切り替えは禁止
+
+[90mstdout[2m | tests/unit/advisor-user-mode.test.js[2m > [22m[2mAdvisor User Mode Management[2m > [22m[2mMode Switching Restrictions[2m > [22m[2m応募者を選んだユーザーは採用側モードに切り替えられない
+[22m[39m[Test] 別のユーザータイプへの切り替えは禁止
+
+[90mstdout[2m | tests/unit/advisor-user-mode.test.js[2m > [22m[2mAdvisor User Mode Management[2m > [22m[2mMode Switching Restrictions[2m > [22m[2mエージェントを選んだユーザーは採用側モードに切り替えられない
+[22m[39m[Test] 別のユーザータイプへの切り替えは禁止
+
+ [32m✓[39m tests/unit/advisor-user-mode.test.js [2m([22m[2m13 tests[22m[2m)[22m[90m 69[2mms[22m[39m
+ [32m✓[39m tests/unit/advisor-switcher.test.js [2m([22m[2m8 tests[22m[2m)[22m[90m 72[2mms[22m[39m
+ [31m❯[39m tests/unit/content-upload-reviewer-file-parser.test.js [2m([22m[2m10 tests[22m[2m | [22m[31m10 failed[39m[2m)[22m[33m 548[2mms[22m[39m
+[31m   [31m×[31m Content Upload Reviewer - File Parser[2m > [22mMAX_FILE_SIZE定数[2m > [22m10MBに設定されている[90m 21[2mms[22m[31m[39m
+[31m     → Cannot read properties of undefined (reading 'MAX_FILE_SIZE')[39m
+[31m   [31m×[31m Content Upload Reviewer - File Parser[2m > [22mファイルサイズチェック[2m > [22m10MBを超えるファイルはエラー[33m 474[2mms[22m[31m[39m
+[31m     → Cannot read properties of undefined (reading 'parseFile')[39m
+[31m   [31m×[31m Content Upload Reviewer - File Parser[2m > [22mファイルサイズチェック[2m > [22m10MB以下のファイルは処理される[90m 44[2mms[22m[31m[39m
+[31m     → Cannot read properties of undefined (reading 'parseFile')[39m
+[31m   [31m×[31m Content Upload Reviewer - File Parser[2m > [22m対応ファイル形式[2m > [22m対応形式のリストが正しい[90m 1[2mms[22m[31m[39m
+[31m     → Cannot read properties of undefined (reading 'getSupportedExtensions')[39m
+[31m   [31m×[31m Content Upload Reviewer - File Parser[2m > [22m対応ファイル形式[2m > [22m対応していないファイル形式はエラー[90m 1[2mms[22m[31m[39m
+[31m     → Cannot read properties of undefined (reading 'isSupportedFile')[39m
+[31m   [31m×[31m Content Upload Reviewer - File Parser[2m > [22m対応ファイル形式[2m > [22m対応しているファイル形式はtrue[90m 1[2mms[22m[31m[39m
+[31m     → Cannot read properties of undefined (reading 'isSupportedFile')[39m
+[31m   [31m×[31m Content Upload Reviewer - File Parser[2m > [22mファイル形式の表示名[2m > [22m拡張子に応じた表示名を返す[90m 1[2mms[22m[31m[39m
+[31m     → Cannot read properties of undefined (reading 'getFileTypeDisplayName')[39m
+[31m   [31m×[31m Content Upload Reviewer - File Parser[2m > [22mテキストファイルのパース[2m > [22mテキストファイルの内容を正しく読み込む[90m 1[2mms[22m[31m[39m
+[31m     → Cannot read properties of undefined (reading 'parseFile')[39m
+[31m   [31m×[31m Content Upload Reviewer - File Parser[2m > [22mJSONファイルのパース[2m > [22mJSONファイルを正しく読み込む[90m 1[2mms[22m[31m[39m
+[31m     → Cannot read properties of undefined (reading 'parseFile')[39m
+[31m   [31m×[31m Content Upload Reviewer - File Parser[2m > [22mMarkdownファイルのパース[2m > [22mMarkdownファイルを正しく読み込む[90m 1[2mms[22m[31m[39m
+[31m     → Cannot read properties of undefined (reading 'parseFile')[39m
+ [32m✓[39m tests/unit/content-upload-reviewer-rate-limit.test.js [2m([22m[2m5 tests[22m[2m)[22m[90m 9[2mms[22m[39m
+ [32m✓[39m tests/unit/rate-limit.test.js [2m([22m[2m5 tests[22m[2m)[22m[90m 7[2mms[22m[39m
+ [32m✓[39m tests/unit/content-upload-reviewer-api.test.js [2m([22m[2m24 tests[22m[2m)[22m[90m 82[2mms[22m[39m
+[90mstdout[2m | tests/unit/base-advisor-events.test.js[2m > [22m[2mBaseAdvisorManager click dispatch[2m > [22m[2mdispatches handler when button[data-action] clicked
+[22m[39m[AdvisorEvents] test dispatch test-action
+
+ [32m✓[39m tests/unit/base-advisor-events.test.js [2m([22m[2m2 tests[22m[2m)[22m[90m 24[2mms[22m[39m
+ [31m❯[39m tests/unit/responsive-design.test.js [2m([22m[2m0 test[22m[2m)[22m
+ [31m❯[39m tests/unit/terminology-explanation.test.js [2m([22m[2m12 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[90m 34[2mms[22m[39m
+[31m   [31m×[31m 用語解説セクション: advisor.js[2m > [22mEMPLOYER_PROMPT と APPLICANT_PROMPT には用語解説がない（エージェント専用）[90m 19[2mms[22m[31m[39m
+[31m     → expected 'あなたは経験豊富なエンジニアリングキャリアコンサルタントです。応募者（エン…' not to contain '## 用語解説'[39m
+[31m   [31m×[31m 用語解説セクション: chat.js[2m > [22memployer と applicant チャットプロンプトには用語解説がない[90m 6[2mms[22m[31m[39m
+[31m     → expected 'あなたは経験豊富なエンジニアリングキャリアメンターです。エンジニアの応募者…' not to contain '用語解説'[39m
+[90mstdout[2m | tests/integration/beta-routes.test.js
+[22m[39m[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+
+[90mstdout[2m | tests/integration/web-advisor-security.test.js
+[22m[39m[dotenv@17.2.3] injecting env (0) from .env -- tip: ✅ audit secrets and track compliance: https://dotenvx.com/ops
+
+[90mstdout[2m | tests/integration/cors-options.test.js
+[22m[39m[dotenv@17.2.3] injecting env (0) from .env -- tip: 👥 sync secrets across teammates & machines: https://dotenvx.com/ops
+
+ [32m✓[39m tests/integration/cors-options.test.js [2m([22m[2m1 test[22m[2m)[22m[90m 27[2mms[22m[39m
+ [32m✓[39m tests/integration/beta-routes.test.js [2m([22m[2m10 tests[22m[2m)[22m[90m 74[2mms[22m[39m
+[90mstdout[2m | tests/integration/web-advisor-security.test.js[2m > [22m[2mWeb Advisor security[2m > [22m[2mblocks private IP by default (SSRF)
+[22m[39m[Web-Advisor-Endpoint] Request started
+[Web-Advisor-Endpoint] URL: http://127.0.0.1:80
+[Web-Advisor-Endpoint] Has sessionToken: [33mfalse[39m
+
+[90mstdout[2m | tests/integration/web-advisor-security.test.js[2m > [22m[2mWeb Advisor security[2m > [22m[2mrejects invalid session token
+[22m[39m[Web-Advisor-Endpoint] Request started
+[Web-Advisor-Endpoint] URL: https://example.com
+[Web-Advisor-Endpoint] Has sessionToken: [33mtrue[39m
+[Web-Advisor-Endpoint] Invalid sessionToken
+
+ [32m✓[39m tests/integration/web-advisor-security.test.js [2m([22m[2m3 tests[22m[2m)[22m[90m 201[2mms[22m[39m
+[90mstdout[2m | tests/integration/server.test.js
+[22m[39m[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔄 add secrets lifecycle management: https://dotenvx.com/ops
+
+[90mstdout[2m | tests/integration/test-connection-methods.test.js
+[22m[39m[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+
+ [32m✓[39m tests/integration/server.test.js [2m([22m[2m2 tests[22m[2m)[22m[90m 95[2mms[22m[39m
+[90mstdout[2m | tests/integration/extract-jsonld.test.js
+[22m[39m[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+
+ [32m✓[39m tests/integration/test-connection-methods.test.js [2m([22m[2m2 tests[22m[2m)[22m[90m 96[2mms[22m[39m
+ [32m✓[39m tests/integration/extract-jsonld.test.js [2m([22m[2m1 test[22m[2m)[22m[90m 32[2mms[22m[39m
+[90mstdout[2m | tests/integration/proxy.test.js
+[22m[39m[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+
+ [32m✓[39m tests/integration/proxy.test.js [2m([22m[2m1 test[22m[2m)[22m[90m 19[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[1m[7m Failed Suites 1 [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/responsive-design.test.js[2m [ tests/unit/responsive-design.test.js ][22m
+[31m[1mError[22m: ENOENT: no such file or directory, open '/home/runner/work/json-scheme-checker/json-scheme-checker/public/styles.css'[39m
+[36m [2m❯[22m tests/unit/responsive-design.test.js:[2m10:25[22m[39m
+    [90m  8| [39m
+    [90m  9| [39m[34mdescribe[39m([32m'レスポンシブデザイン: styles.css'[39m[33m,[39m () [33m=>[39m {
+    [90m 10| [39m  [35mconst[39m stylesContent [33m=[39m [34mreadFileSync[39m([34mjoin[39m(__dirname[33m,[39m [32m'../../public/sty[39m…
+    [90m   | [39m                        [31m^[39m
+    [90m 11| [39m
+    [90m 12| [39m  [34mit[39m([32m'質問者選択モーダルにグリッドレイアウトが適用されている'[39m[33m,[39m () [33m=>[39m {
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/34]⎯[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[1m[7m Failed Tests 33 [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/chat-ui-improvements.test.js[2m > [22mチャットUI改善: UI制御機能[2m > [22m閉じるボタンをクリックするとフローティングボタンが再表示される
+[31m[1mAssertionError[22m: expected 'none' to be 'flex' // Object.is equality[39m
+
+Expected: [32m"flex"[39m
+Received: [31m"none"[39m
+
+[36m [2m❯[22m tests/unit/chat-ui-improvements.test.js:[2m310:39[22m[39m
+    [90m308| [39m    closeBtn[33m.[39m[34mclick[39m()[33m;[39m
+    [90m309| [39m
+    [90m310| [39m    [34mexpect[39m(floatingBtn[33m.[39mstyle[33m.[39mdisplay)[33m.[39m[34mtoBe[39m([32m'flex'[39m)[33m;[39m
+    [90m   | [39m                                      [31m^[39m
+    [90m311| [39m  })[33m;[39m
+    [90m312| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/34]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/chat-ui-improvements.test.js[2m > [22mチャットUI改善: ローカルストレージ[2m > [22m保存された位置が復元される
+[31m[1mAssertionError[22m: expected '' to be 'fixed' // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- fixed[39m
+
+[36m [2m❯[22m tests/unit/chat-ui-improvements.test.js:[2m380:36[22m[39m
+    [90m378| [39m    [34mexpect[39m(chatBox[33m.[39mstyle[33m.[39mleft)[33m.[39m[34mtoBe[39m([32m'100px'[39m)[33m;[39m
+    [90m379| [39m    [34mexpect[39m(chatBox[33m.[39mstyle[33m.[39mtop)[33m.[39m[34mtoBe[39m([32m'200px'[39m)[33m;[39m
+    [90m380| [39m    [34mexpect[39m(chatBox[33m.[39mstyle[33m.[39mposition)[33m.[39m[34mtoBe[39m([32m'fixed'[39m)[33m;[39m
+    [90m   | [39m                                   [31m^[39m
+    [90m381| [39m  })[33m;[39m
+    [90m382| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/34]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/content-upload-reviewer-api-url.test.js[2m > [22mContent Upload Reviewer - API URL[2m > [22mgetApiUrl (BaseAdvisorManagerから継承)[2m > [22mVercel環境では /api/content-upload-reviewer を返す
+[31m[1mTypeError[22m: Cannot redefine property: hostname[39m
+[36m [2m❯[22m tests/unit/content-upload-reviewer-api-url.test.js:[2m23:14[22m[39m
+    [90m 21| [39m    [34mit[39m([32m'Vercel環境では /api/content-upload-reviewer を返す'[39m[33m,[39m () [33m=>[39m {
+    [90m 22| [39m      [90m// window.location.hostnameをモック[39m
+    [90m 23| [39m      [33mObject[39m[33m.[39m[34mdefineProperty[39m(window[33m.[39mlocation[33m,[39m [32m'hostname'[39m[33m,[39m {
+    [90m   | [39m             [31m^[39m
+    [90m 24| [39m        writable[33m:[39m [35mtrue[39m[33m,[39m
+    [90m 25| [39m        value[33m:[39m [32m'myapp.vercel.app'[39m[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/34]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/content-upload-reviewer-api-url.test.js[2m > [22mContent Upload Reviewer - API URL[2m > [22mgetApiUrl (BaseAdvisorManagerから継承)[2m > [22mlocalhost環境では http://localhost:3333/api/content-upload-reviewer を返す
+[31m[1mTypeError[22m: Cannot redefine property: hostname[39m
+[36m [2m❯[22m tests/unit/content-upload-reviewer-api-url.test.js:[2m39:14[22m[39m
+    [90m 37| [39m
+    [90m 38| [39m    [34mit[39m([32m'localhost環境では http://localhost:3333/api/content-upload-rev[39m…
+    [90m 39| [39m      [33mObject[39m[33m.[39m[34mdefineProperty[39m(window[33m.[39mlocation[33m,[39m [32m'hostname'[39m[33m,[39m {
+    [90m   | [39m             [31m^[39m
+    [90m 40| [39m        writable[33m:[39m [35mtrue[39m[33m,[39m
+    [90m 41| [39m        value[33m:[39m [32m'localhost'[39m[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/34]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/content-upload-reviewer-api-url.test.js[2m > [22mContent Upload Reviewer - API URL[2m > [22mgetApiUrl (BaseAdvisorManagerから継承)[2m > [22m127.0.0.1環境では http://localhost:3333/api/content-upload-reviewer を返す
+[31m[1mTypeError[22m: Cannot redefine property: hostname[39m
+[36m [2m❯[22m tests/unit/content-upload-reviewer-api-url.test.js:[2m54:14[22m[39m
+    [90m 52| [39m
+    [90m 53| [39m    [34mit[39m([32m'127.0.0.1環境では http://localhost:3333/api/content-upload-rev[39m…
+    [90m 54| [39m      [33mObject[39m[33m.[39m[34mdefineProperty[39m(window[33m.[39mlocation[33m,[39m [32m'hostname'[39m[33m,[39m {
+    [90m   | [39m             [31m^[39m
+    [90m 55| [39m        writable[33m:[39m [35mtrue[39m[33m,[39m
+    [90m 56| [39m        value[33m:[39m [32m'127.0.0.1'[39m[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/34]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/content-upload-reviewer-api-url.test.js[2m > [22mContent Upload Reviewer - API URL[2m > [22mgetApiUrl (BaseAdvisorManagerから継承)[2m > [22mLAN環境ではIPアドレスを使用したURLを返す
+[31m[1mTypeError[22m: Cannot redefine property: hostname[39m
+[36m [2m❯[22m tests/unit/content-upload-reviewer-api-url.test.js:[2m69:14[22m[39m
+    [90m 67| [39m
+    [90m 68| [39m    [34mit[39m([32m'LAN環境ではIPアドレスを使用したURLを返す'[39m[33m,[39m () [33m=>[39m {
+    [90m 69| [39m      [33mObject[39m[33m.[39m[34mdefineProperty[39m(window[33m.[39mlocation[33m,[39m [32m'hostname'[39m[33m,[39m {
+    [90m   | [39m             [31m^[39m
+    [90m 70| [39m        writable[33m:[39m [35mtrue[39m[33m,[39m
+    [90m 71| [39m        value[33m:[39m [32m'192.168.1.100'[39m[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/34]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/content-upload-reviewer-api-url.test.js[2m > [22mContent Upload Reviewer - API URL[2m > [22mgetApiUrl (BaseAdvisorManagerから継承)[2m > [22m異なるエンドポイント名に対応
+[31m[1mTypeError[22m: Cannot redefine property: hostname[39m
+[36m [2m❯[22m tests/unit/content-upload-reviewer-api-url.test.js:[2m84:14[22m[39m
+    [90m 82| [39m
+    [90m 83| [39m    [34mit[39m([32m'異なるエンドポイント名に対応'[39m[33m,[39m () [33m=>[39m {
+    [90m 84| [39m      [33mObject[39m[33m.[39m[34mdefineProperty[39m(window[33m.[39mlocation[33m,[39m [32m'hostname'[39m[33m,[39m {
+    [90m   | [39m             [31m^[39m
+    [90m 85| [39m        writable[33m:[39m [35mtrue[39m[33m,[39m
+    [90m 86| [39m        value[33m:[39m [32m'localhost'[39m[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/34]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/content-upload-reviewer-api-url.test.js[2m > [22mContent Upload Reviewer - API URL[2m > [22mgetProxyUrl[2m > [22mVercel環境では /proxy を使用
+[31m[1mTypeError[22m: Cannot redefine property: hostname[39m
+[36m [2m❯[22m tests/unit/content-upload-reviewer-api-url.test.js:[2m102:14[22m[39m
+    [90m100| [39m  [34mdescribe[39m([32m'getProxyUrl'[39m[33m,[39m () [33m=>[39m {
+    [90m101| [39m    [34mit[39m([32m'Vercel環境では /proxy を使用'[39m[33m,[39m () [33m=>[39m {
+    [90m102| [39m      [33mObject[39m[33m.[39m[34mdefineProperty[39m(window[33m.[39mlocation[33m,[39m [32m'hostname'[39m[33m,[39m {
+    [90m   | [39m             [31m^[39m
+    [90m103| [39m        writable[33m:[39m [35mtrue[39m[33m,[39m
+    [90m104| [39m        value[33m:[39m [32m'myapp.vercel.app'[39m[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/34]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/content-upload-reviewer-api-url.test.js[2m > [22mContent Upload Reviewer - API URL[2m > [22mgetProxyUrl[2m > [22mlocalhost環境では http://localhost:3333/proxy を使用
+[31m[1mTypeError[22m: Cannot redefine property: hostname[39m
+[36m [2m❯[22m tests/unit/content-upload-reviewer-api-url.test.js:[2m117:14[22m[39m
+    [90m115| [39m
+    [90m116| [39m    [34mit[39m([32m'localhost環境では http://localhost:3333/proxy を使用'[39m[33m,[39m () [33m=>[39m {
+    [90m117| [39m      [33mObject[39m[33m.[39m[34mdefineProperty[39m(window[33m.[39mlocation[33m,[39m [32m'hostname'[39m[33m,[39m {
+    [90m   | [39m             [31m^[39m
+    [90m118| [39m        writable[33m:[39m [35mtrue[39m[33m,[39m
+    [90m119| [39m        value[33m:[39m [32m'localhost'[39m[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/34]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/content-upload-reviewer-api-url.test.js[2m > [22mContent Upload Reviewer - API URL[2m > [22mgetProxyUrl[2m > [22mLAN環境ではIPアドレスを使用
+[31m[1mTypeError[22m: Cannot redefine property: hostname[39m
+[36m [2m❯[22m tests/unit/content-upload-reviewer-api-url.test.js:[2m132:14[22m[39m
+    [90m130| [39m
+    [90m131| [39m    [34mit[39m([32m'LAN環境ではIPアドレスを使用'[39m[33m,[39m () [33m=>[39m {
+    [90m132| [39m      [33mObject[39m[33m.[39m[34mdefineProperty[39m(window[33m.[39mlocation[33m,[39m [32m'hostname'[39m[33m,[39m {
+    [90m   | [39m             [31m^[39m
+    [90m133| [39m        writable[33m:[39m [35mtrue[39m[33m,[39m
+    [90m134| [39m        value[33m:[39m [32m'192.168.1.100'[39m[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/34]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/content-upload-reviewer-api-url.test.js[2m > [22mContent Upload Reviewer - API URL[2m > [22mgetProxyUrl[2m > [22mURLが正しくエンコードされる
+[31m[1mTypeError[22m: Cannot redefine property: hostname[39m
+[36m [2m❯[22m tests/unit/content-upload-reviewer-api-url.test.js:[2m147:14[22m[39m
+    [90m145| [39m
+    [90m146| [39m    [34mit[39m([32m'URLが正しくエンコードされる'[39m[33m,[39m () [33m=>[39m {
+    [90m147| [39m      [33mObject[39m[33m.[39m[34mdefineProperty[39m(window[33m.[39mlocation[33m,[39m [32m'hostname'[39m[33m,[39m {
+    [90m   | [39m             [31m^[39m
+    [90m148| [39m        writable[33m:[39m [35mtrue[39m[33m,[39m
+    [90m149| [39m        value[33m:[39m [32m'localhost'[39m[33m,[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/34]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/content-upload-reviewer-api-url.test.js[2m > [22mContent Upload Reviewer - API URL[2m > [22m環境判定ロジック[2m > [22mvercel.appを含むホスト名をVercel環境と判定
+[31m[1mTypeError[22m: Cannot redefine property: hostname[39m
+[36m [2m❯[22m tests/unit/content-upload-reviewer-api-url.test.js:[2m170:16[22m[39m
+    [90m168| [39m
+    [90m169| [39m      testCases[33m.[39m[34mforEach[39m(hostname [33m=>[39m {
+    [90m170| [39m        [33mObject[39m[33m.[39m[34mdefineProperty[39m(window[33m.[39mlocation[33m,[39m [32m'hostname'[39m[33m,[39m {
+    [90m   | [39m               [31m^[39m
+    [90m171| [39m          writable[33m:[39m [35mtrue[39m[33m,[39m
+    [90m172| [39m          value[33m:[39m hostname[33m,[39m
+[90m [2m❯[22m tests/unit/content-upload-reviewer-api-url.test.js:[2m169:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/34]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/content-upload-reviewer-api-url.test.js[2m > [22mContent Upload Reviewer - API URL[2m > [22m環境判定ロジック[2m > [22mlocalhost と 127.0.0.1 をローカル環境と判定
+[31m[1mTypeError[22m: Cannot redefine property: hostname[39m
+[36m [2m❯[22m tests/unit/content-upload-reviewer-api-url.test.js:[2m187:16[22m[39m
+    [90m185| [39m    [34mit[39m([32m'localhost と 127.0.0.1 をローカル環境と判定'[39m[33m,[39m () [33m=>[39m {
+    [90m186| [39m      [[32m'localhost'[39m[33m,[39m [32m'127.0.0.1'[39m][33m.[39m[34mforEach[39m(hostname [33m=>[39m {
+    [90m187| [39m        [33mObject[39m[33m.[39m[34mdefineProperty[39m(window[33m.[39mlocation[33m,[39m [32m'hostname'[39m[33m,[39m {
+    [90m   | [39m               [31m^[39m
+    [90m188| [39m          writable[33m:[39m [35mtrue[39m[33m,[39m
+    [90m189| [39m          value[33m:[39m hostname[33m,[39m
+[90m [2m❯[22m tests/unit/content-upload-reviewer-api-url.test.js:[2m186:34[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/34]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/content-upload-reviewer-api-url.test.js[2m > [22mContent Upload Reviewer - API URL[2m > [22m環境判定ロジック[2m > [22mその他のホスト名をLAN環境と判定
+[31m[1mTypeError[22m: Cannot redefine property: hostname[39m
+[36m [2m❯[22m tests/unit/content-upload-reviewer-api-url.test.js:[2m206:16[22m[39m
+    [90m204| [39m
+    [90m205| [39m      lanHosts[33m.[39m[34mforEach[39m(hostname [33m=>[39m {
+    [90m206| [39m        [33mObject[39m[33m.[39m[34mdefineProperty[39m(window[33m.[39mlocation[33m,[39m [32m'hostname'[39m[33m,[39m {
+    [90m   | [39m               [31m^[39m
+    [90m207| [39m          writable[33m:[39m [35mtrue[39m[33m,[39m
+    [90m208| [39m          value[33m:[39m hostname[33m,[39m
+[90m [2m❯[22m tests/unit/content-upload-reviewer-api-url.test.js:[2m205:16[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/34]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/content-upload-reviewer-file-parser.test.js[2m > [22mContent Upload Reviewer - File Parser[2m > [22mMAX_FILE_SIZE定数[2m > [22m10MBに設定されている
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'MAX_FILE_SIZE')[39m
+[36m [2m❯[22m tests/unit/content-upload-reviewer-file-parser.test.js:[2m12:25[22m[39m
+    [90m 10| [39m      [35mconst[39m [33mFileParser[39m [33m=[39m ([35mawait[39m [35mimport[39m([32m'../../public/utils/file-parser[39m…
+    [90m 11| [39m
+    [90m 12| [39m      [34mexpect[39m([33mFileParser[39m[33m.[39m[33mMAX_FILE_SIZE[39m)[33m.[39m[34mtoBe[39m([34m10[39m [33m*[39m [34m1024[39m [33m*[39m [34m1024[39m)[33m;[39m
+    [90m   | [39m                        [31m^[39m
+    [90m 13| [39m    })[33m;[39m
+    [90m 14| [39m  })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/34]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/content-upload-reviewer-file-parser.test.js[2m > [22mContent Upload Reviewer - File Parser[2m > [22mファイルサイズチェック[2m > [22m10MBを超えるファイルはエラー
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'parseFile')[39m
+[36m [2m❯[22m tests/unit/content-upload-reviewer-file-parser.test.js:[2m25:31[22m[39m
+    [90m 23| [39m      })[33m;[39m
+    [90m 24| [39m
+    [90m 25| [39m      [35mawait[39m [34mexpect[39m([33mFileParser[39m[33m.[39m[34mparseFile[39m(largeFile))[33m.[39mrejects[33m.[39m[34mtoThrow[39m([36m/[39m…
+    [90m   | [39m                              [31m^[39m
+    [90m 26| [39m    })[33m;[39m
+    [90m 27| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/34]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/content-upload-reviewer-file-parser.test.js[2m > [22mContent Upload Reviewer - File Parser[2m > [22mファイルサイズチェック[2m > [22m10MB以下のファイルは処理される
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'parseFile')[39m
+[36m [2m❯[22m tests/unit/content-upload-reviewer-file-parser.test.js:[2m36:39[22m[39m
+    [90m 34| [39m      })[33m;[39m
+    [90m 35| [39m
+    [90m 36| [39m      [35mconst[39m result [33m=[39m [35mawait[39m [33mFileParser[39m[33m.[39m[34mparseFile[39m(smallFile)[33m;[39m
+    [90m   | [39m                                      [31m^[39m
+    [90m 37| [39m      [34mexpect[39m(result[33m.[39mtext)[33m.[39m[34mtoBeTruthy[39m()[33m;[39m
+    [90m 38| [39m      [34mexpect[39m(result[33m.[39mmetadata[33m.[39mfilename)[33m.[39m[34mtoBe[39m([32m'small.txt'[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/34]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/content-upload-reviewer-file-parser.test.js[2m > [22mContent Upload Reviewer - File Parser[2m > [22m対応ファイル形式[2m > [22m対応形式のリストが正しい
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'getSupportedExtensions')[39m
+[36m [2m❯[22m tests/unit/content-upload-reviewer-file-parser.test.js:[2m46:46[22m[39m
+    [90m 44| [39m      [35mconst[39m [33mFileParser[39m [33m=[39m ([35mawait[39m [35mimport[39m([32m'../../public/utils/file-parser[39m…
+    [90m 45| [39m
+    [90m 46| [39m      [35mconst[39m supportedExtensions [33m=[39m [33mFileParser[39m[33m.[39m[34mgetSupportedExtensions[39m()[33m;[39m
+    [90m   | [39m                                             [31m^[39m
+    [90m 47| [39m      [34mexpect[39m(supportedExtensions)[33m.[39m[34mtoContain[39m([32m'.pdf'[39m)[33m;[39m
+    [90m 48| [39m      [34mexpect[39m(supportedExtensions)[33m.[39m[34mtoContain[39m([32m'.csv'[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/34]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/content-upload-reviewer-file-parser.test.js[2m > [22mContent Upload Reviewer - File Parser[2m > [22m対応ファイル形式[2m > [22m対応していないファイル形式はエラー
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'isSupportedFile')[39m
+[36m [2m❯[22m tests/unit/content-upload-reviewer-file-parser.test.js:[2m60:25[22m[39m
+    [90m 58| [39m      [35mconst[39m [33mFileParser[39m [33m=[39m ([35mawait[39m [35mimport[39m([32m'../../public/utils/file-parser[39m…
+    [90m 59| [39m
+    [90m 60| [39m      [34mexpect[39m([33mFileParser[39m[33m.[39m[34misSupportedFile[39m([32m'test.exe'[39m))[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+    [90m   | [39m                        [31m^[39m
+    [90m 61| [39m      [34mexpect[39m([33mFileParser[39m[33m.[39m[34misSupportedFile[39m([32m'test.zip'[39m))[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+    [90m 62| [39m      [34mexpect[39m([33mFileParser[39m[33m.[39m[34misSupportedFile[39m([32m'test.docx'[39m))[33m.[39m[34mtoBe[39m([35mfalse[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/34]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/content-upload-reviewer-file-parser.test.js[2m > [22mContent Upload Reviewer - File Parser[2m > [22m対応ファイル形式[2m > [22m対応しているファイル形式はtrue
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'isSupportedFile')[39m
+[36m [2m❯[22m tests/unit/content-upload-reviewer-file-parser.test.js:[2m68:25[22m[39m
+    [90m 66| [39m      [35mconst[39m [33mFileParser[39m [33m=[39m ([35mawait[39m [35mimport[39m([32m'../../public/utils/file-parser[39m…
+    [90m 67| [39m
+    [90m 68| [39m      [34mexpect[39m([33mFileParser[39m[33m.[39m[34misSupportedFile[39m([32m'test.pdf'[39m))[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m   | [39m                        [31m^[39m
+    [90m 69| [39m      [34mexpect[39m([33mFileParser[39m[33m.[39m[34misSupportedFile[39m([32m'test.csv'[39m))[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+    [90m 70| [39m      [34mexpect[39m([33mFileParser[39m[33m.[39m[34misSupportedFile[39m([32m'test.txt'[39m))[33m.[39m[34mtoBe[39m([35mtrue[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/34]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/content-upload-reviewer-file-parser.test.js[2m > [22mContent Upload Reviewer - File Parser[2m > [22mファイル形式の表示名[2m > [22m拡張子に応じた表示名を返す
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'getFileTypeDisplayName')[39m
+[36m [2m❯[22m tests/unit/content-upload-reviewer-file-parser.test.js:[2m80:25[22m[39m
+    [90m 78| [39m      [35mconst[39m [33mFileParser[39m [33m=[39m ([35mawait[39m [35mimport[39m([32m'../../public/utils/file-parser[39m…
+    [90m 79| [39m
+    [90m 80| [39m      [34mexpect[39m([33mFileParser[39m[33m.[39m[34mgetFileTypeDisplayName[39m([32m'.pdf'[39m))[33m.[39m[34mtoBe[39m([32m'PDF'[39m)[33m;[39m
+    [90m   | [39m                        [31m^[39m
+    [90m 81| [39m      [34mexpect[39m([33mFileParser[39m[33m.[39m[34mgetFileTypeDisplayName[39m([32m'.csv'[39m))[33m.[39m[34mtoBe[39m([32m'CSV'[39m)[33m;[39m
+    [90m 82| [39m      [34mexpect[39m([33mFileParser[39m[33m.[39m[34mgetFileTypeDisplayName[39m([32m'.xlsx'[39m))[33m.[39m[34mtoBe[39m([32m'Excel'[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/34]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/content-upload-reviewer-file-parser.test.js[2m > [22mContent Upload Reviewer - File Parser[2m > [22mテキストファイルのパース[2m > [22mテキストファイルの内容を正しく読み込む
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'parseFile')[39m
+[36m [2m❯[22m tests/unit/content-upload-reviewer-file-parser.test.js:[2m96:39[22m[39m
+    [90m 94| [39m      [35mconst[39m file [33m=[39m [35mnew[39m [33mFile[39m([content][33m,[39m [32m'test.txt'[39m[33m,[39m { type[33m:[39m [32m'text/plain[39m…
+    [90m 95| [39m
+    [90m 96| [39m      [35mconst[39m result [33m=[39m [35mawait[39m [33mFileParser[39m[33m.[39m[34mparseFile[39m(file)[33m;[39m
+    [90m   | [39m                                      [31m^[39m
+    [90m 97| [39m      [34mexpect[39m(result[33m.[39mtext)[33m.[39m[34mtoBe[39m(content)[33m;[39m
+    [90m 98| [39m      [34mexpect[39m(result[33m.[39mmetadata[33m.[39mfilename)[33m.[39m[34mtoBe[39m([32m'test.txt'[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/34]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/content-upload-reviewer-file-parser.test.js[2m > [22mContent Upload Reviewer - File Parser[2m > [22mJSONファイルのパース[2m > [22mJSONファイルを正しく読み込む
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'parseFile')[39m
+[36m [2m❯[22m tests/unit/content-upload-reviewer-file-parser.test.js:[2m112:39[22m[39m
+    [90m110| [39m      })[33m;[39m
+    [90m111| [39m
+    [90m112| [39m      [35mconst[39m result [33m=[39m [35mawait[39m [33mFileParser[39m[33m.[39m[34mparseFile[39m(file)[33m;[39m
+    [90m   | [39m                                      [31m^[39m
+    [90m113| [39m      [34mexpect[39m(result[33m.[39mtext)[33m.[39m[34mtoContain[39m([32m'テスト'[39m)[33m;[39m
+    [90m114| [39m      [34mexpect[39m(result[33m.[39mtext)[33m.[39m[34mtoContain[39m([32m'これはテストです'[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/34]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/content-upload-reviewer-file-parser.test.js[2m > [22mContent Upload Reviewer - File Parser[2m > [22mMarkdownファイルのパース[2m > [22mMarkdownファイルを正しく読み込む
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'parseFile')[39m
+[36m [2m❯[22m tests/unit/content-upload-reviewer-file-parser.test.js:[2m125:39[22m[39m
+    [90m123| [39m      [35mconst[39m file [33m=[39m [35mnew[39m [33mFile[39m([markdown][33m,[39m [32m'test.md'[39m[33m,[39m { type[33m:[39m [32m'text/markd[39m…
+    [90m124| [39m
+    [90m125| [39m      [35mconst[39m result [33m=[39m [35mawait[39m [33mFileParser[39m[33m.[39m[34mparseFile[39m(file)[33m;[39m
+    [90m   | [39m                                      [31m^[39m
+    [90m126| [39m      [34mexpect[39m(result[33m.[39mtext)[33m.[39m[34mtoBe[39m(markdown)[33m;[39m
+    [90m127| [39m      [34mexpect[39m(result[33m.[39mmetadata[33m.[39mextension)[33m.[39m[34mtoBe[39m([32m'.md'[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/34]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/content-upload-reviewer-integration.test.js[2m > [22mContent Upload Reviewer - Integration Tests[2m > [22mマッチングフィールドの表示切替[2m > [22mtoggleMatchingFieldsでマッチングフィールドの表示を切り替え
+[31m[1mAssertionError[22m: expected 'none' to be 'block' // Object.is equality[39m
+
+Expected: [32m"block"[39m
+Received: [31m"none"[39m
+
+[36m [2m❯[22m tests/unit/content-upload-reviewer-integration.test.js:[2m117:44[22m[39m
+    [90m115| [39m      manager[33m.[39m[34mtoggleMatchingFields[39m([35mtrue[39m)[33m;[39m
+    [90m116| [39m      [35mconst[39m matchingFields [33m=[39m document[33m.[39m[34mgetElementById[39m([32m'matchingFields'[39m)[33m;[39m
+    [90m117| [39m      [34mexpect[39m(matchingFields[33m.[39mstyle[33m.[39mdisplay)[33m.[39m[34mtoBe[39m([32m'block'[39m)[33m;[39m
+    [90m   | [39m                                           [31m^[39m
+    [90m118| [39m
+    [90m119| [39m      manager[33m.[39m[34mtoggleMatchingFields[39m([35mfalse[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/34]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/content-upload-reviewer-integration.test.js[2m > [22mContent Upload Reviewer - Integration Tests[2m > [22mES6モジュールエクスポート[2m > [22mContentUploadReviewerManagerがエクスポートされている
+[31m[1mAssertionError[22m: expected undefined to be defined[39m
+[36m [2m❯[22m tests/unit/content-upload-reviewer-integration.test.js:[2m151:48[22m[39m
+    [90m149| [39m  [34mdescribe[39m([32m'ES6モジュールエクスポート'[39m[33m,[39m () [33m=>[39m {
+    [90m150| [39m    [34mit[39m([32m'ContentUploadReviewerManagerがエクスポートされている'[39m[33m,[39m () [33m=>[39m {
+    [90m151| [39m      [34mexpect[39m(mod[33m.[39m[33mContentUploadReviewerManager[39m)[33m.[39m[34mtoBeDefined[39m()[33m;[39m
+    [90m   | [39m                                               [31m^[39m
+    [90m152| [39m      [34mexpect[39m([35mtypeof[39m mod[33m.[39m[33mContentUploadReviewerManager[39m)[33m.[39m[34mtoBe[39m([32m'function'[39m)[33m;[39m
+    [90m153| [39m    })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/34]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/content-upload-reviewer-integration.test.js[2m > [22mContent Upload Reviewer - Integration Tests[2m > [22mES6モジュールエクスポート[2m > [22mデフォルトエクスポートが定義されている
+[31m[1mAssertionError[22m: expected undefined to be defined[39m
+[36m [2m❯[22m tests/unit/content-upload-reviewer-integration.test.js:[2m156:27[22m[39m
+    [90m154| [39m
+    [90m155| [39m    [34mit[39m([32m'デフォルトエクスポートが定義されている'[39m[33m,[39m () [33m=>[39m {
+    [90m156| [39m      [34mexpect[39m(mod[33m.[39m[35mdefault[39m)[33m.[39m[34mtoBeDefined[39m()[33m;[39m
+    [90m   | [39m                          [31m^[39m
+    [90m157| [39m    })[33m;[39m
+    [90m158| [39m  })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/34]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/content-upload-reviewer-integration.test.js[2m > [22mContent Upload Reviewer - Integration Tests[2m > [22mHTML特殊文字のエスケープ[2m > [22m引用符もエスケープされる
+[31m[1mAssertionError[22m: expected 'これは"引用符"と\'シングルクォート\'です' to contain '&quot;'[39m
+
+Expected: [32m"&quot;"[39m
+Received: [31m"これは"引用符"と'シングルクォート'です"[39m
+
+[36m [2m❯[22m tests/unit/content-upload-reviewer-integration.test.js:[2m204:23[22m[39m
+    [90m202| [39m      [35mconst[39m escaped [33m=[39m manager[33m.[39m[34mescapeHtml[39m(text)[33m;[39m
+    [90m203| [39m
+    [90m204| [39m      [34mexpect[39m(escaped)[33m.[39m[34mtoContain[39m([32m'&quot;'[39m)[33m;[39m
+    [90m   | [39m                      [31m^[39m
+    [90m205| [39m    })[33m;[39m
+    [90m206| [39m  })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/34]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/content-upload-reviewer-integration.test.js[2m > [22mContent Upload Reviewer - Integration Tests[2m > [22mdownloadFile (BaseAdvisorManagerから継承)[2m > [22mdownloadFileメソッドが使用可能
+[31m[1mAssertionError[22m: expected [Function] to not throw an error but 'TypeError: URL.createObjectURL is not…' was thrown[39m
+
+[32m- Expected:[39m 
+undefined
+
+[31m+ Received:[39m 
+"TypeError: URL.createObjectURL is not a function"
+
+[36m [2m❯[22m tests/unit/content-upload-reviewer-integration.test.js:[2m214:62[22m[39m
+    [90m212| [39m
+    [90m213| [39m      [90m// downloadFileはリンクをクリックするため、実際のダウンロードは[39m…
+    [90m214| [39m      [34mexpect[39m(() [33m=>[39m manager[33m.[39m[34mdownloadFile[39m(blob[33m,[39m filename))[33m.[39mnot[33m.[39m[34mtoThrow[39m()[33m;[39m
+    [90m   | [39m                                                             [31m^[39m
+    [90m215| [39m    })[33m;[39m
+    [90m216| [39m  })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[30/34]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/content-upload-reviewer-integration.test.js[2m > [22mContent Upload Reviewer - Integration Tests[2m > [22m入力タブの切り替え[2m > [22mswitchInputTabでタブが切り替わる
+[31m[1mAssertionError[22m: expected 'block' to be 'none' // Object.is equality[39m
+
+Expected: [32m"none"[39m
+Received: [31m"block"[39m
+
+[36m [2m❯[22m tests/unit/content-upload-reviewer-integration.test.js:[2m230:39[22m[39m
+    [90m228| [39m      [35mconst[39m filePanel [33m=[39m document[33m.[39m[34mgetElementById[39m([32m'fileInputPanel'[39m)[33m;[39m
+    [90m229| [39m
+    [90m230| [39m      [34mexpect[39m(textPanel[33m.[39mstyle[33m.[39mdisplay)[33m.[39m[34mtoBe[39m([32m'none'[39m)[33m;[39m
+    [90m   | [39m                                      [31m^[39m
+    [90m231| [39m      [34mexpect[39m(filePanel[33m.[39mstyle[33m.[39mdisplay)[33m.[39m[34mtoBe[39m([32m'block'[39m)[33m;[39m
+    [90m232| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[31/34]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/content-upload-reviewer-integration.test.js[2m > [22mContent Upload Reviewer - Integration Tests[2m > [22mダウンロード機能[2m > [22mdownloadRevisedTextで校閲済みテキストをダウンロード
+[31m[1mTypeError[22m: URL.createObjectURL is not a function[39m
+[36m [2m❯[22m ContentUploadReviewerManager.downloadFile public/modules/base-advisor.js:[2m889:21[22m[39m
+    [90m887| [39m   */[39m
+    [90m888| [39m  [34mdownloadFile[39m(blob[33m,[39m filename) {
+    [90m889| [39m    [35mconst[39m url [33m=[39m [33mURL[39m[33m.[39m[34mcreateObjectURL[39m(blob)[33m;[39m
+    [90m   | [39m                    [31m^[39m
+    [90m890| [39m    [35mconst[39m link [33m=[39m document[33m.[39m[34mcreateElement[39m([32m'a'[39m)[33m;[39m
+    [90m891| [39m    link[33m.[39mhref [33m=[39m url[33m;[39m
+[90m [2m❯[22m ContentUploadReviewerManager.downloadRevisedText public/modules/content-upload-reviewer.js:[2m882:10[22m[39m
+[90m [2m❯[22m tests/unit/content-upload-reviewer-integration.test.js:[2m272:15[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[32/34]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/terminology-explanation.test.js[2m > [22m用語解説セクション: advisor.js[2m > [22mEMPLOYER_PROMPT と APPLICANT_PROMPT には用語解説がない（エージェント専用）
+[31m[1mAssertionError[22m: expected 'あなたは経験豊富なエンジニアリングキャリアコンサルタントです。応募者（エン…' not to contain '## 用語解説'[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[31m+ あなたは経験豊富なエンジニアリングキャリアコンサルタントです。応募者（エンジニア）に対して、求人票から読み取れる技術的な深い洞察と、キャリア成長の観点から本質的なアドバイスを提供してください。[39m
+[31m+[39m
+[31m+ 【重要な制約】[39m
+[31m+ - 絵文字は一切使用しない[39m
+[31m+ - 表面的な一般論ではなく、技術スタックから推測される実務の解像度を上げる[39m
+[31m+ - エンジニアが日常的に直面する技術的な壁やチーム課題に言及する[39m
+[31m+ - 「活躍できる」「成長機会」などの抽象的な表現を避け、具体的な技術要素に言及する[39m
+[31m+[39m
+[31m+ 【分析の深度】[39m
+[31m+ 1. 技術スタックから読み取る開発現場の実態（使用言語、フレームワーク、インフラ、ツールチェーン）[39m
+[31m+ 2. 技術選定の背景と、そこから推測されるチームの技術的成熟度[39m
+[31m+ 3. エンジニアとしてのキャリアパス（現場で何を学べるか、どんな技術的成長が期待できるか）[39m
+[31m+ 4. チームビルドや開発プロセスの推測（アジャイル、スクラム、コードレビュー文化など）[39m
+[31m+ 5. 技術的負債やレガシーコードの存在可能性[39m
+[31m+ 6. オンコール対応、パフォーマンスチューニング、セキュリティ要件など実務的な課題[39m
+[31m+[39m
+[31m+ 【出力形式】[39m
+[31m+ 必ず以下の構造で日本語のMarkdown形式で出力してください：[39m
+[31m+[39m
+[31m+ ## 技術スタック分析[39m
+[31m+[39m
+[31m+ ### 採用技術とその意味[39m
+[31m+ [具体的な技術名を挙げ、なぜその技術を選んでいるか、技術トレンドとの関係、実務での使われ方を解説][39m
+[31m+[39m
+[31m+ 例:[39m
+[31m+ - **React + TypeScript**: 型安全性を重視した開発体制。中規模以上のチーム開発を前提としている可能性が高い[39m
+[31m+ - **AWS ECS + RDS**: コンテナベースのインフラ。インフラのコード化（IaC）やCI/CDパイプラインが整備されている可能性[39m
+[31m+ - **GraphQL**: BFF（Backend For Frontend）パターンを採用している可能性。フロントエンドとバックエンドの責任分離が進んでいる[39m
+[31m+[39m
+[31m+ ### 技術的成熟度の推測[39m
+[31m+ [技術選定やアーキテクチャから推測される、チームの技術レベルや開発文化][39m
+[31m+[39m
+[31m+ ### 現場で直面するであろう技術課題[39m
+[31m+ [パフォーマンス最適化、スケーラビリティ、リファクタリング、技術的負債など、実務で出くわす具体的な課題][39m
+[31m+[39m
+[31m+ ## キャリア成長の観点[39m
+[31m+[39m
+[31m+ ### このポジションで得られる技術的経験[39m
+[31m+ [具体的にどんな技術スキルが身につくか、何年後にどんなエンジニアになれるか][39m
+[31m+[39m
+[31m+ 例:[39m
+[31m+ - マイクロサービスアーキテクチャの設計経験[39m
+[31m+ - 大規模トラフィックを捌くための負荷分散とキャッシュ戦略[39m
+[31m+ - チームリーダーとしてのコードレビューやメンタリング経験[39m
+[31m+[39m
+[31m+ ### 技術的な成長曲線[39m
+[31m+ [入社後の成長イメージ。最初の3ヶ月、半年、1年後に何ができるようになるか][39m
+[31m+[39m
+[31m+ ### キャリアパスの可能性[39m
+[31m+ [シニアエンジニア、テックリード、アーキテクト、EMなど、将来的なキャリアの選択肢][39m
+[31m+[39m
+[31m+ ## 面接での技術的壁打ち[39m
+[31m+[39m
+[31m+ ### 技術面接で深掘りされる可能性が高いテーマ[39m
+[31m+ 1. **[技術テーマ1]**: [なぜこのテーマが重要か、どう準備するか][39m
+[31m+ 2. **[技術テーマ2]**: [なぜこのテーマが重要か、どう準備するか][39m
+[31m+ 3. **[技術テーマ3]**: [なぜこのテーマが重要か、どう準備するか][39m
+[31m+[39m
+[31m+ ### 想定される技術質問と回答戦略[39m
+[31m+ 1. **[技術的な質問]**[39m
+[31m+    - この質問で何を見ているか: [技術理解度、実務経験、問題解決能力のうち何を評価しているか][39m
+[31m+    - 回答のポイント: [具体的な経験や技術的な根拠を交えてどう答えるか][39m
+[31m+[39m
+[31m+ 2. **[技術的な質問]**[39m
+[31m+    - この質問で何を見ているか: [...][39m
+[31m+    - 回答のポイント: [...][39m
+[31m+[39m
+[31m+ 3. **[技術的な質問]**[39m
+[31m+    - この質問で何を見ているか: [...][39m
+[31m+    - 回答のポイント: [...][39m
+[31m+[39m
+[31m+ ### 逆質問で技術的な解像度を上げる[39m
+[31m+ [チームの開発プロセス、コードレビュー文化、技術的負債への取り組み、障害対応フローなど、実務的な質問例][39m
+[31m+[39m
+[31m+ 例:[39m
+[31m+ - 「コードレビューはどのように行われていますか？レビュー文化はどの程度根付いていますか？」[39m
+[31m+ - 「技術的負債に対してどのように向き合っていますか？定期的なリファクタリングの時間は確保されていますか？」[39m
+[31m+ - 「本番障害が発生した場合の対応フローを教えてください。オンコール体制はありますか？」[39m
+[31m+[39m
+[31m+ ## チームビルドと開発文化[39m
+[31m+[39m
+[31m+ ### 推測されるチーム構成[39m
+[31m+ [エンジニアの人数、役割分担、シニア/ジュニアの比率、開発体制][39m
+[31m+[39m
+[31m+ ### 開発プロセスの推測[39m
+[31m+ [スクラム、カンバン、スプリント、デイリースタンドアップ、ふりかえりなどの有無][39m
+[31m+[39m
+[31m+ ### コミュニケーションとコラボレーション[39m
+[31m+ [Slack、GitHub、Notion、ドキュメント文化、ペアプロ/モブプロの有無][39m
+[31m+[39m
+[31m+ ## リスクと懸念事項[39m
+[31m+[39m
+[31m+ ### 技術的なリスク[39m
+[31m+ [レガシーコード、技術的負債、急速なスケールによる混乱など][39m
+[31m+[39m
+[31m+ ### キャリア的なリスク[39m
+[31m+ [成長機会の限界、技術トレンドとの乖離、チーム規模による制約など][39m
+[31m+[39m
+[31m+ ### 確認すべき重要事項[39m
+[31m+ [入社前に必ず確認しておくべき技術的・組織的な質問リスト][39m
+[31m+[39m
+[2m  ## 用語解説[22m
+[31m+[39m
+[31m+ **重要な専門用語・技術キーワードの解説:**[39m
+[31m+ [求人票に登場した技術用語や開発手法について、応募者が理解しやすいように簡潔に解説。最低3つ、最大5つ程度。][39m
+[31m+[39m
+[31m+ 例:[39m
+[31m+ - **[用語1]**: [わかりやすい説明][39m
+[31m+ - **[用語2]**: [わかりやすい説明][39m
+[31m+ - **[用語3]**: [わかりやすい説明][39m
+
+[36m [2m❯[22m tests/unit/terminology-explanation.test.js:[2m33:37[22m[39m
+    [90m 31| [39m    }
+    [90m 32| [39m    [35mif[39m (applicantMatch) {
+    [90m 33| [39m      [34mexpect[39m(applicantMatch[[34m1[39m])[33m.[39mnot[33m.[39m[34mtoContain[39m([32m'## 用語解説'[39m)[33m;[39m
+    [90m   | [39m                                    [31m^[39m
+    [90m 34| [39m    }
+    [90m 35| [39m  })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[33/34]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m tests/unit/terminology-explanation.test.js[2m > [22m用語解説セクション: chat.js[2m > [22memployer と applicant チャットプロンプトには用語解説がない
+[31m[1mAssertionError[22m: expected 'あなたは経験豊富なエンジニアリングキャリアメンターです。エンジニアの応募者…' not to contain '用語解説'[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- [7m用語[27m解説[39m
+[31m+ あなたは経験豊富なエンジニアリングキャリアメンターです。エンジニアの応募者からの技術的な質問、キャリア相談、面接戦略について深く掘り下げたアドバイスを提供してください。Webページ分析やその他のコンテキストで質問された場合でも、柔軟に対応してください。[39m
+[31m+[39m
+[31m+ 【ユーザーペルソナ】エンジニア（応募者）。技術的な深掘り、キャリア成長、チームビルド、技術選択の壁打ちを求めている。[39m
+[31m+[39m
+[31m+ 【対応範囲】[39m
+[31m+ 以下のような質問に深く答えてください：[39m
+[31m+ - 技術スタックや開発環境に関する詳細な質問[39m
+[31m+ - 「この技術を選ぶ理由は？」「チームではどう使われているか？」などの技術的掘り下げ[39m
+[31m+ - キャリアパスの相談（「この経験は将来どう活きるか？」「次のステップは？」）[39m
+[31m+ - 面接での技術的な質問対策（「どう答えるべきか？」「何を評価されているか？」）[39m
+[31m+ - チームビルドや開発文化に関する質問（「コードレビュー文化は？」「技術的負債への向き合い方は？」）[39m
+[31m+ - 給与交渉や働き方に関する相談[39m
+[31m+ - 技術的な不安や懸念の払拭（「自分のスキルで通用するか？」）[39m
+[31m+[39m
+[31m+ 【回答の重点】[39m
+[31m+ - **技術の深掘り**: 表面的な回答ではなく、「なぜその技術か」「実務でどう使うか」「どう学ぶか」まで掘り下げる[39m
+[31m+ - **キャリアの具体的展望**: 「1年後、3年後にどうなれるか」「市場価値はどう変わるか」を具体的に[39m
+[31m+ - **面接での壁打ち**: 技術面接で聞かれそうな質問とその意図、回答戦略を提示[39m
+[31m+ - **現実的なアドバイス**: 理想論ではなく、実務経験に基づいた現実的な視点[39m
+[31m+ - **チーム開発の視点**: 個人のスキルだけでなく、チームでの働き方や成長の視点も[39m
+[31m+[39m
+[31m+ 【重要な制約】[39m
+[31m+ - 絵文字は一切使用しない[39m
+[31m+ - 「成長できる」「活躍できる」などの抽象的な表現を避ける[39m
+[31m+ - 技術用語は正確に使い、必要に応じて解説する[39m
+[31m+ - エンジニアの「本当に知りたいこと」に踏み込む[39m
+[31m+ - 既存のアドバイスとの重複を避け、より深い洞察を提供する[39m
+[31m+[39m
+[31m+ 【柔軟な対応】[39m
+[31m+ - Webページ分析の文脈でキャリア相談や面接戦略を尋ねられた場合でも、積極的に答える[39m
+[31m+ - 質問の意図を理解し、求められている情報を的確に提供する[39m
+[31m+ - コンテキストが限られていても、一般的なベストプラクティスや経験則から有用なアドバイスを提供する[39m
+[31m+[39m
+[31m+ 【回答形式】[39m
+[31m+ 回答の最後に、登場した技術用語や開発手法について「用語解説」セクションを必ず追加してください：[39m
+[31m+ - 最低3つ、最大5つの重要な用語を選定[39m
+[31m+ [7m- エンジニアが理解しやすいように簡潔に[27m解説[39m
+
+[36m [2m❯[22m tests/unit/terminology-explanation.test.js:[2m87:37[22m[39m
+    [90m 85| [39m    }
+    [90m 86| [39m    [35mif[39m (applicantMatch) {
+    [90m 87| [39m      [34mexpect[39m(applicantMatch[[34m1[39m])[33m.[39mnot[33m.[39m[34mtoContain[39m([32m'用語解説'[39m)[33m;[39m
+    [90m   | [39m                                    [31m^[39m
+    [90m 88| [39m    }
+    [90m 89| [39m  })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[34/34]⎯[22m[39m
+
+[2m Test Files [22m [1m[31m6 failed[39m[22m[2m | [22m[1m[32m26 passed[39m[22m[90m (32)[39m
+[2m      Tests [22m [1m[31m33 failed[39m[22m[2m | [22m[1m[32m300 passed[39m[22m[90m (333)[39m
+[2m   Start at [22m 22:21:13
+[2m   Duration [22m 8.95s[2m (transform 393ms, setup 0ms, collect 2.46s, tests 3.00s, environment 13.11s, prepare 2.76s)[22m
+
+
+::error file=/home/runner/work/json-scheme-checker/json-scheme-checker/tests/unit/chat-ui-improvements.test.js,title=tests/unit/chat-ui-improvements.test.js > チャットUI改善%3A UI制御機能 > 閉じるボタンをクリックするとフローティングボタンが再表示される,line=310,column=39::AssertionError: expected 'none' to be 'flex' // Object.is equality%0A%0AExpected: "flex"%0AReceived: "none"%0A%0A ❯ tests/unit/chat-ui-improvements.test.js:310:39%0A%0A
+
+::error file=/home/runner/work/json-scheme-checker/json-scheme-checker/tests/unit/chat-ui-improvements.test.js,title=tests/unit/chat-ui-improvements.test.js > チャットUI改善%3A ローカルストレージ > 保存された位置が復元される,line=380,column=36::AssertionError: expected '' to be 'fixed' // Object.is equality%0A%0A- Expected%0A+ Received%0A%0A- fixed%0A%0A ❯ tests/unit/chat-ui-improvements.test.js:380:36%0A%0A
+
+::error file=/home/runner/work/json-scheme-checker/json-scheme-checker/tests/unit/content-upload-reviewer-api-url.test.js,title=tests/unit/content-upload-reviewer-api-url.test.js > Content Upload Reviewer - API URL > getApiUrl (BaseAdvisorManagerから継承) > Vercel環境では /api/content-upload-reviewer を返す,line=23,column=14::TypeError: Cannot redefine property: hostname%0A ❯ tests/unit/content-upload-reviewer-api-url.test.js:23:14%0A%0A
+
+::error file=/home/runner/work/json-scheme-checker/json-scheme-checker/tests/unit/content-upload-reviewer-api-url.test.js,title=tests/unit/content-upload-reviewer-api-url.test.js > Content Upload Reviewer - API URL > getApiUrl (BaseAdvisorManagerから継承) > localhost環境では http%3A//localhost%3A3333/api/content-upload-reviewer を返す,line=39,column=14::TypeError: Cannot redefine property: hostname%0A ❯ tests/unit/content-upload-reviewer-api-url.test.js:39:14%0A%0A
+
+::error file=/home/runner/work/json-scheme-checker/json-scheme-checker/tests/unit/content-upload-reviewer-api-url.test.js,title=tests/unit/content-upload-reviewer-api-url.test.js > Content Upload Reviewer - API URL > getApiUrl (BaseAdvisorManagerから継承) > 127.0.0.1環境では http%3A//localhost%3A3333/api/content-upload-reviewer を返す,line=54,column=14::TypeError: Cannot redefine property: hostname%0A ❯ tests/unit/content-upload-reviewer-api-url.test.js:54:14%0A%0A
+
+::error file=/home/runner/work/json-scheme-checker/json-scheme-checker/tests/unit/content-upload-reviewer-api-url.test.js,title=tests/unit/content-upload-reviewer-api-url.test.js > Content Upload Reviewer - API URL > getApiUrl (BaseAdvisorManagerから継承) > LAN環境ではIPアドレスを使用したURLを返す,line=69,column=14::TypeError: Cannot redefine property: hostname%0A ❯ tests/unit/content-upload-reviewer-api-url.test.js:69:14%0A%0A
+
+::error file=/home/runner/work/json-scheme-checker/json-scheme-checker/tests/unit/content-upload-reviewer-api-url.test.js,title=tests/unit/content-upload-reviewer-api-url.test.js > Content Upload Reviewer - API URL > getApiUrl (BaseAdvisorManagerから継承) > 異なるエンドポイント名に対応,line=84,column=14::TypeError: Cannot redefine property: hostname%0A ❯ tests/unit/content-upload-reviewer-api-url.test.js:84:14%0A%0A
+
+::error file=/home/runner/work/json-scheme-checker/json-scheme-checker/tests/unit/content-upload-reviewer-api-url.test.js,title=tests/unit/content-upload-reviewer-api-url.test.js > Content Upload Reviewer - API URL > getProxyUrl > Vercel環境では /proxy を使用,line=102,column=14::TypeError: Cannot redefine property: hostname%0A ❯ tests/unit/content-upload-reviewer-api-url.test.js:102:14%0A%0A
+
+::error file=/home/runner/work/json-scheme-checker/json-scheme-checker/tests/unit/content-upload-reviewer-api-url.test.js,title=tests/unit/content-upload-reviewer-api-url.test.js > Content Upload Reviewer - API URL > getProxyUrl > localhost環境では http%3A//localhost%3A3333/proxy を使用,line=117,column=14::TypeError: Cannot redefine property: hostname%0A ❯ tests/unit/content-upload-reviewer-api-url.test.js:117:14%0A%0A
+
+::error file=/home/runner/work/json-scheme-checker/json-scheme-checker/tests/unit/content-upload-reviewer-api-url.test.js,title=tests/unit/content-upload-reviewer-api-url.test.js > Content Upload Reviewer - API URL > getProxyUrl > LAN環境ではIPアドレスを使用,line=132,column=14::TypeError: Cannot redefine property: hostname%0A ❯ tests/unit/content-upload-reviewer-api-url.test.js:132:14%0A%0A
+
+::error file=/home/runner/work/json-scheme-checker/json-scheme-checker/tests/unit/content-upload-reviewer-api-url.test.js,title=tests/unit/content-upload-reviewer-api-url.test.js > Content Upload Reviewer - API URL > getProxyUrl > URLが正しくエンコードされる,line=147,column=14::TypeError: Cannot redefine property: hostname%0A ❯ tests/unit/content-upload-reviewer-api-url.test.js:147:14%0A%0A
+
+::error file=/home/runner/work/json-scheme-checker/json-scheme-checker/tests/unit/content-upload-reviewer-api-url.test.js,title=tests/unit/content-upload-reviewer-api-url.test.js > Content Upload Reviewer - API URL > 環境判定ロジック > vercel.appを含むホスト名をVercel環境と判定,line=170,column=16::TypeError: Cannot redefine property: hostname%0A ❯ tests/unit/content-upload-reviewer-api-url.test.js:170:16%0A ❯ tests/unit/content-upload-reviewer-api-url.test.js:169:17%0A%0A
+
+::error file=/home/runner/work/json-scheme-checker/json-scheme-checker/tests/unit/content-upload-reviewer-api-url.test.js,title=tests/unit/content-upload-reviewer-api-url.test.js > Content Upload Reviewer - API URL > 環境判定ロジック > localhost と 127.0.0.1 をローカル環境と判定,line=187,column=16::TypeError: Cannot redefine property: hostname%0A ❯ tests/unit/content-upload-reviewer-api-url.test.js:187:16%0A ❯ tests/unit/content-upload-reviewer-api-url.test.js:186:34%0A%0A
+
+::error file=/home/runner/work/json-scheme-checker/json-scheme-checker/tests/unit/content-upload-reviewer-api-url.test.js,title=tests/unit/content-upload-reviewer-api-url.test.js > Content Upload Reviewer - API URL > 環境判定ロジック > その他のホスト名をLAN環境と判定,line=206,column=16::TypeError: Cannot redefine property: hostname%0A ❯ tests/unit/content-upload-reviewer-api-url.test.js:206:16%0A ❯ tests/unit/content-upload-reviewer-api-url.test.js:205:16%0A%0A
+
+::error file=/home/runner/work/json-scheme-checker/json-scheme-checker/tests/unit/content-upload-reviewer-file-parser.test.js,title=tests/unit/content-upload-reviewer-file-parser.test.js > Content Upload Reviewer - File Parser > MAX_FILE_SIZE定数 > 10MBに設定されている,line=12,column=25::TypeError: Cannot read properties of undefined (reading 'MAX_FILE_SIZE')%0A ❯ tests/unit/content-upload-reviewer-file-parser.test.js:12:25%0A%0A
+
+::error file=/home/runner/work/json-scheme-checker/json-scheme-checker/tests/unit/content-upload-reviewer-file-parser.test.js,title=tests/unit/content-upload-reviewer-file-parser.test.js > Content Upload Reviewer - File Parser > ファイルサイズチェック > 10MBを超えるファイルはエラー,line=25,column=31::TypeError: Cannot read properties of undefined (reading 'parseFile')%0A ❯ tests/unit/content-upload-reviewer-file-parser.test.js:25:31%0A%0A
+
+::error file=/home/runner/work/json-scheme-checker/json-scheme-checker/tests/unit/content-upload-reviewer-file-parser.test.js,title=tests/unit/content-upload-reviewer-file-parser.test.js > Content Upload Reviewer - File Parser > ファイルサイズチェック > 10MB以下のファイルは処理される,line=36,column=39::TypeError: Cannot read properties of undefined (reading 'parseFile')%0A ❯ tests/unit/content-upload-reviewer-file-parser.test.js:36:39%0A%0A
+
+::error file=/home/runner/work/json-scheme-checker/json-scheme-checker/tests/unit/content-upload-reviewer-file-parser.test.js,title=tests/unit/content-upload-reviewer-file-parser.test.js > Content Upload Reviewer - File Parser > 対応ファイル形式 > 対応形式のリストが正しい,line=46,column=46::TypeError: Cannot read properties of undefined (reading 'getSupportedExtensions')%0A ❯ tests/unit/content-upload-reviewer-file-parser.test.js:46:46%0A%0A
+
+::error file=/home/runner/work/json-scheme-checker/json-scheme-checker/tests/unit/content-upload-reviewer-file-parser.test.js,title=tests/unit/content-upload-reviewer-file-parser.test.js > Content Upload Reviewer - File Parser > 対応ファイル形式 > 対応していないファイル形式はエラー,line=60,column=25::TypeError: Cannot read properties of undefined (reading 'isSupportedFile')%0A ❯ tests/unit/content-upload-reviewer-file-parser.test.js:60:25%0A%0A
+
+::error file=/home/runner/work/json-scheme-checker/json-scheme-checker/tests/unit/content-upload-reviewer-file-parser.test.js,title=tests/unit/content-upload-reviewer-file-parser.test.js > Content Upload Reviewer - File Parser > 対応ファイル形式 > 対応しているファイル形式はtrue,line=68,column=25::TypeError: Cannot read properties of undefined (reading 'isSupportedFile')%0A ❯ tests/unit/content-upload-reviewer-file-parser.test.js:68:25%0A%0A
+
+::error file=/home/runner/work/json-scheme-checker/json-scheme-checker/tests/unit/content-upload-reviewer-file-parser.test.js,title=tests/unit/content-upload-reviewer-file-parser.test.js > Content Upload Reviewer - File Parser > ファイル形式の表示名 > 拡張子に応じた表示名を返す,line=80,column=25::TypeError: Cannot read properties of undefined (reading 'getFileTypeDisplayName')%0A ❯ tests/unit/content-upload-reviewer-file-parser.test.js:80:25%0A%0A
+
+::error file=/home/runner/work/json-scheme-checker/json-scheme-checker/tests/unit/content-upload-reviewer-file-parser.test.js,title=tests/unit/content-upload-reviewer-file-parser.test.js > Content Upload Reviewer - File Parser > テキストファイルのパース > テキストファイルの内容を正しく読み込む,line=96,column=39::TypeError: Cannot read properties of undefined (reading 'parseFile')%0A ❯ tests/unit/content-upload-reviewer-file-parser.test.js:96:39%0A%0A
+
+::error file=/home/runner/work/json-scheme-checker/json-scheme-checker/tests/unit/content-upload-reviewer-file-parser.test.js,title=tests/unit/content-upload-reviewer-file-parser.test.js > Content Upload Reviewer - File Parser > JSONファイルのパース > JSONファイルを正しく読み込む,line=112,column=39::TypeError: Cannot read properties of undefined (reading 'parseFile')%0A ❯ tests/unit/content-upload-reviewer-file-parser.test.js:112:39%0A%0A
+
+::error file=/home/runner/work/json-scheme-checker/json-scheme-checker/tests/unit/content-upload-reviewer-file-parser.test.js,title=tests/unit/content-upload-reviewer-file-parser.test.js > Content Upload Reviewer - File Parser > Markdownファイルのパース > Markdownファイルを正しく読み込む,line=125,column=39::TypeError: Cannot read properties of undefined (reading 'parseFile')%0A ❯ tests/unit/content-upload-reviewer-file-parser.test.js:125:39%0A%0A
+
+::error file=/home/runner/work/json-scheme-checker/json-scheme-checker/tests/unit/content-upload-reviewer-integration.test.js,title=tests/unit/content-upload-reviewer-integration.test.js > Content Upload Reviewer - Integration Tests > マッチングフィールドの表示切替 > toggleMatchingFieldsでマッチングフィールドの表示を切り替え,line=117,column=44::AssertionError: expected 'none' to be 'block' // Object.is equality%0A%0AExpected: "block"%0AReceived: "none"%0A%0A ❯ tests/unit/content-upload-reviewer-integration.test.js:117:44%0A%0A
+
+::error file=/home/runner/work/json-scheme-checker/json-scheme-checker/tests/unit/content-upload-reviewer-integration.test.js,title=tests/unit/content-upload-reviewer-integration.test.js > Content Upload Reviewer - Integration Tests > ES6モジュールエクスポート > ContentUploadReviewerManagerがエクスポートされている,line=151,column=48::AssertionError: expected undefined to be defined%0A ❯ tests/unit/content-upload-reviewer-integration.test.js:151:48%0A%0A
+
+::error file=/home/runner/work/json-scheme-checker/json-scheme-checker/tests/unit/content-upload-reviewer-integration.test.js,title=tests/unit/content-upload-reviewer-integration.test.js > Content Upload Reviewer - Integration Tests > ES6モジュールエクスポート > デフォルトエクスポートが定義されている,line=156,column=27::AssertionError: expected undefined to be defined%0A ❯ tests/unit/content-upload-reviewer-integration.test.js:156:27%0A%0A
+
+::error file=/home/runner/work/json-scheme-checker/json-scheme-checker/tests/unit/content-upload-reviewer-integration.test.js,title=tests/unit/content-upload-reviewer-integration.test.js > Content Upload Reviewer - Integration Tests > HTML特殊文字のエスケープ > 引用符もエスケープされる,line=204,column=23::AssertionError: expected 'これは"引用符"と\'シングルクォート\'です' to contain '&quot;'%0A%0AExpected: "&quot;"%0AReceived: "これは"引用符"と'シングルクォート'です"%0A%0A ❯ tests/unit/content-upload-reviewer-integration.test.js:204:23%0A%0A
+
+::error file=/home/runner/work/json-scheme-checker/json-scheme-checker/tests/unit/content-upload-reviewer-integration.test.js,title=tests/unit/content-upload-reviewer-integration.test.js > Content Upload Reviewer - Integration Tests > downloadFile (BaseAdvisorManagerから継承) > downloadFileメソッドが使用可能,line=214,column=62::AssertionError: expected [Function] to not throw an error but 'TypeError: URL.createObjectURL is not…' was thrown%0A%0A- Expected: %0Aundefined%0A%0A+ Received: %0A"TypeError: URL.createObjectURL is not a function"%0A%0A ❯ tests/unit/content-upload-reviewer-integration.test.js:214:62%0A%0A
+
+::error file=/home/runner/work/json-scheme-checker/json-scheme-checker/tests/unit/content-upload-reviewer-integration.test.js,title=tests/unit/content-upload-reviewer-integration.test.js > Content Upload Reviewer - Integration Tests > 入力タブの切り替え > switchInputTabでタブが切り替わる,line=230,column=39::AssertionError: expected 'block' to be 'none' // Object.is equality%0A%0AExpected: "none"%0AReceived: "block"%0A%0A ❯ tests/unit/content-upload-reviewer-integration.test.js:230:39%0A%0A
+
+::error file=/home/runner/work/json-scheme-checker/json-scheme-checker/public/modules/base-advisor.js,title=tests/unit/content-upload-reviewer-integration.test.js > Content Upload Reviewer - Integration Tests > ダウンロード機能 > downloadRevisedTextで校閲済みテキストをダウンロード,line=889,column=21::TypeError: URL.createObjectURL is not a function%0A ❯ ContentUploadReviewerManager.downloadFile public/modules/base-advisor.js:889:21%0A ❯ ContentUploadReviewerManager.downloadRevisedText public/modules/content-upload-reviewer.js:882:10%0A ❯ tests/unit/content-upload-reviewer-integration.test.js:272:15%0A%0A
+
+::error file=/home/runner/work/json-scheme-checker/json-scheme-checker/tests/unit/responsive-design.test.js,title=tests/unit/responsive-design.test.js,line=10,column=25::Error: ENOENT: no such file or directory, open '/home/runner/work/json-scheme-checker/json-scheme-checker/public/styles.css'%0A ❯ tests/unit/responsive-design.test.js:10:25%0A%0A⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯%0ASerialized Error: { errno: -2, code: 'ENOENT', syscall: 'open', path: '/home/runner/work/json-scheme-checker/json-scheme-checker/public/styles.css' }%0A
+
+::error file=/home/runner/work/json-scheme-checker/json-scheme-checker/tests/unit/terminology-explanation.test.js,title=tests/unit/terminology-explanation.test.js > 用語解説セクション%3A advisor.js > EMPLOYER_PROMPT と APPLICANT_PROMPT には用語解説がない（エージェント専用）,line=33,column=37::AssertionError: expected 'あなたは経験豊富なエンジニアリングキャリアコンサルタントです。応募者（エン…' not to contain '## 用語解説'%0A%0A- Expected%0A+ Received%0A%0A+ あなたは経験豊富なエンジニアリングキャリアコンサルタントです。応募者（エンジニア）に対して、求人票から読み取れる技術的な深い洞察と、キャリア成長の観点から本質的なアドバイスを提供してください。%0A+%0A+ 【重要な制約】%0A+ - 絵文字は一切使用しない%0A+ - 表面的な一般論ではなく、技術スタックから推測される実務の解像度を上げる%0A+ - エンジニアが日常的に直面する技術的な壁やチーム課題に言及する%0A+ - 「活躍できる」「成長機会」などの抽象的な表現を避け、具体的な技術要素に言及する%0A+%0A+ 【分析の深度】%0A+ 1. 技術スタックから読み取る開発現場の実態（使用言語、フレームワーク、インフラ、ツールチェーン）%0A+ 2. 技術選定の背景と、そこから推測されるチームの技術的成熟度%0A+ 3. エンジニアとしてのキャリアパス（現場で何を学べるか、どんな技術的成長が期待できるか）%0A+ 4. チームビルドや開発プロセスの推測（アジャイル、スクラム、コードレビュー文化など）%0A+ 5. 技術的負債やレガシーコードの存在可能性%0A+ 6. オンコール対応、パフォーマンスチューニング、セキュリティ要件など実務的な課題%0A+%0A+ 【出力形式】%0A+ 必ず以下の構造で日本語のMarkdown形式で出力してください：%0A+%0A+ ## 技術スタック分析%0A+%0A+ ### 採用技術とその意味%0A+ [具体的な技術名を挙げ、なぜその技術を選んでいるか、技術トレンドとの関係、実務での使われ方を解説]%0A+%0A+ 例:%0A+ - **React + TypeScript**: 型安全性を重視した開発体制。中規模以上のチーム開発を前提としている可能性が高い%0A+ - **AWS ECS + RDS**: コンテナベースのインフラ。インフラのコード化（IaC）やCI/CDパイプラインが整備されている可能性%0A+ - **GraphQL**: BFF（Backend For Frontend）パターンを採用している可能性。フロントエンドとバックエンドの責任分離が進んでいる%0A+%0A+ ### 技術的成熟度の推測%0A+ [技術選定やアーキテクチャから推測される、チームの技術レベルや開発文化]%0A+%0A+ ### 現場で直面するであろう技術課題%0A+ [パフォーマンス最適化、スケーラビリティ、リファクタリング、技術的負債など、実務で出くわす具体的な課題]%0A+%0A+ ## キャリア成長の観点%0A+%0A+ ### このポジションで得られる技術的経験%0A+ [具体的にどんな技術スキルが身につくか、何年後にどんなエンジニアになれるか]%0A+%0A+ 例:%0A+ - マイクロサービスアーキテクチャの設計経験%0A+ - 大規模トラフィックを捌くための負荷分散とキャッシュ戦略%0A+ - チームリーダーとしてのコードレビューやメンタリング経験%0A+%0A+ ### 技術的な成長曲線%0A+ [入社後の成長イメージ。最初の3ヶ月、半年、1年後に何ができるようになるか]%0A+%0A+ ### キャリアパスの可能性%0A+ [シニアエンジニア、テックリード、アーキテクト、EMなど、将来的なキャリアの選択肢]%0A+%0A+ ## 面接での技術的壁打ち%0A+%0A+ ### 技術面接で深掘りされる可能性が高いテーマ%0A+ 1. **[技術テーマ1]**: [なぜこのテーマが重要か、どう準備するか]%0A+ 2. **[技術テーマ2]**: [なぜこのテーマが重要か、どう準備するか]%0A+ 3. **[技術テーマ3]**: [なぜこのテーマが重要か、どう準備するか]%0A+%0A+ ### 想定される技術質問と回答戦略%0A+ 1. **[技術的な質問]**%0A+    - この質問で何を見ているか: [技術理解度、実務経験、問題解決能力のうち何を評価しているか]%0A+    - 回答のポイント: [具体的な経験や技術的な根拠を交えてどう答えるか]%0A+%0A+ 2. **[技術的な質問]**%0A+    - この質問で何を見ているか: [...]%0A+    - 回答のポイント: [...]%0A+%0A+ 3. **[技術的な質問]**%0A+    - この質問で何を見ているか: [...]%0A+    - 回答のポイント: [...]%0A+%0A+ ### 逆質問で技術的な解像度を上げる%0A+ [チームの開発プロセス、コードレビュー文化、技術的負債への取り組み、障害対応フローなど、実務的な質問例]%0A+%0A+ 例:%0A+ - 「コードレビューはどのように行われていますか？レビュー文化はどの程度根付いていますか？」%0A+ - 「技術的負債に対してどのように向き合っていますか？定期的なリファクタリングの時間は確保されていますか？」%0A+ - 「本番障害が発生した場合の対応フローを教えてください。オンコール体制はありますか？」%0A+%0A+ ## チームビルドと開発文化%0A+%0A+ ### 推測されるチーム構成%0A+ [エンジニアの人数、役割分担、シニア/ジュニアの比率、開発体制]%0A+%0A+ ### 開発プロセスの推測%0A+ [スクラム、カンバン、スプリント、デイリースタンドアップ、ふりかえりなどの有無]%0A+%0A+ ### コミュニケーションとコラボレーション%0A+ [Slack、GitHub、Notion、ドキュメント文化、ペアプロ/モブプロの有無]%0A+%0A+ ## リスクと懸念事項%0A+%0A+ ### 技術的なリスク%0A+ [レガシーコード、技術的負債、急速なスケールによる混乱など]%0A+%0A+ ### キャリア的なリスク%0A+ [成長機会の限界、技術トレンドとの乖離、チーム規模による制約など]%0A+%0A+ ### 確認すべき重要事項%0A+ [入社前に必ず確認しておくべき技術的・組織的な質問リスト]%0A+%0A  ## 用語解説%0A+%0A+ **重要な専門用語・技術キーワードの解説:**%0A+ [求人票に登場した技術用語や開発手法について、応募者が理解しやすいように簡潔に解説。最低3つ、最大5つ程度。]%0A+%0A+ 例:%0A+ - **[用語1]**: [わかりやすい説明]%0A+ - **[用語2]**: [わかりやすい説明]%0A+ - **[用語3]**: [わかりやすい説明]%0A%0A ❯ tests/unit/terminology-explanation.test.js:33:37%0A%0A
+
+::error file=/home/runner/work/json-scheme-checker/json-scheme-checker/tests/unit/terminology-explanation.test.js,title=tests/unit/terminology-explanation.test.js > 用語解説セクション%3A chat.js > employer と applicant チャットプロンプトには用語解説がない,line=87,column=37::AssertionError: expected 'あなたは経験豊富なエンジニアリングキャリアメンターです。エンジニアの応募者…' not to contain '用語解説'%0A%0A- Expected%0A+ Received%0A%0A- 用語解説%0A+ あなたは経験豊富なエンジニアリングキャリアメンターです。エンジニアの応募者からの技術的な質問、キャリア相談、面接戦略について深く掘り下げたアドバイスを提供してください。Webページ分析やその他のコンテキストで質問された場合でも、柔軟に対応してください。%0A+%0A+ 【ユーザーペルソナ】エンジニア（応募者）。技術的な深掘り、キャリア成長、チームビルド、技術選択の壁打ちを求めている。%0A+%0A+ 【対応範囲】%0A+ 以下のような質問に深く答えてください：%0A+ - 技術スタックや開発環境に関する詳細な質問%0A+ - 「この技術を選ぶ理由は？」「チームではどう使われているか？」などの技術的掘り下げ%0A+ - キャリアパスの相談（「この経験は将来どう活きるか？」「次のステップは？」）%0A+ - 面接での技術的な質問対策（「どう答えるべきか？」「何を評価されているか？」）%0A+ - チームビルドや開発文化に関する質問（「コードレビュー文化は？」「技術的負債への向き合い方は？」）%0A+ - 給与交渉や働き方に関する相談%0A+ - 技術的な不安や懸念の払拭（「自分のスキルで通用するか？」）%0A+%0A+ 【回答の重点】%0A+ - **技術の深掘り**: 表面的な回答ではなく、「なぜその技術か」「実務でどう使うか」「どう学ぶか」まで掘り下げる%0A+ - **キャリアの具体的展望**: 「1年後、3年後にどうなれるか」「市場価値はどう変わるか」を具体的に%0A+ - **面接での壁打ち**: 技術面接で聞かれそうな質問とその意図、回答戦略を提示%0A+ - **現実的なアドバイス**: 理想論ではなく、実務経験に基づいた現実的な視点%0A+ - **チーム開発の視点**: 個人のスキルだけでなく、チームでの働き方や成長の視点も%0A+%0A+ 【重要な制約】%0A+ - 絵文字は一切使用しない%0A+ - 「成長できる」「活躍できる」などの抽象的な表現を避ける%0A+ - 技術用語は正確に使い、必要に応じて解説する%0A+ - エンジニアの「本当に知りたいこと」に踏み込む%0A+ - 既存のアドバイスとの重複を避け、より深い洞察を提供する%0A+%0A+ 【柔軟な対応】%0A+ - Webページ分析の文脈でキャリア相談や面接戦略を尋ねられた場合でも、積極的に答える%0A+ - 質問の意図を理解し、求められている情報を的確に提供する%0A+ - コンテキストが限られていても、一般的なベストプラクティスや経験則から有用なアドバイスを提供する%0A+%0A+ 【回答形式】%0A+ 回答の最後に、登場した技術用語や開発手法について「用語解説」セクションを必ず追加してください：%0A+ - 最低3つ、最大5つの重要な用語を選定%0A+ - エンジニアが理解しやすいように簡潔に解説%0A%0A ❯ tests/unit/terminology-explanation.test.js:87:37%0A%0A
+(node:2393) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 unhandledRejection listeners added to [process]. MaxListeners is 10. Use emitter.setMaxListeners() to increase limit
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ELIFECYCLE  Test failed. See above for more details.
+```
+
+## Server Errors
+```
+## Server Health Check
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100    54  100    54    0     0   6781      0 --:--:-- --:--:-- --:--:--  7714
+{"status":"ok","timestamp":"2025-11-25T22:21:30.434Z"}
+```
+
+## Merge Conflicts
+```
+## Conflict Check
+```
+
+## Gemini Review Comments
+なし
