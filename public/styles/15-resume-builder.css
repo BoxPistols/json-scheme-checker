@@ -34,10 +34,10 @@
 .chat-message {
   display: flex;
   gap: 12px;
-  animation: fadeInUp 0.3s ease;
+  animation: fade-in-up 0.3s ease;
 }
 
-@keyframes fadeInUp {
+@keyframes fade-in-up {
   from {
     opacity: 0;
     transform: translateY(10px);
@@ -263,10 +263,6 @@
   .chat-messages {
     padding: 16px;
     gap: 12px;
-  }
-
-  /* スクロールの最適化 */
-  .chat-messages {
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
   }
