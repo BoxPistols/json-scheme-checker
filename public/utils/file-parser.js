@@ -315,5 +315,4 @@ class FileParser {
 window.FileParser = FileParser;
 
 // ES6モジュールエクスポート
-export { FileParser };
 export default FileParser;
