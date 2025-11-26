@@ -313,3 +313,7 @@ class FileParser {
 
 // グローバルに公開
 window.FileParser = FileParser;
+
+// ES6モジュールエクスポート
+export { FileParser };
+export default FileParser;

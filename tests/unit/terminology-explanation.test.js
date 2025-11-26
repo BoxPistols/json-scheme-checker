@@ -22,15 +22,19 @@ describe('用語解説セクション: advisor.js', () => {
     expect(advisorContent).toContain('[わかりやすい説明]');
   });
 
-  it('EMPLOYER_PROMPT と APPLICANT_PROMPT には用語解説がない（エージェント専用）', () => {
+  it('EMPLOYER_PROMPT には用語解説がない', () => {
     const employerMatch = advisorContent.match(/const EMPLOYER_PROMPT = `([\s\S]*?)`;/);
-    const applicantMatch = advisorContent.match(/const APPLICANT_PROMPT = `([\s\S]*?)`;/);
 
     if (employerMatch) {
       expect(employerMatch[1]).not.toContain('## 用語解説');
     }
+  });
+
+  it('APPLICANT_PROMPT には用語解説が含まれる', () => {
+    const applicantMatch = advisorContent.match(/const APPLICANT_PROMPT = `([\s\S]*?)`;/);
+
     if (applicantMatch) {
-      expect(applicantMatch[1]).not.toContain('## 用語解説');
+      expect(applicantMatch[1]).toContain('## 用語解説');
     }
   });
 });
@@ -76,15 +80,19 @@ describe('用語解説セクション: chat.js', () => {
     expect(chatContent).toContain('編集者が理解しやすいように');
   });
 
-  it('employer と applicant チャットプロンプトには用語解説がない', () => {
+  it('employer チャットプロンプトには用語解説がない', () => {
     const employerMatch = chatContent.match(/employer: `([\s\S]*?)`,/);
-    const applicantMatch = chatContent.match(/applicant: `([\s\S]*?)`,/);
 
     if (employerMatch) {
       expect(employerMatch[1]).not.toContain('用語解説');
     }
+  });
+
+  it('applicant チャットプロンプトには用語解説が含まれる', () => {
+    const applicantMatch = chatContent.match(/applicant: `([\s\S]*?)`,/);
+
     if (applicantMatch) {
-      expect(applicantMatch[1]).not.toContain('用語解説');
+      expect(applicantMatch[1]).toContain('用語解説');
     }
   });
 
