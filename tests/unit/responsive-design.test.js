@@ -7,7 +7,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 describe('レスポンシブデザイン: styles.css', () => {
-  const stylesContent = readFileSync(join(__dirname, '../../public/styles.css'), 'utf-8');
+  const stylesContent = readFileSync(
+    join(__dirname, '../../public/styles/10b-chat-mobile.css'),
+    'utf-8'
+  );
 
   it('質問者選択モーダルにグリッドレイアウトが適用されている', () => {
     expect(stylesContent).toContain('.advisor-questioner-list');
