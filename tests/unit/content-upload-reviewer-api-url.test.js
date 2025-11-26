@@ -7,147 +7,107 @@ import '../setup/content-upload-reviewer-setup.js';
 import mod from '../../public/modules/content-upload-reviewer.js';
 const ContentUploadReviewerManager = mod.ContentUploadReviewerManager || mod.default || mod;
 
+// window.locationをモックするヘルパー
+function mockHostname(hostname) {
+  const originalLocation = window.location;
+  delete window.location;
+  window.location = {
+    ...originalLocation,
+    hostname: hostname,
+    href: `http://${hostname}/`,
+    origin: `http://${hostname}`,
+  };
+  return () => {
+    window.location = originalLocation;
+  };
+}
+
 describe('Content Upload Reviewer - API URL', () => {
   let manager;
-  let originalHostname;
 
   beforeEach(() => {
     localStorage.clear();
     manager = new ContentUploadReviewerManager();
-    originalHostname = window.location.hostname;
   });
 
   describe('getApiUrl (BaseAdvisorManagerから継承)', () => {
     it('Vercel環境では /api/content-upload-reviewer を返す', () => {
-      // window.location.hostnameをモック
-      Object.defineProperty(window.location, 'hostname', {
-        writable: true,
-        value: 'myapp.vercel.app',
-      });
+      const restore = mockHostname('myapp.vercel.app');
 
       const apiUrl = manager.getApiUrl('content-upload-reviewer');
       expect(apiUrl).toBe('/api/content-upload-reviewer');
 
-      // 元に戻す
-      Object.defineProperty(window.location, 'hostname', {
-        writable: true,
-        value: originalHostname,
-      });
+      restore();
     });
 
     it('localhost環境では http://localhost:3333/api/content-upload-reviewer を返す', () => {
-      Object.defineProperty(window.location, 'hostname', {
-        writable: true,
-        value: 'localhost',
-      });
+      const restore = mockHostname('localhost');
 
       const apiUrl = manager.getApiUrl('content-upload-reviewer');
       expect(apiUrl).toBe('http://localhost:3333/api/content-upload-reviewer');
 
-      Object.defineProperty(window.location, 'hostname', {
-        writable: true,
-        value: originalHostname,
-      });
+      restore();
     });
 
     it('127.0.0.1環境では http://localhost:3333/api/content-upload-reviewer を返す', () => {
-      Object.defineProperty(window.location, 'hostname', {
-        writable: true,
-        value: '127.0.0.1',
-      });
+      const restore = mockHostname('127.0.0.1');
 
       const apiUrl = manager.getApiUrl('content-upload-reviewer');
       expect(apiUrl).toBe('http://localhost:3333/api/content-upload-reviewer');
 
-      Object.defineProperty(window.location, 'hostname', {
-        writable: true,
-        value: originalHostname,
-      });
+      restore();
     });
 
     it('LAN環境ではIPアドレスを使用したURLを返す', () => {
-      Object.defineProperty(window.location, 'hostname', {
-        writable: true,
-        value: '192.168.1.100',
-      });
+      const restore = mockHostname('192.168.1.100');
 
       const apiUrl = manager.getApiUrl('content-upload-reviewer');
       expect(apiUrl).toBe('http://192.168.1.100:3333/api/content-upload-reviewer');
 
-      Object.defineProperty(window.location, 'hostname', {
-        writable: true,
-        value: originalHostname,
-      });
+      restore();
     });
 
     it('異なるエンドポイント名に対応', () => {
-      Object.defineProperty(window.location, 'hostname', {
-        writable: true,
-        value: 'localhost',
-      });
+      const restore = mockHostname('localhost');
 
       expect(manager.getApiUrl('advisor')).toBe('http://localhost:3333/api/advisor');
       expect(manager.getApiUrl('blog-reviewer')).toBe('http://localhost:3333/api/blog-reviewer');
       expect(manager.getApiUrl('web-advisor')).toBe('http://localhost:3333/api/web-advisor');
 
-      Object.defineProperty(window.location, 'hostname', {
-        writable: true,
-        value: originalHostname,
-      });
+      restore();
     });
   });
 
   describe('getProxyUrl', () => {
     it('Vercel環境では /proxy を使用', () => {
-      Object.defineProperty(window.location, 'hostname', {
-        writable: true,
-        value: 'myapp.vercel.app',
-      });
+      const restore = mockHostname('myapp.vercel.app');
 
       const proxyUrl = manager.getProxyUrl('https://example.com/job');
       expect(proxyUrl).toBe('/proxy?url=https%3A%2F%2Fexample.com%2Fjob');
 
-      Object.defineProperty(window.location, 'hostname', {
-        writable: true,
-        value: originalHostname,
-      });
+      restore();
     });
 
     it('localhost環境では http://localhost:3333/proxy を使用', () => {
-      Object.defineProperty(window.location, 'hostname', {
-        writable: true,
-        value: 'localhost',
-      });
+      const restore = mockHostname('localhost');
 
       const proxyUrl = manager.getProxyUrl('https://example.com/job');
       expect(proxyUrl).toBe('http://localhost:3333/proxy?url=https%3A%2F%2Fexample.com%2Fjob');
 
-      Object.defineProperty(window.location, 'hostname', {
-        writable: true,
-        value: originalHostname,
-      });
+      restore();
     });
 
     it('LAN環境ではIPアドレスを使用', () => {
-      Object.defineProperty(window.location, 'hostname', {
-        writable: true,
-        value: '192.168.1.100',
-      });
+      const restore = mockHostname('192.168.1.100');
 
       const proxyUrl = manager.getProxyUrl('https://example.com/job');
       expect(proxyUrl).toBe('http://192.168.1.100:3333/proxy?url=https%3A%2F%2Fexample.com%2Fjob');
 
-      Object.defineProperty(window.location, 'hostname', {
-        writable: true,
-        value: originalHostname,
-      });
+      restore();
     });
 
     it('URLが正しくエンコードされる', () => {
-      Object.defineProperty(window.location, 'hostname', {
-        writable: true,
-        value: 'localhost',
-      });
+      const restore = mockHostname('localhost');
 
       const urlWithSpecialChars = 'https://example.com/job?id=123&name=テスト';
       const proxyUrl = manager.getProxyUrl(urlWithSpecialChars);
@@ -155,10 +115,7 @@ describe('Content Upload Reviewer - API URL', () => {
       expect(proxyUrl).toContain('url=https%3A%2F%2Fexample.com');
       expect(decodeURIComponent(proxyUrl.split('url=')[1])).toBe(urlWithSpecialChars);
 
-      Object.defineProperty(window.location, 'hostname', {
-        writable: true,
-        value: originalHostname,
-      });
+      restore();
     });
   });
 
@@ -167,35 +124,23 @@ describe('Content Upload Reviewer - API URL', () => {
       const testCases = ['myapp.vercel.app', 'staging.vercel.app', 'test-branch.vercel.app'];
 
       testCases.forEach(hostname => {
-        Object.defineProperty(window.location, 'hostname', {
-          writable: true,
-          value: hostname,
-        });
+        const restore = mockHostname(hostname);
 
         const apiUrl = manager.getApiUrl('test');
         expect(apiUrl).toMatch(/^\/api\//);
-      });
 
-      Object.defineProperty(window.location, 'hostname', {
-        writable: true,
-        value: originalHostname,
+        restore();
       });
     });
 
     it('localhost と 127.0.0.1 をローカル環境と判定', () => {
       ['localhost', '127.0.0.1'].forEach(hostname => {
-        Object.defineProperty(window.location, 'hostname', {
-          writable: true,
-          value: hostname,
-        });
+        const restore = mockHostname(hostname);
 
         const apiUrl = manager.getApiUrl('test');
         expect(apiUrl).toBe('http://localhost:3333/api/test');
-      });
 
-      Object.defineProperty(window.location, 'hostname', {
-        writable: true,
-        value: originalHostname,
+        restore();
       });
     });
 
@@ -203,18 +148,12 @@ describe('Content Upload Reviewer - API URL', () => {
       const lanHosts = ['192.168.1.1', '10.0.0.5', 'mypc.local'];
 
       lanHosts.forEach(hostname => {
-        Object.defineProperty(window.location, 'hostname', {
-          writable: true,
-          value: hostname,
-        });
+        const restore = mockHostname(hostname);
 
         const apiUrl = manager.getApiUrl('test');
         expect(apiUrl).toBe(`http://${hostname}:3333/api/test`);
-      });
 
-      Object.defineProperty(window.location, 'hostname', {
-        writable: true,
-        value: originalHostname,
+        restore();
       });
     });
   });

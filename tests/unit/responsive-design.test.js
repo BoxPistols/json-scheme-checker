@@ -1,17 +1,25 @@
 import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'fs';
+import { readFileSync, readdirSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-describe('レスポンシブデザイン: styles.css', () => {
-  const stylesContent = readFileSync(
-    join(__dirname, '../../public/styles/10b-chat-mobile.css'),
-    'utf-8'
-  );
+// public/styles/配下の全CSSファイルを読み込んで結合
+function loadAllStyles() {
+  const stylesDir = join(__dirname, '../../public/styles');
+  const cssFiles = readdirSync(stylesDir).filter(f => f.endsWith('.css'));
+  let combined = '';
+  for (const file of cssFiles) {
+    combined += readFileSync(join(stylesDir, file), 'utf-8') + '\n';
+  }
+  return combined;
+}
 
+const stylesContent = loadAllStyles();
+
+describe('レスポンシブデザイン: styles', () => {
   it('質問者選択モーダルにグリッドレイアウトが適用されている', () => {
     expect(stylesContent).toContain('.advisor-questioner-list');
     expect(stylesContent).toContain('display: grid');
@@ -19,7 +27,7 @@ describe('レスポンシブデザイン: styles.css', () => {
   });
 
   it('エージェントボタンに全幅スタイルが適用されている', () => {
-    expect(stylesContent).toContain('.advisor-questioner-btn[data-questioner-id="agent"]');
+    expect(stylesContent).toContain(".advisor-questioner-btn[data-questioner-id='agent']");
     expect(stylesContent).toContain('grid-column: 1 / -1');
   });
 
@@ -54,8 +62,6 @@ describe('レスポンシブデザイン: styles.css', () => {
 });
 
 describe('レスポンシブデザイン: CSSクラスの一貫性', () => {
-  const stylesContent = readFileSync(join(__dirname, '../../public/styles.css'), 'utf-8');
-
   it('質問者モーダル関連のクラスが全て定義されている', () => {
     const requiredClasses = [
       '.advisor-questioner-modal',
@@ -95,8 +101,6 @@ describe('レスポンシブデザイン: CSSクラスの一貫性', () => {
 });
 
 describe('レスポンシブデザイン: gap とスペーシング', () => {
-  const stylesContent = readFileSync(join(__dirname, '../../public/styles.css'), 'utf-8');
-
   it('質問者リストに適切な gap が設定されている', () => {
     const listMatch = stylesContent.match(/\.advisor-questioner-list\s*\{[\s\S]*?gap:\s*(\d+px)/);
     expect(listMatch).toBeTruthy();
@@ -123,8 +127,6 @@ describe('レスポンシブデザイン: gap とスペーシング', () => {
 });
 
 describe('レスポンシブデザイン: アニメーションとトランジション', () => {
-  const stylesContent = readFileSync(join(__dirname, '../../public/styles.css'), 'utf-8');
-
   it('質問者ボタンにトランジションが定義されている', () => {
     const btnMatch = stylesContent.match(/\.advisor-questioner-btn\s*\{[\s\S]*?\}/);
     expect(btnMatch).toBeTruthy();
