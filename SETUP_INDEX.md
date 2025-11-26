@@ -267,6 +267,7 @@ cat GITHUB_UI_SETUP_GUIDE.md
    - [ ] Allow GitHub Actions to... がチェックされている
 
 3. **動作テスト実行**
+
    ```bash
    ./test-ai-autofix.sh
    ```
