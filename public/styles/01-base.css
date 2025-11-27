@@ -13,6 +13,7 @@ html {
   font-size: 14px;
   scroll-behavior: smooth;
   text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%; /* iOS Safari 固有の自動文字拡大を抑止 */
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -136,7 +136,8 @@
 }
 
 .markdown-content h1 {
-  font-size: 1.8rem;
+  /* iOS Safari の自動拡大(テキストサイズ調整)対策 */
+  font-size: clamp(1.3rem, 4vw, 1.45rem);
   margin: 24px 0 16px;
   color: var(--text-color);
 }
